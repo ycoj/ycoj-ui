@@ -67,3 +67,5 @@ export type ContestDetailProjectionProblem = ContestListProjectionProblem & {
 
 export type PublicProjectionProblem = ListProjectionProblem &
   ContestDetailProjectionProblem;
+
+export type ProblemDoc = PublicProjectionProblem;

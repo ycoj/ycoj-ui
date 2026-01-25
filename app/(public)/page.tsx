@@ -84,9 +84,20 @@ export default async function IndexPage() {
               <Link href="/login">登录</Link>
             </Button>
           </div>
-          <p className="mt-4 text-xs text-muted-foreground">
-            登录后可同步进度、提交记录与个人信息。
-          </p>
+          <div className="mt-4 flex justify-between text-xs text-muted-foreground">
+            <p>登录后可同步进度、提交记录与个人信息。</p>
+            <p>
+              Powered by{' '}
+              <a
+                href="https://docs.hydro.ac"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-foreground"
+              >
+                Hydro
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </div>

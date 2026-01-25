@@ -18,7 +18,7 @@ export const STATUS = {
   STATUS_FORMAT_ERROR: 31,
   STATUS_HACK_SUCCESSFUL: 32,
   STATUS_HACK_UNSUCCESSFUL: 33,
-} as const;
+};
 
 export const STATUS_TEXTS = {
   [STATUS.STATUS_WAITING]: '等待评测',
@@ -40,7 +40,7 @@ export const STATUS_TEXTS = {
   [STATUS.STATUS_FORMAT_ERROR]: '配置错误',
   [STATUS.STATUS_HACK_SUCCESSFUL]: '成功攻破',
   [STATUS.STATUS_HACK_UNSUCCESSFUL]: '失败攻破',
-} as const;
+} as Record<number, string>;
 
 export const STATUS_TEXTS_ENGLISH = {
   [STATUS.STATUS_WAITING]: 'Waiting',
@@ -62,7 +62,7 @@ export const STATUS_TEXTS_ENGLISH = {
   [STATUS.STATUS_FORMAT_ERROR]: 'Format Error',
   [STATUS.STATUS_HACK_SUCCESSFUL]: 'Hacked Successfully',
   [STATUS.STATUS_HACK_UNSUCCESSFUL]: 'Hacked Unsuccessfully',
-} as const;
+} as Record<number, string>;
 
 export const STATUS_HELP_TEXTS = {
   [STATUS.STATUS_WAITING]: '我们已经收到了你的提交，正在为你分配评测机',
@@ -85,7 +85,7 @@ export const STATUS_HELP_TEXTS = {
   [STATUS.STATUS_FORMAT_ERROR]: '你的程序配置错误',
   [STATUS.STATUS_HACK_SUCCESSFUL]: '你成功找到了程序中的 Bug',
   [STATUS.STATUS_HACK_UNSUCCESSFUL]: '你没有成功找到程序中的 Bug',
-} as const;
+} as Record<number, string>;
 
 export const STATUS_SHORT_TEXTS = {
   [STATUS.STATUS_ACCEPTED]: 'AC',
@@ -100,7 +100,7 @@ export const STATUS_SHORT_TEXTS = {
   [STATUS.STATUS_HACKED]: 'HK',
   [STATUS.STATUS_IGNORED]: 'IGN',
   [STATUS.STATUS_FORMAT_ERROR]: 'FE',
-} as const;
+} as Record<number, string>;
 
 export const STATUS_CODES = {
   [STATUS.STATUS_WAITING]: 'pending',
@@ -122,7 +122,7 @@ export const STATUS_CODES = {
   [STATUS.STATUS_FORMAT_ERROR]: 'ignored',
   [STATUS.STATUS_HACK_SUCCESSFUL]: 'pass',
   [STATUS.STATUS_HACK_UNSUCCESSFUL]: 'fail',
-} as const;
+} as Record<number, string>;
 
 export const STATUS_BACKGROUND_COLOR = {
   [STATUS.STATUS_ACCEPTED]: '#16a34a',
@@ -136,4 +136,4 @@ export const STATUS_BACKGROUND_COLOR = {
   [STATUS.STATUS_IGNORED]: '#4b5563',
   [STATUS.STATUS_COMPILING]: '#4b5563',
   [STATUS.STATUS_JUDGING]: '#4b5563',
-} as const;
+} as Record<number, string>;

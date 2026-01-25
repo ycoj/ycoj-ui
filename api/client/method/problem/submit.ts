@@ -1,4 +1,4 @@
-import { alova } from '@/api/server';
+import { clientRequest } from '@/api/client';
 import { ObjectId } from '@/shared/types/shared';
 
 export type ProblemSubmitRequest = {
@@ -14,5 +14,5 @@ export type ProblemSubmitResponse = {
   tid?: ObjectId;
 };
 
-export const submitProblem = (pid: string, payload: ProblemSubmitRequest) =>
-  alova.Post<ProblemSubmitResponse>(`/p/${pid}/submit`, payload);
+export const SubmitProblem = (pid: string, payload: ProblemSubmitRequest) =>
+  clientRequest.Post<ProblemSubmitResponse>(`/p/${pid}/submit`, payload);

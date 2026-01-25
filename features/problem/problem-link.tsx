@@ -11,7 +11,7 @@ export type Props = {
 
 export default function ProblemLink({ problem }: Props) {
   return (
-    <Button className="h-6" variant="link" asChild>
+    <Button className="h-6 px-0" variant="link" asChild>
       <Link href={`/problem/${problem.pid ?? problem.docId}`}>
         <span className="space-x-1">
           <span data-llm-text={problem.title}>{problem.title}</span>

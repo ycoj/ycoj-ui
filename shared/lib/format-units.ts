@@ -8,29 +8,13 @@ export function formatTime(
 
   const totalMs = Math.round(timeInMs);
 
-  const minutes = Math.floor(totalMs / 60_000);
-  const seconds = Math.floor((totalMs % 60_000) / 1000);
-  const milliseconds = totalMs % 1000;
-
   if (unit === 'ms') return `${totalMs}ms`;
-  if (unit === 's') {
-    return joinNonZeroParts(
-      [
-        [minutes * 60 + seconds, 's'],
-        [milliseconds, 'ms'],
-      ],
-      '0ms'
-    );
-  }
+  if (unit === 's') return `${toFixedOneDecimal(totalMs / 1000)}s`;
+  if (unit === 'min') return `${toFixedOneDecimal(totalMs / 60_000)}min`;
 
-  return joinNonZeroParts(
-    [
-      [minutes, 'min'],
-      [seconds, 's'],
-      [milliseconds, 'ms'],
-    ],
-    '0ms'
-  );
+  if (totalMs >= 60_000) return `${Math.floor(totalMs / 60_000)}min`;
+  if (totalMs >= 1000) return `${Math.floor(totalMs / 1000)}s`;
+  return `${totalMs}ms`;
 }
 
 type memoryUnits = 'B' | 'KiB' | 'MiB' | 'GiB';
@@ -43,91 +27,25 @@ export function formatMemory(
 
   const totalB = Math.round(memoryInBytes);
 
-  const gib = Math.floor(totalB / 1024 ** 3);
-  const mib = Math.floor((totalB % 1024 ** 3) / 1024 ** 2);
-  const kib = Math.floor((totalB % 1024 ** 2) / 1024);
-  const b = totalB % 1024;
-
-  if (unit === 'B') return `${totalB}B`;
-  if (unit === 'KiB') {
-    return joinNonZeroParts(
-      [
-        [gib * 1024 ** 2 + mib * 1024 + kib, 'KiB'],
-        [b, 'B'],
-      ],
-      '0B'
-    );
-  }
-  if (unit === 'MiB') {
-    return joinNonZeroParts(
-      [
-        [gib * 1024 + mib, 'MiB'],
-        [kib, 'KiB'],
-        [b, 'B'],
-      ],
-      '0B'
-    );
-  }
-  if (unit === 'GiB') {
-    return joinNonZeroParts(
-      [
-        [gib, 'GiB'],
-        [mib, 'MiB'],
-        [kib, 'KiB'],
-        [b, 'B'],
-      ],
-      '0B'
-    );
+  if (unit !== 'auto') {
+    const factor = memoryUnitToFactor(unit);
+    return `${toFixedOneDecimal(totalB / factor)}${unit}`;
   }
 
-  const highest: memoryUnits =
-    totalB >= 1024 ** 3
-      ? 'GiB'
-      : totalB >= 1024 ** 2
-        ? 'MiB'
-        : totalB >= 1024
-          ? 'KiB'
-          : 'B';
-
-  if (highest === 'B') return `${totalB}B`;
-  if (highest === 'KiB') {
-    return joinNonZeroParts(
-      [
-        [gib * 1024 ** 2 + mib * 1024 + kib, 'KiB'],
-        [b, 'B'],
-      ],
-      '0B'
-    );
-  }
-  if (highest === 'MiB') {
-    return joinNonZeroParts(
-      [
-        [gib * 1024 + mib, 'MiB'],
-        [kib, 'KiB'],
-        [b, 'B'],
-      ],
-      '0B'
-    );
-  }
-  return joinNonZeroParts(
-    [
-      [gib, 'GiB'],
-      [mib, 'MiB'],
-      [kib, 'KiB'],
-      [b, 'B'],
-    ],
-    '0B'
-  );
+  if (totalB >= 1024 ** 3) return `${Math.floor(totalB / 1024 ** 3)}GiB`;
+  if (totalB >= 1024 ** 2) return `${Math.floor(totalB / 1024 ** 2)}MiB`;
+  if (totalB >= 1024) return `${Math.floor(totalB / 1024)}KiB`;
+  return `${totalB}B`;
 }
 
-function joinNonZeroParts(
-  parts: Array<[number, string]>,
-  emptyFallback: string
-) {
-  const joined = parts
-    .filter(([value]) => value !== 0)
-    .map(([value, suffix]) => `${value}${suffix}`)
-    .join(' ');
+function toFixedOneDecimal(value: number) {
+  const rounded = Math.round(value * 10) / 10;
+  return rounded.toFixed(1);
+}
 
-  return joined || emptyFallback;
+function memoryUnitToFactor(unit: memoryUnits) {
+  if (unit === 'B') return 1;
+  if (unit === 'KiB') return 1024;
+  if (unit === 'MiB') return 1024 ** 2;
+  return 1024 ** 3;
 }

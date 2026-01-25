@@ -1,7 +1,7 @@
 'use client';
 
-import { submitSolution } from './action';
-import { LanguageFamily } from '@/api/server/method/problems/submit';
+import ClientApis from '@/api/client/method';
+import type { LanguageFamily } from '@/api/server/method/ui/languages';
 import { Button } from '@/shared/components/ui/button';
 import {
   Field,
@@ -44,8 +44,6 @@ export default function ProblemSubmitFormClient({ pid, languages }: Props) {
 
   const preferredFamilyKey = 'cc';
   const preferredLang = 'cc.cc14o2';
-
-  console.log(languages);
 
   const defaultFamilyKey = useMemo(() => {
     if (languages[preferredFamilyKey]) return preferredFamilyKey;
@@ -151,20 +149,29 @@ export default function ProblemSubmitFormClient({ pid, languages }: Props) {
   ]);
 
   const onSubmit = async (values: FormValues) => {
-    const res = await submitSolution(pid, {
-      lang: values.lang,
-      code: values.code,
-    });
+    try {
+      const res = await ClientApis.Problem.SubmitProblem(pid, {
+        lang: values.lang,
+        code: values.code,
+      }).send();
 
-    if (res.success && res.data?.rid) {
-      router.push(`/record/${res.data.rid}`);
-      return;
+      if (res?.rid) {
+        router.push(`/record/${res.rid}`);
+        return;
+      }
+
+      setError('root.serverError', {
+        type: 'server',
+        message: '提交失败',
+      });
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : '提交失败，请稍后重试';
+      setError('root.serverError', {
+        type: 'server',
+        message,
+      });
     }
-
-    setError('root.serverError', {
-      type: 'server',
-      message: res.error || '提交失败',
-    });
   };
 
   return (

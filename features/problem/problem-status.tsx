@@ -10,13 +10,14 @@ import {
   CancelCircleIcon,
 } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
+import Link from 'next/link';
 
 type Props = {
   status: ProblemStatusDoc;
 };
 
 export default function ProblemStatus({ status }: Props) {
-  if (!status.status) return <></>;
+  if (status.status === undefined || status.status === null) return <></>;
 
   const statusCode = status.status;
   const statusText = STATUS_TEXTS[statusCode as keyof typeof STATUS_TEXTS];
@@ -31,13 +32,16 @@ export default function ProblemStatus({ status }: Props) {
       style={{
         backgroundColor: bgColor || '#6b7280',
       }}
+      asChild
     >
-      <HugeiconsIcon
-        icon={isAccepted ? CheckmarkCircle01Icon : CancelCircleIcon}
-        size={16}
-        strokeWidth={3}
-      />
-      <span className="hidden md:inline-block">{statusText}</span>
+      <Link href={status.rid ? `/record/${status.rid}` : '#'}>
+        <HugeiconsIcon
+          icon={isAccepted ? CheckmarkCircle01Icon : CancelCircleIcon}
+          size={16}
+          strokeWidth={3}
+        />
+        <span className="hidden md:inline-block">{statusText}</span>
+      </Link>
     </Badge>
   );
 }

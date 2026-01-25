@@ -7,9 +7,7 @@ type Props = {
 };
 
 export default async function ProblemSubmitForm({ problem }: Props) {
-  const languagesRes = await ServerApis.Problems.getAvailableLanguages(
-    problem.docId
-  );
+  const languagesRes = await ServerApis.UI.getAvailableLanguages(problem.docId);
   const submitId = problem.pid || problem.docId.toString();
 
   return (
