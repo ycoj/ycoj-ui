@@ -39,10 +39,10 @@ export default function RecordList({ data, languages }: Props) {
         <col className="w-14" />
         <col />
         <col className="w-28 md:w-48" />
-        <col className="hidden md:table-cell w-14" />
-        <col className="hidden md:table-cell w-14" />
-        <col className="hidden md:table-cell w-24" />
-        <col className="hidden md:table-cell w-32" />
+        <col className="hidden w-14 md:table-column" />
+        <col className="hidden w-14 md:table-column" />
+        <col className="hidden w-24 md:table-column" />
+        <col className="hidden w-32 md:table-column" />
       </colgroup>
       <TableHeader>
         <TableRow>
