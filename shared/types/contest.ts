@@ -80,3 +80,31 @@ export type ContestStatus = {
   endAt?: string;
   detail?: Record<number, Record<string, unknown>>;
 };
+
+export type ContestListProjection = {
+  _id: string;
+  domainId: string;
+  docId: string;
+  title: string;
+  content: string;
+  owner: number;
+  rule: ContestRule;
+  beginAt: Date;
+  endAt: Date;
+  pids: number[];
+  assign: string[];
+  maintainer: number[];
+  rated?: boolean;
+  lockAt?: Date;
+  attend: number;
+  penalty?: number;
+  codeFamilyLimit?: string;
+  lasted?: number;
+  viewCtx?: Record<string, unknown>;
+  allowRevive?: boolean;
+  autoHide?: boolean;
+  hideProgress?: boolean;
+  pinned?: boolean;
+};
+
+export type ContestStatusDict = Record<string, ContestStatus>;

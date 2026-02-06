@@ -43,4 +43,5 @@ next-env.d.ts
 # ai-ide configs
 .trae/
 .idea/
+.claude/
 opencode.json

@@ -1,3 +1,4 @@
+import type { DiscussionReplyDoc } from './discussion';
 import { FileInfo } from './file';
 import { ObjectId } from './shared';
 
@@ -69,3 +70,16 @@ export type PublicProjectionProblem = ListProjectionProblem &
   ContestDetailProjectionProblem;
 
 export type ProblemDoc = PublicProjectionProblem;
+
+export type SolutionDoc = {
+  _id: ObjectId;
+  docId: ObjectId;
+  docType: number;
+  domainId: string;
+  owner: number;
+  content: string;
+  parentId: number;
+  parentType: number;
+  reply: DiscussionReplyDoc[];
+  vote: number;
+};

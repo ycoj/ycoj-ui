@@ -36,3 +36,16 @@ export type Node = {
   type: 20;
   id: string;
 };
+
+export type DiscussionReplyDoc = {
+  _id: ObjectId;
+  docId: ObjectId;
+  docType: number;
+  domainId: string;
+  owner: number;
+  content: string;
+  ip: string;
+  edited?: boolean;
+  editor?: number;
+  react: Record<string, number>;
+};
