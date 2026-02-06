@@ -68,6 +68,7 @@
 - Use `cn` from `shared/lib/utils` to merge class names.
 - Component variants use `class-variance-authority` where applicable.
 - Keep `data-llm-visible` and `data-llm-text` for LLM-ready content.
+- Under no circumstances should you modify any files under `shared/components/ui/`, as they are reused across multiple pages.
 
 ### Next.js and data flow
 

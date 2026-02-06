@@ -14,21 +14,23 @@ import { usePathname, useSearchParams } from 'next/navigation';
 type Props = {
   pageParam?: string;
   page: number;
-  totalPages: number;
+  totalPages?: number;
+  infinite?: boolean;
 };
 
 export default function Pagination({
   pageParam = 'page',
   page,
   totalPages,
+  infinite = false,
 }: Props) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const safeTotalPages = Math.max(1, totalPages);
-  const safePage = Math.min(Math.max(1, page), safeTotalPages);
+  const safePage = Math.max(1, page);
+  const safeTotalPages = Math.max(1, totalPages ?? 1);
 
-  if (safeTotalPages <= 1) return null;
+  if (!infinite && safeTotalPages <= 1) return null;
 
   const buildHref = (targetPage: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -36,19 +38,23 @@ export default function Pagination({
     return `${pathname}?${params.toString()}`;
   };
 
-  const pagesSet = new Set<number>([
-    1,
-    2,
-    safeTotalPages - 1,
-    safeTotalPages,
-    safePage - 1,
-    safePage,
-    safePage + 1,
-    safePage + 2,
-  ]);
+  const pagesSet = new Set<number>(
+    infinite
+      ? [1, 2, safePage - 1, safePage, safePage + 1, safePage + 2]
+      : [
+          1,
+          2,
+          safeTotalPages! - 1,
+          safeTotalPages!,
+          safePage - 1,
+          safePage,
+          safePage + 1,
+          safePage + 2,
+        ]
+  );
 
   const pages = Array.from(pagesSet)
-    .filter((p) => p >= 1 && p <= safeTotalPages)
+    .filter((p) => (infinite ? p >= 1 : p >= 1 && p <= safeTotalPages))
     .sort((a, b) => a - b);
 
   const items: Array<number | 'ellipsis'> = [];
@@ -63,8 +69,9 @@ export default function Pagination({
   }
 
   const prevHref = safePage > 1 ? buildHref(safePage - 1) : buildHref(1);
-  const nextHref =
-    safePage < safeTotalPages
+  const nextHref = infinite
+    ? buildHref(safePage + 1)
+    : safePage < safeTotalPages
       ? buildHref(safePage + 1)
       : buildHref(safeTotalPages);
 
@@ -104,10 +111,12 @@ export default function Pagination({
         <PaginationItem>
           <PaginationNext
             href={nextHref}
-            aria-disabled={safePage >= safeTotalPages}
-            tabIndex={safePage >= safeTotalPages ? -1 : undefined}
+            aria-disabled={!infinite && safePage >= safeTotalPages}
+            tabIndex={!infinite && safePage >= safeTotalPages ? -1 : undefined}
             className={
-              safePage >= safeTotalPages ? 'pointer-events-none opacity-50' : ''
+              !infinite && safePage >= safeTotalPages
+                ? 'pointer-events-none opacity-50'
+                : ''
             }
           />
         </PaginationItem>

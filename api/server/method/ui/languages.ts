@@ -14,7 +14,7 @@ export type AvailableLanguagesResponse = {
   languages: Record<string, LanguageFamily>;
 };
 
-export const getAvailableLanguages = (pid: number) =>
+export const getAvailableLanguages = (pid?: number) =>
   alova.Get<AvailableLanguagesResponse>(`/ui/languages`, {
     params: { pid },
   });
