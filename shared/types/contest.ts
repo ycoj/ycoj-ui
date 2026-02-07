@@ -108,3 +108,12 @@ export type ContestListProjection = {
 };
 
 export type ContestStatusDict = Record<string, ContestStatus>;
+
+export type ContestClarificationDoc = {
+  _id: string;
+  docId: string;
+  content: string;
+  owner: number;
+  important: boolean;
+  _cat: number;
+};
