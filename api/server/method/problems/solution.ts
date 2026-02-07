@@ -16,11 +16,12 @@ export type ProblemSolutionResponse = {
 
 export const getProblemSolution = (
   pid: string | number,
-  params?: {
-    page?: number;
-    sid?: string;
-  }
+  sid?: string,
+  page?: number
 ) =>
   alova.Get<ProblemSolutionResponse>(`/p/${pid}/solution`, {
-    params,
+    params: {
+      ...(sid !== undefined && { sid }),
+      ...(page !== undefined && { page }),
+    },
   });

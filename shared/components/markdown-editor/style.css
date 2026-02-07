@@ -1,0 +1,7 @@
+.milkdown .ProseMirror {
+  padding: 0px 6px !important;
+}
+
+.milkdown .ProseMirror blockquote {
+  padding-left: 14px !important;
+}

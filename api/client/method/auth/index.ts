@@ -1,7 +1,7 @@
-import { Login } from './login';
+import { login } from './login';
 
 const Auth = {
-  Login,
+  login,
 };
 
 export default Auth;

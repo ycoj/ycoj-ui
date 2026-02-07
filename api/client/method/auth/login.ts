@@ -13,5 +13,5 @@ export type LoginResponse = {
   url: string;
 };
 
-export const Login = (payload: LoginRequest) =>
+export const login = (payload: LoginRequest) =>
   clientRequest.Post<LoginResponse>('/login', payload);

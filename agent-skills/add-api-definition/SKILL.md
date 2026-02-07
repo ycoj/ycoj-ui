@@ -27,9 +27,10 @@ Use server methods for server components or server utilities, and client methods
 2. Create a new method file under the correct domain folder.
    - Follow existing domain grouping (e.g. `problems`, `ui`, `record`, `auth`).
    - Use kebab-case filenames that describe the endpoint.
-3. Define request/response types.
-   - Keep request and response shapes in the method file.
+3. Define response types.
+   - Keep response shapes in the method file.
    - If types are shared across features, move them to `shared/types`.
+   - Expand request parameters as function arguments instead of defining a request type.
 4. Implement the method with Alova.
    - Prefer `alova.Get<T>(url, { params })` for GET with query params.
    - Use `alova.Post<T>(url, payload)` for POST body.
@@ -58,16 +59,12 @@ Client method (POST):
 ```ts
 import { clientRequest } from '@/api/client';
 
-export type ExampleCreateRequest = {
-  name: string;
-};
-
 export type ExampleCreateResponse = {
   id: string;
 };
 
-export const createExample = (payload: ExampleCreateRequest) =>
-  clientRequest.Post<ExampleCreateResponse>('/example', payload);
+export const createExample = (name: string) =>
+  clientRequest.Post<ExampleCreateResponse>('/example', { name });
 ```
 
 ## Alova notes

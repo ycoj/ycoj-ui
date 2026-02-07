@@ -16,7 +16,9 @@
 
 - `pnpm lint` (ESLint with Next.js + Prettier configs).
 - `pnpm lint:type` (TypeScript `tsc --noEmit`).
-- After changes, run both linters; use `pnpm lint --fix` for auto-fixable ESLint errors.
+- `pnpm format` (Prettier write).
+- After changes, run both linters and formatter; use `pnpm lint --fix` for auto-fixable ESLint errors.
+- You don't need to change your workdir before running the commands.
 
 ### Formatting
 

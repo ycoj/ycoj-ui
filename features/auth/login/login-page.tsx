@@ -1,6 +1,6 @@
 'use client';
 
-import { Login } from '@/api/client/method/auth/login';
+import ClientApis from '@/api/client/method';
 import { Button } from '@/shared/components/ui/button';
 import {
   Card,
@@ -79,7 +79,10 @@ export function LoginPage() {
     setSubmitError(null);
     try {
       const redirect = searchParams?.get('redirect') || undefined;
-      const response = await Login({ ...values, redirect }).send();
+      const response = await ClientApis.Auth.login({
+        ...values,
+        redirect,
+      }).send();
       const redirectUrl = (response as { url?: string })?.url;
 
       if (redirectUrl) {

@@ -1,7 +1,7 @@
 import ProblemTitle from '@/features/problem/detail/problem-title';
-import ProblemSidebar from '@/features/problem/sidebar';
 import { getProblemSolution } from '@/features/problem/solution/get-problem-solution';
-import SolutionList from '@/features/problem/solution/solution-list';
+import SolutionContent from '@/features/problem/solution/solution-content';
+import SolutionRight from '@/features/problem/solution/solution-right';
 import TwoColumnLayout from '@/shared/layout/two-column';
 import type { Metadata } from 'next';
 
@@ -34,14 +34,9 @@ export default async function ProblemSolutionPage({
       <ProblemTitle problem={data.pdoc} />
       <TwoColumnLayout
         ratio="8-2"
-        left={<SolutionList data={data} />}
+        left={<SolutionContent data={data} />}
         right={
-          <ProblemSidebar
-            allowSubmit={false}
-            showBackToProblem={true}
-            solutionCount={data.pscount}
-            problem={data.pdoc}
-          />
+          <SolutionRight problem={data.pdoc} solutionCount={data.pscount} />
         }
       />
     </div>

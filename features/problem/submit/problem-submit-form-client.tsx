@@ -150,7 +150,7 @@ export default function ProblemSubmitFormClient({ pid, languages }: Props) {
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const res = await ClientApis.Problem.SubmitProblem(pid, {
+      const res = await ClientApis.Problem.submitProblem(pid, {
         lang: values.lang,
         code: values.code,
       }).send();

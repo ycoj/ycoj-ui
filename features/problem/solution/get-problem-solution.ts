@@ -5,7 +5,11 @@ import type { ProblemSolutionResponse } from '@/api/server/method/problems/solut
 import { cache } from 'react';
 
 export const getProblemSolution = cache(
-  async (pid: string): Promise<ProblemSolutionResponse> => {
-    return await ServerApis.Problems.getProblemSolution(pid);
+  async (
+    pid: string,
+    sid?: string,
+    page?: number
+  ): Promise<ProblemSolutionResponse> => {
+    return await ServerApis.Problems.getProblemSolution(pid, sid, page);
   }
 );

@@ -7,7 +7,7 @@ export type RecordCancelRequest = {
 
 export type RecordCancelResponse = Errorable<Record<string, never>>;
 
-export const CancelRecord = (rid: string) =>
+export const cancelRecord = (rid: string) =>
   clientRequest.Post<RecordCancelResponse>(`/record/${rid}`, {
     operation: 'cancel',
   });

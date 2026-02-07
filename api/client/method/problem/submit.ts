@@ -14,5 +14,5 @@ export type ProblemSubmitResponse = {
   tid?: ObjectId;
 };
 
-export const SubmitProblem = (pid: string, payload: ProblemSubmitRequest) =>
+export const submitProblem = (pid: string, payload: ProblemSubmitRequest) =>
   clientRequest.Post<ProblemSubmitResponse>(`/p/${pid}/submit`, payload);

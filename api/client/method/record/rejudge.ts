@@ -7,7 +7,7 @@ export type RecordRejudgeRequest = {
 
 export type RecordRejudgeResponse = Errorable<Record<string, never>>;
 
-export const RejudgeRecord = (rid: string) =>
+export const rejudgeRecord = (rid: string) =>
   clientRequest.Post<RecordRejudgeResponse>(`/record/${rid}`, {
     operation: 'rejudge',
   });
