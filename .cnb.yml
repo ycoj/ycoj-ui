@@ -4,7 +4,7 @@ master:
       docker:
         image: node:22
       imports:
-        - https://cnb.cool/ycoj-ui/ycoj-secrets/-/blob/main/.env
+        - https://cnb.cool/ycoj-ui/ycoj-secrets/-/blob/main/env.yaml
       stages:
         - name: install pnpm
           script: npm install -g pnpm
