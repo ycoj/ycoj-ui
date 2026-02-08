@@ -23,7 +23,7 @@ master:
             echo "SSH_USER=$SSH_USER" >> ./scripts/.env.local
             echo "SSH_PASSWORD=$SSH_PASSWORD" >> ./scripts/.env.local
             pnpm release
-"**":
+'**':
   push:
     - name: lint
       docker:

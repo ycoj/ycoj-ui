@@ -23,7 +23,9 @@ const pullChanges = async () => {
 };
 
 const installDependencies = async () => {
-  const result = await ssh.execCommand(`cd ${FRONTEND_DIR} && pnpm install --frozen-lockfile`);
+  const result = await ssh.execCommand(
+    `cd ${FRONTEND_DIR} && pnpm install --frozen-lockfile`
+  );
   console.log(result.stdout);
   if (result.code !== 0) throw new Error('Failed to install dependencies');
 };
