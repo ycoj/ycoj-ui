@@ -9,12 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/components/ui/select';
-import { RuleTexts } from '@/shared/types/contest';
-import {
-  Award01Icon,
-  Search01Icon,
-  Tag01Icon,
-} from '@hugeicons/core-free-icons';
+import { Search01Icon, Tag01Icon } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useMemo, useState, type FormEvent } from 'react';
@@ -23,15 +18,10 @@ type Props = {
   groups: string[];
 };
 
-const ruleOptions = Object.entries(RuleTexts).filter(
-  ([key]) => key !== 'homework'
-);
-
-export default function ContestFilter({ groups }: Props) {
+export default function HomeworkFilter({ groups }: Props) {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [rule, setRule] = useState(searchParams.get('rule') || 'all');
   const [group, setGroup] = useState(searchParams.get('group') || 'all');
   const uniqueGroups = useMemo(
     () => Array.from(new Set(groups.filter(Boolean))),
@@ -53,7 +43,6 @@ export default function ContestFilter({ groups }: Props) {
     };
 
     syncParam('q', q);
-    syncParam('rule', rule === 'all' ? '' : rule);
     syncParam('group', group === 'all' ? '' : group);
     params.delete('page');
 
@@ -68,7 +57,7 @@ export default function ContestFilter({ groups }: Props) {
           <Input
             name="q"
             defaultValue={searchParams.get('q') || ''}
-            placeholder="搜索比赛标题"
+            placeholder="搜索作业标题"
             className="pl-9 pr-3 text-sm"
           />
           <HugeiconsIcon
@@ -76,26 +65,6 @@ export default function ContestFilter({ groups }: Props) {
             className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
           />
         </div>
-
-        <Select value={rule} onValueChange={setRule}>
-          <SelectTrigger className="w-44 min-w-[176px]">
-            <div className="flex items-center gap-2">
-              <HugeiconsIcon
-                icon={Award01Icon}
-                className="size-4 text-muted-foreground"
-              />
-              <SelectValue placeholder="赛制" />
-            </div>
-          </SelectTrigger>
-          <SelectContent position="popper">
-            <SelectItem value="all">全部赛制</SelectItem>
-            {ruleOptions.map(([value, label]) => (
-              <SelectItem key={value} value={value}>
-                {label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
 
         <Select value={group} onValueChange={setGroup}>
           <SelectTrigger className="w-44 min-w-[176px]">

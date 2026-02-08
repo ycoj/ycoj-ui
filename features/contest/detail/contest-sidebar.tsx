@@ -4,10 +4,10 @@ import {
   getContestStatusLabel,
 } from './contest-utils';
 import type { ContestDetailTdoc } from '@/api/server/method/contests/detail';
+import ContestRuleBadge from '@/features/contest/contest-rule-badge';
 import UserSpan from '@/features/user/user-span';
 import { Button } from '@/shared/components/ui/button';
 import { Separator } from '@/shared/components/ui/separator';
-import { RuleTexts } from '@/shared/types/contest';
 import type { BaseUser } from '@/shared/types/user';
 import {
   Appointment01Icon,
@@ -75,7 +75,6 @@ function InfoItem({ icon, label, value, llmText }: InfoItemProps) {
 
 export default function ContestSidebar({ tid, contest, owner }: Props) {
   const statusLabel = getContestStatusLabel(getContestStatus(contest));
-  const ruleLabel = RuleTexts[contest.rule];
   const beginAt = dayjs(contest.beginAt);
   const endAt = dayjs(contest.endAt);
   const beginAtText = beginAt.isValid()
@@ -109,8 +108,7 @@ export default function ContestSidebar({ tid, contest, owner }: Props) {
         <InfoItem
           icon={ChampionIcon}
           label="比赛规则"
-          value={ruleLabel}
-          llmText={ruleLabel}
+          value={<ContestRuleBadge rule={contest.rule} />}
         />
         <InfoItem
           icon={CodeSquareIcon}

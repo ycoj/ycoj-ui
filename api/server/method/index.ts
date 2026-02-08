@@ -1,6 +1,7 @@
 'server-only';
 
 import Contests from './contests';
+import Homework from './homework';
 import Problems from './problems';
 import Record from './record';
 import UI from './ui';
@@ -10,6 +11,7 @@ const ServerApis = {
   Problems,
   Record,
   Contests,
+  Homework,
 };
 
 export default ServerApis;
