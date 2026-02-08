@@ -1,5 +1,7 @@
-import type { ContestProblemsResponse } from '@/api/server/method/contests/problems';
-import { Badge } from '@/shared/components/ui/badge';
+import type { ContestProblemsData } from '@/api/server/method/contests/problems';
+import { ContestProblemStatus } from '@/api/server/method/contests/problems';
+import ProblemStatus from '@/features/problem/problem-status';
+import { Empty, EmptyHeader, EmptyTitle } from '@/shared/components/ui/empty';
 import {
   Table,
   TableBody,
@@ -11,21 +13,19 @@ import Link from 'next/link';
 
 type Props = {
   tid: string;
-  data: ContestProblemsResponse;
+  data: ContestProblemsData;
 };
 
-function ProblemStatusCell({ rid }: { rid?: string }) {
-  if (!rid) {
+function ProblemStatusCell({ psdoc }: { psdoc?: ContestProblemStatus }) {
+  if (!psdoc) {
     return <span className="text-muted-foreground">未提交</span>;
   }
 
-  return (
-    <Badge asChild variant="secondary">
-      <Link href={`/record/${rid}`}>
-        <span data-llm-text="已提交">已提交</span>
-      </Link>
-    </Badge>
-  );
+  if ('status' in psdoc) {
+    return <ProblemStatus status={psdoc} />;
+  }
+
+  return <Link href={`/record/${psdoc.rid}`}>已提交</Link>;
 }
 
 export default function ContestProblemList({ tid, data }: Props) {
@@ -33,9 +33,11 @@ export default function ContestProblemList({ tid, data }: Props) {
 
   if (!orderedPids.length) {
     return (
-      <div className="rounded-xl border border-dashed py-8 text-center text-sm text-muted-foreground">
-        <span data-llm-text="暂无题目">暂无题目</span>
-      </div>
+      <Empty data-llm-visible="true">
+        <EmptyHeader>
+          <EmptyTitle data-llm-text="暂无题目">暂无题目</EmptyTitle>
+        </EmptyHeader>
+      </Empty>
     );
   }
 
@@ -43,14 +45,12 @@ export default function ContestProblemList({ tid, data }: Props) {
     <Table className="table-fixed" data-llm-visible="true">
       <colgroup>
         <col className="w-14" />
-        <col className="w-24" />
         <col />
         <col className="w-24" />
       </colgroup>
       <TableHeader>
         <TableRow>
           <TableCell>#</TableCell>
-          <TableCell>题目 ID</TableCell>
           <TableCell>题目</TableCell>
           <TableCell className="text-right">状态</TableCell>
         </TableRow>
@@ -58,13 +58,11 @@ export default function ContestProblemList({ tid, data }: Props) {
       <TableBody>
         {orderedPids.map((pid, index) => {
           const problem = data.pdict[pid];
-          const submit = data.psdict[pid];
 
           return (
             <TableRow key={pid}>
-              <TableCell className="tabular-nums">{index + 1}</TableCell>
-              <TableCell className="tabular-nums" data-llm-text={String(pid)}>
-                {pid}
+              <TableCell className="tabular-nums">
+                {String.fromCharCode(65 + index)}
               </TableCell>
               <TableCell>
                 {problem ? (
@@ -81,7 +79,7 @@ export default function ContestProblemList({ tid, data }: Props) {
               </TableCell>
               <TableCell className="text-right">
                 <div className="inline-flex">
-                  <ProblemStatusCell rid={submit?.rid} />
+                  <ProblemStatusCell psdoc={data.psdict[pid]} />
                 </div>
               </TableCell>
             </TableRow>

@@ -9,13 +9,20 @@ type Params = {
   pid: string;
 };
 
+type SearchParams = {
+  tid?: string;
+};
+
 export async function generateMetadata({
   params,
+  searchParams: searchParamsPromise,
 }: {
   params: Promise<Params>;
+  searchParams: Promise<SearchParams>;
 }): Promise<Metadata> {
   const { pid } = await params;
-  const data = await getProblemDetail(pid);
+  const searchParams = await searchParamsPromise;
+  const data = await getProblemDetail(pid, searchParams.tid);
   return {
     title: `${data.pdoc.title} - 提交`,
   };
@@ -23,11 +30,14 @@ export async function generateMetadata({
 
 export default async function ProblemSubmitPage({
   params,
+  searchParams: searchParamsPromise,
 }: {
   params: Promise<Params>;
+  searchParams: Promise<SearchParams>;
 }) {
   const { pid } = await params;
-  const data = await getProblemDetail(pid);
+  const searchParams = await searchParamsPromise;
+  const data = await getProblemDetail(pid, searchParams.tid);
 
   return (
     <div className="space-y-6">
@@ -36,7 +46,11 @@ export default async function ProblemSubmitPage({
         ratio="8-2"
         left={
           <div data-llm-visible="true">
-            <ProblemSubmitForm problem={data.pdoc} />
+            <ProblemSubmitForm
+              problem={data.pdoc}
+              tid={searchParams.tid}
+              contest={data.tdoc}
+            />
           </div>
         }
         right={
@@ -46,6 +60,9 @@ export default async function ProblemSubmitPage({
             discussionCount={data.discussionCount}
             solutionCount={data.solutionCount}
             problem={data.pdoc}
+            tid={searchParams.tid}
+            contest={data.tdoc}
+            contestStatus={data.tsdoc}
           />
         }
       />

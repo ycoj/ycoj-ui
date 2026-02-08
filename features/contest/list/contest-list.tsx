@@ -4,12 +4,12 @@ import { Separator } from '@/shared/components/ui/separator';
 import { cn } from '@/shared/lib/utils';
 import { RuleTexts, type ContestListProjection } from '@/shared/types/contest';
 import {
-  Award01Icon,
   Calendar01Icon,
   ChampionIcon,
   Clock01Icon,
   CodeSquareIcon,
   StarIcon,
+  Tick02Icon,
   UserGroupIcon,
 } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
@@ -171,9 +171,12 @@ function ContestItem({
             </span>
           </Badge>
           {attended && (
-            <Badge variant="secondary">
-              <HugeiconsIcon icon={Award01Icon} data-icon="inline-start" />
-              <span data-llm-text="已报名">已报名</span>
+            <Badge
+              variant="secondary"
+              className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400"
+            >
+              <HugeiconsIcon icon={Tick02Icon} data-icon="inline-start" />
+              <span data-llm-text="已参加">已参加</span>
             </Badge>
           )}
         </div>

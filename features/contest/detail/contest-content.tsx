@@ -22,13 +22,7 @@ export default function ContestContent({ tid, introduction }: Props) {
         </TabsList>
 
         <TabsContent value="introduction" className="pt-2">
-          {introduction.trim() ? (
-            <Markdown>{introduction}</Markdown>
-          ) : (
-            <div className="rounded-xl border border-dashed py-8 text-center text-sm text-muted-foreground">
-              <span data-llm-text="暂无比赛介绍">暂无比赛介绍</span>
-            </div>
-          )}
+          <Markdown>{introduction}</Markdown>
         </TabsContent>
 
         <TabsContent value="problems" className="pt-2">

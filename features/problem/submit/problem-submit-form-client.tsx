@@ -2,6 +2,11 @@
 
 import ClientApis from '@/api/client/method';
 import type { LanguageFamily } from '@/api/server/method/ui/languages';
+import {
+  Alert,
+  AlertDescription,
+  AlertTitle,
+} from '@/shared/components/ui/alert';
 import { Button } from '@/shared/components/ui/button';
 import {
   Field,
@@ -19,8 +24,13 @@ import {
 } from '@/shared/components/ui/select';
 import { Textarea } from '@/shared/components/ui/textarea';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Navigation03Icon } from '@hugeicons/core-free-icons';
+import {
+  Navigation03Icon,
+  LinkSquare01Icon,
+  InformationCircleIcon,
+} from '@hugeicons/core-free-icons';
 import { HugeiconsIcon } from '@hugeicons/react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
@@ -28,7 +38,9 @@ import { z } from 'zod';
 
 type Props = {
   pid: string;
+  tid?: string;
   languages: Record<string, LanguageFamily>;
+  isContestEnded?: boolean;
 };
 
 const baseSchema = z.object({
@@ -39,7 +51,12 @@ const baseSchema = z.object({
 
 type FormValues = z.infer<typeof baseSchema>;
 
-export default function ProblemSubmitFormClient({ pid, languages }: Props) {
+export default function ProblemSubmitFormClient({
+  pid,
+  tid,
+  languages,
+  isContestEnded,
+}: Props) {
   const router = useRouter();
 
   const preferredFamilyKey = 'cc';
@@ -153,6 +170,7 @@ export default function ProblemSubmitFormClient({ pid, languages }: Props) {
       const res = await ClientApis.Problem.submitProblem(pid, {
         lang: values.lang,
         code: values.code,
+        ...(tid ? { tid } : {}),
       }).send();
 
       if (res?.rid) {
@@ -176,6 +194,22 @@ export default function ProblemSubmitFormClient({ pid, languages }: Props) {
 
   return (
     <form className="space-y-6" onSubmit={handleSubmit(onSubmit)} noValidate>
+      {isContestEnded && (
+        <Alert
+          className="border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-50"
+          data-llm-visible="true"
+        >
+          <HugeiconsIcon
+            icon={InformationCircleIcon}
+            className="size-4"
+            strokeWidth={2}
+          />
+          <AlertTitle data-llm-text="比赛已结束">比赛已结束</AlertTitle>
+          <AlertDescription data-llm-text="比赛已结束，你可以选择在题库中打开本题">
+            比赛已结束，你可以选择在题库中打开本题。
+          </AlertDescription>
+        </Alert>
+      )}
       <FieldGroup>
         <div className="flex flex-wrap gap-6">
           <Controller
@@ -188,7 +222,7 @@ export default function ProblemSubmitFormClient({ pid, languages }: Props) {
                   <Select
                     value={field.value}
                     onValueChange={field.onChange}
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || isContestEnded}
                   >
                     <SelectTrigger
                       id="family-select"
@@ -221,7 +255,7 @@ export default function ProblemSubmitFormClient({ pid, languages }: Props) {
                   <Select
                     value={field.value}
                     onValueChange={field.onChange}
-                    disabled={!selectedFamily || isSubmitting}
+                    disabled={!selectedFamily || isSubmitting || isContestEnded}
                   >
                     <SelectTrigger
                       id="version-select"
@@ -253,7 +287,7 @@ export default function ProblemSubmitFormClient({ pid, languages }: Props) {
               placeholder="在此粘贴代码..."
               className="min-h-[320px] max-h-[600px] font-mono"
               aria-invalid={!!errors.code}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isContestEnded}
               spellCheck={false}
               autoCorrect="off"
               autoCapitalize="none"
@@ -266,19 +300,32 @@ export default function ProblemSubmitFormClient({ pid, languages }: Props) {
 
       <FieldError errors={[errors.root?.serverError]} />
 
-      <Button
-        size="lg"
-        type="submit"
-        className="w-30 gap-3"
-        disabled={isSubmitting}
-      >
-        <HugeiconsIcon
-          icon={Navigation03Icon}
-          strokeWidth={2}
-          data-icon="inline-start"
-        />
-        {isSubmitting ? '提交中...' : '提交'}
-      </Button>
+      {!isContestEnded ? (
+        <Button
+          size="lg"
+          type="submit"
+          className="w-30 gap-3"
+          disabled={isSubmitting}
+        >
+          <HugeiconsIcon
+            icon={Navigation03Icon}
+            strokeWidth={2}
+            data-icon="inline-start"
+          />
+          {isSubmitting ? '提交中...' : '提交'}
+        </Button>
+      ) : (
+        <Button size="lg" asChild className="w-auto gap-3">
+          <Link href={`/problem/${pid}`}>
+            <HugeiconsIcon
+              icon={LinkSquare01Icon}
+              strokeWidth={2}
+              data-icon="inline-start"
+            />
+            在题库中打开
+          </Link>
+        </Button>
+      )}
     </form>
   );
 }

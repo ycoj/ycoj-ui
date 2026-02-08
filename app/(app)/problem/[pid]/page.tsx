@@ -9,13 +9,20 @@ type Params = {
   pid: string;
 };
 
+type SearchParams = {
+  tid?: string;
+};
+
 export async function generateMetadata({
   params,
+  searchParams: searchParamsPromise,
 }: {
   params: Promise<Params>;
+  searchParams: Promise<SearchParams>;
 }): Promise<Metadata> {
   const { pid } = await params;
-  const data = await getProblemDetail(pid);
+  const searchParams = await searchParamsPromise;
+  const data = await getProblemDetail(pid, searchParams.tid);
   return {
     title: data.pdoc.title || '题目详情',
   };
@@ -23,15 +30,18 @@ export async function generateMetadata({
 
 export default async function ProblemDetailPage({
   params,
+  searchParams: searchParamsPromise,
 }: {
   params: Promise<Params>;
+  searchParams: Promise<SearchParams>;
 }) {
   const { pid } = await params;
-  const data = await getProblemDetail(pid);
+  const searchParams = await searchParamsPromise;
+  const data = await getProblemDetail(pid, searchParams.tid);
 
   return (
     <div className="space-y-6">
-      <ProblemTitle problem={data.pdoc} />
+      <ProblemTitle problem={data.pdoc} contest={data.tdoc} />
       <TwoColumnLayout
         ratio="8-2"
         left={<ProblemContent problem={data.pdoc} />}
@@ -41,6 +51,9 @@ export default async function ProblemDetailPage({
             discussionCount={data.discussionCount}
             solutionCount={data.solutionCount}
             problem={data.pdoc}
+            tid={searchParams.tid}
+            contest={data.tdoc}
+            contestStatus={data.tsdoc}
           />
         }
       />

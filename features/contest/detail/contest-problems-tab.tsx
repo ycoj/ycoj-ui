@@ -1,8 +1,18 @@
 'use client';
 
 import ClientApis from '@/api/client/method';
-import type { ContestProblemsResponse } from '@/api/server/method/contests/problems';
+import type {
+  ContestProblemsData,
+  ContestProblemsResponse,
+} from '@/api/server/method/contests/problems';
 import ContestProblemList from '@/features/contest/detail/contest-problem-list';
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from '@/shared/components/ui/empty';
+import type { HydroError } from '@/shared/types/error';
 import { useEffect, useState } from 'react';
 
 type Props = {
@@ -12,8 +22,10 @@ type Props = {
 export default function ContestProblemsTab({ tid }: Props) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [problemsData, setProblemsData] =
-    useState<ContestProblemsResponse | null>(null);
+  const [hydroError, setHydroError] = useState<HydroError | null>(null);
+  const [problemsData, setProblemsData] = useState<ContestProblemsData | null>(
+    null
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -21,10 +33,18 @@ export default function ContestProblemsTab({ tid }: Props) {
     const loadProblems = async () => {
       setLoading(true);
       setError('');
+      setHydroError(null);
 
       try {
-        const data = await ClientApis.Contest.getContestProblems(tid).send();
+        const data: ContestProblemsResponse =
+          await ClientApis.Contest.getContestProblems(tid).send();
         if (!cancelled) {
+          if ('error' in data) {
+            setHydroError(data.error);
+            setProblemsData(null);
+            return;
+          }
+
           setProblemsData(data);
         }
       } catch (loadError) {
@@ -49,25 +69,51 @@ export default function ContestProblemsTab({ tid }: Props) {
 
   if (loading) {
     return (
-      <div className="rounded-xl border border-dashed py-8 text-center text-sm text-muted-foreground">
-        <span data-llm-text="题目列表加载中...">题目列表加载中...</span>
-      </div>
+      <Empty data-llm-visible="true">
+        <EmptyHeader>
+          <EmptyTitle data-llm-text="题目列表加载中...">
+            题目列表加载中...
+          </EmptyTitle>
+        </EmptyHeader>
+      </Empty>
+    );
+  }
+
+  if (hydroError) {
+    return (
+      <Empty data-llm-visible="true">
+        <EmptyHeader>
+          <EmptyTitle data-llm-text="题目列表暂不可用">
+            题目列表暂不可用
+          </EmptyTitle>
+          <EmptyDescription data-llm-text={hydroError.message}>
+            {hydroError.message}
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
     );
   }
 
   if (error) {
     return (
-      <div className="rounded-xl border border-dashed py-8 text-center text-sm text-destructive">
-        <span data-llm-text={error}>{error}</span>
-      </div>
+      <Empty data-llm-visible="true">
+        <EmptyHeader>
+          <EmptyTitle data-llm-text="题目列表加载失败">
+            题目列表加载失败
+          </EmptyTitle>
+          <EmptyDescription data-llm-text={error}>{error}</EmptyDescription>
+        </EmptyHeader>
+      </Empty>
     );
   }
 
   if (!problemsData) {
     return (
-      <div className="rounded-xl border border-dashed py-8 text-center text-sm text-muted-foreground">
-        <span data-llm-text="暂无题目">暂无题目</span>
-      </div>
+      <Empty data-llm-visible="true">
+        <EmptyHeader>
+          <EmptyTitle data-llm-text="暂无题目">暂无题目</EmptyTitle>
+        </EmptyHeader>
+      </Empty>
     );
   }
 

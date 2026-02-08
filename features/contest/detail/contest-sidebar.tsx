@@ -99,7 +99,7 @@ export default function ContestSidebar({ tid, contest, owner }: Props) {
 
       <Separator />
 
-      <div className="space-y-3">
+      <div className="space-y-3 px-2">
         <InfoItem
           icon={Appointment01Icon}
           label="状态"

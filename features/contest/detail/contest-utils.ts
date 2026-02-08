@@ -1,4 +1,5 @@
 import type { ContestDetailTdoc } from '@/api/server/method/contests/detail';
+import { cn } from '@/shared/lib/utils';
 import dayjs from 'dayjs';
 
 export type ContestRuntimeStatus = 'running' | 'pending' | 'ended';
@@ -23,9 +24,11 @@ export function getContestStatusLabel(status: ContestRuntimeStatus) {
 }
 
 export function getContestStatusClassName(status: ContestRuntimeStatus) {
-  if (status === 'running') return 'bg-pink-100 text-pink-700';
-  if (status === 'pending') return 'bg-blue-100 text-blue-600';
-  return 'bg-muted text-muted-foreground';
+  return cn(
+    'bg-muted text-muted-foreground',
+    status === 'running' && 'bg-pink-100 text-pink-700',
+    status === 'pending' && 'bg-blue-100 text-blue-600'
+  );
 }
 
 export function formatContestDuration(
