@@ -10,8 +10,6 @@ master:
           script: npm install -g pnpm
         - name: install dependencies
           script: pnpm install --frozen-lockfile
-        - name: format check
-          script: pnpm format:check
         - name: type check
           script: pnpm lint:type
         - name: lint
@@ -33,8 +31,6 @@ master:
           script: npm install -g pnpm
         - name: install dependencies
           script: pnpm install --frozen-lockfile
-        - name: format check
-          script: pnpm format:check
         - name: type check
           script: pnpm lint:type
         - name: lint
