@@ -1,10 +1,10 @@
-main:
+master:
   push:
     - name: lint and release
       docker:
         image: node:22
       imports:
-        - https://cnb.cool/tboj-project/tboj-frontend/tboj-frontend-secret/-/blob/main/.env
+        - https://cnb.cool/ycoj-ui/ycoj-secrets/-/blob/main/.env
       stages:
         - name: install pnpm
           script: npm install -g pnpm
