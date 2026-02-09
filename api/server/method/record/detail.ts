@@ -1,5 +1,6 @@
 import { alova } from '@/api/server';
-import type { Contest, Homework } from '@/shared/types/contest';
+import type { Contest } from '@/shared/types/contest';
+import type { Homework } from '@/shared/types/homework';
 import type { ProblemDoc } from '@/shared/types/problem';
 import type { RecordDoc } from '@/shared/types/record';
 import type { ObjectId } from '@/shared/types/shared';

@@ -1,5 +1,8 @@
 import type { ContestListResponse } from '@/api/server/method/contests/list';
 import ContestRuleBadge from '@/features/contest/contest-rule-badge';
+import ContestStatus, {
+  type ContestStatus as ContestRuntimeStatus,
+} from '@/features/contest/contest-status';
 import { Badge } from '@/shared/components/ui/badge';
 import {
   Empty,
@@ -9,7 +12,6 @@ import {
   EmptyTitle,
 } from '@/shared/components/ui/empty';
 import { Separator } from '@/shared/components/ui/separator';
-import { cn } from '@/shared/lib/utils';
 import type { ContestListProjection } from '@/shared/types/contest';
 import {
   Calendar01Icon,
@@ -29,12 +31,10 @@ type Props = {
   data: ContestListResponse;
 };
 
-type ContestStatus = 'running' | 'pending' | 'ended';
-
 function getContestStatus(
   contest: ContestListProjection,
   now: dayjs.Dayjs
-): ContestStatus {
+): ContestRuntimeStatus {
   const beginAt = dayjs(contest.beginAt);
   const endAt = dayjs(contest.endAt);
 
@@ -45,17 +45,6 @@ function getContestStatus(
   }
 
   return 'ended';
-}
-
-function getStatusStyle(status: ContestStatus) {
-  switch (status) {
-    case 'running':
-      return { className: 'text-pink-600', label: '进行中' as const };
-    case 'pending':
-      return { className: 'text-blue-500', label: '即将开始' as const };
-    default:
-      return { className: 'text-muted-foreground', label: '已结束' as const };
-  }
 }
 
 function formatDuration(beginAt: dayjs.Dayjs, endAt: dayjs.Dayjs) {
@@ -87,7 +76,6 @@ function ContestItem({
 }) {
   const now = dayjs();
   const status = getContestStatus(contest, now);
-  const statusStyle = getStatusStyle(status);
 
   const beginAt = dayjs(contest.beginAt);
   const endAt = dayjs(contest.endAt);
@@ -111,15 +99,7 @@ function ContestItem({
         >
           {contest.title}
         </Link>
-        <span
-          data-llm-text={statusStyle.label}
-          className={cn(
-            'bg-muted rounded-full px-2 py-0.5 shrink-0 text-xs font-medium',
-            statusStyle.className
-          )}
-        >
-          {statusStyle.label}
-        </span>
+        <ContestStatus status={status} />
       </div>
 
       <div className="flex items-center gap-3 text-xs">

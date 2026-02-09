@@ -51,3 +51,5 @@ export type RecordDoc = {
   files?: Record<string, string>;
   subtasks?: Record<number, SubtaskResultResponse>;
 };
+
+export type RecordDict = Record<string, RecordDoc>;

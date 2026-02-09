@@ -1,13 +1,11 @@
 import type { ContestDetailTdoc } from '@/api/server/method/contests/detail';
-import { cn } from '@/shared/lib/utils';
+import type { ContestStatus } from '@/features/contest/contest-status';
 import dayjs from 'dayjs';
-
-export type ContestRuntimeStatus = 'running' | 'pending' | 'ended';
 
 export function getContestStatus(
   contest: ContestDetailTdoc,
   now = dayjs()
-): ContestRuntimeStatus {
+): ContestStatus {
   const beginAt = dayjs(contest.beginAt);
   const endAt = dayjs(contest.endAt);
 
@@ -15,20 +13,6 @@ export function getContestStatus(
   if (now.isBefore(beginAt)) return 'pending';
   if (now.isBefore(endAt)) return 'running';
   return 'ended';
-}
-
-export function getContestStatusLabel(status: ContestRuntimeStatus) {
-  if (status === 'running') return '进行中';
-  if (status === 'pending') return '即将开始';
-  return '已结束';
-}
-
-export function getContestStatusClassName(status: ContestRuntimeStatus) {
-  return cn(
-    'bg-muted text-muted-foreground',
-    status === 'running' && 'bg-pink-100 text-pink-700',
-    status === 'pending' && 'bg-blue-100 text-blue-600'
-  );
 }
 
 export function formatContestDuration(

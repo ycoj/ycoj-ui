@@ -1,5 +1,8 @@
 import type { HomeworkListResponse } from '@/api/server/method/homework/list';
 import ContestRuleBadge from '@/features/contest/contest-rule-badge';
+import ContestStatus, {
+  type ContestStatus as ContestRuntimeStatus,
+} from '@/features/contest/contest-status';
 import { Badge } from '@/shared/components/ui/badge';
 import {
   Empty,
@@ -9,7 +12,6 @@ import {
   EmptyTitle,
 } from '@/shared/components/ui/empty';
 import { Separator } from '@/shared/components/ui/separator';
-import { cn } from '@/shared/lib/utils';
 import type { ContestListProjection } from '@/shared/types/contest';
 import {
   Calendar01Icon,
@@ -26,12 +28,10 @@ type Props = {
   data: HomeworkListResponse;
 };
 
-type HomeworkStatus = 'running' | 'pending' | 'ended';
-
 function getHomeworkStatus(
   homework: ContestListProjection,
   now: dayjs.Dayjs
-): HomeworkStatus {
+): ContestRuntimeStatus {
   const beginAt = dayjs(homework.beginAt);
   const endAt = dayjs(homework.endAt);
 
@@ -44,17 +44,6 @@ function getHomeworkStatus(
   return 'ended';
 }
 
-function getStatusStyle(status: HomeworkStatus) {
-  switch (status) {
-    case 'running':
-      return { className: 'text-pink-600', label: '进行中' as const };
-    case 'pending':
-      return { className: 'text-blue-500', label: '即将开始' as const };
-    default:
-      return { className: 'text-muted-foreground', label: '已结束' as const };
-  }
-}
-
 function HomeworkItem({
   homework,
   attended,
@@ -64,7 +53,6 @@ function HomeworkItem({
 }) {
   const now = dayjs();
   const status = getHomeworkStatus(homework, now);
-  const statusStyle = getStatusStyle(status);
 
   const beginAt = dayjs(homework.beginAt).format('YYYY-MM-DD HH:mm');
   const endAt = dayjs(homework.endAt).format('YYYY-MM-DD HH:mm');
@@ -81,15 +69,7 @@ function HomeworkItem({
         >
           {homework.title}
         </Link>
-        <span
-          data-llm-text={statusStyle.label}
-          className={cn(
-            'bg-muted rounded-full px-2 py-0.5 shrink-0 text-xs font-medium',
-            statusStyle.className
-          )}
-        >
-          {statusStyle.label}
-        </span>
+        <ContestStatus status={status} />
       </div>
 
       <div className="flex items-center gap-3 text-xs">

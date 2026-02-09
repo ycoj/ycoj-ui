@@ -5,11 +5,9 @@ import type {
   ContestStatus,
 } from '@/shared/types/contest';
 import type { Errorable } from '@/shared/types/error';
-import type { ProblemDoc, ProblemStatus } from '@/shared/types/problem';
-import type { RecordDoc } from '@/shared/types/record';
+import type { ProblemDict, ProblemStatus } from '@/shared/types/problem';
+import type { RecordDict, RecordDoc } from '@/shared/types/record';
 import type { BaseUserDict } from '@/shared/types/user';
-
-export type ProblemDict = Record<number, ProblemDoc>;
 
 export type ContestProblemStatus = ProblemStatus | { rid?: string };
 
@@ -17,7 +15,7 @@ export type ContestProblemsData = {
   pdict: ProblemDict;
   psdict: Record<number, ContestProblemStatus>;
   udict: BaseUserDict;
-  rdict: Record<string, RecordDoc>;
+  rdict: RecordDict;
   tdoc: Contest;
   tcdocs: ContestClarificationDoc[];
   showScore?: boolean;

@@ -2,7 +2,8 @@ import { ProblemTags } from './problem-tags';
 import ProblemDifficulty from '@/features/problem/problem-difficulty';
 import { Badge } from '@/shared/components/ui/badge';
 import { formatMemory, formatTime } from '@/shared/lib/format-units';
-import type { Contest, Homework } from '@/shared/types/contest';
+import type { Contest } from '@/shared/types/contest';
+import type { Homework } from '@/shared/types/homework';
 import type { PublicProjectionProblem } from '@/shared/types/problem';
 import {
   Award01Icon,

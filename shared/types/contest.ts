@@ -51,20 +51,6 @@ export type Contest = {
   allowViewCode?: boolean;
 } & BaseContest; // 比赛
 
-export type Homework = {
-  /** 作业类型规则固定为 'homework' */
-  rule: 'homework';
-
-  /**
-   * **软截止时间**
-   * 在此时间之前的提交正常计分，此时间到 endAt 之间的提交根据 penaltyRules 扣分
-   */
-  penaltySince?: Date;
-
-  /** 迟交扣分规则配置 */
-  penaltyRules?: Record<string, number>;
-} & BaseContest; // 作业
-
 export const RuleTexts = {
   acm: 'ACM/ICPC',
   oi: 'OI',

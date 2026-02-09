@@ -1,5 +1,6 @@
 import { alova } from '@/api/server';
-import type { Contest, ContestStatus, Homework } from '@/shared/types/contest';
+import type { Contest, ContestStatus } from '@/shared/types/contest';
+import type { Homework } from '@/shared/types/homework';
 import type {
   ProblemStatus,
   PublicProjectionProblem,

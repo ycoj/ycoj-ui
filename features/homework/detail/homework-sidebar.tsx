@@ -1,21 +1,21 @@
 'use client';
 
-import { formatContestDuration, getContestStatus } from './contest-utils';
 import ClientApis from '@/api/client/method';
-import type {
-  ContestDetailStatus,
-  ContestDetailTdoc,
-} from '@/api/server/method/contests/detail';
+import type { HomeworkDetailTdoc } from '@/api/server/method/homework/detail';
 import ContestInfo from '@/features/contest/contest-info';
 import ContestRuleBadge from '@/features/contest/contest-rule-badge';
 import ContestStatus from '@/features/contest/contest-status';
+import {
+  formatContestDuration,
+  getContestStatus,
+} from '@/features/contest/detail/contest-utils';
 import UserSpan from '@/features/user/user-span';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import { Separator } from '@/shared/components/ui/separator';
+import type { HomeworkStatus } from '@/shared/types/homework';
 import type { BaseUser } from '@/shared/types/user';
 import {
-  Award01Icon,
   Chat01Icon,
   PlusSignSquareIcon,
   Tick02Icon,
@@ -28,8 +28,8 @@ import { useState } from 'react';
 
 type Props = {
   tid: string;
-  contest: ContestDetailTdoc;
-  contestStatus?: ContestDetailStatus | null;
+  homework: HomeworkDetailTdoc;
+  homeworkStatus?: HomeworkStatus | null;
   owner?: BaseUser;
 };
 
@@ -54,26 +54,26 @@ function SidebarButton({ href, icon, text }: SidebarButtonProps) {
   );
 }
 
-export default function ContestSidebar({
+export default function HomeworkSidebar({
   tid,
-  contest,
-  contestStatus,
+  homework,
+  homeworkStatus,
   owner,
 }: Props) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
-  const status = getContestStatus(contest);
-  const beginAt = dayjs(contest.beginAt);
-  const endAt = dayjs(contest.endAt);
+  const status = getContestStatus(homework);
+  const beginAt = dayjs(homework.beginAt);
+  const endAt = dayjs(homework.endAt);
   const beginAtText = beginAt.isValid()
     ? beginAt.format('YYYY-MM-DD HH:mm')
     : '-';
   const endAtText = endAt.isValid() ? endAt.format('YYYY-MM-DD HH:mm') : '-';
   const durationText =
-    formatContestDuration(contest.beginAt, contest.endAt) || '-';
-  const problemCount = contest.pids?.length ?? 0;
+    formatContestDuration(homework.beginAt, homework.endAt) || '-';
+  const problemCount = homework.pids?.length ?? 0;
   const isEnded = status === 'ended';
-  const isAttended = Boolean(contestStatus?.attend);
+  const isAttended = Boolean(homeworkStatus?.attend);
   const attendedBadge = isAttended ? (
     <Badge
       variant="secondary"
@@ -88,7 +88,7 @@ export default function ContestSidebar({
     if (submitting) return;
     setSubmitting(true);
     try {
-      await ClientApis.Contest.attendContest(tid, {
+      await ClientApis.Homework.attendHomework(tid, {
         operation: 'attend',
       }).send();
       router.refresh();
@@ -108,16 +108,11 @@ export default function ContestSidebar({
             disabled={submitting}
           >
             <HugeiconsIcon icon={PlusSignSquareIcon} strokeWidth={2} />
-            <span data-llm-text={submitting ? '报名中...' : '报名比赛'}>
-              {submitting ? '报名中...' : '报名比赛'}
+            <span data-llm-text={submitting ? '报名中...' : '报名作业'}>
+              {submitting ? '报名中...' : '报名作业'}
             </span>
           </Button>
         )}
-        <SidebarButton
-          href={`/contest/${tid}/scoreboard`}
-          icon={Award01Icon}
-          text="成绩表"
-        />
         <SidebarButton href="#" icon={Chat01Icon} text="讨论" />
       </div>
 
@@ -125,12 +120,12 @@ export default function ContestSidebar({
 
       <ContestInfo
         status={<ContestStatus status={status} />}
-        rule={<ContestRuleBadge rule={contest.rule} />}
+        rule={<ContestRuleBadge rule={homework.rule} />}
         problemCount={problemCount}
         beginAtText={beginAtText}
         endAtText={endAtText}
         durationText={durationText}
-        attend={contest.attend}
+        attend={homework.attend}
         attendedBadge={attendedBadge}
         showOwner={true}
         owner={owner ? <UserSpan user={owner} /> : '-'}

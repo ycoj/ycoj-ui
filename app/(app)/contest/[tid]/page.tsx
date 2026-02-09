@@ -39,7 +39,14 @@ export default async function ContestDetailPage({
         left={
           <ContestContent tid={tid} introduction={data.tdoc.content ?? ''} />
         }
-        right={<ContestSidebar tid={tid} contest={data.tdoc} owner={owner} />}
+        right={
+          <ContestSidebar
+            tid={tid}
+            contest={data.tdoc}
+            contestStatus={data.tsdoc}
+            owner={owner}
+          />
+        }
       />
     </div>
   );

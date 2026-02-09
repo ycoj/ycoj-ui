@@ -83,3 +83,5 @@ export type SolutionDoc = {
   reply: DiscussionReplyDoc[];
   vote: number;
 };
+
+export type ProblemDict = Record<number, ProblemDoc>;

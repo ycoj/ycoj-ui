@@ -1,7 +1,8 @@
 import ProblemSubmitFormClient from './problem-submit-form-client';
 import ServerApis from '@/api/server/method';
 import { getContestStatus } from '@/features/contest/detail/contest-utils';
-import type { Contest, Homework } from '@/shared/types/contest';
+import type { Contest } from '@/shared/types/contest';
+import type { Homework } from '@/shared/types/homework';
 import { PublicProjectionProblem } from '@/shared/types/problem';
 import dayjs from 'dayjs';
 

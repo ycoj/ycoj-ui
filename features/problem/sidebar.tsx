@@ -1,31 +1,26 @@
+import ContestInfo from '@/features/contest/contest-info';
+import ContestStatusBadge from '@/features/contest/contest-status';
 import {
   formatContestDuration,
   getContestStatus,
-  getContestStatusLabel,
 } from '@/features/contest/detail/contest-utils';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import { Separator } from '@/shared/components/ui/separator';
-import type { Contest, ContestStatus, Homework } from '@/shared/types/contest';
+import type { Contest, ContestStatus } from '@/shared/types/contest';
 import { RuleTexts } from '@/shared/types/contest';
+import type { Homework } from '@/shared/types/homework';
 import type { ContestListProjectionProblem } from '@/shared/types/problem';
 import {
-  Appointment01Icon,
   ArrowLeftIcon,
   Book03Icon,
-  Calendar01Icon,
-  ChampionIcon,
   Chat01Icon,
-  Clock01Icon,
-  CodeSquareIcon,
   File01Icon,
   Navigation03Icon,
-  UserGroupIcon,
 } from '@hugeicons/core-free-icons';
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
 import dayjs from 'dayjs';
 import Link from 'next/link';
-import type { ReactNode } from 'react';
 
 type Props = {
   allowSubmit?: boolean;
@@ -45,13 +40,6 @@ type SidebarButtonProps = {
   text: string;
   href: string;
   count?: number;
-};
-
-type InfoItemProps = {
-  icon: IconSvgElement;
-  label: string;
-  value: ReactNode;
-  llmText?: string;
 };
 
 function withTid(href: string, tid?: string) {
@@ -86,20 +74,6 @@ function SidebarButton({ icon, text, href, count }: SidebarButtonProps) {
   );
 }
 
-function InfoItem({ icon, label, value, llmText }: InfoItemProps) {
-  return (
-    <div className="flex items-center justify-between gap-3 text-sm">
-      <div className="text-muted-foreground inline-flex shrink-0 items-center gap-1.5">
-        <HugeiconsIcon icon={icon} className="size-4" />
-        <span>{label}</span>
-      </div>
-      <div className="text-right" data-llm-text={llmText}>
-        {value}
-      </div>
-    </div>
-  );
-}
-
 export default function ProblemSidebar({
   allowSubmit,
   showBackToProblem,
@@ -110,6 +84,16 @@ export default function ProblemSidebar({
   contest,
 }: Props) {
   const isContestMode = Boolean(tid);
+  const problemCount = contest?.pids?.length ?? 0;
+  const beginAtText = contest
+    ? dayjs(contest.beginAt).format('YYYY-MM-DD HH:mm')
+    : '';
+  const endAtText = contest
+    ? dayjs(contest.endAt).format('YYYY-MM-DD HH:mm')
+    : '';
+  const durationText = contest
+    ? formatContestDuration(contest.beginAt, contest.endAt) || '-'
+    : '-';
   return (
     <div className="w-full space-y-4" data-llm-visible="true">
       <div className="space-y-1">
@@ -166,58 +150,8 @@ export default function ProblemSidebar({
         <>
           <Separator />
 
-          <div className="space-y-3 px-2">
-            <InfoItem
-              icon={Appointment01Icon}
-              label="状态"
-              value={getContestStatusLabel(getContestStatus(contest))}
-              llmText={getContestStatusLabel(getContestStatus(contest))}
-            />
-            <InfoItem
-              icon={ChampionIcon}
-              label="比赛规则"
-              value={RuleTexts[contest.rule]}
-              llmText={RuleTexts[contest.rule]}
-            />
-            <InfoItem
-              icon={CodeSquareIcon}
-              label="题目数量"
-              value={`${contest.pids.length} 道题`}
-              llmText={String(contest.pids.length)}
-            />
-            <InfoItem
-              icon={Calendar01Icon}
-              label="开始时间"
-              value={dayjs(contest.beginAt).format('YYYY-MM-DD HH:mm')}
-              llmText={dayjs(contest.beginAt).format('YYYY-MM-DD HH:mm')}
-            />
-            <InfoItem
-              icon={Calendar01Icon}
-              label="结束时间"
-              value={dayjs(contest.endAt).format('YYYY-MM-DD HH:mm')}
-              llmText={dayjs(contest.endAt).format('YYYY-MM-DD HH:mm')}
-            />
-            <InfoItem
-              icon={Clock01Icon}
-              label="持续时间"
-              value={
-                formatContestDuration(contest.beginAt, contest.endAt) || '-'
-              }
-              llmText={
-                formatContestDuration(contest.beginAt, contest.endAt) || '-'
-              }
-            />
-            <InfoItem
-              icon={UserGroupIcon}
-              label="参赛人数"
-              value={<span className="tabular-nums">{contest.attend}</span>}
-              llmText={String(contest.attend)}
-            />
-          </div>
-
           {contest.pids?.length ? (
             <div className="space-y-2">
-              <Separator />
               <div className="flex flex-wrap gap-2 px-2">
                 {contest.pids.map((contestPid, index) => {
                   const label = getContestProblemLabel(index);
@@ -243,6 +177,19 @@ export default function ProblemSidebar({
               </div>
             </div>
           ) : null}
+
+          {contest.pids?.length ? <Separator /> : null}
+
+          <ContestInfo
+            status={<ContestStatusBadge status={getContestStatus(contest)} />}
+            rule={RuleTexts[contest.rule]}
+            ruleText={RuleTexts[contest.rule]}
+            problemCount={problemCount}
+            beginAtText={beginAtText}
+            endAtText={endAtText}
+            durationText={durationText}
+            attend={contest.attend}
+          />
         </>
       )}
     </div>
