@@ -1,6 +1,6 @@
+import ContestTitle from '@/features/contest/contest-title';
 import ContestContent from '@/features/contest/detail/contest-content';
 import ContestSidebar from '@/features/contest/detail/contest-sidebar';
-import ContestTitle from '@/features/contest/detail/contest-title';
 import { getContestDetail } from '@/features/contest/detail/get-contest-detail';
 import TwoColumnLayout from '@/shared/layout/two-column';
 import type { Metadata } from 'next';
@@ -33,7 +33,7 @@ export default async function ContestDetailPage({
 
   return (
     <div className="space-y-6">
-      <ContestTitle contest={data.tdoc} />
+      <ContestTitle tdoc={data.tdoc} />
       <TwoColumnLayout
         ratio="8-2"
         left={

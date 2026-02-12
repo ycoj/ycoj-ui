@@ -156,5 +156,5 @@
 ## Suggested workflow for changes
 
 1. Read related feature files before editing (follow local patterns).
-2. Run `pnpm lint`, `pnpm lint:type` and `pnpm format` after code changes.
+2. Run `pnpm lint`, `pnpm lint:type` and `pnpm format` after code changes. Do not prefix these commands with additional content. That is, do not run `cd ... && pnpm lint`, `pnpm lint 2>&1`, `pnpm format -- <some file`, etc. Run only `pnpm lint`, `pnpm lint:type` and `pnpm format`.
 3. New linter errors introduced by changes should be fixed. Linter errors existing before changes can be ignored.

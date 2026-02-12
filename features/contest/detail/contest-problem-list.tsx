@@ -44,15 +44,15 @@ export default function ContestProblemList({ tid, data }: Props) {
   return (
     <Table className="table-fixed" data-llm-visible="true">
       <colgroup>
-        <col className="w-14" />
-        <col />
         <col className="w-24" />
+        <col className="w-8" />
+        <col />
       </colgroup>
       <TableHeader>
         <TableRow>
+          <TableCell>状态</TableCell>
           <TableCell>#</TableCell>
           <TableCell>题目</TableCell>
-          <TableCell className="text-right">状态</TableCell>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -61,6 +61,11 @@ export default function ContestProblemList({ tid, data }: Props) {
 
           return (
             <TableRow key={pid}>
+              <TableCell>
+                <div className="inline-flex">
+                  <ProblemStatusCell psdoc={data.psdict[pid]} />
+                </div>
+              </TableCell>
               <TableCell className="tabular-nums">
                 {String.fromCharCode(65 + index)}
               </TableCell>
@@ -76,11 +81,6 @@ export default function ContestProblemList({ tid, data }: Props) {
                 ) : (
                   <span className="text-muted-foreground">-</span>
                 )}
-              </TableCell>
-              <TableCell className="text-right">
-                <div className="inline-flex">
-                  <ProblemStatusCell psdoc={data.psdict[pid]} />
-                </div>
               </TableCell>
             </TableRow>
           );

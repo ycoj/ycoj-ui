@@ -16,6 +16,7 @@ import { Separator } from '@/shared/components/ui/separator';
 import type { HomeworkStatus } from '@/shared/types/homework';
 import type { BaseUser } from '@/shared/types/user';
 import {
+  Award01Icon,
   Chat01Icon,
   PlusSignSquareIcon,
   Tick02Icon,
@@ -113,6 +114,11 @@ export default function HomeworkSidebar({
             </span>
           </Button>
         )}
+        <SidebarButton
+          href={`/homework/${tid}/scoreboard`}
+          icon={Award01Icon}
+          text="成绩表"
+        />
         <SidebarButton href="#" icon={Chat01Icon} text="讨论" />
       </div>
 

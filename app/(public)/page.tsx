@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default async function IndexPage() {
   const siteName = process.env.SITE_NAME ?? '';
   const user = await getUser();
-  if (user._id > 0) {
+  if (user?._id > 0) {
     redirect('/home');
   }
 

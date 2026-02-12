@@ -45,4 +45,5 @@ next-env.d.ts
 .idea/
 .claude/
 .kiro/
+.vscode/
 opencode.json

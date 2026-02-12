@@ -22,7 +22,7 @@ export function getContestStatusTextClassName(status: ContestStatus) {
   return cn(
     status === 'running' && 'text-pink-600',
     status === 'pending' && 'text-blue-500',
-    status === 'ended' && 'text-muted-foreground'
+    status === 'ended' && 'text-foreground'
   );
 }
 

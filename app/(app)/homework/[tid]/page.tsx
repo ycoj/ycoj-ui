@@ -1,7 +1,7 @@
+import ContestTitle from '@/features/contest/contest-title';
 import { getHomeworkDetail } from '@/features/homework/detail/get-homework-detail';
 import HomeworkContent from '@/features/homework/detail/homework-content';
 import HomeworkSidebar from '@/features/homework/detail/homework-sidebar';
-import HomeworkTitle from '@/features/homework/detail/homework-title';
 import TwoColumnLayout from '@/shared/layout/two-column';
 import type { Metadata } from 'next';
 
@@ -33,7 +33,7 @@ export default async function HomeworkDetailPage({
 
   return (
     <div className="space-y-6">
-      <HomeworkTitle homework={data.tdoc} />
+      <ContestTitle tdoc={data.tdoc} />
       <TwoColumnLayout
         ratio="8-2"
         left={

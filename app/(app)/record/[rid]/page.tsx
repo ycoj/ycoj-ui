@@ -20,27 +20,29 @@ type Props = {
 
 export default async function RecordDetailPage({ params }: Props) {
   const rid = (await params).rid;
-  const [data, user] = await Promise.all([
+  const [data, user, languages] = await Promise.all([
     ServerApis.Record.getRecordDetail(rid),
     getUser(),
+    ServerApis.UI.getAvailableLanguages(),
   ]);
-  const languages = await ServerApis.UI.getAvailableLanguages(data.pdoc.docId);
+  const { pdoc, rdoc, udoc } = data;
+
   const allowRejudge = hasPerm(user, PERM.PERM_REJUDGE);
   return (
     <div className="space-y-6">
       <RecordDetail
-        rdoc={data.rdoc}
-        pdoc={data.pdoc}
-        udoc={data.udoc}
+        rdoc={rdoc}
+        pdoc={pdoc}
+        udoc={udoc}
         languages={languages.languages}
         allowRejudge={allowRejudge}
       />
       <TwoColumnLayout
         left={
           <div className="space-y-6">
-            {data.rdoc.code && <RecordCode rdoc={data.rdoc} />}
-            <RecordCompilerMessage rdoc={data.rdoc} />
-            {data.rdoc.testCases && <RecordTestcases rdoc={data.rdoc} />}
+            {rdoc.code && <RecordCode rdoc={rdoc} />}
+            <RecordCompilerMessage rdoc={rdoc} />
+            <RecordTestcases rdoc={rdoc} />
           </div>
         }
       />

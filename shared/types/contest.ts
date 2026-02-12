@@ -1,4 +1,7 @@
-import { FileInfo } from './file';
+import type { FileInfo } from './file';
+import type { Homework } from './homework';
+import type { ProblemDict } from './problem';
+import type { BaseUserDict } from './user';
 
 export type ContestRule =
   | 'acm'
@@ -102,4 +105,50 @@ export type ContestClarificationDoc = {
   owner: number;
   important: boolean;
   _cat: number;
+};
+
+// Scoreboard types
+
+export type ScoreboardNodeType =
+  | 'rank'
+  | 'user'
+  | 'email'
+  | 'solved'
+  | 'total_score'
+  | 'time'
+  | 'problem'
+  | 'record'
+  | 'records'
+  | 'string';
+
+export type ScoreboardNode = {
+  type: ScoreboardNodeType;
+  value: string;
+  raw?: unknown;
+  score?: number;
+  style?: string;
+  hover?: string;
+};
+
+export type ScoreboardRow = ScoreboardNode[] & { raw?: unknown };
+
+export type GDoc = {
+  _id: string;
+  name: string;
+  uids?: number[];
+};
+
+export type ScoreboardResponse = {
+  tdoc: Contest | Homework;
+  tsdoc: {
+    attend: number;
+    subscribe: number;
+    startAt: Date;
+    endAt?: Date;
+  } | null;
+  rows: ScoreboardRow[];
+  udict: BaseUserDict;
+  pdict: ProblemDict;
+  groups: GDoc[];
+  availableViews: Record<string, string>;
 };

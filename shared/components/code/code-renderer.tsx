@@ -14,7 +14,8 @@ type Props = {
  * @param language 代码的语言，会被转换为 starry-night 的 scope
  */
 export default function CodeRenderer({ code, language }: Props) {
-  const scope = starryNight.flagToScope(language);
+  const scope =
+    starryNight.flagToScope(language) ?? starryNight.flagToScope('cpp');
   const tree = starryNight.highlight(code, scope!);
   const html = toHtml(tree);
   return <pre dangerouslySetInnerHTML={{ __html: html }}></pre>;
