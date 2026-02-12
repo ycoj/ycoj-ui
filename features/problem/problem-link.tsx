@@ -7,12 +7,18 @@ import Link from 'next/link';
 
 export type Props = {
   problem: ContestListProjectionProblem;
+  tid?: string;
 };
 
-export default function ProblemLink({ problem }: Props) {
+export default function ProblemLink({ problem, tid }: Props) {
+  const problemId = problem.pid ?? problem.docId;
+  const href = tid
+    ? `/problem/${problemId}?tid=${tid}`
+    : `/problem/${problemId}`;
+
   return (
     <Button className="h-6 px-0" variant="link" asChild>
-      <Link href={`/problem/${problem.pid ?? problem.docId}`}>
+      <Link href={href}>
         <span className="space-x-1">
           <span data-llm-text={problem.title}>{problem.title}</span>
           {(problem as PublicProjectionProblem).hidden && (

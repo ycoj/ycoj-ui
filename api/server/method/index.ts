@@ -4,6 +4,7 @@ import Contests from './contests';
 import Homework from './homework';
 import Problems from './problems';
 import Record from './record';
+import Training from './training';
 import UI from './ui';
 
 const ServerApis = {
@@ -12,6 +13,7 @@ const ServerApis = {
   Record,
   Contests,
   Homework,
+  Training,
 };
 
 export default ServerApis;

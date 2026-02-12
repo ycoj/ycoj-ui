@@ -1,4 +1,5 @@
 import type { HomeworkDetailTdoc } from '@/api/server/method/homework/detail';
+import ProblemLink from '@/features/problem/problem-link';
 import ProblemStatus from '@/features/problem/problem-status';
 import { Empty, EmptyHeader, EmptyTitle } from '@/shared/components/ui/empty';
 import {
@@ -86,6 +87,7 @@ export default function HomeworkProblemList({
   const allowTidParam = Boolean(
     homeworkStatus?.attend && homeworkStatus?.startAt
   );
+  const problemTid = allowTidParam ? tid : undefined;
 
   if (!orderedPids.length) {
     return (
@@ -115,10 +117,6 @@ export default function HomeworkProblemList({
         {orderedPids.map((pid) => {
           const problem = pdict?.[pid];
           const status = psdict?.[pid];
-          const problemId = problem?.pid ?? problem?.docId ?? pid;
-          const problemHref = allowTidParam
-            ? `/problem/${problemId}?tid=${tid}`
-            : `/problem/${problemId}`;
 
           return (
             <TableRow key={pid}>
@@ -130,13 +128,7 @@ export default function HomeworkProblemList({
               </TableCell>
               <TableCell>
                 {problem ? (
-                  <Link
-                    className="hover:text-primary hover:underline"
-                    href={problemHref}
-                    data-llm-text={problem.title}
-                  >
-                    {problem.title}
-                  </Link>
+                  <ProblemLink problem={problem} tid={problemTid} />
                 ) : (
                   <span className="text-muted-foreground">-</span>
                 )}

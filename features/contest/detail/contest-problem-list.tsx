@@ -1,5 +1,6 @@
 import type { ContestProblemsData } from '@/api/server/method/contests/problems';
 import { ContestProblemStatus } from '@/api/server/method/contests/problems';
+import ProblemLink from '@/features/problem/problem-link';
 import ProblemStatus from '@/features/problem/problem-status';
 import { Empty, EmptyHeader, EmptyTitle } from '@/shared/components/ui/empty';
 import {
@@ -71,13 +72,7 @@ export default function ContestProblemList({ tid, data }: Props) {
               </TableCell>
               <TableCell>
                 {problem ? (
-                  <Link
-                    className="hover:text-primary hover:underline"
-                    href={`/problem/${problem.pid ?? problem.docId}?tid=${tid}`}
-                    data-llm-text={problem.title}
-                  >
-                    {problem.title}
-                  </Link>
+                  <ProblemLink problem={problem} tid={tid} />
                 ) : (
                   <span className="text-muted-foreground">-</span>
                 )}
