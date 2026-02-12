@@ -18,6 +18,14 @@ function decodePayload(value: unknown): string {
   }
 }
 
+function getPropValue(
+  props: Record<string, unknown>,
+  kebabName: string,
+  camelName: string
+): unknown {
+  return props[kebabName] ?? props[camelName];
+}
+
 function SamplePane({ label, text }: { label: string; text: string }) {
   const [copied, setCopied] = useState(false);
 
@@ -43,20 +51,22 @@ function SamplePane({ label, text }: { label: string; text: string }) {
 }
 
 export default function ProblemSample({ className, ...props }: Props) {
+  const propsMap = props as Record<string, unknown>;
+
   const index = useMemo(() => {
-    const raw = (props as Record<string, unknown>)['data-index'];
+    const raw = getPropValue(propsMap, 'data-index', 'dataIndex');
     return typeof raw === 'string' && raw ? raw : '';
-  }, [props]);
+  }, [propsMap]);
 
   const input = useMemo(() => {
-    const raw = (props as Record<string, unknown>)['data-input'];
+    const raw = getPropValue(propsMap, 'data-input', 'dataInput');
     return decodePayload(raw);
-  }, [props]);
+  }, [propsMap]);
 
   const output = useMemo(() => {
-    const raw = (props as Record<string, unknown>)['data-output'];
+    const raw = getPropValue(propsMap, 'data-output', 'dataOutput');
     return decodePayload(raw);
-  }, [props]);
+  }, [propsMap]);
 
   if (!input && !output) return null;
 
