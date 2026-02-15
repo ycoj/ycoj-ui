@@ -68,6 +68,16 @@ function renderByType(
 
     case 'record': {
       const rid = node.raw as string | undefined;
+
+      if (typeof node.value === 'number') {
+        const className = getScoreColorClass(node.value);
+        const content = <span className={className}>{node.value}</span>;
+        if (rid) {
+          return <Link href={`/record/${rid}`}>{content}</Link>;
+        }
+        return content;
+      }
+
       const score = node.score ?? 0;
       const className = getScoreColorClass(score);
       const lines = node.value ? node.value.split('\n') : [];
@@ -89,11 +99,16 @@ function renderByType(
 
     case 'records': {
       const rids = node.raw as string[] | undefined;
+
+      if (typeof node.value === 'number') {
+        return <span>{node.value}</span>;
+      }
+
       const lines = node.value ? node.value.split('\n') : [];
       if (rids && rids.length > 0) {
         return (
           <span>
-            {lines.map((line, i) => (
+            {lines.map((line: string, i: number) => (
               <span key={i}>
                 {i > 0 && <br />}
                 {rids[i] ? (
@@ -108,7 +123,7 @@ function renderByType(
       }
       return (
         <span>
-          {lines.map((line, i) => (
+          {lines.map((line: string, i: number) => (
             <span key={i}>
               {i > 0 && <br />}
               {line}

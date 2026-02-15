@@ -6,12 +6,8 @@ import type {
   ContestProblemsResponse,
 } from '@/api/server/method/contests/problems';
 import ContestProblemList from '@/features/contest/detail/contest-problem-list';
-import {
-  Empty,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyTitle,
-} from '@/shared/components/ui/empty';
+import { Errored } from '@/shared/components/errored';
+import { Empty, EmptyHeader, EmptyTitle } from '@/shared/components/ui/empty';
 import type { HydroError } from '@/shared/types/error';
 import { useEffect, useState } from 'react';
 
@@ -80,31 +76,11 @@ export default function ContestProblemsTab({ tid }: Props) {
   }
 
   if (hydroError) {
-    return (
-      <Empty data-llm-visible="true">
-        <EmptyHeader>
-          <EmptyTitle data-llm-text="题目列表暂不可用">
-            题目列表暂不可用
-          </EmptyTitle>
-          <EmptyDescription data-llm-text={hydroError.message}>
-            {hydroError.message}
-          </EmptyDescription>
-        </EmptyHeader>
-      </Empty>
-    );
+    return <Errored title="题目列表暂不可用" error={hydroError} />;
   }
 
   if (error) {
-    return (
-      <Empty data-llm-visible="true">
-        <EmptyHeader>
-          <EmptyTitle data-llm-text="题目列表加载失败">
-            题目列表加载失败
-          </EmptyTitle>
-          <EmptyDescription data-llm-text={error}>{error}</EmptyDescription>
-        </EmptyHeader>
-      </Empty>
-    );
+    return <Errored title="题目列表加载失败" error={error} />;
   }
 
   if (!problemsData) {

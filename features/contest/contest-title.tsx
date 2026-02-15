@@ -35,7 +35,7 @@ export default function ContestTitle({ tdoc }: Props) {
   return (
     <div
       data-llm-visible="true"
-      className="space-y-3 border-b pb-4"
+      className="space-y-3"
       data-llm-text={tdoc.title}
     >
       <h1 className="wrap-break-word text-2xl leading-snug font-medium">

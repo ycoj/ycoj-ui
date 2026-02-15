@@ -20,16 +20,13 @@ import {
 } from '@/shared/components/ui/table';
 
 type Props = {
-  tid: string;
   data: TrainingDetailResponse;
 };
 
-export default function TrainingContent({ tid, data }: Props) {
+export default function TrainingContent({ data }: Props) {
   const description = data.tdoc.description.trim();
   const sections = data.tdoc.dag ?? [];
   const defaultOpenSections = sections.map((node) => String(node._id));
-  const allowTidParam = Boolean(data.tsdoc?.enroll);
-  const problemTid = allowTidParam ? tid : undefined;
 
   return (
     <div className="space-y-4" data-llm-visible="true">
@@ -111,7 +108,7 @@ export default function TrainingContent({ tid, data }: Props) {
                             </TableCell>
 
                             <TableCell>
-                              <ProblemLink problem={problem} tid={problemTid} />
+                              <ProblemLink problem={problem} openInNewTab />
                             </TableCell>
 
                             <TableCell className="text-center">

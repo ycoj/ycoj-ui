@@ -36,7 +36,7 @@ export default async function TrainingDetailPage({
       <TrainingTitle tdoc={data.tdoc} isEnrolled={isEnrolled} />
       <div className="grid grid-cols-1 gap-8 md:grid-cols-10">
         <div className="md:col-span-8">
-          <TrainingContent tid={tid} data={data} />
+          <TrainingContent data={data} />
         </div>
         <div className="md:col-span-2">
           <TrainingSidebar tid={tid} data={data} owner={owner} />

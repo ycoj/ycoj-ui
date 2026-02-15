@@ -1,6 +1,7 @@
 import ContestTitle from '@/features/contest/contest-title';
 import ContestScoreboard from '@/features/contest/scoreboard/contest-scoreboard';
 import { getHomeworkScoreboard } from '@/features/homework/scoreboard/get-homework-scoreboard';
+import { Separator } from '@/shared/components/ui/separator';
 import type { Metadata } from 'next';
 
 type Params = {
@@ -29,8 +30,9 @@ export default async function HomeworkScoreboardPage({
   const data = await getHomeworkScoreboard(tid);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <ContestTitle tdoc={data.tdoc} />
+      <Separator />
       <ContestScoreboard data={data} tid={tid} pageType="homework" />
     </div>
   );

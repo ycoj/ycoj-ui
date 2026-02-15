@@ -1,7 +1,10 @@
 'server-only';
 
 import ServerApis from '@/api/server/method';
-import type { ProblemDetailResponse } from '@/api/server/method/problems/detail';
+import type {
+  ProblemDetailData,
+  ProblemDetailResponse,
+} from '@/api/server/method/problems/detail';
 import { cache } from 'react';
 
 export const getProblemDetail = cache(
@@ -9,3 +12,5 @@ export const getProblemDetail = cache(
     return await ServerApis.Problems.getProblemDetail(pid, tid);
   }
 );
+
+export type { ProblemDetailData };

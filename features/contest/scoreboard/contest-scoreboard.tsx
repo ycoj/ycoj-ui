@@ -27,7 +27,7 @@ export default function ContestScoreboard({
   const { tdoc, rows, udict, pdict, availableViews } = data;
 
   return (
-    <div className="space-y-4" data-llm-visible="true">
+    <div className="space-y-6" data-llm-visible="true">
       <ScoreboardToolbar
         tid={tid}
         pageType={pageType}

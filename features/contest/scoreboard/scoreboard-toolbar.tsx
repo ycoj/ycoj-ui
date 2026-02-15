@@ -8,7 +8,7 @@ import type { Homework } from '@/shared/types/homework';
 type Props = {
   tid: string;
   pageType: 'contest' | 'homework';
-  availableViews: Record<string, string>;
+  availableViews?: Record<string, string>;
   tdoc: Contest | Homework;
 };
 
@@ -18,9 +18,9 @@ export default function ScoreboardToolbar({
   availableViews,
   tdoc,
 }: Props) {
-  const exportViews = Object.entries(availableViews).filter(
-    ([key]) => key !== 'default'
-  );
+  const exportViews = availableViews
+    ? Object.entries(availableViews).filter(([key]) => key !== 'default')
+    : [];
 
   const showUnlock =
     pageType === 'contest' &&
@@ -28,6 +28,10 @@ export default function ScoreboardToolbar({
     tdoc.lockAt != null &&
     !(tdoc as Contest).unlocked &&
     new Date(tdoc.endAt) < new Date();
+
+  if (exportViews.length === 0 && !showUnlock) {
+    return null;
+  }
 
   return (
     <div className="flex flex-wrap items-center gap-2">

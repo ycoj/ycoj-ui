@@ -1,7 +1,11 @@
-import { getProblemDetail } from '@/features/problem/detail/get-problem-detail';
+import {
+  getProblemDetail,
+  type ProblemDetailData,
+} from '@/features/problem/detail/get-problem-detail';
 import ProblemContent from '@/features/problem/detail/problem-content';
 import ProblemTitle from '@/features/problem/detail/problem-title';
 import ProblemSidebar from '@/features/problem/sidebar';
+import { Errored } from '@/shared/components/errored';
 import TwoColumnLayout from '@/shared/layout/two-column';
 import { Metadata } from 'next';
 
@@ -23,6 +27,13 @@ export async function generateMetadata({
   const { pid } = await params;
   const searchParams = await searchParamsPromise;
   const data = await getProblemDetail(pid, searchParams.tid);
+
+  if ('error' in data) {
+    return {
+      title: '题目详情',
+    };
+  }
+
   return {
     title: data.pdoc.title || '题目详情',
   };
@@ -39,6 +50,20 @@ export default async function ProblemDetailPage({
   const searchParams = await searchParamsPromise;
   const data = await getProblemDetail(pid, searchParams.tid);
 
+  if ('error' in data) {
+    return <Errored title="题目暂不可用" error={data.error} />;
+  }
+
+  return <ProblemDetailContent data={data} searchParams={searchParams} />;
+}
+
+function ProblemDetailContent({
+  data,
+  searchParams,
+}: {
+  data: ProblemDetailData;
+  searchParams: SearchParams;
+}) {
   return (
     <div className="space-y-6">
       <ProblemTitle problem={data.pdoc} contest={data.tdoc} />

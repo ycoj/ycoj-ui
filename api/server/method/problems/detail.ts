@@ -1,5 +1,6 @@
 import { alova } from '@/api/server';
 import type { Contest, ContestStatus } from '@/shared/types/contest';
+import type { Errorable } from '@/shared/types/error';
 import type { Homework } from '@/shared/types/homework';
 import type {
   ProblemStatus,
@@ -8,7 +9,7 @@ import type {
 import type { RecordDoc } from '@/shared/types/record';
 import type { User } from '@/shared/types/user';
 
-export type ProblemDetailResponse = {
+export type ProblemDetailData = {
   pdoc: PublicProjectionProblem;
   udoc: User;
 
@@ -25,6 +26,8 @@ export type ProblemDetailResponse = {
   ctdocs?: Array<Contest>;
   htdocs?: Array<Homework>;
 };
+
+export type ProblemDetailResponse = Errorable<ProblemDetailData>;
 
 export const getProblemDetail = (pid: string, tid?: string) =>
   alova.Get<ProblemDetailResponse>(`/p/${pid}`, {

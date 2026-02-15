@@ -1,6 +1,7 @@
 import ContestTitle from '@/features/contest/contest-title';
 import ContestScoreboard from '@/features/contest/scoreboard/contest-scoreboard';
 import { getContestScoreboard } from '@/features/contest/scoreboard/get-contest-scoreboard';
+import { Separator } from '@/shared/components/ui/separator';
 import type { Metadata } from 'next';
 
 type Params = {
@@ -29,8 +30,9 @@ export default async function ContestScoreboardPage({
   const data = await getContestScoreboard(tid);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <ContestTitle tdoc={data.tdoc} />
+      <Separator />
       <ContestScoreboard data={data} tid={tid} pageType="contest" />
     </div>
   );

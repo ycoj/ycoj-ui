@@ -123,7 +123,7 @@ export type ScoreboardNodeType =
 
 export type ScoreboardNode = {
   type: ScoreboardNodeType;
-  value: string;
+  value: string | number;
   raw?: unknown;
   score?: number;
   style?: string;
@@ -150,5 +150,5 @@ export type ScoreboardResponse = {
   udict: BaseUserDict;
   pdict: ProblemDict;
   groups: GDoc[];
-  availableViews: Record<string, string>;
+  availableViews?: Record<string, string>;
 };
