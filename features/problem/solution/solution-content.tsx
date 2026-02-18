@@ -4,8 +4,7 @@ import { getUser } from '@/features/user/lib/get-user';
 import { hasPerm, PERM } from '@/features/user/lib/priv';
 import { Button } from '@/shared/components/ui/button';
 import { Separator } from '@/shared/components/ui/separator';
-import { Add01Icon } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
+import { Plus } from 'lucide-react';
 import Link from 'next/link';
 
 type Props = {
@@ -33,7 +32,7 @@ export default async function SolutionContent({ data }: Props) {
           <span className="text-muted-foreground">没有我的做法？</span>
           <Button variant="outline" size="sm" asChild>
             <Link href={`/problem/${pid}/solution/create`}>
-              <HugeiconsIcon icon={Add01Icon} className="size-4" />
+              <Plus className="size-4" />
               创建题解
             </Link>
           </Button>

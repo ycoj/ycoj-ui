@@ -5,8 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/shared/components/ui/card';
-import { GlobeIcon } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
+import { Globe } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Suggestions({
@@ -23,7 +22,7 @@ export default function Suggestions({
     <Card data-llm-visible="true">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          <HugeiconsIcon icon={GlobeIcon} className="size-5" />
+          <Globe className="size-5" />
           <span data-llm-text="推荐">推荐</span>
         </CardTitle>
       </CardHeader>

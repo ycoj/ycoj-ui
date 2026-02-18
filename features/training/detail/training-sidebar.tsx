@@ -9,8 +9,7 @@ import {
 import UserSpan from '@/features/user/user-span';
 import { Button } from '@/shared/components/ui/button';
 import type { BaseUser } from '@/shared/types/user';
-import { PlusSignSquareIcon } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
+import { PlusSquare } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -77,7 +76,7 @@ export default function TrainingSidebar({ tid, data, owner }: Props) {
             onClick={handleEnroll}
             disabled={submitting}
           >
-            <HugeiconsIcon icon={PlusSignSquareIcon} strokeWidth={2} />
+            <PlusSquare strokeWidth={2} />
             <span data-llm-text={submitting ? '参加中...' : '参加训练'}>
               {submitting ? '参加中...' : '参加训练'}
             </span>

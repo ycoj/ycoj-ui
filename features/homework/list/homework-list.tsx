@@ -13,14 +13,8 @@ import {
 } from '@/shared/components/ui/empty';
 import { Separator } from '@/shared/components/ui/separator';
 import type { ContestListProjection } from '@/shared/types/contest';
-import {
-  Calendar01Icon,
-  SearchList02Icon,
-  Tick02Icon,
-  UserGroupIcon,
-} from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
 import dayjs from 'dayjs';
+import { Calendar, Search, Check, Users } from 'lucide-react';
 import Link from 'next/link';
 import { Fragment } from 'react';
 
@@ -76,7 +70,7 @@ function HomeworkItem({
         <div className="text-muted-foreground flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1.5">
           <ContestRuleBadge rule={homework.rule} />
           <Badge variant="secondary" title="参与人数">
-            <HugeiconsIcon icon={UserGroupIcon} data-icon="inline-start" />
+            <Users data-icon="inline-start" />
             <span
               data-llm-text={String(homework.attend)}
               className="tabular-nums"
@@ -86,7 +80,7 @@ function HomeworkItem({
           </Badge>
           {timeText && (
             <Badge variant="secondary" title="作业时间">
-              <HugeiconsIcon icon={Calendar01Icon} data-icon="inline-start" />
+              <Calendar data-icon="inline-start" />
               <span data-llm-text={timeText} className="tabular-nums">
                 {timeText}
               </span>
@@ -97,7 +91,7 @@ function HomeworkItem({
               variant="secondary"
               className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400"
             >
-              <HugeiconsIcon icon={Tick02Icon} data-icon="inline-start" />
+              <Check data-icon="inline-start" />
               <span data-llm-text="已参加">已参加</span>
             </Badge>
           )}
@@ -112,7 +106,7 @@ export default function HomeworkList({ data }: Props) {
     return (
       <Empty className="border border-dashed" data-llm-visible="true">
         <EmptyMedia variant="icon">
-          <HugeiconsIcon icon={SearchList02Icon} strokeWidth={2} />
+          <Search strokeWidth={2} />
         </EmptyMedia>
         <EmptyHeader>
           <EmptyTitle data-llm-text="暂无作业">暂无作业</EmptyTitle>

@@ -11,15 +11,15 @@ import type { Contest, ContestStatus } from '@/shared/types/contest';
 import { RuleTexts } from '@/shared/types/contest';
 import type { Homework } from '@/shared/types/homework';
 import type { ContestListProjectionProblem } from '@/shared/types/problem';
-import {
-  ArrowLeftIcon,
-  Book03Icon,
-  Chat01Icon,
-  File01Icon,
-  Navigation03Icon,
-} from '@hugeicons/core-free-icons';
-import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
 import dayjs from 'dayjs';
+import {
+  ArrowLeft,
+  BookOpen,
+  MessageCircle,
+  File,
+  Navigation,
+  type LucideIcon,
+} from 'lucide-react';
 import Link from 'next/link';
 
 type Props = {
@@ -36,7 +36,7 @@ type Props = {
 };
 
 type SidebarButtonProps = {
-  icon: IconSvgElement;
+  icon: LucideIcon;
   text: string;
   href: string;
   count?: number;
@@ -54,7 +54,7 @@ function getContestProblemLabel(index: number) {
   return `P${index + 1}`;
 }
 
-function SidebarButton({ icon, text, href, count }: SidebarButtonProps) {
+function SidebarButton({ icon: Icon, text, href, count }: SidebarButtonProps) {
   return (
     <Button
       asChild
@@ -62,7 +62,7 @@ function SidebarButton({ icon, text, href, count }: SidebarButtonProps) {
       variant="ghost"
     >
       <Link href={href}>
-        <HugeiconsIcon icon={icon} strokeWidth={2} />
+        <Icon strokeWidth={2} />
         <span data-llm-text={text}>{text}</span>
         {count !== undefined && (
           <Badge variant="secondary" className="ml-auto">
@@ -105,7 +105,7 @@ export default function ProblemSidebar({
                 tid
               )}
             >
-              <HugeiconsIcon icon={Navigation03Icon} strokeWidth={2} />
+              <Navigation strokeWidth={2} />
               <span data-llm-text="提交">提交</span>
             </Link>
           </Button>
@@ -115,14 +115,14 @@ export default function ProblemSidebar({
             <Link
               href={withTid(`/problem/${problem.pid ?? problem.docId}`, tid)}
             >
-              <HugeiconsIcon icon={ArrowLeftIcon} strokeWidth={2} />
+              <ArrowLeft strokeWidth={2} />
               <span data-llm-text="返回题目">返回题目</span>
             </Link>
           </Button>
         )}
         {!isContestMode && (
           <SidebarButton
-            icon={Chat01Icon}
+            icon={MessageCircle}
             text="讨论"
             href="#"
             count={discussionCount}
@@ -130,7 +130,7 @@ export default function ProblemSidebar({
         )}
         {!isContestMode && (
           <SidebarButton
-            icon={Book03Icon}
+            icon={BookOpen}
             text="题解"
             href={withTid(
               `/problem/${problem.pid ?? problem.docId}/solution`,
@@ -140,7 +140,7 @@ export default function ProblemSidebar({
           />
         )}
         <SidebarButton
-          icon={File01Icon}
+          icon={File}
           text="文件"
           href={withTid(`/problem/${problem.pid ?? problem.docId}/files`, tid)}
         />

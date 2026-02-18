@@ -8,8 +8,7 @@ import {
   EmptyTitle,
 } from '@/shared/components/ui/empty';
 import type { ScoreboardResponse } from '@/shared/types/contest';
-import { ClipboardIcon } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
+import { Clipboard } from 'lucide-react';
 
 type Props = {
   data: ScoreboardResponse;
@@ -46,7 +45,7 @@ export default function ContestScoreboard({
       ) : (
         <Empty data-llm-visible="true">
           <EmptyMedia variant="icon">
-            <HugeiconsIcon icon={ClipboardIcon} strokeWidth={2} />
+            <Clipboard strokeWidth={2} />
           </EmptyMedia>
           <EmptyHeader>
             <EmptyTitle data-llm-text="暂无成绩数据">暂无成绩数据</EmptyTitle>

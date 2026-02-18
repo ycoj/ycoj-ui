@@ -14,14 +14,14 @@ import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import { Separator } from '@/shared/components/ui/separator';
 import type { BaseUser } from '@/shared/types/user';
-import {
-  Award01Icon,
-  Chat01Icon,
-  PlusSignSquareIcon,
-  Tick02Icon,
-} from '@hugeicons/core-free-icons';
-import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
 import dayjs from 'dayjs';
+import {
+  Award,
+  MessageCircle,
+  PlusSquare,
+  Check,
+  type LucideIcon,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -35,11 +35,11 @@ type Props = {
 
 type SidebarButtonProps = {
   href: string;
-  icon: IconSvgElement;
+  icon: LucideIcon;
   text: string;
 };
 
-function SidebarButton({ href, icon, text }: SidebarButtonProps) {
+function SidebarButton({ href, icon: Icon, text }: SidebarButtonProps) {
   return (
     <Button
       asChild
@@ -47,7 +47,7 @@ function SidebarButton({ href, icon, text }: SidebarButtonProps) {
       variant="ghost"
     >
       <Link href={href}>
-        <HugeiconsIcon icon={icon} strokeWidth={2} />
+        <Icon strokeWidth={2} />
         <span data-llm-text={text}>{text}</span>
       </Link>
     </Button>
@@ -79,7 +79,7 @@ export default function ContestSidebar({
       variant="secondary"
       className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400"
     >
-      <HugeiconsIcon icon={Tick02Icon} data-icon="inline-start" />
+      <Check data-icon="inline-start" />
       <span data-llm-text="已报名">已报名</span>
     </Badge>
   ) : undefined;
@@ -107,7 +107,7 @@ export default function ContestSidebar({
             onClick={handleAttend}
             disabled={submitting}
           >
-            <HugeiconsIcon icon={PlusSignSquareIcon} strokeWidth={2} />
+            <PlusSquare strokeWidth={2} />
             <span data-llm-text={submitting ? '报名中...' : '报名比赛'}>
               {submitting ? '报名中...' : '报名比赛'}
             </span>
@@ -115,10 +115,10 @@ export default function ContestSidebar({
         )}
         <SidebarButton
           href={`/contest/${tid}/scoreboard`}
-          icon={Award01Icon}
+          icon={Award}
           text="成绩表"
         />
-        <SidebarButton href="#" icon={Chat01Icon} text="讨论" />
+        <SidebarButton href="#" icon={MessageCircle} text="讨论" />
       </div>
 
       <Separator />

@@ -1,18 +1,18 @@
 import {
-  Appointment01Icon,
-  Calendar01Icon,
-  ChampionIcon,
-  Clock01Icon,
-  CodeSquareIcon,
-  Tick02Icon,
-  UserGroupIcon,
-  UserIcon,
-} from '@hugeicons/core-free-icons';
-import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
+  CalendarCheck,
+  Calendar,
+  Trophy,
+  Clock,
+  Code2,
+  Check,
+  Users,
+  User,
+  type LucideIcon,
+} from 'lucide-react';
 import type { ReactNode } from 'react';
 
 type InfoItemProps = {
-  icon: IconSvgElement;
+  icon: LucideIcon;
   label: string;
   value: ReactNode;
   llmText?: string;
@@ -33,11 +33,11 @@ type Props = {
   ownerText?: string;
 };
 
-function InfoItem({ icon, label, value, llmText }: InfoItemProps) {
+function InfoItem({ icon: Icon, label, value, llmText }: InfoItemProps) {
   return (
     <div className="flex items-center justify-between gap-3 text-sm">
       <div className="text-muted-foreground inline-flex items-center gap-1.5 shrink-0">
-        <HugeiconsIcon icon={icon} className="size-4" />
+        <Icon className="size-4" />
         <span>{label}</span>
       </div>
       <div className="text-right" data-llm-text={llmText}>
@@ -63,49 +63,49 @@ export default function ContestInfo({
 }: Props) {
   return (
     <div className="space-y-3 px-2">
-      <InfoItem icon={Appointment01Icon} label="状态" value={status} />
+      <InfoItem icon={CalendarCheck} label="状态" value={status} />
       {attendedBadge && (
-        <InfoItem icon={Tick02Icon} label="报名" value={attendedBadge} />
+        <InfoItem icon={Check} label="报名" value={attendedBadge} />
       )}
       <InfoItem
-        icon={ChampionIcon}
+        icon={Trophy}
         label="比赛规则"
         value={rule}
         llmText={ruleText}
       />
       <InfoItem
-        icon={CodeSquareIcon}
+        icon={Code2}
         label="题目数量"
         value={`${problemCount} 道题`}
         llmText={String(problemCount)}
       />
       <InfoItem
-        icon={Calendar01Icon}
+        icon={Calendar}
         label="开始时间"
         value={beginAtText}
         llmText={beginAtText}
       />
       <InfoItem
-        icon={Calendar01Icon}
+        icon={Calendar}
         label="结束时间"
         value={endAtText}
         llmText={endAtText}
       />
       <InfoItem
-        icon={Clock01Icon}
+        icon={Clock}
         label="持续时间"
         value={durationText}
         llmText={durationText}
       />
       <InfoItem
-        icon={UserGroupIcon}
+        icon={Users}
         label="参赛人数"
         value={<span className="tabular-nums">{attend}</span>}
         llmText={String(attend)}
       />
       {showOwner && (
         <InfoItem
-          icon={UserIcon}
+          icon={User}
           label="主持人"
           value={owner ?? '-'}
           llmText={ownerText}

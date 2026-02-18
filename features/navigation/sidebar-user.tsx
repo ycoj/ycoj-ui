@@ -11,8 +11,7 @@ import {
   SidebarMenuItem,
 } from '@/shared/components/ui/sidebar';
 import { type User } from '@/shared/types/user';
-import { ArrowDown01Icon } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
+import { ChevronDown } from 'lucide-react';
 import { redirect } from 'next/navigation';
 
 export function SidebarUser({ user }: { user: User | null | undefined }) {
@@ -48,7 +47,7 @@ export function SidebarUser({ user }: { user: User | null | undefined }) {
               {modType}
             </span>
           </div>
-          <HugeiconsIcon icon={ArrowDown01Icon} className="ml-auto size-4" />
+          <ChevronDown className="ml-auto size-4" />
         </SidebarMenuButton>
       </SidebarMenuItem>
     </SidebarMenu>

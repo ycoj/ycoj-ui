@@ -3,8 +3,7 @@
 import ClientApis from '@/api/client/method';
 import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/utils';
-import { ArrowDown01Icon, ArrowUp01Icon } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
 
 type Props = {
@@ -56,7 +55,7 @@ export default function SolutionVote({
         disabled={submitting}
         aria-label="upvote"
       >
-        <HugeiconsIcon icon={ArrowUp01Icon} strokeWidth={2.5} />
+        <ChevronUp strokeWidth={2.5} />
       </Button>
       <span className="text-base tabular-nums" data-llm-text={String(vote)}>
         {vote}
@@ -73,7 +72,7 @@ export default function SolutionVote({
         disabled={submitting}
         aria-label="downvote"
       >
-        <HugeiconsIcon icon={ArrowDown01Icon} strokeWidth={2.5} />
+        <ChevronDown strokeWidth={2.5} />
       </Button>
     </div>
   );

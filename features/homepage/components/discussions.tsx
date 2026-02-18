@@ -8,14 +8,9 @@ import {
 import { cn } from '@/shared/lib/utils';
 import type { Discussion } from '@/shared/types/discussion';
 import type { BaseUserDict } from '@/shared/types/user';
-import {
-  Calendar01Icon,
-  Chat01Icon,
-  Comment01Icon,
-  EyeIcon,
-} from '@hugeicons/core-free-icons';
-import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
 import dayjs from 'dayjs';
+import { Calendar, MessageCircle, Eye, type LucideIcon } from 'lucide-react';
+import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 type Props = {
@@ -24,15 +19,15 @@ type Props = {
 };
 
 function MetaItem({
-  icon,
+  icon: Icon,
   children,
 }: {
-  icon: IconSvgElement;
+  icon: LucideIcon;
   children: ReactNode;
 }) {
   return (
     <span className="inline-flex items-center gap-1">
-      <HugeiconsIcon icon={icon} className="size-3.5" />
+      <Icon className="size-3.5" />
       <span className="tabular-nums">{children}</span>
     </span>
   );
@@ -56,22 +51,27 @@ function DiscussionRow({
         data-llm-text={discussion.title}
         className="text-foreground overflow-hidden text-sm font-medium text-ellipsis whitespace-nowrap"
       >
-        {discussion.title}
+        <Link
+          href={`/discussion/${discussion.docId}`}
+          className="hover:underline"
+        >
+          {discussion.title}
+        </Link>
       </p>
       <div className="text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
         <UserSpan user={user} showAvatar />
-        <MetaItem icon={Comment01Icon}>
+        <MetaItem icon={MessageCircle}>
           <span data-llm-text={String(discussion.nReply)}>
             {discussion.nReply}
           </span>
         </MetaItem>
-        <MetaItem icon={EyeIcon}>
+        <MetaItem icon={Eye}>
           <span data-llm-text={String(discussion.views)}>
             {discussion.views}
           </span>
         </MetaItem>
         {updatedAt && (
-          <MetaItem icon={Calendar01Icon}>
+          <MetaItem icon={Calendar}>
             <span data-llm-text={updatedAt}>{updatedAt}</span>
           </MetaItem>
         )}
@@ -92,7 +92,7 @@ export default function Discussions({ discussions, udict }: Props) {
     <Card data-llm-visible="true">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          <HugeiconsIcon icon={Chat01Icon} className="size-5" />
+          <MessageCircle className="size-5" />
           <span data-llm-text="最近讨论">最近讨论</span>
         </CardTitle>
       </CardHeader>

@@ -1,6 +1,7 @@
 'server-only';
 
 import Contests from './contests';
+import Discussion from './discussion';
 import Homework from './homework';
 import Problems from './problems';
 import Record from './record';
@@ -11,6 +12,7 @@ const ServerApis = {
   UI,
   Problems,
   Record,
+  Discussion,
   Contests,
   Homework,
   Training,

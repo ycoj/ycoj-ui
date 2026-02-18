@@ -10,8 +10,7 @@ import {
   PopoverTrigger,
 } from '@/shared/components/ui/popover';
 import type { ObjectId } from '@/shared/types/shared';
-import { Delete02Icon } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
+import { Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -55,7 +54,7 @@ export default function SolutionDeleteButton({ pid, psid }: Props) {
           aria-label="删除题解"
           title="删除题解"
         >
-          <HugeiconsIcon icon={Delete02Icon} strokeWidth={2} />
+          <Trash2 strokeWidth={2} />
           <span className="sr-only" data-llm-text="删除题解">
             删除题解
           </span>

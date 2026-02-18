@@ -12,14 +12,8 @@ import {
 } from '@/shared/components/ui/card';
 import { cn } from '@/shared/lib/utils';
 import type { Contest } from '@/shared/types/contest';
-import {
-  Award01Icon,
-  Calendar01Icon,
-  StarIcon,
-  UserGroupIcon,
-} from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
 import dayjs from 'dayjs';
+import { Award, Calendar, Star, Users } from 'lucide-react';
 import Link from 'next/link';
 
 type Props = {
@@ -80,19 +74,19 @@ function ContestRow({ contest }: { contest: Contest }) {
             className="bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400"
             title="Rated"
           >
-            <HugeiconsIcon icon={StarIcon} data-icon="inline-start" />
+            <Star data-icon="inline-start" />
             <span data-llm-text="Rated">Rated</span>
           </Badge>
         )}
         <Badge variant="secondary" title="参赛人数">
-          <HugeiconsIcon icon={UserGroupIcon} data-icon="inline-start" />
+          <Users data-icon="inline-start" />
           <span data-llm-text={String(contest.attend)} className="tabular-nums">
             {contest.attend}
           </span>
         </Badge>
         {timeText && (
           <Badge variant="secondary" title="比赛时间">
-            <HugeiconsIcon icon={Calendar01Icon} data-icon="inline-start" />
+            <Calendar data-icon="inline-start" />
             <span data-llm-text={timeText} className="tabular-nums">
               {timeText}
             </span>
@@ -115,7 +109,7 @@ export default function Contests({ contests }: Props) {
     <Card data-llm-visible="true">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          <HugeiconsIcon icon={Award01Icon} className="size-5" />
+          <Award className="size-5" />
           <span data-llm-text="最近比赛">最近比赛</span>
         </CardTitle>
       </CardHeader>

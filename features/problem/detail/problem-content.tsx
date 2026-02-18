@@ -12,8 +12,7 @@ import {
   TabsTrigger,
 } from '@/shared/components/ui/tabs';
 import { ContestDetailProjectionProblem } from '@/shared/types/problem';
-import { InformationCircleIcon } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
+import { Info } from 'lucide-react';
 
 const LANGUAGE_LABELS = {
   zh: '简体中文',
@@ -38,11 +37,7 @@ export default function ProblemContent({
       data-llm-visible="true"
       className="border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/50 dark:bg-blue-950/40 dark:text-blue-300"
     >
-      <HugeiconsIcon
-        icon={InformationCircleIcon}
-        strokeWidth={2}
-        className="text-current"
-      />
+      <Info strokeWidth={2} className="text-current" />
       <AlertTitle data-llm-text="文件输入输出">文件输入输出</AlertTitle>
       <AlertDescription>
         <span data-llm-text="本题需要文件输入输出，请从文件">

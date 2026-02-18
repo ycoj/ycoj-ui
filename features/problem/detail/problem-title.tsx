@@ -5,13 +5,7 @@ import { formatMemory, formatTime } from '@/shared/lib/format-units';
 import type { Contest } from '@/shared/types/contest';
 import type { Homework } from '@/shared/types/homework';
 import type { PublicProjectionProblem } from '@/shared/types/problem';
-import {
-  Award01Icon,
-  Clock01Icon,
-  CodeSquareIcon,
-  ServerStack03Icon,
-} from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
+import { Award, Clock, Code2, Server } from 'lucide-react';
 
 type Props = {
   problem: PublicProjectionProblem;
@@ -59,34 +53,22 @@ export default function ProblemTitle({ problem, contest }: Props) {
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <ProblemDifficulty difficulty={problem.difficulty} />
           <Badge variant="secondary">
-            <HugeiconsIcon
-              strokeWidth={2}
-              icon={CodeSquareIcon}
-              data-icon="inline-start"
-            />
+            <Code2 strokeWidth={2} data-icon="inline-start" />
             {typeLabel}
           </Badge>
           <Badge variant="secondary">
-            <HugeiconsIcon
-              strokeWidth={3}
-              icon={Clock01Icon}
-              data-icon="inline-start"
-            />
+            <Clock strokeWidth={3} data-icon="inline-start" />
             {formatTime(problem.config?.timeMax ?? 0, 'ms')}
           </Badge>
 
           <Badge variant="secondary">
-            <HugeiconsIcon
-              strokeWidth={2}
-              icon={ServerStack03Icon}
-              data-icon="inline-start"
-            />
+            <Server strokeWidth={2} data-icon="inline-start" />
             {formatMemory((problem.config?.memoryMax ?? 0) * 1024 * 1024)}
           </Badge>
 
           {contest && (
             <Badge className="border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-900/50 dark:bg-amber-950 dark:text-amber-400">
-              <HugeiconsIcon icon={Award01Icon} strokeWidth={2} />
+              <Award strokeWidth={2} />
               <span data-llm-text={contest.title}>{contest.title}</span>
             </Badge>
           )}

@@ -1,8 +1,7 @@
 'use client';
 
 import { Input } from '@/shared/components/ui/input';
-import { Search01Icon } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
+import { Search } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 
@@ -32,10 +31,7 @@ export default function ProblemSearch() {
           placeholder="搜索题目..."
           className="h-10 pl-10 pr-4 text-sm"
         />
-        <HugeiconsIcon
-          icon={Search01Icon}
-          className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
-        />
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       </div>
     </form>
   );

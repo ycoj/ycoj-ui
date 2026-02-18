@@ -5,11 +5,7 @@ import {
   STATUS_BACKGROUND_COLOR,
 } from '@/shared/configs/status';
 import { ProblemStatus as ProblemStatusDoc } from '@/shared/types/problem';
-import {
-  CheckmarkCircle01Icon,
-  CancelCircleIcon,
-} from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
+import { CircleCheck, XCircle } from 'lucide-react';
 import Link from 'next/link';
 
 type Props = {
@@ -35,11 +31,11 @@ export default function ProblemStatus({ status }: Props) {
       asChild
     >
       <Link href={status.rid ? `/record/${status.rid}` : '#'}>
-        <HugeiconsIcon
-          icon={isAccepted ? CheckmarkCircle01Icon : CancelCircleIcon}
-          size={16}
-          strokeWidth={3}
-        />
+        {isAccepted ? (
+          <CircleCheck size={16} strokeWidth={3} />
+        ) : (
+          <XCircle size={16} strokeWidth={3} />
+        )}
         <span className="hidden md:inline-block">{statusText}</span>
       </Link>
     </Badge>

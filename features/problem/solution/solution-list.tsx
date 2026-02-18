@@ -10,8 +10,7 @@ import {
   EmptyTitle,
 } from '@/shared/components/ui/empty';
 import { Separator } from '@/shared/components/ui/separator';
-import { IdeaIcon, Refresh01Icon } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
+import { Lightbulb, RefreshCw } from 'lucide-react';
 import Link from 'next/link';
 import { Fragment } from 'react';
 
@@ -38,7 +37,7 @@ export default function SolutionList({
     return (
       <Empty data-llm-visible="true">
         <EmptyMedia variant="icon">
-          <HugeiconsIcon icon={IdeaIcon} strokeWidth={2} />
+          <Lightbulb strokeWidth={2} />
         </EmptyMedia>
         <EmptyHeader>
           <EmptyTitle data-llm-text="暂无题解">暂无题解</EmptyTitle>
@@ -49,8 +48,7 @@ export default function SolutionList({
         <EmptyContent>
           <Button asChild variant="secondary">
             <Link href={`/problem/${pid}/solution`}>
-              <HugeiconsIcon
-                icon={Refresh01Icon}
+              <RefreshCw
                 strokeWidth={2}
                 className="size-4"
                 data-icon="inline-start"

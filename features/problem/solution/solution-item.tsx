@@ -7,9 +7,8 @@ import oid2ts from '@/shared/lib/oid2ts';
 import type { SolutionDoc } from '@/shared/types/problem';
 import type { ObjectId } from '@/shared/types/shared';
 import type { BaseUserDict } from '@/shared/types/user';
-import { Edit02Icon } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
 import dayjs from 'dayjs';
+import { Pencil } from 'lucide-react';
 import Link from 'next/link';
 
 type Props = {
@@ -71,7 +70,7 @@ export default function SolutionItem({
               title="编辑题解"
             >
               <Link href={`/problem/${pid}/solution/${solution.docId}/edit`}>
-                <HugeiconsIcon icon={Edit02Icon} strokeWidth={2} />
+                <Pencil strokeWidth={2} />
                 <span className="sr-only" data-llm-text="编辑题解">
                   编辑题解
                 </span>

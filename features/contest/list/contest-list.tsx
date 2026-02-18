@@ -13,17 +13,16 @@ import {
 } from '@/shared/components/ui/empty';
 import { Separator } from '@/shared/components/ui/separator';
 import type { ContestListProjection } from '@/shared/types/contest';
-import {
-  Calendar01Icon,
-  Clock01Icon,
-  CodeSquareIcon,
-  SearchList02Icon,
-  StarIcon,
-  Tick02Icon,
-  UserGroupIcon,
-} from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
 import dayjs from 'dayjs';
+import {
+  Calendar,
+  Clock,
+  Code2,
+  Search,
+  Star,
+  Check,
+  Users,
+} from 'lucide-react';
 import Link from 'next/link';
 import { Fragment } from 'react';
 
@@ -111,12 +110,12 @@ function ContestItem({
               className="bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400"
               title="Rated"
             >
-              <HugeiconsIcon icon={StarIcon} data-icon="inline-start" />
+              <Star data-icon="inline-start" />
               <span data-llm-text="Rated">Rated</span>
             </Badge>
           )}
           <Badge variant="secondary" title="参赛人数">
-            <HugeiconsIcon icon={UserGroupIcon} data-icon="inline-start" />
+            <Users data-icon="inline-start" />
             <span
               data-llm-text={String(contest.attend)}
               className="tabular-nums"
@@ -126,21 +125,21 @@ function ContestItem({
           </Badge>
           {durationText && (
             <Badge variant="secondary" title="比赛持续时间">
-              <HugeiconsIcon icon={Clock01Icon} data-icon="inline-start" />
+              <Clock data-icon="inline-start" />
               <span data-llm-text={durationText} className="tabular-nums">
                 {durationText}
               </span>
             </Badge>
           )}
           <Badge variant="secondary" title="题目数量">
-            <HugeiconsIcon icon={CodeSquareIcon} data-icon="inline-start" />
+            <Code2 data-icon="inline-start" />
             <span data-llm-text={String(problemCount)} className="tabular-nums">
               {problemCount} 道题
             </span>
           </Badge>
           {timeText && (
             <Badge variant="secondary" title="比赛时间">
-              <HugeiconsIcon icon={Calendar01Icon} data-icon="inline-start" />
+              <Calendar data-icon="inline-start" />
               <span data-llm-text={timeText} className="tabular-nums">
                 {timeText}
               </span>
@@ -151,7 +150,7 @@ function ContestItem({
               variant="secondary"
               className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400"
             >
-              <HugeiconsIcon icon={Tick02Icon} data-icon="inline-start" />
+              <Check data-icon="inline-start" />
               <span data-llm-text="已参加">已参加</span>
             </Badge>
           )}
@@ -166,7 +165,7 @@ export default function ContestList({ data }: Props) {
     return (
       <Empty className="border border-dashed" data-llm-visible="true">
         <EmptyMedia variant="icon">
-          <HugeiconsIcon icon={SearchList02Icon} strokeWidth={2} />
+          <Search strokeWidth={2} />
         </EmptyMedia>
         <EmptyHeader>
           <EmptyTitle data-llm-text="暂无比赛">暂无比赛</EmptyTitle>

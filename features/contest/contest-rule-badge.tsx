@@ -1,8 +1,7 @@
 import { Badge } from '@/shared/components/ui/badge';
 import { cn } from '@/shared/lib/utils';
 import { RuleTexts, type ContestRule } from '@/shared/types/contest';
-import { ChampionIcon } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
+import { Trophy } from 'lucide-react';
 
 type Props = {
   rule: ContestRule;
@@ -29,7 +28,7 @@ export default function ContestRuleBadge({ rule }: Props) {
 
   return (
     <Badge variant="secondary" className={styleClass}>
-      <HugeiconsIcon icon={ChampionIcon} />
+      <Trophy />
       <span data-llm-text={ruleText}>{ruleText}</span>
     </Badge>
   );

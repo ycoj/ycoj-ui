@@ -10,14 +10,7 @@ import {
   SelectValue,
 } from '@/shared/components/ui/select';
 import { STATUS_TEXTS } from '@/shared/configs/status';
-import {
-  Activity01Icon,
-  Award01Icon,
-  CodeSquareIcon,
-  Search01Icon,
-  User02Icon,
-} from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
+import { Activity, Award, Code2, Search, User } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -72,10 +65,7 @@ export default function RecordFilter() {
             className="pl-9 pr-3 text-sm"
             {...register('uidOrName')}
           />
-          <HugeiconsIcon
-            icon={User02Icon}
-            className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-          />
+          <User className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         </div>
 
         <div className="relative w-40 min-w-[160px]">
@@ -85,10 +75,7 @@ export default function RecordFilter() {
             className="pl-9 pr-3 text-sm"
             {...register('pid')}
           />
-          <HugeiconsIcon
-            icon={CodeSquareIcon}
-            className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-          />
+          <Code2 className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         </div>
 
         <div className="relative w-40 min-w-[160px]">
@@ -98,10 +85,7 @@ export default function RecordFilter() {
             className="pl-9 pr-3 text-sm"
             {...register('tid')}
           />
-          <HugeiconsIcon
-            icon={Award01Icon}
-            className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-          />
+          <Award className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         </div>
 
         <Controller
@@ -116,10 +100,7 @@ export default function RecordFilter() {
             >
               <SelectTrigger className="w-40 min-w-[160px]">
                 <div className="flex items-center gap-2">
-                  <HugeiconsIcon
-                    icon={Activity01Icon}
-                    className="size-4 text-muted-foreground"
-                  />
+                  <Activity className="size-4 text-muted-foreground" />
                   <SelectValue placeholder="状态" />
                 </div>
               </SelectTrigger>
@@ -136,7 +117,7 @@ export default function RecordFilter() {
         />
 
         <Button type="submit" variant="secondary" className="ml-auto gap-2">
-          <HugeiconsIcon icon={Search01Icon} strokeWidth={2} />
+          <Search strokeWidth={2} />
           筛选
         </Button>
       </div>

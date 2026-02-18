@@ -8,11 +8,10 @@ import {
   CardHeader,
   CardTitle,
 } from '@/shared/components/ui/card';
-import { Clock01Icon } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import duration from 'dayjs/plugin/duration';
+import { Clock } from 'lucide-react';
 
 dayjs.extend(duration);
 dayjs.extend(customParseFormat);
@@ -90,7 +89,7 @@ export default function Countdown({ config }: { config: CountdownConfig }) {
     <Card data-llm-visible="true">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
-          <HugeiconsIcon icon={Clock01Icon} className="size-5" />
+          <Clock className="size-5" />
           <span data-llm-text="倒计时">倒计时</span>
         </CardTitle>
       </CardHeader>

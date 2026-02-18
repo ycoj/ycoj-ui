@@ -9,8 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/components/ui/select';
-import { Search01Icon, Tag01Icon } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
+import { Search, Tag } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useMemo, useState, type FormEvent } from 'react';
 
@@ -60,19 +59,13 @@ export default function HomeworkFilter({ groups }: Props) {
             placeholder="搜索作业标题"
             className="pl-9 pr-3 text-sm"
           />
-          <HugeiconsIcon
-            icon={Search01Icon}
-            className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-          />
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         </div>
 
         <Select value={group} onValueChange={setGroup}>
           <SelectTrigger className="w-44 min-w-[176px]">
             <div className="flex items-center gap-2">
-              <HugeiconsIcon
-                icon={Tag01Icon}
-                className="size-4 text-muted-foreground"
-              />
+              <Tag className="size-4 text-muted-foreground" />
               <SelectValue placeholder="分组" />
             </div>
           </SelectTrigger>
@@ -87,7 +80,7 @@ export default function HomeworkFilter({ groups }: Props) {
         </Select>
 
         <Button type="submit" variant="secondary" className="ml-auto gap-2">
-          <HugeiconsIcon icon={Search01Icon} strokeWidth={2} />
+          <Search strokeWidth={2} />
           筛选
         </Button>
       </div>

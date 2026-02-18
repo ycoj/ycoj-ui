@@ -3,15 +3,8 @@ import { formatContestDuration } from '@/features/contest/detail/contest-utils';
 import { Badge } from '@/shared/components/ui/badge';
 import type { Contest } from '@/shared/types/contest';
 import type { Homework } from '@/shared/types/homework';
-import {
-  Calendar01Icon,
-  Clock01Icon,
-  CodeSquareIcon,
-  StarIcon,
-  UserGroupIcon,
-} from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
 import dayjs from 'dayjs';
+import { Calendar, Clock, Code2, Star, Users } from 'lucide-react';
 
 type Props = {
   tdoc: Contest | Homework;
@@ -48,7 +41,7 @@ export default function ContestTitle({ tdoc }: Props) {
             variant="secondary"
             className="bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400"
           >
-            <HugeiconsIcon icon={StarIcon} data-icon="inline-start" />
+            <Star data-icon="inline-start" />
             <span data-llm-text="Rated">Rated</span>
           </Badge>
         )}
@@ -56,7 +49,7 @@ export default function ContestTitle({ tdoc }: Props) {
         <ContestRuleBadge rule={tdoc.rule} />
 
         <Badge variant="secondary" title={isHomework ? '参与人数' : '参赛人数'}>
-          <HugeiconsIcon icon={UserGroupIcon} data-icon="inline-start" />
+          <Users data-icon="inline-start" />
           <span data-llm-text={String(tdoc.attend)} className="tabular-nums">
             {tdoc.attend}
           </span>
@@ -67,7 +60,7 @@ export default function ContestTitle({ tdoc }: Props) {
             variant="secondary"
             title={isHomework ? '作业时长' : '比赛持续时间'}
           >
-            <HugeiconsIcon icon={Clock01Icon} data-icon="inline-start" />
+            <Clock data-icon="inline-start" />
             <span data-llm-text={durationText} className="tabular-nums">
               {durationText}
             </span>
@@ -75,7 +68,7 @@ export default function ContestTitle({ tdoc }: Props) {
         )}
 
         <Badge variant="secondary" title="题目数量">
-          <HugeiconsIcon icon={CodeSquareIcon} data-icon="inline-start" />
+          <Code2 data-icon="inline-start" />
           <span data-llm-text={String(problemCount)} className="tabular-nums">
             {problemCount} 道题
           </span>
@@ -83,7 +76,7 @@ export default function ContestTitle({ tdoc }: Props) {
 
         {timeText && (
           <div className="text-sm text-muted-foreground inline-flex items-center gap-1.5">
-            <HugeiconsIcon icon={Calendar01Icon} className="size-4" />
+            <Calendar className="size-4" />
             <span data-llm-text={timeText}>{timeText}</span>
           </div>
         )}

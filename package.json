@@ -15,8 +15,6 @@
   "dependencies": {
     "@base-ui/react": "^1.0.0",
     "@hookform/resolvers": "^5.2.2",
-    "@hugeicons/core-free-icons": "^2.0.0",
-    "@hugeicons/react": "^1.1.1",
     "@milkdown/crepe": "^7.18.0",
     "@milkdown/kit": "^7.18.0",
     "@milkdown/react": "^7.18.0",
@@ -33,6 +31,7 @@
     "framer-motion": "^12.23.26",
     "hast-util-to-html": "^9.0.5",
     "katex": "^0.16.27",
+    "lucide-react": "^0.564.0",
     "next": "^16.1.6",
     "next-themes": "^0.4.6",
     "node-ssh": "^13.2.1",

@@ -1,12 +1,10 @@
 import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/utils';
 import {
-  ArrowLeft01Icon,
-  ArrowRight01Icon,
-  MoreHorizontalCircle01Icon,
-} from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
-import Link from 'next/link';
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  MoreHorizontalIcon,
+} from 'lucide-react';
 import * as React from 'react';
 
 function Pagination({ className, ...props }: React.ComponentProps<'nav'>) {
@@ -41,7 +39,7 @@ function PaginationItem({ ...props }: React.ComponentProps<'li'>) {
 type PaginationLinkProps = {
   isActive?: boolean;
 } & Pick<React.ComponentProps<typeof Button>, 'size'> &
-  React.ComponentProps<typeof Link>;
+  React.ComponentProps<'a'>;
 
 function PaginationLink({
   className,
@@ -56,7 +54,7 @@ function PaginationLink({
       size={size}
       className={cn(className)}
     >
-      <Link
+      <a
         aria-current={isActive ? 'page' : undefined}
         data-slot="pagination-link"
         data-active={isActive}
@@ -68,42 +66,36 @@ function PaginationLink({
 
 function PaginationPrevious({
   className,
+  text = 'Previous',
   ...props
-}: React.ComponentProps<typeof PaginationLink>) {
+}: React.ComponentProps<typeof PaginationLink> & { text?: string }) {
   return (
     <PaginationLink
-      aria-label="转到上一页"
+      aria-label="Go to previous page"
       size="default"
       className={cn('pl-1.5!', className)}
       {...props}
     >
-      <HugeiconsIcon
-        icon={ArrowLeft01Icon}
-        strokeWidth={2}
-        data-icon="inline-start"
-      />
-      <span className="hidden sm:block">上一页</span>
+      <ChevronLeftIcon data-icon="inline-start" />
+      <span className="hidden sm:block">{text}</span>
     </PaginationLink>
   );
 }
 
 function PaginationNext({
   className,
+  text = 'Next',
   ...props
-}: React.ComponentProps<typeof PaginationLink>) {
+}: React.ComponentProps<typeof PaginationLink> & { text?: string }) {
   return (
     <PaginationLink
-      aria-label="转到下一页"
+      aria-label="Go to next page"
       size="default"
       className={cn('pr-1.5!', className)}
       {...props}
     >
-      <span className="hidden sm:block">下一页</span>
-      <HugeiconsIcon
-        icon={ArrowRight01Icon}
-        strokeWidth={2}
-        data-icon="inline-end"
-      />
+      <span className="hidden sm:block">{text}</span>
+      <ChevronRightIcon data-icon="inline-end" />
     </PaginationLink>
   );
 }
@@ -117,13 +109,13 @@ function PaginationEllipsis({
       aria-hidden
       data-slot="pagination-ellipsis"
       className={cn(
-        "size-8 items-center justify-center [&_svg:not([class*='size-'])]:size-4 flex",
+        "size-8 [&_svg:not([class*='size-'])]:size-4 flex items-center justify-center",
         className
       )}
       {...props}
     >
-      <HugeiconsIcon icon={MoreHorizontalCircle01Icon} strokeWidth={2} />
-      <span className="sr-only">更多页面</span>
+      <MoreHorizontalIcon />
+      <span className="sr-only">More pages</span>
     </span>
   );
 }

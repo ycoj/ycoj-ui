@@ -2,8 +2,7 @@
 
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
-import { Search01Icon } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
+import { Search } from 'lucide-react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import type { FormEvent } from 'react';
 
@@ -39,14 +38,11 @@ export default function TrainingFilter() {
             placeholder="搜索训练标题"
             className="pl-9 pr-3 text-sm"
           />
-          <HugeiconsIcon
-            icon={Search01Icon}
-            className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-          />
+          <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
         </div>
 
         <Button type="submit" variant="secondary" className="ml-auto gap-2">
-          <HugeiconsIcon icon={Search01Icon} strokeWidth={2} />
+          <Search strokeWidth={2} />
           筛选
         </Button>
       </div>

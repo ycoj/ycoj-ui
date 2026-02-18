@@ -24,12 +24,7 @@ import {
 } from '@/shared/components/ui/select';
 import { Textarea } from '@/shared/components/ui/textarea';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
-  Navigation03Icon,
-  LinkSquare01Icon,
-  InformationCircleIcon,
-} from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
+import { Navigation, Link2, Info } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
@@ -199,11 +194,7 @@ export default function ProblemSubmitFormClient({
           className="border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-50"
           data-llm-visible="true"
         >
-          <HugeiconsIcon
-            icon={InformationCircleIcon}
-            className="size-4"
-            strokeWidth={2}
-          />
+          <Info className="size-4" strokeWidth={2} />
           <AlertTitle data-llm-text="比赛已结束">比赛已结束</AlertTitle>
           <AlertDescription data-llm-text="比赛已结束，你可以选择在题库中打开本题">
             比赛已结束，你可以选择在题库中打开本题。
@@ -307,21 +298,13 @@ export default function ProblemSubmitFormClient({
           className="w-30 gap-3"
           disabled={isSubmitting}
         >
-          <HugeiconsIcon
-            icon={Navigation03Icon}
-            strokeWidth={2}
-            data-icon="inline-start"
-          />
+          <Navigation strokeWidth={2} data-icon="inline-start" />
           {isSubmitting ? '提交中...' : '提交'}
         </Button>
       ) : (
         <Button size="lg" asChild className="w-auto gap-3">
           <Link href={`/problem/${pid}`}>
-            <HugeiconsIcon
-              icon={LinkSquare01Icon}
-              strokeWidth={2}
-              data-icon="inline-start"
-            />
+            <Link2 strokeWidth={2} data-icon="inline-start" />
             在题库中打开
           </Link>
         </Button>

@@ -11,8 +11,7 @@ import {
 } from '@/shared/components/ui/field';
 import type { ObjectId } from '@/shared/types/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeftIcon, Navigation03Icon } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
+import { ArrowLeft, Navigation } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -129,12 +128,12 @@ export default function SolutionCreateForm({
 
       <div className="flex gap-3">
         <Button type="submit" disabled={isSubmitting} className="gap-1.5">
-          <HugeiconsIcon icon={Navigation03Icon} strokeWidth={2} />
+          <Navigation strokeWidth={2} />
           {isSubmitting ? submittingText : submitText}
         </Button>
         <Button asChild variant="secondary" className="gap-1.5">
           <Link href={`/problem/${routePid}/solution`}>
-            <HugeiconsIcon icon={ArrowLeftIcon} strokeWidth={2} />
+            <ArrowLeft strokeWidth={2} />
             <span data-llm-text="返回">返回</span>
           </Link>
         </Button>

@@ -14,20 +14,20 @@ import {
   SidebarTrigger,
 } from '@/shared/components/ui/sidebar';
 import {
-  Award01Icon,
-  Chat01Icon,
-  ClipboardIcon,
-  CodeSquareIcon,
-  Dumbbell02Icon,
-  GlobeIcon,
-  Home03Icon,
-  LiveStreaming01Icon,
-  Notebook01Icon,
-  PlayCircleIcon,
-  RankingIcon,
-  Settings01Icon,
-} from '@hugeicons/core-free-icons';
-import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
+  Award,
+  MessageCircle,
+  Clipboard,
+  Code2,
+  Dumbbell,
+  Globe,
+  Home,
+  Radio,
+  Notebook,
+  PlayCircle,
+  Trophy,
+  Settings,
+  type LucideIcon,
+} from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -61,19 +61,19 @@ const navItemsTranslation: Record<string, string> = {
   live_main: '直播课堂',
 };
 
-const NAV_ICON_MAP: Record<string, IconSvgElement> = {
-  homepage: Home03Icon,
-  problem_main: CodeSquareIcon,
-  training_main: Dumbbell02Icon,
-  contest_main: Award01Icon,
-  homework_main: Notebook01Icon,
-  discussion_main: Chat01Icon,
-  record_main: ClipboardIcon,
-  ranking: RankingIcon,
-  domain_dashboard: GlobeIcon,
-  manage_dashboard: Settings01Icon,
-  course_list: PlayCircleIcon,
-  live_main: LiveStreaming01Icon,
+const NAV_ICON_MAP: Record<string, LucideIcon> = {
+  homepage: Home,
+  problem_main: Code2,
+  training_main: Dumbbell,
+  contest_main: Award,
+  homework_main: Notebook,
+  discussion_main: MessageCircle,
+  record_main: Clipboard,
+  ranking: Trophy,
+  domain_dashboard: Globe,
+  manage_dashboard: Settings,
+  course_list: PlayCircle,
+  live_main: Radio,
 };
 
 const buildHref = (item: NavItem) => {
@@ -123,12 +123,11 @@ export default async function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <Link href={buildHref(item)}>
                       <span className="flex items-center gap-2">
-                        {NAV_ICON_MAP[item.name] && (
-                          <HugeiconsIcon
-                            icon={NAV_ICON_MAP[item.name]}
-                            strokeWidth={2}
-                          />
-                        )}
+                        {NAV_ICON_MAP[item.name] &&
+                          (() => {
+                            const Icon = NAV_ICON_MAP[item.name];
+                            return <Icon strokeWidth={2} />;
+                          })()}
                         <span>
                           {navItemsTranslation[item.name] ??
                             item.args.displayName ??
