@@ -1,7 +1,6 @@
+import { type UserProfileProps } from './shared';
 import ContestStatus from '@/features/contest/contest-status';
 import { getContestStatus } from '@/features/contest/detail/contest-utils';
-
-import { type UserProfileProps } from './shared';
 import dayjs from 'dayjs';
 import { Trophy } from 'lucide-react';
 import Link from 'next/link';
