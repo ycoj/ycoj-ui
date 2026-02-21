@@ -13,6 +13,7 @@ import {
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from '@/shared/components/ui/tooltip';
 import {
@@ -34,53 +35,55 @@ function RecordTestcaseList({
   className?: string;
 }) {
   return (
-    <div className={className}>
-      {testcases.map((testcase) => {
-        const content = (
-          <div
-            key={`testcase-${testcase.id}`}
-            className="h-28 w-28 rounded-md border"
-            style={{
-              borderColor: STATUS_BACKGROUND_COLOR[testcase.status],
-            }}
-          >
-            <span
-              className="pl-1 pt-0.5 text-xs absolute"
-              style={{ color: STATUS_BACKGROUND_COLOR[testcase.status] }}
+    <TooltipProvider>
+      <div className={className}>
+        {testcases.map((testcase) => {
+          const content = (
+            <div
+              key={`testcase-${testcase.id}`}
+              className="h-28 w-28 rounded-md border"
+              style={{
+                borderColor: STATUS_BACKGROUND_COLOR[testcase.status],
+              }}
             >
-              #{testcase.id}
-            </span>
-            <div className="h-full text-center flex justify-center items-center flex-col">
-              <div
-                className="text-xl font-bold"
+              <span
+                className="pl-1 pt-0.5 text-xs absolute"
                 style={{ color: STATUS_BACKGROUND_COLOR[testcase.status] }}
               >
-                {STATUS_SHORT_TEXTS[testcase.status]}
-              </div>
-              <div className="text-sm text-muted-foreground mt-1">
-                <div>
-                  {Math.round(testcase.time)}ms<span className="mx-1">/</span>
-                  {formatMemory(testcase.memory * 1024)}
+                #{testcase.id}
+              </span>
+              <div className="h-full text-center flex justify-center items-center flex-col">
+                <div
+                  className="text-xl font-bold"
+                  style={{ color: STATUS_BACKGROUND_COLOR[testcase.status] }}
+                >
+                  {STATUS_SHORT_TEXTS[testcase.status]}
+                </div>
+                <div className="text-sm text-muted-foreground mt-1">
+                  <div>
+                    {Math.round(testcase.time)}ms<span className="mx-1">/</span>
+                    {formatMemory(testcase.memory * 1024)}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        );
+          );
 
-        if (!testcase.message?.trim()) {
-          return content;
-        }
+          if (!testcase.message?.trim()) {
+            return content;
+          }
 
-        return (
-          <Tooltip key={`testcase-${testcase.id}-tooltip`}>
-            <TooltipTrigger asChild>{content}</TooltipTrigger>
-            <TooltipContent className="whitespace-pre-wrap">
-              {testcase.message}
-            </TooltipContent>
-          </Tooltip>
-        );
-      })}
-    </div>
+          return (
+            <Tooltip key={`testcase-${testcase.id}-tooltip`}>
+              <TooltipTrigger asChild>{content}</TooltipTrigger>
+              <TooltipContent className="whitespace-pre-wrap">
+                {testcase.message}
+              </TooltipContent>
+            </Tooltip>
+          );
+        })}
+      </div>
+    </TooltipProvider>
   );
 }
 
