@@ -20,7 +20,7 @@ type Props = {
   pageType?: 'contest' | 'homework';
 };
 
-function getScoreColorClass(score: number): string {
+export function getScoreColorClass(score: number): string {
   return cn(
     'font-semibold',
     score >= 100 && 'text-green-600',
