@@ -3,33 +3,33 @@ import MarkdownPdf, {
   MarkdownPdfViewer,
 } from './markdown-pdf';
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('next/dynamic', () => ({
+  default: () =>
+    function MockReactPdfViewer({ src }: { src: string }) {
+      return <div aria-label="PDF document" data-src={src} role="document" />;
+    },
+}));
 
 describe('MarkdownPdf', () => {
-  it('renders a responsive native PDF iframe', () => {
-    render(<MarkdownPdf data-src="https://example.com/document.pdf" />);
-
-    const iframe = screen.getByTitle('PDF document');
-    expect(iframe).toHaveAttribute('src', 'https://example.com/document.pdf');
-    expect(iframe).toHaveAttribute('loading', 'lazy');
-    expect(iframe).toHaveClass(
-      'my-6',
-      'block',
-      'h-[clamp(28rem,85vh,72rem)]',
-      'w-full',
-      'rounded-md',
-      'border',
-      'first:mt-0'
+  it('passes a safe URL to the React-PDF viewer', () => {
+    const { container } = render(
+      <MarkdownPdf data-src="https://example.com/document.pdf" />
     );
+
+    expect(
+      screen.getByRole('document', { name: 'PDF document' })
+    ).toHaveAttribute('data-src', 'https://example.com/document.pdf');
+    expect(container.querySelector('iframe')).not.toBeInTheDocument();
   });
 
   it('accepts the camel-cased sanitized data property', () => {
     render(<MarkdownPdf dataSrc="/document.pdf" />);
 
-    expect(screen.getByTitle('PDF document')).toHaveAttribute(
-      'src',
-      '/document.pdf'
-    );
+    expect(
+      screen.getByRole('document', { name: 'PDF document' })
+    ).toHaveAttribute('data-src', '/document.pdf');
   });
 
   it('renders nothing for a missing or unsafe URL', () => {
@@ -51,7 +51,7 @@ describe('MarkdownPdf', () => {
     expect(screen.getByRole('alert')).toHaveTextContent(
       'This PDF uses HTTP and cannot be displayed on this HTTPS page.'
     );
-    expect(screen.queryByTitle('PDF document')).not.toBeInTheDocument();
+    expect(screen.queryByRole('document')).not.toBeInTheDocument();
   });
 
   it('allows an HTTP PDF when the page also uses HTTP', () => {
@@ -62,10 +62,9 @@ describe('MarkdownPdf', () => {
       />
     );
 
-    expect(screen.getByTitle('PDF document')).toHaveAttribute(
-      'src',
-      'http://example.com/document.pdf'
-    );
+    expect(
+      screen.getByRole('document', { name: 'PDF document' })
+    ).toHaveAttribute('data-src', 'http://example.com/document.pdf');
   });
 
   it('only identifies HTTP PDFs as mixed content on HTTPS pages', () => {

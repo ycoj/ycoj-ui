@@ -1,7 +1,8 @@
 'use client';
 
 import { getSafePdfUrl } from '@/shared/components/markdown/pdf-url';
-import { TriangleAlert } from 'lucide-react';
+import { LoaderCircle, TriangleAlert } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { useSyncExternalStore } from 'react';
 
 type Props = Record<string, unknown>;
@@ -10,6 +11,19 @@ type ViewerProps = {
   pageProtocol: string;
   src: string;
 };
+
+const ReactPdfViewer = dynamic(() => import('./react-pdf-viewer'), {
+  loading: () => (
+    <div className="flex min-h-48 items-center justify-center" role="status">
+      <LoaderCircle
+        className="size-5 animate-spin text-muted-foreground"
+        aria-hidden="true"
+      />
+      <span className="sr-only">Loading PDF</span>
+    </div>
+  ),
+  ssr: false,
+});
 
 function subscribeToPageProtocol() {
   return () => undefined;
@@ -53,12 +67,9 @@ export function MarkdownPdfViewer({ pageProtocol, src }: ViewerProps) {
   }
 
   return (
-    <iframe
-      className="my-6 block h-[clamp(28rem,85vh,72rem)] w-full rounded-md border first:mt-0"
-      loading="lazy"
-      src={src}
-      title="PDF document"
-    />
+    <div className="my-6 h-[clamp(28rem,85vh,72rem)] w-full overflow-hidden rounded-md border first:mt-0">
+      <ReactPdfViewer key={src} src={src} />
+    </div>
   );
 }
 

@@ -2,7 +2,11 @@ import Markdown from '.';
 import { render, screen } from '@testing-library/react';
 import { Children, type ReactElement, type ReactNode } from 'react';
 import { MarkdownAsync, type Options } from 'react-markdown';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('./components/react-pdf-viewer', () => ({
+  default: () => <div aria-label="PDF document" role="document" />,
+}));
 
 async function renderMarkdown(source: string) {
   const markdown = Markdown({ children: source });
@@ -17,9 +21,10 @@ describe('Markdown PDF rendering', () => {
   it('renders the custom PDF syntax through the sanitized pipeline', async () => {
     await renderMarkdown('@[pdf](https://example.com/document.pdf)');
 
-    const iframe = await screen.findByTitle('PDF document');
-    expect(iframe).toHaveAttribute('src', 'https://example.com/document.pdf');
-    expect(iframe).toHaveClass('first:mt-0');
+    expect(
+      await screen.findByRole('document', { name: 'PDF document' })
+    ).toBeInTheDocument();
+    expect(document.querySelector('iframe')).not.toBeInTheDocument();
   });
 
   it('does not allow a raw iframe', async () => {
@@ -28,6 +33,9 @@ describe('Markdown PDF rendering', () => {
     );
 
     expect(container.querySelector('iframe')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('document', { name: 'PDF document' })
+    ).not.toBeInTheDocument();
   });
 
   it('does not render an unsafe raw PDF custom element', async () => {
@@ -36,5 +44,8 @@ describe('Markdown PDF rendering', () => {
     );
 
     expect(container.querySelector('iframe')).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('document', { name: 'PDF document' })
+    ).not.toBeInTheDocument();
   });
 });
