@@ -4,6 +4,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const pdfMocks = vi.hoisted(() => ({
   documentProps: {} as Record<string, unknown>,
+  intersectionObservers: [] as {
+    callback: IntersectionObserverCallback;
+    elements: Set<Element>;
+  }[],
   pageProps: [] as Record<string, unknown>[],
   resize: undefined as ((width: number) => void) | undefined,
   workerOptions: { workerSrc: '' },
@@ -32,8 +36,37 @@ vi.mock('react-pdf', () => ({
 describe('ReactPdfViewer', () => {
   beforeEach(() => {
     pdfMocks.documentProps = {};
+    pdfMocks.intersectionObservers = [];
     pdfMocks.pageProps = [];
     pdfMocks.resize = undefined;
+
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        private record: (typeof pdfMocks.intersectionObservers)[number];
+
+        constructor(callback: IntersectionObserverCallback) {
+          this.record = { callback, elements: new Set() };
+          pdfMocks.intersectionObservers.push(this.record);
+        }
+
+        disconnect() {
+          this.record.elements.clear();
+        }
+
+        observe(element: Element) {
+          this.record.elements.add(element);
+        }
+
+        takeRecords() {
+          return [];
+        }
+
+        unobserve(element: Element) {
+          this.record.elements.delete(element);
+        }
+      }
+    );
 
     vi.stubGlobal(
       'ResizeObserver',
@@ -61,8 +94,29 @@ describe('ReactPdfViewer', () => {
     vi.unstubAllGlobals();
   });
 
-  it('uses React-PDF and fits every page to the container width', () => {
-    render(<ReactPdfViewer src="/document.pdf" />);
+  function setPageIntersection(
+    container: HTMLElement,
+    pageNumber: number,
+    isIntersecting: boolean
+  ) {
+    const element = container.querySelector(`[data-pdf-page="${pageNumber}"]`);
+    if (!element) throw new Error(`PDF page ${pageNumber} was not found`);
+
+    const observer = pdfMocks.intersectionObservers.find(({ elements }) =>
+      elements.has(element)
+    );
+    if (!observer) throw new Error(`PDF page ${pageNumber} was not observed`);
+
+    act(() =>
+      observer.callback(
+        [{ isIntersecting, target: element } as IntersectionObserverEntry],
+        {} as IntersectionObserver
+      )
+    );
+  }
+
+  it('only renders pages near the viewport and fits them to the container', () => {
+    const { container } = render(<ReactPdfViewer src="/document.pdf" />);
 
     const documentProps = pdfMocks.documentProps as {
       file: string;
@@ -79,20 +133,42 @@ describe('ReactPdfViewer', () => {
 
     act(() => documentProps.onLoadSuccess({ numPages: 3 }));
 
-    expect(screen.getAllByRole('img')).toHaveLength(3);
+    expect(screen.getAllByRole('img')).toHaveLength(1);
     expect(screen.getByLabelText('PDF page 1')).toHaveAttribute(
       'data-width',
       '776'
     );
 
+    setPageIntersection(container, 2, true);
+    expect(screen.getAllByRole('img')).toHaveLength(2);
+
+    setPageIntersection(container, 1, false);
+    expect(screen.queryByLabelText('PDF page 1')).not.toBeInTheDocument();
+    expect(screen.getByLabelText('PDF page 2')).toBeInTheDocument();
+
     act(() => pdfMocks.resize?.(500));
 
-    expect(screen.getByLabelText('PDF page 1')).toHaveAttribute(
+    expect(screen.getByLabelText('PDF page 2')).toHaveAttribute(
       'data-width',
       '476'
     );
     expect(pdfMocks.workerOptions.workerSrc).toContain(
       'pdfjs-dist/build/pdf.worker.min.mjs'
+    );
+  });
+
+  it('limits oversized documents before creating page placeholders', () => {
+    const { container } = render(<ReactPdfViewer src="/large-document.pdf" />);
+    const documentProps = pdfMocks.documentProps as {
+      onLoadSuccess: (pdf: { numPages: number }) => void;
+    };
+
+    act(() => documentProps.onLoadSuccess({ numPages: 501 }));
+
+    expect(container.querySelectorAll('[data-pdf-page]')).toHaveLength(500);
+    expect(screen.getAllByRole('img')).toHaveLength(1);
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      'Only the first 500 of 501 pages are shown.'
     );
   });
 });

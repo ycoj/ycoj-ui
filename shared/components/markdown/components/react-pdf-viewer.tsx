@@ -11,6 +11,9 @@ type Props = {
 };
 
 const VIEWER_PADDING = 12;
+const DEFAULT_PAGE_ASPECT_RATIO = 1 / Math.SQRT2;
+const MAX_PDF_PAGES = 500;
+const PAGE_RENDER_MARGIN = '100% 0px';
 
 const PDF_OPTIONS = {
   maxImageSize: 16_777_216,
@@ -40,14 +43,87 @@ function PdfError() {
   );
 }
 
-export default function ReactPdfViewer({ src }: Props) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [pageCount, setPageCount] = useState(0);
-  const [pageWidth, setPageWidth] = useState(0);
+function PdfPageLimitWarning({ pageCount }: { pageCount: number }) {
+  const message = `Only the first ${MAX_PDF_PAGES} of ${pageCount} pages are shown.`;
+
+  return (
+    <div
+      className="flex items-center justify-center gap-2 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100"
+      data-llm-visible="true"
+      role="alert"
+    >
+      <TriangleAlert className="size-4 shrink-0" aria-hidden="true" />
+      <p className="m-0!" data-llm-text={message}>
+        {message}
+      </p>
+    </div>
+  );
+}
+
+type LazyPdfPageProps = {
+  pageNumber: number;
+  pageWidth: number;
+  scrollContainer: HTMLDivElement;
+};
+
+function LazyPdfPage({
+  pageNumber,
+  pageWidth,
+  scrollContainer,
+}: LazyPdfPageProps) {
+  const placeholderRef = useRef<HTMLDivElement>(null);
+  const [isNearViewport, setIsNearViewport] = useState(pageNumber === 1);
+  const [pageAspectRatio, setPageAspectRatio] = useState(
+    DEFAULT_PAGE_ASPECT_RATIO
+  );
 
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    const placeholder = placeholderRef.current;
+    if (!placeholder) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsNearViewport(entry?.isIntersecting ?? false),
+      {
+        root: scrollContainer,
+        rootMargin: PAGE_RENDER_MARGIN,
+      }
+    );
+
+    observer.observe(placeholder);
+    return () => observer.disconnect();
+  }, [scrollContainer]);
+
+  return (
+    <div
+      ref={placeholderRef}
+      className="max-w-full shrink-0 overflow-hidden bg-white shadow-sm"
+      data-pdf-page={pageNumber}
+      style={{ aspectRatio: pageAspectRatio, width: pageWidth }}
+    >
+      {isNearViewport && (
+        <Page
+          className="overflow-hidden bg-white"
+          onLoadSuccess={({ height, width }) =>
+            setPageAspectRatio(width / height)
+          }
+          pageNumber={pageNumber}
+          width={pageWidth}
+        />
+      )}
+    </div>
+  );
+}
+
+export default function ReactPdfViewer({ src }: Props) {
+  const [scrollContainer, setScrollContainer] = useState<HTMLDivElement | null>(
+    null
+  );
+  const [pageCount, setPageCount] = useState(0);
+  const [pageWidth, setPageWidth] = useState(0);
+  const renderedPageCount = Math.min(pageCount, MAX_PDF_PAGES);
+
+  useEffect(() => {
+    if (!scrollContainer) return;
 
     const resizeObserver = new ResizeObserver(([entry]) => {
       if (!entry) return;
@@ -57,12 +133,15 @@ export default function ReactPdfViewer({ src }: Props) {
       );
     });
 
-    resizeObserver.observe(container);
+    resizeObserver.observe(scrollContainer);
     return () => resizeObserver.disconnect();
-  }, []);
+  }, [scrollContainer]);
 
   return (
-    <div ref={containerRef} className="size-full overflow-auto bg-muted/60 p-3">
+    <div
+      ref={setScrollContainer}
+      className="size-full overflow-auto bg-muted/60 p-3"
+    >
       <div aria-label="PDF document" role="document">
         <Document
           className="flex flex-col items-center gap-3"
@@ -79,13 +158,17 @@ export default function ReactPdfViewer({ src }: Props) {
           onLoadSuccess={({ numPages }) => setPageCount(numPages)}
           options={PDF_OPTIONS}
         >
-          {pageWidth > 0 &&
-            Array.from({ length: pageCount }, (_, index) => (
-              <Page
+          {pageCount > MAX_PDF_PAGES && (
+            <PdfPageLimitWarning pageCount={pageCount} />
+          )}
+          {scrollContainer &&
+            pageWidth > 0 &&
+            Array.from({ length: renderedPageCount }, (_, index) => (
+              <LazyPdfPage
                 key={`page-${index + 1}`}
-                className="overflow-hidden bg-white shadow-sm"
                 pageNumber={index + 1}
-                width={pageWidth}
+                pageWidth={pageWidth}
+                scrollContainer={scrollContainer}
               />
             ))}
         </Document>
