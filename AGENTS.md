@@ -25,6 +25,16 @@
 - `pnpm format` (Prettier write).
 - `pnpm format:check` (Prettier check in CI).
 
+### Unit tests
+
+- `pnpm test` (Vitest single run, used in CI).
+- `pnpm test:watch` (Vitest watch mode for local development).
+- Colocate tests as `*.test.ts` / `*.test.tsx` next to the source file.
+- Prefer pure unit tests for `shared/lib` and feature utilities; use explicit imports from `vitest`.
+- Component tests use `@testing-library/react` with `vitest.setup.ts` (`@testing-library/jest-dom`).
+- Prefer extracting pure helpers from components when logic is hard to test in isolation.
+- After test changes, run `pnpm test` in addition to lint/type/format.
+
 ## Code style guidelines
 
 ### Formatting and layout
@@ -156,5 +166,5 @@
 ## Suggested workflow for changes
 
 1. Read related feature files before editing (follow local patterns).
-2. Run `pnpm lint`, `pnpm lint:type` and `pnpm format` after code changes. Do not prefix these commands with additional content. That is, do not run `cd ... && pnpm lint`, `pnpm lint 2>&1`, `pnpm format -- <some file`, etc. Run only `pnpm lint`, `pnpm lint:type` and `pnpm format`.
+2. Run `pnpm lint`, `pnpm lint:type`, `pnpm test` and `pnpm format` after code changes. Do not prefix these commands with additional content. That is, do not run `cd ... && pnpm lint`, `pnpm lint 2>&1`, `pnpm format -- <some file`, etc. Run only `pnpm lint`, `pnpm lint:type`, `pnpm test` and `pnpm format`.
 3. New linter errors introduced by changes should be fixed. Linter errors existing before changes can be ignored.
