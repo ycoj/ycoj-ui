@@ -21,8 +21,8 @@
     "loading": "加载中..."
   },
   "landing": {
-    "title": "现代、原生智能的在线测评系统",
-    "description": "准备好在 {siteName} 上体验深度集成的人工智能所带来的高效学习。",
+    "title": "<modern>现代</modern>、<native>原生智能</native>的在线测评系统",
+    "description": "准备好在 <siteName>{siteName}</siteName> 上体验深度集成的人工智能所带来的高效学习。",
     "mobileTitle": "移动端友好",
     "mobileDescription": "适合随时随地刷题、查看评测结果。",
     "transparentTitle": "评测更透明",

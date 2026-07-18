@@ -21,8 +21,8 @@
     "loading": "Loading..."
   },
   "landing": {
-    "title": "Modern, AI-native online judge",
-    "description": "Experience efficient learning powered by deeply integrated artificial intelligence on {siteName}.",
+    "title": "<modern>Modern</modern>, <native>AI-native</native> online judge",
+    "description": "Experience efficient learning powered by deeply integrated artificial intelligence on <siteName>{siteName}</siteName>.",
     "mobileTitle": "Mobile friendly",
     "mobileDescription": "Solve problems and review results wherever you are.",
     "transparentTitle": "Transparent evaluation",

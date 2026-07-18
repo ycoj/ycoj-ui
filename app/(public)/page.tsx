@@ -44,10 +44,23 @@ export default async function IndexPage() {
         <main className="mt-10 flex flex-1 flex-col gap-6 sm:mt-16 sm:gap-8 md:mt-0 md:justify-center">
           <div className="space-y-6 md:space-y-2">
             <h1 className="text-balance text-3xl font-semibold leading-tight text-foreground sm:text-5xl">
-              {t('landing.title')}
+              {t.rich('landing.title', {
+                modern: (chunks) => (
+                  <span className="text-emerald-500">{chunks}</span>
+                ),
+                native: (chunks) => (
+                  <span className="text-sky-700">{chunks}</span>
+                ),
+              })}
             </h1>
             <p className="max-w-prose text-pretty text-base text-muted-foreground sm:text-lg">
-              {t('landing.description', { siteName })}
+              {t.rich('landing.description', {
+                siteName: () => (
+                  <span className="font-medium text-foreground">
+                    {siteName}
+                  </span>
+                ),
+              })}
             </p>
           </div>
 
@@ -85,10 +98,8 @@ export default async function IndexPage() {
               <Link href="/login">{t('common.login')}</Link>
             </Button>
           </div>
-          <div className="mt-4 flex justify-between text-xs text-muted-foreground">
+          <div className="mt-4 flex items-center justify-between gap-4 text-xs text-muted-foreground">
             <p>{t('landing.footerNote')}</p>
-          </div>
-          <div className="mt-6">
             <SiteFooter />
           </div>
         </div>
