@@ -1,6 +1,7 @@
 'use client';
 
 import ClientApis from '@/api/client/method';
+import SiteFooter from '@/shared/components/site-footer';
 import { Button } from '@/shared/components/ui/button';
 import {
   Card,
@@ -18,6 +19,7 @@ import {
 } from '@/shared/components/ui/field';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
+import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -32,6 +34,7 @@ type LoginFormValues = {
 const siteName = process.env.SITE_NAME ?? '';
 
 export function LoginPage() {
+  const t = useTranslations();
   const searchParams = useSearchParams();
   const [submitError, setSubmitError] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -90,12 +93,12 @@ export function LoginPage() {
         return;
       }
 
-      throw new Error('登录失败，请检查用户名或密码');
+      throw new Error(t('auth.loginError'));
     } catch (error) {
       const message =
         error instanceof Error && error.message
           ? error.message
-          : '登录失败，请稍后重试';
+          : t('auth.retryError');
       setSubmitError(message);
     }
   };
@@ -118,8 +121,10 @@ export function LoginPage() {
 
         <Card className="w-full">
           <CardHeader>
-            <CardTitle>登录</CardTitle>
-            <CardDescription>登录后即可开始使用 {siteName}。</CardDescription>
+            <CardTitle>{t('auth.loginTitle')}</CardTitle>
+            <CardDescription>
+              {t('auth.loginDescription', { siteName })}
+            </CardDescription>
           </CardHeader>
 
           <CardContent>
@@ -129,7 +134,7 @@ export function LoginPage() {
               noValidate
             >
               <Field>
-                <FieldLabel htmlFor="uname">用户名</FieldLabel>
+                <FieldLabel htmlFor="uname">{t('auth.username')}</FieldLabel>
                 <FieldContent>
                   <Input
                     id="uname"
@@ -138,26 +143,30 @@ export function LoginPage() {
                     autoCapitalize="none"
                     autoCorrect="off"
                     spellCheck={false}
-                    placeholder="请输入用户名"
+                    placeholder={t('auth.usernamePlaceholder')}
                     aria-invalid={!!errors.uname}
                     disabled={isSubmitting}
-                    {...register('uname', { required: '请输入用户名' })}
+                    {...register('uname', {
+                      required: t('auth.usernamePlaceholder'),
+                    })}
                   />
                   <FieldError errors={[errors.uname]} />
                 </FieldContent>
               </Field>
 
               <Field>
-                <FieldLabel htmlFor="password">密码</FieldLabel>
+                <FieldLabel htmlFor="password">{t('auth.password')}</FieldLabel>
                 <FieldContent>
                   <Input
                     id="password"
                     type="password"
                     autoComplete="current-password"
-                    placeholder="请输入密码"
+                    placeholder={t('auth.passwordPlaceholder')}
                     aria-invalid={!!errors.password}
                     disabled={isSubmitting}
-                    {...register('password', { required: '请输入密码' })}
+                    {...register('password', {
+                      required: t('auth.passwordPlaceholder'),
+                    })}
                   />
                   <FieldError errors={[errors.password]} />
                 </FieldContent>
@@ -176,7 +185,7 @@ export function LoginPage() {
                         disabled={isSubmitting}
                       />
                       <Label htmlFor="rememberme" className="text-sm">
-                        记住我
+                        {t('auth.rememberMe')}
                       </Label>
                     </div>
                   )}
@@ -188,11 +197,14 @@ export function LoginPage() {
               )}
 
               <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? '登录中...' : '登录'}
+                {isSubmitting ? t('auth.loggingIn') : t('common.login')}
               </Button>
             </form>
           </CardContent>
         </Card>
+      </div>
+      <div className="fixed inset-x-0 bottom-2">
+        <SiteFooter />
       </div>
     </div>
   );

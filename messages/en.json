@@ -1,0 +1,50 @@
+{
+  "common": {
+    "profile": "Profile",
+    "language": "Language",
+    "chinese": "中文",
+    "english": "English",
+    "poweredBy": "Powered by",
+    "login": "Log in",
+    "home": "Home",
+    "problem": "Problems",
+    "training": "Training",
+    "contest": "Contests",
+    "homework": "Homework",
+    "discussion": "Discussion",
+    "record": "Records",
+    "ranking": "Ranking",
+    "settings": "Settings",
+    "course": "Courses",
+    "live": "Live classroom",
+    "management": "Management",
+    "loading": "Loading..."
+  },
+  "landing": {
+    "title": "Modern, AI-native online judge",
+    "description": "Experience efficient learning powered by deeply integrated artificial intelligence on {siteName}.",
+    "mobileTitle": "Mobile friendly",
+    "mobileDescription": "Solve problems and review results wherever you are.",
+    "transparentTitle": "Transparent evaluation",
+    "transparentDescription": "Clearer status and feedback to help you improve.",
+    "aiTitle": "Deep AI integration",
+    "aiDescription": "Locate issues faster and summarize key concepts.",
+    "footerNote": "Log in to sync progress, submissions, and profile information."
+  },
+  "auth": {
+    "loginTitle": "Log in",
+    "loginDescription": "Log in to start using {siteName}.",
+    "username": "Username",
+    "password": "Password",
+    "usernamePlaceholder": "Enter your username",
+    "passwordPlaceholder": "Enter your password",
+    "rememberMe": "Remember me",
+    "loggingIn": "Logging in...",
+    "loginError": "Login failed. Please check your username or password.",
+    "retryError": "Login failed. Please try again later."
+  },
+  "metadata": {
+    "home": "Home",
+    "login": "Log in"
+  }
+}

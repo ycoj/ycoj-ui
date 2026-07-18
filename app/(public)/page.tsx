@@ -1,15 +1,19 @@
 import { getUser } from '@/features/user/lib/get-user';
+import SiteFooter from '@/shared/components/site-footer';
 import { Button } from '@/shared/components/ui/button';
 import { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = {
-  title: '首页',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('metadata');
+  return { title: t('home') };
+}
 
 export default async function IndexPage() {
+  const t = await getTranslations();
   const siteName = process.env.SITE_NAME ?? '';
   const user = await getUser();
   if (user?._id > 0) {
@@ -33,46 +37,43 @@ export default async function IndexPage() {
             className="h-auto w-[140px] sm:w-[160px]"
           />
           <Button asChild className="hidden sm:inline-flex" size="lg">
-            <Link href="/login">登录</Link>
+            <Link href="/login">{t('common.login')}</Link>
           </Button>
         </header>
 
         <main className="mt-10 flex flex-1 flex-col gap-6 sm:mt-16 sm:gap-8 md:mt-0 md:justify-center">
           <div className="space-y-6 md:space-y-2">
             <h1 className="text-balance text-3xl font-semibold leading-tight text-foreground sm:text-5xl">
-              <span className="text-emerald-500">现代</span>、
-              <span className="text-sky-700">原生智能</span>的在线测评系统
+              {t('landing.title')}
             </h1>
             <p className="max-w-prose text-pretty text-base text-muted-foreground sm:text-lg">
-              准备好在{' '}
-              <span className="font-medium text-foreground">{siteName}</span>{' '}
-              上体验深度集成的人工智能所带来的高效学习。
+              {t('landing.description', { siteName })}
             </p>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-3 sm:gap-4 md:hidden">
             <div className="rounded-xl border bg-card p-4">
               <div className="text-sm font-medium text-foreground">
-                移动端友好
+                {t('landing.mobileTitle')}
               </div>
               <div className="mt-1 text-sm text-muted-foreground">
-                适合随时随地刷题、查看评测结果。
+                {t('landing.mobileDescription')}
               </div>
             </div>
             <div className="rounded-xl border bg-card p-4">
               <div className="text-sm font-medium text-foreground">
-                评测更透明
+                {t('landing.transparentTitle')}
               </div>
               <div className="mt-1 text-sm text-muted-foreground">
-                更清晰的状态与反馈，少走弯路。
+                {t('landing.transparentDescription')}
               </div>
             </div>
             <div className="rounded-xl border bg-card p-4">
               <div className="text-sm font-medium text-foreground">
-                AI 深度集成
+                {t('landing.aiTitle')}
               </div>
               <div className="mt-1 text-sm text-muted-foreground">
-                更高效地定位问题、总结知识点。
+                {t('landing.aiDescription')}
               </div>
             </div>
           </div>
@@ -81,22 +82,14 @@ export default async function IndexPage() {
         <div className="mt-auto pt-10">
           <div className="pb-[calc(env(safe-area-inset-bottom)+0.5rem)] sm:hidden">
             <Button asChild className="w-full" size="lg">
-              <Link href="/login">登录</Link>
+              <Link href="/login">{t('common.login')}</Link>
             </Button>
           </div>
           <div className="mt-4 flex justify-between text-xs text-muted-foreground">
-            <p>登录后可同步进度、提交记录与个人信息。</p>
-            <p>
-              Powered by{' '}
-              <a
-                href="https://docs.hydro.ac"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-foreground"
-              >
-                Hydro
-              </a>
-            </p>
+            <p>{t('landing.footerNote')}</p>
+          </div>
+          <div className="mt-6">
+            <SiteFooter />
           </div>
         </div>
       </div>
