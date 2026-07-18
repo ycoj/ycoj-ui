@@ -1,3 +1,4 @@
+import avatarUrl from '../user/lib/avatar-url';
 import { hasPerm, hasPriv, PERM, PRIV } from '../user/lib/priv';
 import SidebarUserMenu from './sidebar-user-menu';
 import { SidebarMenu, SidebarMenuItem } from '@/shared/components/ui/sidebar';
@@ -21,7 +22,11 @@ export function SidebarUser({ user }: { user: User | null | undefined }) {
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <SidebarUserMenu user={user} modType={modType} />
+        <SidebarUserMenu
+          user={user}
+          modType={modType}
+          avatarSrc={avatarUrl(user.avatar)}
+        />
       </SidebarMenuItem>
     </SidebarMenu>
   );

@@ -1,6 +1,5 @@
 'use client';
 
-import avatarUrl from '../user/lib/avatar-url';
 import { locales, type Locale } from '@/i18n/config';
 import {
   Avatar,
@@ -25,6 +24,7 @@ import { DropdownMenu as DropdownMenuPrimitive } from 'radix-ui';
 type Props = {
   user: User;
   modType: string;
+  avatarSrc: string;
 };
 
 const menuContentClassName =
@@ -33,7 +33,7 @@ const menuContentClassName =
 const menuItemClassName =
   'focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0';
 
-export default function SidebarUserMenu({ user, modType }: Props) {
+export default function SidebarUserMenu({ user, modType, avatarSrc }: Props) {
   const locale = useLocale() as Locale;
   const t = useTranslations('common');
   const router = useRouter();
@@ -53,7 +53,7 @@ export default function SidebarUserMenu({ user, modType }: Props) {
           aria-label={user.uname}
         >
           <Avatar className="h-8 w-8 rounded-lg">
-            <AvatarImage src={avatarUrl(user.avatar)} alt={user.uname} />
+            <AvatarImage src={avatarSrc} alt={user.uname} />
             <AvatarFallback className="rounded-lg">
               {user.uname.slice(0, 2).toUpperCase()}
             </AvatarFallback>
