@@ -23,7 +23,7 @@ export function SidebarUser({ user }: { user: User | null | undefined }) {
     <SidebarMenu>
       <SidebarMenuItem>
         <SidebarUserMenu
-          user={user}
+          user={{ _id: user._id, uname: user.uname }}
           modType={modType}
           avatarSrc={avatarUrl(user.avatar)}
         />

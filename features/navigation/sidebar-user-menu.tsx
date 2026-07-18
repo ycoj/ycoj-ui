@@ -22,7 +22,7 @@ import { useRouter } from 'next/navigation';
 import { DropdownMenu as DropdownMenuPrimitive } from 'radix-ui';
 
 type Props = {
-  user: User;
+  user: Pick<User, '_id' | 'uname'>;
   modType: string;
   avatarSrc: string;
 };
