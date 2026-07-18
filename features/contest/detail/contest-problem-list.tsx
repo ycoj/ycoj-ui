@@ -1,3 +1,4 @@
+import { getContestProblemLabel } from './contest-utils';
 import type { ContestProblemsData } from '@/api/server/method/contests/problems';
 import { ContestProblemStatus } from '@/api/server/method/contests/problems';
 import ProblemLink from '@/features/problem/problem-link';
@@ -68,7 +69,7 @@ export default function ContestProblemList({ tid, data }: Props) {
                 </div>
               </TableCell>
               <TableCell className="tabular-nums">
-                {String.fromCharCode(65 + index)}
+                {getContestProblemLabel(index)}
               </TableCell>
               <TableCell>
                 {problem ? (

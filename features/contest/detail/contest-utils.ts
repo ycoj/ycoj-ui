@@ -2,6 +2,19 @@ import type { ContestDetailTdoc } from '@/api/server/method/contests/detail';
 import type { ContestStatus } from '@/features/contest/contest-status';
 import dayjs from 'dayjs';
 
+export function getContestProblemLabel(index: number) {
+  if (!Number.isInteger(index) || index < 0) return '';
+
+  let value = index + 1;
+  let label = '';
+  while (value > 0) {
+    value -= 1;
+    label = String.fromCharCode(65 + (value % 26)) + label;
+    value = Math.floor(value / 26);
+  }
+  return label;
+}
+
 export function getContestStatus(
   contest: ContestDetailTdoc,
   now = dayjs()
