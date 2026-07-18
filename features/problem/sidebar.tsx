@@ -2,6 +2,7 @@ import ContestInfo from '@/features/contest/contest-info';
 import ContestStatusBadge from '@/features/contest/contest-status';
 import {
   formatContestDuration,
+  getContestProblemLabel,
   getContestStatus,
 } from '@/features/contest/detail/contest-utils';
 import { Badge } from '@/shared/components/ui/badge';
@@ -47,11 +48,6 @@ function withTid(href: string, tid?: string) {
 
   const query = new URLSearchParams({ tid });
   return `${href}?${query.toString()}`;
-}
-
-function getContestProblemLabel(index: number) {
-  if (index < 26) return String.fromCharCode(65 + index);
-  return `P${index + 1}`;
 }
 
 function SidebarButton({ icon: Icon, text, href, count }: SidebarButtonProps) {

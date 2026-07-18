@@ -1,4 +1,8 @@
-import { formatContestDuration, getContestStatus } from './contest-utils';
+import {
+  formatContestDuration,
+  getContestProblemLabel,
+  getContestStatus,
+} from './contest-utils';
 import type { ContestDetailTdoc } from '@/api/server/method/contests/detail';
 import dayjs from 'dayjs';
 import { describe, expect, it } from 'vitest';
@@ -45,6 +49,24 @@ describe('getContestStatus', () => {
     expect(
       getContestStatus(makeContest(beginAt, 'not-a-date'), dayjs(beginAt))
     ).toBe('ended');
+  });
+});
+
+describe('getContestProblemLabel', () => {
+  it.each([
+    [0, 'A'],
+    [25, 'Z'],
+    [26, 'AA'],
+    [27, 'AB'],
+    [51, 'AZ'],
+    [52, 'BA'],
+  ])('formats index %s as %s', (index, expected) => {
+    expect(getContestProblemLabel(index)).toBe(expected);
+  });
+
+  it('returns an empty label for invalid indexes', () => {
+    expect(getContestProblemLabel(-1)).toBe('');
+    expect(getContestProblemLabel(1.5)).toBe('');
   });
 });
 
