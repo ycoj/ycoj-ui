@@ -1,6 +1,7 @@
 import {
   defaultLocale,
   isLocale,
+  normalizeAcceptLanguage,
   normalizeLocale,
   type Locale,
 } from './config';
@@ -9,12 +10,12 @@ import { cookies, headers } from 'next/headers';
 
 export default getRequestConfig(async () => {
   const cookieLocale = (await cookies()).get('NEXT_LOCALE')?.value;
-  const headerLocale = (await headers()).get('accept-language')?.split(',')[0];
+  const acceptLanguage = (await headers()).get('accept-language');
   const locale: Locale = isLocale(cookieLocale)
     ? cookieLocale
     : cookieLocale
       ? normalizeLocale(cookieLocale)
-      : normalizeLocale(headerLocale);
+      : normalizeAcceptLanguage(acceptLanguage);
 
   const messages = (await import(`../messages/${locale}.json`)).default;
 
