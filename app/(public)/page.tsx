@@ -29,7 +29,7 @@ export default async function IndexPage() {
         <header className="flex items-center justify-between -ml-4">
           <Image
             src="/nav-logo-small_light.png"
-            alt={`${siteName} Logo`}
+            alt={t('misc.logoAlt', { siteName })}
             width={160}
             height={44}
             priority

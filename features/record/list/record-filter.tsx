@@ -9,21 +9,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/components/ui/select';
-import { STATUS_TEXTS } from '@/shared/configs/status';
+import { STATUS_TEXT_KEYS } from '@/shared/configs/status';
 import { Activity, Award, Code2, Search, User } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 
 const buildStatusOptions = () =>
-  Object.entries(STATUS_TEXTS)
-    .map(([value, label]) => ({
+  Object.entries(STATUS_TEXT_KEYS)
+    .map(([value, key]) => ({
       value,
-      label,
+      key,
     }))
     .sort((a, b) => Number(a.value) - Number(b.value));
 
 export default function RecordFilter() {
+  const t = useTranslations('record');
+  const common = useTranslations('common');
+  const statusT = useTranslations('judgeStatus.label');
   const router = useRouter();
   const searchParams = useSearchParams();
   const { register, handleSubmit, control } = useForm({
@@ -61,7 +65,7 @@ export default function RecordFilter() {
         <div className="relative w-56 min-w-[200px]">
           <Input
             type="text"
-            placeholder="提交者 UID / 用户名"
+            placeholder={t('submitterPlaceholder')}
             className="pl-9 pr-3 text-sm"
             {...register('uidOrName')}
           />
@@ -71,7 +75,7 @@ export default function RecordFilter() {
         <div className="relative w-40 min-w-[160px]">
           <Input
             type="text"
-            placeholder="题目 ID"
+            placeholder={common('problemId')}
             className="pl-9 pr-3 text-sm"
             {...register('pid')}
           />
@@ -81,7 +85,7 @@ export default function RecordFilter() {
         <div className="relative w-40 min-w-[160px]">
           <Input
             type="text"
-            placeholder="比赛 ID"
+            placeholder={common('contestId')}
             className="pl-9 pr-3 text-sm"
             {...register('tid')}
           />
@@ -101,14 +105,14 @@ export default function RecordFilter() {
               <SelectTrigger className="w-40 min-w-[160px]">
                 <div className="flex items-center gap-2">
                   <Activity className="size-4 text-muted-foreground" />
-                  <SelectValue placeholder="状态" />
+                  <SelectValue placeholder={common('status')} />
                 </div>
               </SelectTrigger>
               <SelectContent position="popper">
-                <SelectItem value="all">全部状态</SelectItem>
+                <SelectItem value="all">{t('allStatuses')}</SelectItem>
                 {statusOptions.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
-                    {option.label}
+                    {statusT(option.key)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -118,7 +122,7 @@ export default function RecordFilter() {
 
         <Button type="submit" variant="secondary" className="ml-auto gap-2">
           <Search strokeWidth={2} />
-          筛选
+          {common('filter')}
         </Button>
       </div>
     </form>

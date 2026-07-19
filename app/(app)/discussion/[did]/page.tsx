@@ -3,6 +3,7 @@ import DiscussionReplies from '@/features/discussion/detail/discussion-replies';
 import DiscussionTitle from '@/features/discussion/detail/discussion-title';
 import { getDiscussionDetail } from '@/features/discussion/detail/get-discussion-detail';
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 
 type Params = {
   did: string;
@@ -24,9 +25,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { did } = await params;
   const data = await getDiscussionDetail(did);
+  const t = await getTranslations('metadata');
 
   return {
-    title: data.ddoc.title || 'Discussion Detail',
+    title: data.ddoc.title || t('discussionDetail'),
   };
 }
 

@@ -12,11 +12,13 @@ import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import duration from 'dayjs/plugin/duration';
 import { Clock } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 dayjs.extend(duration);
 dayjs.extend(customParseFormat);
 
 function EventCountdown({ event }: { event: CountdownEvent }) {
+  const t = useTranslations('homepage');
   const now = dayjs();
   const start = dayjs(event.date);
   const end = start.add(event.duration, 'day');
@@ -35,7 +37,10 @@ function EventCountdown({ event }: { event: CountdownEvent }) {
   if (status !== 'ended') {
     const target = status === 'pending' ? start : end;
     const dur = dayjs.duration(target.diff(now));
-    timeText = dur.format(dur.months() > 0 ? 'M [月] D [天]' : 'D [天]');
+    timeText =
+      dur.months() > 0
+        ? t('monthsDays', { months: dur.months(), days: dur.days() })
+        : t('days', { days: Math.max(1, dur.days()) });
   }
 
   if (status === 'ended') return null;
@@ -50,10 +55,10 @@ function EventCountdown({ event }: { event: CountdownEvent }) {
           {event.name}
         </span>
         <span
-          data-llm-text="正在进行中"
+          data-llm-text={t('running')}
           className="text-pink-600 ml-1 text-sm font-bold"
         >
-          正在进行中
+          {t('running')}
         </span>
       </div>
     );
@@ -61,14 +66,18 @@ function EventCountdown({ event }: { event: CountdownEvent }) {
 
   return (
     <div data-llm-visible="true" className="text-center">
-      <span className="text-muted-foreground text-sm">距离 </span>
+      <span className="text-muted-foreground text-sm">
+        {t('distancePrefix')}
+      </span>
       <span
         data-llm-text={event.name}
         className="text-foreground mx-1 text-sm font-medium"
       >
         {event.name}
       </span>
-      <span className="text-muted-foreground text-sm">开始还剩 </span>
+      <span className="text-muted-foreground text-sm">
+        {t('untilStartSuffix')}
+      </span>
       <span
         data-llm-text={timeText}
         className="ml-1 text-sm font-bold text-primary"
@@ -80,6 +89,7 @@ function EventCountdown({ event }: { event: CountdownEvent }) {
 }
 
 export default function Countdown({ config }: { config: CountdownConfig }) {
+  const t = useTranslations('homepage');
   const events = config.events.sort(
     (a, b) => dayjs(a.date).valueOf() - dayjs(b.date).valueOf()
   );
@@ -90,7 +100,7 @@ export default function Countdown({ config }: { config: CountdownConfig }) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <Clock className="size-5" />
-          <span data-llm-text="倒计时">倒计时</span>
+          <span data-llm-text={t('countdown')}>{t('countdown')}</span>
         </CardTitle>
       </CardHeader>
       <CardContent>

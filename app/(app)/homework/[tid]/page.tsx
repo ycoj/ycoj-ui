@@ -4,6 +4,7 @@ import HomeworkContent from '@/features/homework/detail/homework-content';
 import HomeworkSidebar from '@/features/homework/detail/homework-sidebar';
 import TwoColumnLayout from '@/shared/layout/two-column';
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 
 type Params = {
   tid: string;
@@ -16,9 +17,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { tid } = await params;
   const data = await getHomeworkDetail(tid);
+  const t = await getTranslations('metadata');
 
   return {
-    title: data.tdoc.title || '作业详情',
+    title: data.tdoc.title || t('homeworkDetail'),
   };
 }
 

@@ -18,6 +18,7 @@ import {
   Tag,
   type LucideIcon,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
 import removeMd from 'remove-markdown';
 
@@ -88,6 +89,7 @@ function BlogRow({ blog, udict }: { blog: Blog; udict: BaseUserDict }) {
 }
 
 export default function RecentBlogs({ blogs, udict }: Props) {
+  const t = useTranslations('homepage');
   if (!blogs.length) return null;
 
   return (
@@ -95,7 +97,7 @@ export default function RecentBlogs({ blogs, udict }: Props) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <Notebook className="size-5" />
-          最新博客
+          <span data-llm-text={t('latestBlogs')}>{t('latestBlogs')}</span>
         </CardTitle>
       </CardHeader>
       <CardContent>

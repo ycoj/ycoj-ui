@@ -1,5 +1,8 @@
 import ReactPdfViewer from './react-pdf-viewer';
+import messages from '@/messages/en.json';
 import { act, render, screen } from '@testing-library/react';
+import { NextIntlClientProvider } from 'next-intl';
+import type { ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const pdfMocks = vi.hoisted(() => ({
@@ -12,6 +15,14 @@ const pdfMocks = vi.hoisted(() => ({
   resize: undefined as ((width: number) => void) | undefined,
   workerOptions: { workerSrc: '' },
 }));
+
+function IntlWrapper({ children }: { children: ReactNode }) {
+  return (
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {children}
+    </NextIntlClientProvider>
+  );
+}
 
 vi.mock('react-pdf', () => ({
   Document: ({ children, ...props }: React.PropsWithChildren) => {
@@ -116,7 +127,9 @@ describe('ReactPdfViewer', () => {
   }
 
   it('only renders pages near the viewport and fits them to the container', () => {
-    const { container } = render(<ReactPdfViewer src="/document.pdf" />);
+    const { container } = render(<ReactPdfViewer src="/document.pdf" />, {
+      wrapper: IntlWrapper,
+    });
 
     const documentProps = pdfMocks.documentProps as {
       file: string;
@@ -158,7 +171,9 @@ describe('ReactPdfViewer', () => {
   });
 
   it('limits oversized documents before creating page placeholders', () => {
-    const { container } = render(<ReactPdfViewer src="/large-document.pdf" />);
+    const { container } = render(<ReactPdfViewer src="/large-document.pdf" />, {
+      wrapper: IntlWrapper,
+    });
     const documentProps = pdfMocks.documentProps as {
       onLoadSuccess: (pdf: { numPages: number }) => void;
     };

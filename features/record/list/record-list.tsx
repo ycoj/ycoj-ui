@@ -15,6 +15,7 @@ import { formatMemory, formatTime } from '@/shared/lib/format-units';
 import oid2ts from '@/shared/lib/oid2ts';
 import type { ProblemStatus as ProblemStatusDoc } from '@/shared/types/problem';
 import dayjs from 'dayjs';
+import { useTranslations } from 'next-intl';
 
 type Props = {
   data: RecordListResponse;
@@ -22,6 +23,7 @@ type Props = {
 };
 
 export default function RecordList({ data, languages }: Props) {
+  const common = useTranslations('common');
   // Get language display name
   const getLanguageDisplayName = (lang: string): string => {
     for (const family of Object.values(languages)) {
@@ -46,21 +48,21 @@ export default function RecordList({ data, languages }: Props) {
       </colgroup>
       <TableHeader>
         <TableRow>
-          <TableCell>状态</TableCell>
-          <TableCell>得分</TableCell>
-          <TableCell>题目</TableCell>
-          <TableCell className="text-right">提交者</TableCell>
+          <TableCell>{common('status')}</TableCell>
+          <TableCell>{common('score')}</TableCell>
+          <TableCell>{common('problem')}</TableCell>
+          <TableCell className="text-right">{common('submitter')}</TableCell>
           <TableCell className="hidden md:table-cell text-center">
-            用时
+            {common('time')}
           </TableCell>
           <TableCell className="hidden md:table-cell text-center">
-            内存
+            {common('memory')}
           </TableCell>
           <TableCell className="hidden md:table-cell text-center">
-            语言
+            {common('languageLabel')}
           </TableCell>
           <TableCell className="hidden md:table-cell text-center">
-            提交时间
+            {common('submitTime')}
           </TableCell>
         </TableRow>
       </TableHeader>

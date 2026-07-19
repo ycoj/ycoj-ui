@@ -9,6 +9,7 @@ import ContestProblemList from '@/features/contest/detail/contest-problem-list';
 import { Errored } from '@/shared/components/errored';
 import { Empty, EmptyHeader, EmptyTitle } from '@/shared/components/ui/empty';
 import type { HydroError } from '@/shared/types/error';
+import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
 
 type Props = {
@@ -16,6 +17,7 @@ type Props = {
 };
 
 export default function ContestProblemsTab({ tid }: Props) {
+  const t = useTranslations('problem');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [hydroError, setHydroError] = useState<HydroError | null>(null);
@@ -46,7 +48,9 @@ export default function ContestProblemsTab({ tid }: Props) {
       } catch (loadError) {
         if (!cancelled) {
           const message =
-            loadError instanceof Error ? loadError.message : '题目列表加载失败';
+            loadError instanceof Error
+              ? loadError.message
+              : t('listLoadFailed');
           setError(message);
         }
       } finally {
@@ -61,14 +65,14 @@ export default function ContestProblemsTab({ tid }: Props) {
     return () => {
       cancelled = true;
     };
-  }, [tid]);
+  }, [t, tid]);
 
   if (loading) {
     return (
       <Empty data-llm-visible="true">
         <EmptyHeader>
-          <EmptyTitle data-llm-text="题目列表加载中...">
-            题目列表加载中...
+          <EmptyTitle data-llm-text={t('listLoading')}>
+            {t('listLoading')}
           </EmptyTitle>
         </EmptyHeader>
       </Empty>
@@ -76,18 +80,18 @@ export default function ContestProblemsTab({ tid }: Props) {
   }
 
   if (hydroError) {
-    return <Errored title="题目列表暂不可用" error={hydroError} />;
+    return <Errored title={t('listUnavailable')} error={hydroError} />;
   }
 
   if (error) {
-    return <Errored title="题目列表加载失败" error={error} />;
+    return <Errored title={t('listLoadFailed')} error={error} />;
   }
 
   if (!problemsData) {
     return (
       <Empty data-llm-visible="true">
         <EmptyHeader>
-          <EmptyTitle data-llm-text="暂无题目">暂无题目</EmptyTitle>
+          <EmptyTitle data-llm-text={t('none')}>{t('none')}</EmptyTitle>
         </EmptyHeader>
       </Empty>
     );

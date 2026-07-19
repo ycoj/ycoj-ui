@@ -3,6 +3,7 @@ import ContestScoreboard from '@/features/contest/scoreboard/contest-scoreboard'
 import { getContestScoreboard } from '@/features/contest/scoreboard/get-contest-scoreboard';
 import { Separator } from '@/shared/components/ui/separator';
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 
 type Params = {
   tid: string;
@@ -15,9 +16,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { tid } = await params;
   const data = await getContestScoreboard(tid);
+  const t = await getTranslations('metadata');
 
   return {
-    title: `${data.tdoc.title} - 成绩表`,
+    title: `${data.tdoc.title} - ${t('scoreboard')}`,
   };
 }
 

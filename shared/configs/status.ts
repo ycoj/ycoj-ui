@@ -18,76 +18,31 @@ export const STATUS = {
   STATUS_FORMAT_ERROR: 31,
   STATUS_HACK_SUCCESSFUL: 32,
   STATUS_HACK_UNSUCCESSFUL: 33,
+} as const;
+
+export const STATUS_TEXT_KEYS: Record<number, string> = {
+  [STATUS.STATUS_WAITING]: 'waiting',
+  [STATUS.STATUS_ACCEPTED]: 'accepted',
+  [STATUS.STATUS_WRONG_ANSWER]: 'wrongAnswer',
+  [STATUS.STATUS_TIME_LIMIT_EXCEEDED]: 'timeLimitExceeded',
+  [STATUS.STATUS_MEMORY_LIMIT_EXCEEDED]: 'memoryLimitExceeded',
+  [STATUS.STATUS_OUTPUT_LIMIT_EXCEEDED]: 'outputLimitExceeded',
+  [STATUS.STATUS_RUNTIME_ERROR]: 'runtimeError',
+  [STATUS.STATUS_COMPILE_ERROR]: 'compileError',
+  [STATUS.STATUS_SYSTEM_ERROR]: 'systemError',
+  [STATUS.STATUS_CANCELED]: 'canceled',
+  [STATUS.STATUS_ETC]: 'unknownError',
+  [STATUS.STATUS_HACKED]: 'hacked',
+  [STATUS.STATUS_JUDGING]: 'judging',
+  [STATUS.STATUS_COMPILING]: 'compiling',
+  [STATUS.STATUS_FETCHED]: 'fetched',
+  [STATUS.STATUS_IGNORED]: 'ignored',
+  [STATUS.STATUS_FORMAT_ERROR]: 'formatError',
+  [STATUS.STATUS_HACK_SUCCESSFUL]: 'hackSuccessful',
+  [STATUS.STATUS_HACK_UNSUCCESSFUL]: 'hackUnsuccessful',
 };
 
-export const STATUS_TEXTS = {
-  [STATUS.STATUS_WAITING]: '等待评测',
-  [STATUS.STATUS_ACCEPTED]: '答案正确',
-  [STATUS.STATUS_WRONG_ANSWER]: '答案错误',
-  [STATUS.STATUS_TIME_LIMIT_EXCEEDED]: '时间超限',
-  [STATUS.STATUS_MEMORY_LIMIT_EXCEEDED]: '内存超限',
-  [STATUS.STATUS_OUTPUT_LIMIT_EXCEEDED]: '输出超限',
-  [STATUS.STATUS_RUNTIME_ERROR]: '运行错误',
-  [STATUS.STATUS_COMPILE_ERROR]: '编译错误',
-  [STATUS.STATUS_SYSTEM_ERROR]: '系统错误',
-  [STATUS.STATUS_CANCELED]: '成绩取消',
-  [STATUS.STATUS_ETC]: '未知错误',
-  [STATUS.STATUS_HACKED]: '被攻破',
-  [STATUS.STATUS_JUDGING]: '正在运行',
-  [STATUS.STATUS_COMPILING]: '正在编译',
-  [STATUS.STATUS_FETCHED]: '已抓取',
-  [STATUS.STATUS_IGNORED]: '被忽略',
-  [STATUS.STATUS_FORMAT_ERROR]: '配置错误',
-  [STATUS.STATUS_HACK_SUCCESSFUL]: '成功攻破',
-  [STATUS.STATUS_HACK_UNSUCCESSFUL]: '失败攻破',
-} as Record<number, string>;
-
-export const STATUS_TEXTS_ENGLISH = {
-  [STATUS.STATUS_WAITING]: 'Waiting',
-  [STATUS.STATUS_ACCEPTED]: 'Accepted',
-  [STATUS.STATUS_WRONG_ANSWER]: 'Wrong Answer',
-  [STATUS.STATUS_TIME_LIMIT_EXCEEDED]: 'Time Limit Exceeded',
-  [STATUS.STATUS_MEMORY_LIMIT_EXCEEDED]: 'Memory Limit Exceeded',
-  [STATUS.STATUS_OUTPUT_LIMIT_EXCEEDED]: 'Output Limit Exceeded',
-  [STATUS.STATUS_RUNTIME_ERROR]: 'Runtime Error',
-  [STATUS.STATUS_COMPILE_ERROR]: 'Compile Error',
-  [STATUS.STATUS_SYSTEM_ERROR]: 'System Error',
-  [STATUS.STATUS_CANCELED]: 'Canceled',
-  [STATUS.STATUS_ETC]: 'Unknown Error',
-  [STATUS.STATUS_HACKED]: 'Hacked',
-  [STATUS.STATUS_JUDGING]: 'Judging',
-  [STATUS.STATUS_COMPILING]: 'Compiling',
-  [STATUS.STATUS_FETCHED]: 'Fetched',
-  [STATUS.STATUS_IGNORED]: 'Ignored',
-  [STATUS.STATUS_FORMAT_ERROR]: 'Format Error',
-  [STATUS.STATUS_HACK_SUCCESSFUL]: 'Hacked Successfully',
-  [STATUS.STATUS_HACK_UNSUCCESSFUL]: 'Hacked Unsuccessfully',
-} as Record<number, string>;
-
-export const STATUS_HELP_TEXTS = {
-  [STATUS.STATUS_WAITING]: '我们已经收到了你的提交，正在为你分配评测机',
-  [STATUS.STATUS_ACCEPTED]: '你的程序通过了所有测试点',
-  [STATUS.STATUS_WRONG_ANSWER]: '你的程序在部分测试点上输出了错误答案',
-  [STATUS.STATUS_TIME_LIMIT_EXCEEDED]:
-    '你的程序运行超时了，可能存在死循环，或你的程序时间复杂度不对',
-  [STATUS.STATUS_MEMORY_LIMIT_EXCEEDED]: '你的程序申请或使用了过大的内存',
-  [STATUS.STATUS_OUTPUT_LIMIT_EXCEEDED]: '你的程序输出了过多字符',
-  [STATUS.STATUS_RUNTIME_ERROR]: '你的程序发生了运行错误，可能是数组越界了',
-  [STATUS.STATUS_COMPILE_ERROR]: '你的程序未能通过编译',
-  [STATUS.STATUS_SYSTEM_ERROR]: '评测机发生了错误，请稍后再试',
-  [STATUS.STATUS_CANCELED]: '这份评测被取消成绩',
-  [STATUS.STATUS_ETC]: '评测机发生了未知错误，请稍后再试',
-  [STATUS.STATUS_HACKED]: '你的程序被人找到了漏洞',
-  [STATUS.STATUS_JUDGING]: '评测机正在努力评测你的提交',
-  [STATUS.STATUS_COMPILING]: '评测机正在编译你的程序',
-  [STATUS.STATUS_FETCHED]: '评测机已经抓取了你的提交，即将开始评测',
-  [STATUS.STATUS_IGNORED]: '这份评测被忽略了',
-  [STATUS.STATUS_FORMAT_ERROR]: '你的程序配置错误',
-  [STATUS.STATUS_HACK_SUCCESSFUL]: '你成功找到了程序中的 Bug',
-  [STATUS.STATUS_HACK_UNSUCCESSFUL]: '你没有成功找到程序中的 Bug',
-} as Record<number, string>;
-
-export const STATUS_SHORT_TEXTS = {
+export const STATUS_SHORT_TEXTS: Record<number, string> = {
   [STATUS.STATUS_ACCEPTED]: 'AC',
   [STATUS.STATUS_WRONG_ANSWER]: 'WA',
   [STATUS.STATUS_TIME_LIMIT_EXCEEDED]: 'TLE',
@@ -100,9 +55,9 @@ export const STATUS_SHORT_TEXTS = {
   [STATUS.STATUS_HACKED]: 'HK',
   [STATUS.STATUS_IGNORED]: 'IGN',
   [STATUS.STATUS_FORMAT_ERROR]: 'FE',
-} as Record<number, string>;
+};
 
-export const STATUS_CODES = {
+export const STATUS_CODES: Record<number, string> = {
   [STATUS.STATUS_WAITING]: 'pending',
   [STATUS.STATUS_ACCEPTED]: 'pass',
   [STATUS.STATUS_WRONG_ANSWER]: 'fail',
@@ -122,9 +77,9 @@ export const STATUS_CODES = {
   [STATUS.STATUS_FORMAT_ERROR]: 'ignored',
   [STATUS.STATUS_HACK_SUCCESSFUL]: 'pass',
   [STATUS.STATUS_HACK_UNSUCCESSFUL]: 'fail',
-} as Record<number, string>;
+};
 
-export const STATUS_BACKGROUND_COLOR = {
+export const STATUS_BACKGROUND_COLOR: Record<number, string> = {
   [STATUS.STATUS_ACCEPTED]: '#16a34a',
   [STATUS.STATUS_WRONG_ANSWER]: '#ef4444',
   [STATUS.STATUS_TIME_LIMIT_EXCEEDED]: '#6b21a8',
@@ -136,4 +91,4 @@ export const STATUS_BACKGROUND_COLOR = {
   [STATUS.STATUS_IGNORED]: '#4b5563',
   [STATUS.STATUS_COMPILING]: '#4b5563',
   [STATUS.STATUS_JUDGING]: '#4b5563',
-} as Record<number, string>;
+};

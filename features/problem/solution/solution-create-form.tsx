@@ -12,6 +12,7 @@ import {
 import type { ObjectId } from '@/shared/types/shared';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowLeft, Navigation } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -33,11 +34,7 @@ type Props = {
     }
 );
 
-const schema = z.object({
-  content: z.string().trim().min(1, '请输入题解内容'),
-});
-
-type FormValues = z.infer<typeof schema>;
+type FormValues = { content: string };
 
 export default function SolutionCreateForm({
   problemId,
@@ -46,6 +43,10 @@ export default function SolutionCreateForm({
   initialContent = '',
   psid,
 }: Props) {
+  const t = useTranslations('solution');
+  const schema = z.object({
+    content: z.string().trim().min(1, t('contentRequired')),
+  });
   const defaultContent = mode === 'edit' ? initialContent : '';
   const router = useRouter();
   const {
@@ -61,7 +62,7 @@ export default function SolutionCreateForm({
   });
 
   const onSubmit = async (values: FormValues) => {
-    const actionText = mode === 'edit' ? '保存' : '发布';
+    const actionText = mode === 'edit' ? t('save') : t('publish');
 
     try {
       if (mode === 'edit' && psid) {
@@ -89,13 +90,13 @@ export default function SolutionCreateForm({
 
       setError('root.serverError', {
         type: 'server',
-        message: `${actionText}失败，请稍后重试`,
+        message: t('actionFailed', { action: actionText }),
       });
     } catch (error) {
       const message =
         error instanceof Error
           ? error.message
-          : `${actionText}失败，请稍后重试`;
+          : t('actionFailed', { action: actionText });
       setError('root.serverError', {
         type: 'server',
         message,
@@ -103,8 +104,8 @@ export default function SolutionCreateForm({
     }
   };
 
-  const submitText = mode === 'edit' ? '保存' : '发布';
-  const submittingText = mode === 'edit' ? '保存中...' : '发布中...';
+  const submitText = mode === 'edit' ? t('save') : t('publish');
+  const submittingText = mode === 'edit' ? t('saving') : t('publishing');
 
   return (
     <form
@@ -114,7 +115,7 @@ export default function SolutionCreateForm({
       data-llm-visible="true"
     >
       <Field>
-        <FieldLabel htmlFor="content">题解内容</FieldLabel>
+        <FieldLabel htmlFor="content">{t('content')}</FieldLabel>
         <FieldContent>
           <MarkdownEditor
             {...register('content')}
@@ -134,7 +135,7 @@ export default function SolutionCreateForm({
         <Button asChild variant="secondary" className="gap-1.5">
           <Link href={`/problem/${routePid}/solution`}>
             <ArrowLeft strokeWidth={2} />
-            <span data-llm-text="返回">返回</span>
+            <span data-llm-text={t('back')}>{t('back')}</span>
           </Link>
         </Button>
       </div>

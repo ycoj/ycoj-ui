@@ -7,8 +7,10 @@ import {
 import UserAvatar from '@/features/user/user-avatar';
 import { Badge } from '@/shared/components/ui/badge';
 import { AtSign, BarChart3, Calendar, Clock3 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function HeaderSection({ data }: UserProfileProps) {
+  const t = useTranslations('user');
   const profileUser = getProfileUser(data);
   const extras = getProfileExtras(data);
 
@@ -44,8 +46,8 @@ export default function HeaderSection({ data }: UserProfileProps) {
             </div>
             <div className="flex flex-wrap items-center gap-2">
               {data.isSelfProfile && (
-                <Badge variant="secondary" data-llm-text="我的主页">
-                  我的主页
+                <Badge variant="secondary" data-llm-text={t('myProfile')}>
+                  {t('myProfile')}
                 </Badge>
               )}
               {extras.rp !== undefined && (
@@ -69,19 +71,19 @@ export default function HeaderSection({ data }: UserProfileProps) {
             <div className="inline-flex items-center gap-2">
               <Calendar className="size-4" />
               <span data-llm-text={formatTime(data.udoc.regat)}>
-                注册：{formatTime(data.udoc.regat)}
+                {t('registeredAt', { time: formatTime(data.udoc.regat) })}
               </span>
             </div>
             <div className="inline-flex items-center gap-2">
               <Clock3 className="size-4" />
               <span data-llm-text={formatTime(data.udoc.loginat)}>
-                最近登录：{formatTime(data.udoc.loginat)}
+                {t('lastLogin', { time: formatTime(data.udoc.loginat) })}
               </span>
             </div>
             <div className="inline-flex items-center gap-2">
               <BarChart3 className="size-4" />
               <span data-llm-text={acceptanceRate}>
-                通过率：{acceptanceRate}
+                {t('acceptanceRate', { value: acceptanceRate })}
               </span>
             </div>
           </div>

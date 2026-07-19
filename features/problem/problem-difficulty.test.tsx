@@ -1,27 +1,48 @@
 import ProblemDifficulty from './problem-difficulty';
-import { PROBLEMS_DIFFICULTY } from '@/shared/configs/difficulty';
+import messages from '@/messages/en.json';
 import { render, screen } from '@testing-library/react';
+import { NextIntlClientProvider } from 'next-intl';
 import { describe, expect, it } from 'vitest';
 
 describe('ProblemDifficulty', () => {
   it('renders the label for a valid difficulty', () => {
-    render(<ProblemDifficulty difficulty={2} />);
-    expect(screen.getByText(PROBLEMS_DIFFICULTY[2])).toBeInTheDocument();
+    render(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <ProblemDifficulty difficulty={2} />
+      </NextIntlClientProvider>
+    );
+    expect(screen.getByText('Basic-')).toBeInTheDocument();
   });
 
-  it('falls back to 暂无评定 for missing or invalid difficulty', () => {
-    const { rerender } = render(<ProblemDifficulty />);
-    expect(screen.getByText('暂无评定')).toBeInTheDocument();
+  it('falls back to Unrated for missing or invalid difficulty', () => {
+    const { rerender } = render(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <ProblemDifficulty />
+      </NextIntlClientProvider>
+    );
+    expect(screen.getByText('Unrated')).toBeInTheDocument();
 
-    rerender(<ProblemDifficulty difficulty={-1} />);
-    expect(screen.getByText('暂无评定')).toBeInTheDocument();
+    rerender(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <ProblemDifficulty difficulty={-1} />
+      </NextIntlClientProvider>
+    );
+    expect(screen.getByText('Unrated')).toBeInTheDocument();
 
-    rerender(<ProblemDifficulty difficulty={99} />);
-    expect(screen.getByText('暂无评定')).toBeInTheDocument();
+    rerender(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <ProblemDifficulty difficulty={99} />
+      </NextIntlClientProvider>
+    );
+    expect(screen.getByText('Unrated')).toBeInTheDocument();
   });
 
-  it('renders 暂无评定 for difficulty 0', () => {
-    render(<ProblemDifficulty difficulty={0} />);
-    expect(screen.getByText('暂无评定')).toBeInTheDocument();
+  it('renders Unrated for difficulty 0', () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <ProblemDifficulty difficulty={0} />
+      </NextIntlClientProvider>
+    );
+    expect(screen.getByText('Unrated')).toBeInTheDocument();
   });
 });

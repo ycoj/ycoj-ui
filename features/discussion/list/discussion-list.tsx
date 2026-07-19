@@ -12,6 +12,7 @@ import { Separator } from '@/shared/components/ui/separator';
 import type { Discussion } from '@/shared/types/discussion';
 import dayjs from 'dayjs';
 import { MessageCircle, Eye, Pin, Search, Star } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Fragment } from 'react';
 
@@ -21,11 +22,12 @@ type Props = {
 
 function getNodeTitle(
   discussion: Discussion,
-  vndict: DiscussionMainResponse['vndict']
+  vndict: DiscussionMainResponse['vndict'],
+  fallback: string
 ): string {
   const vnode = vndict[discussion.parentType]?.[discussion.parentId];
-  if (!vnode) return '未知节点';
-  return (vnode as { title?: string }).title || '未知节点';
+  if (!vnode) return fallback;
+  return (vnode as { title?: string }).title || fallback;
 }
 
 function DiscussionItem({
@@ -37,8 +39,9 @@ function DiscussionItem({
   udict: DiscussionMainResponse['udict'];
   vndict: DiscussionMainResponse['vndict'];
 }) {
+  const t = useTranslations('discussion');
   const owner = udict[discussion.owner];
-  const nodeTitle = getNodeTitle(discussion, vndict);
+  const nodeTitle = getNodeTitle(discussion, vndict, t('unknownNode'));
   const discussionHref = `/discussion/${discussion.docId}`;
   const updatedAt = dayjs(discussion.updateAt).format('YYYY-MM-DD HH:mm');
 
@@ -61,7 +64,7 @@ function DiscussionItem({
                   className="mr-2 bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400"
                 >
                   <Pin data-icon="inline-start" />
-                  置顶
+                  {t('pinned')}
                 </Badge>
               )}
               {discussion.highlight && (
@@ -70,7 +73,7 @@ function DiscussionItem({
                   className="mr-2 bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400"
                 >
                   <Star data-icon="inline-start" />
-                  精华
+                  {t('featured')}
                 </Badge>
               )}
               {discussion.title}
@@ -79,10 +82,10 @@ function DiscussionItem({
 
           <div className="flex items-center gap-3 text-xs">
             <div className="text-muted-foreground flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1.5">
-              <Badge variant="secondary" title="讨论节点">
+              <Badge variant="secondary" title={t('node')}>
                 <span data-llm-text={nodeTitle}>{nodeTitle}</span>
               </Badge>
-              <Badge variant="secondary" title="回复数">
+              <Badge variant="secondary" title={t('replyCount')}>
                 <MessageCircle data-icon="inline-start" />
                 <span
                   data-llm-text={String(discussion.nReply)}
@@ -91,7 +94,7 @@ function DiscussionItem({
                   {discussion.nReply}
                 </span>
               </Badge>
-              <Badge variant="secondary" title="浏览量">
+              <Badge variant="secondary" title={t('views')}>
                 <Eye data-icon="inline-start" />
                 <span
                   data-llm-text={String(discussion.views)}
@@ -100,7 +103,7 @@ function DiscussionItem({
                   {discussion.views}
                 </span>
               </Badge>
-              <span className="text-muted-foreground" title="更新时间">
+              <span className="text-muted-foreground" title={t('updatedAt')}>
                 {updatedAt}
               </span>
             </div>
@@ -112,6 +115,7 @@ function DiscussionItem({
 }
 
 export default function DiscussionList({ data }: Props) {
+  const t = useTranslations('discussion');
   if (!data.ddocs.length) {
     return (
       <Empty className="border border-dashed" data-llm-visible="true">
@@ -119,9 +123,9 @@ export default function DiscussionList({ data }: Props) {
           <Search strokeWidth={2} />
         </EmptyMedia>
         <EmptyHeader>
-          <EmptyTitle data-llm-text="暂无讨论">暂无讨论</EmptyTitle>
-          <EmptyDescription data-llm-text="暂无讨论">
-            暂时没有讨论，快来发起第一个话题吧！
+          <EmptyTitle data-llm-text={t('none')}>{t('none')}</EmptyTitle>
+          <EmptyDescription data-llm-text={t('noneDescription')}>
+            {t('noneDescription')}
           </EmptyDescription>
         </EmptyHeader>
       </Empty>

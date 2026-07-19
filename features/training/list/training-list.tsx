@@ -10,6 +10,7 @@ import {
 import { Separator } from '@/shared/components/ui/separator';
 import type { TrainingDoc } from '@/shared/types/training';
 import { BookOpen, Code2, Search, Check, Users } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Fragment } from 'react';
 
@@ -28,6 +29,8 @@ function TrainingItem({
   training: TrainingDoc;
   attended: boolean;
 }) {
+  const t = useTranslations('training');
+  const common = useTranslations('common');
   const sectionCount = training.dag.length;
   const problemCount = getTrainingProblemCount(training);
   const trainingHref = `/training/${training.docId}`;
@@ -47,26 +50,26 @@ function TrainingItem({
 
       <p
         className="line-clamp-1 text-xs text-muted-foreground md:text-sm"
-        data-llm-text={description || '暂无简介'}
+        data-llm-text={description || t('noDescription')}
       >
-        {description || '暂无简介'}
+        {description || t('noDescription')}
       </p>
 
       <div className="flex items-center gap-3 text-xs">
         <div className="text-muted-foreground flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1.5">
-          <Badge variant="secondary" title="小节数量">
+          <Badge variant="secondary" title={t('sectionCount')}>
             <BookOpen data-icon="inline-start" />
             <span data-llm-text={String(sectionCount)} className="tabular-nums">
-              {sectionCount} 小节
+              {common('sections', { count: sectionCount })}
             </span>
           </Badge>
-          <Badge variant="secondary" title="题目数量">
+          <Badge variant="secondary" title={t('problemCount')}>
             <Code2 data-icon="inline-start" />
             <span data-llm-text={String(problemCount)} className="tabular-nums">
-              {problemCount} 道题
+              {common('problems', { count: problemCount })}
             </span>
           </Badge>
-          <Badge variant="secondary" title="参加人数">
+          <Badge variant="secondary" title={t('participants')}>
             <Users data-icon="inline-start" />
             <span
               data-llm-text={String(training.attend)}
@@ -81,7 +84,7 @@ function TrainingItem({
               className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400"
             >
               <Check data-icon="inline-start" />
-              <span data-llm-text="已参加">已参加</span>
+              <span data-llm-text={t('joined')}>{t('joined')}</span>
             </Badge>
           )}
         </div>
@@ -91,6 +94,7 @@ function TrainingItem({
 }
 
 export default function TrainingList({ data }: Props) {
+  const t = useTranslations('training');
   if (!data.tdocs.length) {
     return (
       <Empty className="border border-dashed" data-llm-visible="true">
@@ -98,9 +102,9 @@ export default function TrainingList({ data }: Props) {
           <Search strokeWidth={2} />
         </EmptyMedia>
         <EmptyHeader>
-          <EmptyTitle data-llm-text="暂无训练">暂无训练</EmptyTitle>
-          <EmptyDescription data-llm-text="暂无训练">
-            教练还没有添加训练，或是你没有对应权限。
+          <EmptyTitle data-llm-text={t('none')}>{t('none')}</EmptyTitle>
+          <EmptyDescription data-llm-text={t('noneDescription')}>
+            {t('noneDescription')}
           </EmptyDescription>
         </EmptyHeader>
       </Empty>

@@ -1,6 +1,6 @@
 'use client';
 
-import { formatContestDuration, getContestStatus } from './contest-utils';
+import { getContestDurationParts, getContestStatus } from './contest-utils';
 import ClientApis from '@/api/client/method';
 import type {
   ContestDetailStatus,
@@ -22,6 +22,7 @@ import {
   Check,
   type LucideIcon,
 } from 'lucide-react';
+import { useFormatter, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -60,17 +61,34 @@ export default function ContestSidebar({
   contestStatus,
   owner,
 }: Props) {
+  const t = useTranslations('contest');
+  const common = useTranslations('common');
+  const format = useFormatter();
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const status = getContestStatus(contest);
   const beginAt = dayjs(contest.beginAt);
   const endAt = dayjs(contest.endAt);
   const beginAtText = beginAt.isValid()
-    ? beginAt.format('YYYY-MM-DD HH:mm')
+    ? format.dateTime(beginAt.toDate(), {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      })
     : '-';
-  const endAtText = endAt.isValid() ? endAt.format('YYYY-MM-DD HH:mm') : '-';
-  const durationText =
-    formatContestDuration(contest.beginAt, contest.endAt) || '-';
+  const endAtText = endAt.isValid()
+    ? format.dateTime(endAt.toDate(), {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      })
+    : '-';
+  const parts = getContestDurationParts(contest.beginAt, contest.endAt);
+  const durationText = parts
+    ? parts.days > 0
+      ? t('durationDaysHours', parts)
+      : parts.hours > 0
+        ? t('durationHoursMinutes', parts)
+        : t('durationMinutes', parts)
+    : '-';
   const problemCount = contest.pids?.length ?? 0;
   const isEnded = status === 'ended';
   const isAttended = Boolean(contestStatus?.attend);
@@ -80,7 +98,7 @@ export default function ContestSidebar({
       className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400"
     >
       <Check data-icon="inline-start" />
-      <span data-llm-text="已报名">已报名</span>
+      <span data-llm-text={t('registered')}>{t('registered')}</span>
     </Badge>
   ) : undefined;
 
@@ -108,17 +126,21 @@ export default function ContestSidebar({
             disabled={submitting}
           >
             <PlusSquare strokeWidth={2} />
-            <span data-llm-text={submitting ? '报名中...' : '报名比赛'}>
-              {submitting ? '报名中...' : '报名比赛'}
+            <span data-llm-text={submitting ? t('registering') : t('register')}>
+              {submitting ? t('registering') : t('register')}
             </span>
           </Button>
         )}
         <SidebarButton
           href={`/contest/${tid}/scoreboard`}
           icon={Award}
-          text="成绩表"
+          text={t('scoreboard')}
         />
-        <SidebarButton href="#" icon={MessageCircle} text="讨论" />
+        <SidebarButton
+          href="#"
+          icon={MessageCircle}
+          text={common('discussion')}
+        />
       </div>
 
       <Separator />

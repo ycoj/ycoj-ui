@@ -6,7 +6,7 @@ import ContestInfo from '@/features/contest/contest-info';
 import ContestRuleBadge from '@/features/contest/contest-rule-badge';
 import ContestStatus from '@/features/contest/contest-status';
 import {
-  formatContestDuration,
+  getContestDurationParts,
   getContestStatus,
 } from '@/features/contest/detail/contest-utils';
 import UserSpan from '@/features/user/user-span';
@@ -23,6 +23,7 @@ import {
   Check,
   type LucideIcon,
 } from 'lucide-react';
+import { useFormatter, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -61,17 +62,35 @@ export default function HomeworkSidebar({
   homeworkStatus,
   owner,
 }: Props) {
+  const t = useTranslations('homework');
+  const contestT = useTranslations('contest');
+  const common = useTranslations('common');
+  const format = useFormatter();
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const status = getContestStatus(homework);
   const beginAt = dayjs(homework.beginAt);
   const endAt = dayjs(homework.endAt);
   const beginAtText = beginAt.isValid()
-    ? beginAt.format('YYYY-MM-DD HH:mm')
+    ? format.dateTime(beginAt.toDate(), {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      })
     : '-';
-  const endAtText = endAt.isValid() ? endAt.format('YYYY-MM-DD HH:mm') : '-';
-  const durationText =
-    formatContestDuration(homework.beginAt, homework.endAt) || '-';
+  const endAtText = endAt.isValid()
+    ? format.dateTime(endAt.toDate(), {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      })
+    : '-';
+  const parts = getContestDurationParts(homework.beginAt, homework.endAt);
+  const durationText = parts
+    ? parts.days > 0
+      ? contestT('durationDaysHours', parts)
+      : parts.hours > 0
+        ? contestT('durationHoursMinutes', parts)
+        : contestT('durationMinutes', parts)
+    : '-';
   const problemCount = homework.pids?.length ?? 0;
   const isEnded = status === 'ended';
   const isAttended = Boolean(homeworkStatus?.attend);
@@ -81,7 +100,7 @@ export default function HomeworkSidebar({
       className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400"
     >
       <Check data-icon="inline-start" />
-      <span data-llm-text="已报名">已报名</span>
+      <span data-llm-text={t('registered')}>{t('registered')}</span>
     </Badge>
   ) : undefined;
 
@@ -109,17 +128,21 @@ export default function HomeworkSidebar({
             disabled={submitting}
           >
             <PlusSquare strokeWidth={2} />
-            <span data-llm-text={submitting ? '报名中...' : '报名作业'}>
-              {submitting ? '报名中...' : '报名作业'}
+            <span data-llm-text={submitting ? t('registering') : t('register')}>
+              {submitting ? t('registering') : t('register')}
             </span>
           </Button>
         )}
         <SidebarButton
           href={`/homework/${tid}/scoreboard`}
           icon={Award}
-          text="成绩表"
+          text={contestT('scoreboard')}
         />
-        <SidebarButton href="#" icon={MessageCircle} text="讨论" />
+        <SidebarButton
+          href="#"
+          icon={MessageCircle}
+          text={common('discussion')}
+        />
       </div>
 
       <Separator />

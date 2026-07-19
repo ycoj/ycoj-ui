@@ -6,6 +6,7 @@ import ProblemTitle from '@/features/problem/detail/problem-title';
 import SolutionCreateForm from '@/features/problem/solution/solution-create-form';
 import { Errored } from '@/shared/components/errored';
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 
 type Params = {
   pid: string;
@@ -18,15 +19,16 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { pid } = await params;
   const data = await getProblemDetail(pid);
+  const t = await getTranslations('metadata');
 
   if ('error' in data) {
     return {
-      title: '创建题解',
+      title: t('createSolution'),
     };
   }
 
   return {
-    title: `${data.pdoc.title} - 创建题解`,
+    title: `${data.pdoc.title} - ${t('createSolution')}`,
   };
 }
 
@@ -37,9 +39,10 @@ export default async function ProblemSolutionCreatePage({
 }) {
   const { pid } = await params;
   const data = await getProblemDetail(pid);
+  const t = await getTranslations('problem');
 
   if ('error' in data) {
-    return <Errored title="题目暂不可用" error={data.error} />;
+    return <Errored title={t('unavailable')} error={data.error} />;
   }
 
   return <SolutionCreateContent data={data} pid={pid} />;

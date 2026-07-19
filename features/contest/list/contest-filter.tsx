@@ -9,8 +9,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/components/ui/select';
-import { RuleTexts } from '@/shared/types/contest';
+import { CONTEST_RULES } from '@/shared/types/contest';
 import { Award, Search, Tag } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useMemo, useState, type FormEvent } from 'react';
 
@@ -18,11 +19,11 @@ type Props = {
   groups: string[];
 };
 
-const ruleOptions = Object.entries(RuleTexts).filter(
-  ([key]) => key !== 'homework'
-);
+const ruleOptions = CONTEST_RULES.filter((rule) => rule !== 'homework');
 
 export default function ContestFilter({ groups }: Props) {
+  const t = useTranslations('contest');
+  const common = useTranslations('common');
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -63,7 +64,7 @@ export default function ContestFilter({ groups }: Props) {
           <Input
             name="q"
             defaultValue={searchParams.get('q') || ''}
-            placeholder="搜索比赛标题"
+            placeholder={t('searchPlaceholder')}
             className="pl-9 pr-3 text-sm"
           />
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -73,14 +74,14 @@ export default function ContestFilter({ groups }: Props) {
           <SelectTrigger className="w-44 min-w-[176px]">
             <div className="flex items-center gap-2">
               <Award className="size-4 text-muted-foreground" />
-              <SelectValue placeholder="赛制" />
+              <SelectValue placeholder={t('rulePlaceholder')} />
             </div>
           </SelectTrigger>
           <SelectContent position="popper">
-            <SelectItem value="all">全部赛制</SelectItem>
-            {ruleOptions.map(([value, label]) => (
+            <SelectItem value="all">{t('allRules')}</SelectItem>
+            {ruleOptions.map((value) => (
               <SelectItem key={value} value={value}>
-                {label}
+                {t(`rule.${value}`)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -90,11 +91,11 @@ export default function ContestFilter({ groups }: Props) {
           <SelectTrigger className="w-44 min-w-[176px]">
             <div className="flex items-center gap-2">
               <Tag className="size-4 text-muted-foreground" />
-              <SelectValue placeholder="分组" />
+              <SelectValue placeholder={common('group')} />
             </div>
           </SelectTrigger>
           <SelectContent position="popper">
-            <SelectItem value="all">全部分组</SelectItem>
+            <SelectItem value="all">{common('allGroups')}</SelectItem>
             {uniqueGroups.map((groupName) => (
               <SelectItem key={groupName} value={groupName}>
                 {groupName}
@@ -105,7 +106,7 @@ export default function ContestFilter({ groups }: Props) {
 
         <Button type="submit" variant="secondary" className="ml-auto gap-2">
           <Search strokeWidth={2} />
-          筛选
+          {common('filter')}
         </Button>
       </div>
     </form>

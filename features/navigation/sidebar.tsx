@@ -84,6 +84,8 @@ const buildHref = (item: NavItem) => {
 
 export default async function AppSidebar() {
   const t = await getTranslations('common');
+  const misc = await getTranslations('misc');
+  const siteName = process.env.SITE_NAME ?? '';
   const data = await getNavInfos();
   const items = data.navItems ?? [];
   const user = data.user;
@@ -96,7 +98,7 @@ export default async function AppSidebar() {
             width={100}
             height={27}
             src="/nav-logo-small_light.png"
-            alt="logo"
+            alt={misc('logoAlt', { siteName })}
           />
           <SidebarTrigger className="opacity-60" />
         </div>

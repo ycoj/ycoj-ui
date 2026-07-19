@@ -8,14 +8,14 @@ import {
   EmptyHeader,
   EmptyTitle,
 } from '@/shared/components/ui/empty';
+import { useTranslations } from 'next-intl';
 
-function getErrorMessage(error: Error): string {
+function getErrorKey(error: Error) {
   const msg = error.message || '';
-  if (msg.includes('ContestNotLiveError')) return '比赛尚未开始';
-  if (msg.includes('ContestScoreboardHiddenError')) return '成绩表暂不可见';
-  if (msg.includes('403') || msg.includes('ForbiddenError'))
-    return '权限不足，无法查看成绩表';
-  return '加载成绩表时出错';
+  if (msg.includes('ContestNotLiveError')) return 'notLive';
+  if (msg.includes('ContestScoreboardHiddenError')) return 'hidden';
+  if (msg.includes('403') || msg.includes('ForbiddenError')) return 'forbidden';
+  return 'loadError';
 }
 
 export default function ScoreboardError({
@@ -25,19 +25,21 @@ export default function ScoreboardError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  const message = getErrorMessage(error);
+  const t = useTranslations('scoreboard.error');
+  const errorKey = getErrorKey(error);
+  const message = t(errorKey);
 
   return (
     <Empty>
       <EmptyHeader>
         <EmptyTitle>{message}</EmptyTitle>
         <EmptyDescription>
-          {message === '加载成绩表时出错' ? '请检查网络连接后重试' : undefined}
+          {errorKey === 'loadError' ? t('checkNetwork') : undefined}
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
         <Button variant="outline" onClick={reset}>
-          重试
+          {t('retry')}
         </Button>
       </EmptyContent>
     </Empty>

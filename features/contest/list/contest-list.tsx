@@ -23,6 +23,7 @@ import {
   Check,
   Users,
 } from 'lucide-react';
+import { useFormatter, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Fragment } from 'react';
 
@@ -46,24 +47,16 @@ function getContestStatus(
   return 'ended';
 }
 
-function formatDuration(beginAt: dayjs.Dayjs, endAt: dayjs.Dayjs) {
-  if (!beginAt.isValid() || !endAt.isValid()) return '';
+function getDurationParts(beginAt: dayjs.Dayjs, endAt: dayjs.Dayjs) {
+  if (!beginAt.isValid() || !endAt.isValid()) return null;
   const totalMinutes = endAt.diff(beginAt, 'minute');
-  if (totalMinutes <= 0) return '';
+  if (totalMinutes <= 0) return null;
 
   const days = Math.floor(totalMinutes / (24 * 60));
   const hours = Math.floor((totalMinutes % (24 * 60)) / 60);
   const minutes = totalMinutes % 60;
 
-  if (days > 0) {
-    if (hours > 0) return `${days} 天 ${hours} 小时`;
-    return `${days} 天`;
-  }
-  if (hours > 0) {
-    if (minutes > 0) return `${hours} 小时 ${minutes} 分钟`;
-    return `${hours} 小时`;
-  }
-  return `${minutes} 分钟`;
+  return { days, hours, minutes };
 }
 
 function ContestItem({
@@ -73,6 +66,9 @@ function ContestItem({
   contest: ContestListProjection;
   attended: boolean;
 }) {
+  const t = useTranslations('contest');
+  const common = useTranslations('common');
+  const format = useFormatter();
   const now = dayjs();
   const status = getContestStatus(contest, now);
 
@@ -80,11 +76,16 @@ function ContestItem({
   const endAt = dayjs(contest.endAt);
   const timeText =
     beginAt.isValid() && endAt.isValid()
-      ? `${beginAt.format('YYYY-MM-DD HH:mm')} ~ ${endAt.format(
-          'YYYY-MM-DD HH:mm'
-        )}`
+      ? `${format.dateTime(beginAt.toDate(), { dateStyle: 'medium', timeStyle: 'short' })} ~ ${format.dateTime(endAt.toDate(), { dateStyle: 'medium', timeStyle: 'short' })}`
       : '';
-  const durationText = formatDuration(beginAt, endAt);
+  const parts = getDurationParts(beginAt, endAt);
+  const durationText = parts
+    ? parts.days > 0
+      ? t('durationDaysHours', parts)
+      : parts.hours > 0
+        ? t('durationHoursMinutes', parts)
+        : t('durationMinutes', parts)
+    : '';
   const problemCount = contest.pids?.length ?? 0;
   const contestHref = `/contest/${contest.docId}`;
 
@@ -108,13 +109,13 @@ function ContestItem({
             <Badge
               variant="secondary"
               className="bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400"
-              title="Rated"
+              title={t('rated')}
             >
               <Star data-icon="inline-start" />
-              <span data-llm-text="Rated">Rated</span>
+              <span data-llm-text={t('rated')}>{t('rated')}</span>
             </Badge>
           )}
-          <Badge variant="secondary" title="参赛人数">
+          <Badge variant="secondary" title={t('participants')}>
             <Users data-icon="inline-start" />
             <span
               data-llm-text={String(contest.attend)}
@@ -124,21 +125,21 @@ function ContestItem({
             </span>
           </Badge>
           {durationText && (
-            <Badge variant="secondary" title="比赛持续时间">
+            <Badge variant="secondary" title={t('duration')}>
               <Clock data-icon="inline-start" />
               <span data-llm-text={durationText} className="tabular-nums">
                 {durationText}
               </span>
             </Badge>
           )}
-          <Badge variant="secondary" title="题目数量">
+          <Badge variant="secondary" title={t('problemCount')}>
             <Code2 data-icon="inline-start" />
             <span data-llm-text={String(problemCount)} className="tabular-nums">
-              {problemCount} 道题
+              {common('problems', { count: problemCount })}
             </span>
           </Badge>
           {timeText && (
-            <Badge variant="secondary" title="比赛时间">
+            <Badge variant="secondary" title={t('time')}>
               <Calendar data-icon="inline-start" />
               <span data-llm-text={timeText} className="tabular-nums">
                 {timeText}
@@ -151,7 +152,7 @@ function ContestItem({
               className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400"
             >
               <Check data-icon="inline-start" />
-              <span data-llm-text="已参加">已参加</span>
+              <span data-llm-text={t('joined')}>{t('joined')}</span>
             </Badge>
           )}
         </div>
@@ -161,6 +162,7 @@ function ContestItem({
 }
 
 export default function ContestList({ data }: Props) {
+  const t = useTranslations('contest');
   if (!data.tdocs.length) {
     return (
       <Empty className="border border-dashed" data-llm-visible="true">
@@ -168,9 +170,11 @@ export default function ContestList({ data }: Props) {
           <Search strokeWidth={2} />
         </EmptyMedia>
         <EmptyHeader>
-          <EmptyTitle data-llm-text="暂无比赛">暂无比赛</EmptyTitle>
-          <EmptyDescription data-llm-text="暂无比赛">
-            教练还没有添加比赛，或是你没有对应权限。
+          <EmptyTitle data-llm-text={t('noContests')}>
+            {t('noContests')}
+          </EmptyTitle>
+          <EmptyDescription data-llm-text={t('noContestsDescription')}>
+            {t('noContestsDescription')}
           </EmptyDescription>
         </EmptyHeader>
       </Empty>

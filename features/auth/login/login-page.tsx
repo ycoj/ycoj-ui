@@ -112,7 +112,7 @@ export function LoginPage() {
       <div className="flex w-full max-w-md flex-col items-center gap-6">
         <Image
           src="/nav-logo-small_light.png"
-          alt={`${siteName} Logo`}
+          alt={t('misc.logoAlt', { siteName })}
           width={160}
           height={44}
           priority

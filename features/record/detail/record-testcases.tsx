@@ -22,6 +22,7 @@ import {
 } from '@/shared/configs/status';
 import { formatMemory } from '@/shared/lib/format-units';
 import { RecordDoc, TestCaseResponse } from '@/shared/types/record';
+import { useTranslations } from 'next-intl';
 
 type Props = {
   rdoc: RecordDoc;
@@ -100,6 +101,7 @@ function RecordSubtask({
   rdoc: RecordDoc;
   subtaskId: number;
 }) {
+  const t = useTranslations('record');
   const testcases = getSubtaskTestcases(rdoc, subtaskId);
 
   return (
@@ -107,7 +109,9 @@ function RecordSubtask({
       <AccordionTrigger className="cursor-pointer gap-3 px-3 py-2">
         <div className="flex w-full flex-col gap-1">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-sm font-medium">子任务 {subtaskId}</span>
+            <span className="text-sm font-medium">
+              {t('subtask', { id: subtaskId })}
+            </span>
           </div>
         </div>
       </AccordionTrigger>
@@ -122,6 +126,7 @@ function RecordSubtask({
 }
 
 export function RecordTestcases({ rdoc }: Props) {
+  const t = useTranslations('record');
   if (!rdoc.testCases?.length) {
     return null;
   }
@@ -135,7 +140,7 @@ export function RecordTestcases({ rdoc }: Props) {
     <Card>
       {isSingleSubtask && (
         <CardHeader>
-          <CardTitle>测试点详情</CardTitle>
+          <CardTitle>{t('testcaseDetails')}</CardTitle>
         </CardHeader>
       )}
       <CardContent>

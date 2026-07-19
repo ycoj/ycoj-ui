@@ -3,6 +3,7 @@ import {
   ContestListProjectionProblem,
   PublicProjectionProblem,
 } from '@/shared/types/problem';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
 export type Props = {
@@ -12,6 +13,7 @@ export type Props = {
 };
 
 export default function ProblemLink({ problem, tid, openInNewTab }: Props) {
+  const t = useTranslations('misc');
   const problemId = problem.pid ?? problem.docId;
   const href = tid
     ? `/problem/${problemId}?tid=${tid}`
@@ -29,8 +31,8 @@ export default function ProblemLink({ problem, tid, openInNewTab }: Props) {
         <span className="space-x-1">
           <span data-llm-text={problem.title}>{problem.title}</span>
           {(problem as PublicProjectionProblem).hidden && (
-            <span className="text-primary" data-llm-text="(隐藏)">
-              (隐藏)
+            <span className="text-primary" data-llm-text={t('hidden')}>
+              {t('hidden')}
             </span>
           )}
         </span>

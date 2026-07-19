@@ -54,14 +54,14 @@ export type Contest = {
   allowViewCode?: boolean;
 } & BaseContest; // 比赛
 
-export const RuleTexts = {
-  acm: 'ACM/ICPC',
-  oi: 'OI',
-  ioi: 'IOI',
-  ledo: '乐多',
-  homework: '作业',
-  strictioi: 'IOI (严格)',
-} as const;
+export const CONTEST_RULES: ContestRule[] = [
+  'acm',
+  'oi',
+  'ioi',
+  'ledo',
+  'homework',
+  'strictioi',
+];
 
 export type ContestStatus = {
   attend?: boolean;

@@ -2,6 +2,7 @@
 
 import { getSafePdfUrl } from '@/shared/components/markdown/pdf-url';
 import { LoaderCircle, TriangleAlert } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
 import { useSyncExternalStore } from 'react';
 
@@ -12,16 +13,21 @@ type ViewerProps = {
   src: string;
 };
 
-const ReactPdfViewer = dynamic(() => import('./react-pdf-viewer'), {
-  loading: () => (
+function PdfLoading() {
+  const t = useTranslations('pdf');
+  return (
     <div className="flex min-h-48 items-center justify-center" role="status">
       <LoaderCircle
         className="size-5 animate-spin text-muted-foreground"
         aria-hidden="true"
       />
-      <span className="sr-only">Loading PDF</span>
+      <span className="sr-only">{t('loading')}</span>
     </div>
-  ),
+  );
+}
+
+const ReactPdfViewer = dynamic(() => import('./react-pdf-viewer'), {
+  loading: PdfLoading,
   ssr: false,
 });
 
@@ -48,9 +54,9 @@ export function isMixedContentPdfUrl(src: string, pageProtocol: string) {
 }
 
 export function MarkdownPdfViewer({ pageProtocol, src }: ViewerProps) {
+  const t = useTranslations('pdf');
   if (isMixedContentPdfUrl(src, pageProtocol)) {
-    const warning =
-      'This PDF uses HTTP and cannot be displayed on this HTTPS page.';
+    const warning = t('mixedContent');
 
     return (
       <div

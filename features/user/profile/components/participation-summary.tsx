@@ -3,21 +3,25 @@ import ContestStatus from '@/features/contest/contest-status';
 import { getContestStatus } from '@/features/contest/detail/contest-utils';
 import dayjs from 'dayjs';
 import { Trophy } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
 export default function ParticipationSummary({ data }: UserProfileProps) {
+  const t = useTranslations('user');
   if (!data.tdocs.length) {
     return (
       <section className="space-y-3" data-llm-visible="true">
         <h2 className="inline-flex items-center gap-2 text-base font-medium">
           <Trophy className="size-4 text-muted-foreground" />
-          <span data-llm-text="参赛概览">参赛概览</span>
+          <span data-llm-text={t('participationOverview')}>
+            {t('participationOverview')}
+          </span>
         </h2>
         <p
           className="text-sm text-muted-foreground"
-          data-llm-text="暂无参与记录"
+          data-llm-text={t('noParticipation')}
         >
-          暂无参与记录
+          {t('noParticipation')}
         </p>
       </section>
     );
@@ -46,16 +50,18 @@ export default function ParticipationSummary({ data }: UserProfileProps) {
     <section className="space-y-3" data-llm-visible="true">
       <h2 className="inline-flex items-center gap-2 text-base font-medium">
         <Trophy className="size-4 text-muted-foreground" />
-        <span data-llm-text="参赛概览">参赛概览</span>
+        <span data-llm-text={t('participationOverview')}>
+          {t('participationOverview')}
+        </span>
       </h2>
 
       <div className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border bg-border sm:grid-cols-5">
         {[
-          { label: '比赛', value: contestCount },
-          { label: '作业', value: homeworkCount },
-          { label: '进行中', value: running },
-          { label: '未开始', value: pending },
-          { label: '已结束', value: ended },
+          { label: t('contests'), value: contestCount },
+          { label: t('homework'), value: homeworkCount },
+          { label: t('running'), value: running },
+          { label: t('pending'), value: pending },
+          { label: t('ended'), value: ended },
         ].map((item) => (
           <div key={item.label} className="bg-background px-3 py-3">
             <p className="text-xs text-muted-foreground">{item.label}</p>

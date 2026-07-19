@@ -9,6 +9,7 @@ import {
   User,
   type LucideIcon,
 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
 
 type InfoItemProps = {
@@ -61,52 +62,58 @@ export default function ContestInfo({
   owner,
   ownerText,
 }: Props) {
+  const t = useTranslations('contest');
+  const common = useTranslations('common');
   return (
     <div className="space-y-3 px-2">
-      <InfoItem icon={CalendarCheck} label="状态" value={status} />
+      <InfoItem icon={CalendarCheck} label={common('status')} value={status} />
       {attendedBadge && (
-        <InfoItem icon={Check} label="报名" value={attendedBadge} />
+        <InfoItem
+          icon={Check}
+          label={t('registration')}
+          value={attendedBadge}
+        />
       )}
       <InfoItem
         icon={Trophy}
-        label="比赛规则"
+        label={t('ruleLabel')}
         value={rule}
         llmText={ruleText}
       />
       <InfoItem
         icon={Code2}
-        label="题目数量"
-        value={`${problemCount} 道题`}
+        label={t('problemCount')}
+        value={common('problems', { count: problemCount })}
         llmText={String(problemCount)}
       />
       <InfoItem
         icon={Calendar}
-        label="开始时间"
+        label={t('startTime')}
         value={beginAtText}
         llmText={beginAtText}
       />
       <InfoItem
         icon={Calendar}
-        label="结束时间"
+        label={t('endTime')}
         value={endAtText}
         llmText={endAtText}
       />
       <InfoItem
         icon={Clock}
-        label="持续时间"
+        label={t('duration')}
         value={durationText}
         llmText={durationText}
       />
       <InfoItem
         icon={Users}
-        label="参赛人数"
+        label={t('participants')}
         value={<span className="tabular-nums">{attend}</span>}
         llmText={String(attend)}
       />
       {showOwner && (
         <InfoItem
           icon={User}
-          label="主持人"
+          label={t('host')}
           value={owner ?? '-'}
           llmText={ownerText}
         />

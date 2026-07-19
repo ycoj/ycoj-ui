@@ -7,7 +7,8 @@ import ProblemSidebar from '@/features/problem/sidebar';
 import ProblemSubmitForm from '@/features/problem/submit/problem-submit-form';
 import { Errored } from '@/shared/components/errored';
 import TwoColumnLayout from '@/shared/layout/two-column';
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 
 type Params = {
   pid: string;
@@ -27,15 +28,16 @@ export async function generateMetadata({
   const { pid } = await params;
   const searchParams = await searchParamsPromise;
   const data = await getProblemDetail(pid, searchParams.tid);
+  const t = await getTranslations('metadata');
 
   if ('error' in data) {
     return {
-      title: '提交',
+      title: t('submit'),
     };
   }
 
   return {
-    title: `${data.pdoc.title} - 提交`,
+    title: `${data.pdoc.title} - ${t('submit')}`,
   };
 }
 
@@ -49,9 +51,10 @@ export default async function ProblemSubmitPage({
   const { pid } = await params;
   const searchParams = await searchParamsPromise;
   const data = await getProblemDetail(pid, searchParams.tid);
+  const t = await getTranslations('problem');
 
   if ('error' in data) {
-    return <Errored title="题目暂不可用" error={data.error} />;
+    return <Errored title={t('unavailable')} error={data.error} />;
   }
 
   return <ProblemSubmitContent data={data} searchParams={searchParams} />;

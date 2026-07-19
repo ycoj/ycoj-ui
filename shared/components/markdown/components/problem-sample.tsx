@@ -2,6 +2,7 @@
 
 import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/utils';
+import { useTranslations } from 'next-intl';
 import type { HTMLAttributes } from 'react';
 import { useCallback, useMemo, useState } from 'react';
 
@@ -27,6 +28,7 @@ function getPropValue(
 }
 
 function SamplePane({ label, text }: { label: string; text: string }) {
+  const t = useTranslations('problem.sample');
   const [copied, setCopied] = useState(false);
 
   const onCopy = useCallback(async () => {
@@ -40,7 +42,7 @@ function SamplePane({ label, text }: { label: string; text: string }) {
       <div className="flex items-center justify-between">
         <h3 className="my-0.5!">{label}</h3>
         <Button variant="secondary" type="button" onClick={onCopy} size="sm">
-          {copied ? '已复制' : '复制'}
+          {copied ? t('copied') : t('copy')}
         </Button>
       </div>
       <pre className="my-1!">
@@ -51,6 +53,7 @@ function SamplePane({ label, text }: { label: string; text: string }) {
 }
 
 export default function ProblemSample({ className, ...props }: Props) {
+  const t = useTranslations('problem.sample');
   const propsMap = props as Record<string, unknown>;
 
   const index = useMemo(() => {
@@ -73,8 +76,8 @@ export default function ProblemSample({ className, ...props }: Props) {
   return (
     <div className={cn('my-6 space-y-3', className)}>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <SamplePane label={`样例 ${index || ''} 输入`} text={input} />
-        <SamplePane label={`样例 ${index || ''} 输出`} text={output} />
+        <SamplePane label={t('input', { index: index || '' })} text={input} />
+        <SamplePane label={t('output', { index: index || '' })} text={output} />
       </div>
     </div>
   );

@@ -7,7 +7,8 @@ import ProblemTitle from '@/features/problem/detail/problem-title';
 import ProblemSidebar from '@/features/problem/sidebar';
 import { Errored } from '@/shared/components/errored';
 import TwoColumnLayout from '@/shared/layout/two-column';
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 
 type Params = {
   pid: string;
@@ -27,15 +28,16 @@ export async function generateMetadata({
   const { pid } = await params;
   const searchParams = await searchParamsPromise;
   const data = await getProblemDetail(pid, searchParams.tid);
+  const t = await getTranslations('metadata');
 
   if ('error' in data) {
     return {
-      title: '题目详情',
+      title: t('problemDetail'),
     };
   }
 
   return {
-    title: data.pdoc.title || '题目详情',
+    title: data.pdoc.title || t('problemDetail'),
   };
 }
 
@@ -49,9 +51,10 @@ export default async function ProblemDetailPage({
   const { pid } = await params;
   const searchParams = await searchParamsPromise;
   const data = await getProblemDetail(pid, searchParams.tid);
+  const t = await getTranslations('problem');
 
   if ('error' in data) {
-    return <Errored title="题目暂不可用" error={data.error} />;
+    return <Errored title={t('unavailable')} error={data.error} />;
   }
 
   return <ProblemDetailContent data={data} searchParams={searchParams} />;

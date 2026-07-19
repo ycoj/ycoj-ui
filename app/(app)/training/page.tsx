@@ -3,10 +3,12 @@ import TrainingFilter from '@/features/training/list/training-filter';
 import TrainingList from '@/features/training/list/training-list';
 import Pagination from '@/shared/components/pagination';
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 
-export const metadata: Metadata = {
-  title: '训练列表',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('metadata');
+  return { title: t('trainingList') };
+}
 
 export type SearchParams = {
   q?: string;

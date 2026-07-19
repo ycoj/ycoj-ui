@@ -2,7 +2,10 @@ import MarkdownPdf, {
   isMixedContentPdfUrl,
   MarkdownPdfViewer,
 } from './markdown-pdf';
+import messages from '@/messages/en.json';
 import { render, screen } from '@testing-library/react';
+import { NextIntlClientProvider } from 'next-intl';
+import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('next/dynamic', () => ({
@@ -12,9 +15,19 @@ vi.mock('next/dynamic', () => ({
     },
 }));
 
+function IntlWrapper({ children }: { children: ReactNode }) {
+  return (
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {children}
+    </NextIntlClientProvider>
+  );
+}
+
+const renderWithIntl = (ui: ReactNode) => render(ui, { wrapper: IntlWrapper });
+
 describe('MarkdownPdf', () => {
   it('passes a safe URL to the React-PDF viewer', () => {
-    const { container } = render(
+    const { container } = renderWithIntl(
       <MarkdownPdf data-src="https://example.com/document.pdf" />
     );
 
@@ -25,7 +38,7 @@ describe('MarkdownPdf', () => {
   });
 
   it('accepts the camel-cased sanitized data property', () => {
-    render(<MarkdownPdf dataSrc="/document.pdf" />);
+    renderWithIntl(<MarkdownPdf dataSrc="/document.pdf" />);
 
     expect(
       screen.getByRole('document', { name: 'PDF document' })
@@ -33,7 +46,7 @@ describe('MarkdownPdf', () => {
   });
 
   it('renders nothing for a missing or unsafe URL', () => {
-    const { container, rerender } = render(<MarkdownPdf />);
+    const { container, rerender } = renderWithIntl(<MarkdownPdf />);
     expect(container).toBeEmptyDOMElement();
 
     rerender(<MarkdownPdf data-src="javascript:alert(1)" />);
@@ -41,7 +54,7 @@ describe('MarkdownPdf', () => {
   });
 
   it('shows a warning for an HTTP PDF on an HTTPS page', () => {
-    render(
+    renderWithIntl(
       <MarkdownPdfViewer
         pageProtocol="https:"
         src="http://example.com/document.pdf"
@@ -55,7 +68,7 @@ describe('MarkdownPdf', () => {
   });
 
   it('allows an HTTP PDF when the page also uses HTTP', () => {
-    render(
+    renderWithIntl(
       <MarkdownPdfViewer
         pageProtocol="http:"
         src="http://example.com/document.pdf"

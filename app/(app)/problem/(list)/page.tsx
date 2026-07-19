@@ -2,11 +2,13 @@ import ServerApis from '@/api/server/method';
 import ProblemList from '@/features/problem/list/problem-list';
 import ProblemSearch from '@/features/problem/list/problem-search';
 import Pagination from '@/shared/components/pagination';
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 
-export const metadata: Metadata = {
-  title: '题目列表',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('metadata');
+  return { title: t('problemList') };
+}
 
 export type SearchParams = {
   q?: string;

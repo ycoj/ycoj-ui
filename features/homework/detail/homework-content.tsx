@@ -12,6 +12,7 @@ import type {
   HomeworkStatus,
 } from '@/shared/types/homework';
 import type { ProblemDict } from '@/shared/types/problem';
+import { useTranslations } from 'next-intl';
 
 type Props = {
   tid: string;
@@ -30,12 +31,13 @@ export default function HomeworkContent({
   pdict,
   psdict,
 }: Props) {
+  const t = useTranslations('homework');
   return (
     <div data-llm-visible="true">
       <Tabs defaultValue="introduction">
         <TabsList>
-          <TabsTrigger value="introduction">作业介绍</TabsTrigger>
-          <TabsTrigger value="problems">题目列表</TabsTrigger>
+          <TabsTrigger value="introduction">{t('introduction')}</TabsTrigger>
+          <TabsTrigger value="problems">{t('problems')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="introduction" className="pt-2">

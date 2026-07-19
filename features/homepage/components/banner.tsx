@@ -2,6 +2,7 @@
 'use client';
 
 import { BannerConfig } from '@/api/server/method/ui/homepage';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -14,6 +15,7 @@ type Props = {
 };
 
 export default function Banner({ banner }: Props) {
+  const t = useTranslations('homepage');
   if (!banner.pictures || banner.pictures.length === 0) {
     return null;
   }
@@ -40,7 +42,7 @@ export default function Banner({ banner }: Props) {
               <div className="relative w-full">
                 <img
                   src={pic.src}
-                  alt={`Banner ${index + 1}`}
+                  alt={t('bannerAlt', { number: index + 1 })}
                   className="block h-auto w-full"
                 />
               </div>

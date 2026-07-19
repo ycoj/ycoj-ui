@@ -17,6 +17,7 @@ import type {
   ProblemDict,
   ProblemStatus as ProblemStatusDoc,
 } from '@/shared/types/problem';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
 type Props = {
@@ -59,8 +60,9 @@ function ProblemStatusCell({
   status?: HomeworkProblemStatusDict[number];
   domainId: string;
 }) {
+  const t = useTranslations('problem');
   if (!status) {
-    return <span className="text-muted-foreground">未提交</span>;
+    return <span className="text-muted-foreground">{t('notSubmitted')}</span>;
   }
 
   const statusDoc = buildStatusDoc(pid, status, domainId);
@@ -70,10 +72,10 @@ function ProblemStatusCell({
   }
 
   if (status.rid) {
-    return <Link href={`/record/${status.rid}`}>已提交</Link>;
+    return <Link href={`/record/${status.rid}`}>{t('submitted')}</Link>;
   }
 
-  return <span className="text-muted-foreground">已提交</span>;
+  return <span className="text-muted-foreground">{t('submitted')}</span>;
 }
 
 export default function HomeworkProblemList({
@@ -83,6 +85,8 @@ export default function HomeworkProblemList({
   pdict,
   psdict,
 }: Props) {
+  const t = useTranslations('problem');
+  const common = useTranslations('common');
   const orderedPids = homework.pids ?? [];
   const allowTidParam = Boolean(
     homeworkStatus?.attend && homeworkStatus?.startAt
@@ -93,7 +97,7 @@ export default function HomeworkProblemList({
     return (
       <Empty data-llm-visible="true">
         <EmptyHeader>
-          <EmptyTitle data-llm-text="暂无题目">暂无题目</EmptyTitle>
+          <EmptyTitle data-llm-text={t('none')}>{t('none')}</EmptyTitle>
         </EmptyHeader>
       </Empty>
     );
@@ -109,8 +113,8 @@ export default function HomeworkProblemList({
       <TableHeader>
         <TableRow>
           <TableCell>#</TableCell>
-          <TableCell>题目</TableCell>
-          <TableCell className="text-right">状态</TableCell>
+          <TableCell>{common('problem')}</TableCell>
+          <TableCell className="text-right">{common('status')}</TableCell>
         </TableRow>
       </TableHeader>
       <TableBody>

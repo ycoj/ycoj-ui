@@ -1,5 +1,6 @@
 import { Badge } from '@/shared/components/ui/badge';
 import { cn } from '@/shared/lib/utils';
+import { useTranslations } from 'next-intl';
 
 export type ContestStatus = 'running' | 'pending' | 'ended';
 
@@ -7,16 +8,6 @@ type Props = {
   status: ContestStatus;
   className?: string;
 };
-
-const STATUS_LABELS = {
-  running: '进行中',
-  pending: '即将开始',
-  ended: '已结束',
-} as const;
-
-export function getContestStatusLabel(status: ContestStatus) {
-  return STATUS_LABELS[status];
-}
 
 export function getContestStatusTextClassName(status: ContestStatus) {
   return cn(
@@ -35,7 +26,8 @@ export function getContestStatusBadgeClassName(status: ContestStatus) {
 }
 
 export default function ContestStatus({ status, className }: Props) {
-  const label = getContestStatusLabel(status);
+  const t = useTranslations('contest.status');
+  const label = t(status);
 
   return (
     <Badge

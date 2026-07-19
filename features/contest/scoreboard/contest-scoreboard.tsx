@@ -9,6 +9,7 @@ import {
 } from '@/shared/components/ui/empty';
 import type { ScoreboardResponse } from '@/shared/types/contest';
 import { Clipboard } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 type Props = {
   data: ScoreboardResponse;
@@ -23,6 +24,7 @@ export default function ContestScoreboard({
   pageType,
   currentUid,
 }: Props) {
+  const t = useTranslations('scoreboard');
   const { tdoc, rows, udict, pdict, availableViews } = data;
 
   return (
@@ -48,9 +50,9 @@ export default function ContestScoreboard({
             <Clipboard strokeWidth={2} />
           </EmptyMedia>
           <EmptyHeader>
-            <EmptyTitle data-llm-text="暂无成绩数据">暂无成绩数据</EmptyTitle>
-            <EmptyDescription data-llm-text="目前还没有人在此作业中提交题目。">
-              目前还没有人在此作业中提交题目。
+            <EmptyTitle data-llm-text={t('noData')}>{t('noData')}</EmptyTitle>
+            <EmptyDescription data-llm-text={t('noSubmissions')}>
+              {t('noSubmissions')}
             </EmptyDescription>
           </EmptyHeader>
         </Empty>

@@ -12,13 +12,16 @@ import {
 } from '@/shared/components/ui/empty';
 import type { HydroError } from '@/shared/types/error';
 import { AlertCircle, ArrowLeft, RefreshCw } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 type Props = {
   title?: string;
   error: HydroError | string;
 };
 
-export default function Errored({ title = '内容暂不可用', error }: Props) {
+export default function Errored({ title, error }: Props) {
+  const t = useTranslations('error');
+  const resolvedTitle = title ?? t('unavailable');
   const errorMessage = parseErrorMessage(error);
 
   const handleRefresh = () => {
@@ -35,7 +38,7 @@ export default function Errored({ title = '内容暂不可用', error }: Props) 
         <AlertCircle strokeWidth={2} />
       </EmptyMedia>
       <EmptyHeader>
-        <EmptyTitle data-llm-text={title}>{title}</EmptyTitle>
+        <EmptyTitle data-llm-text={resolvedTitle}>{resolvedTitle}</EmptyTitle>
         <EmptyDescription className="font-mono" data-llm-text={errorMessage}>
           {errorMessage}
         </EmptyDescription>
@@ -44,11 +47,11 @@ export default function Errored({ title = '内容暂不可用', error }: Props) 
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleGoBack}>
             <ArrowLeft strokeWidth={2} />
-            返回
+            {t('back')}
           </Button>
           <Button variant="outline" onClick={handleRefresh}>
             <RefreshCw strokeWidth={2} />
-            刷新
+            {t('refresh')}
           </Button>
         </div>
       </EmptyContent>

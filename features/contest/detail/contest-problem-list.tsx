@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/components/ui/table';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
 type Props = {
@@ -19,25 +20,28 @@ type Props = {
 };
 
 function ProblemStatusCell({ psdoc }: { psdoc?: ContestProblemStatus }) {
+  const t = useTranslations('problem');
   if (!psdoc) {
-    return <span className="text-muted-foreground">未提交</span>;
+    return <span className="text-muted-foreground">{t('notSubmitted')}</span>;
   }
 
   if ('status' in psdoc) {
     return <ProblemStatus status={psdoc} />;
   }
 
-  return <Link href={`/record/${psdoc.rid}`}>已提交</Link>;
+  return <Link href={`/record/${psdoc.rid}`}>{t('submitted')}</Link>;
 }
 
 export default function ContestProblemList({ tid, data }: Props) {
+  const t = useTranslations('problem');
+  const common = useTranslations('common');
   const orderedPids = data.tdoc.pids ?? [];
 
   if (!orderedPids.length) {
     return (
       <Empty data-llm-visible="true">
         <EmptyHeader>
-          <EmptyTitle data-llm-text="暂无题目">暂无题目</EmptyTitle>
+          <EmptyTitle data-llm-text={t('none')}>{t('none')}</EmptyTitle>
         </EmptyHeader>
       </Empty>
     );
@@ -52,9 +56,9 @@ export default function ContestProblemList({ tid, data }: Props) {
       </colgroup>
       <TableHeader>
         <TableRow>
-          <TableCell>状态</TableCell>
+          <TableCell>{common('status')}</TableCell>
           <TableCell>#</TableCell>
-          <TableCell>题目</TableCell>
+          <TableCell>{common('problem')}</TableCell>
         </TableRow>
       </TableHeader>
       <TableBody>

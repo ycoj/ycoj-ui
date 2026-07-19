@@ -11,6 +11,7 @@ import {
 } from '@/shared/components/ui/popover';
 import type { ObjectId } from '@/shared/types/shared';
 import { Trash2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -20,6 +21,7 @@ type Props = {
 };
 
 export default function SolutionDeleteButton({ pid, psid }: Props) {
+  const t = useTranslations('solution');
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -36,8 +38,7 @@ export default function SolutionDeleteButton({ pid, psid }: Props) {
       setOpen(false);
       router.refresh();
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : '删除失败，请稍后重试';
+      const message = err instanceof Error ? err.message : t('deleteFailed');
       setError(message);
     } finally {
       setSubmitting(false);
@@ -51,19 +52,19 @@ export default function SolutionDeleteButton({ pid, psid }: Props) {
           type="button"
           variant="destructive"
           size="icon-xs"
-          aria-label="删除题解"
-          title="删除题解"
+          aria-label={t('delete')}
+          title={t('delete')}
         >
           <Trash2 strokeWidth={2} />
-          <span className="sr-only" data-llm-text="删除题解">
-            删除题解
+          <span className="sr-only" data-llm-text={t('delete')}>
+            {t('delete')}
           </span>
         </Button>
       </PopoverTrigger>
       <PopoverContent align="end" data-llm-visible="true">
         <PopoverHeader>
-          <PopoverTitle data-llm-text="确认删除这篇题解？">
-            确认删除这篇题解？
+          <PopoverTitle data-llm-text={t('confirmDelete')}>
+            {t('confirmDelete')}
           </PopoverTitle>
         </PopoverHeader>
         {error && (
@@ -79,7 +80,7 @@ export default function SolutionDeleteButton({ pid, psid }: Props) {
             onClick={() => setOpen(false)}
             disabled={submitting}
           >
-            <span data-llm-text="取消">取消</span>
+            <span data-llm-text={t('cancel')}>{t('cancel')}</span>
           </Button>
           <Button
             type="button"
@@ -88,8 +89,8 @@ export default function SolutionDeleteButton({ pid, psid }: Props) {
             onClick={handleDelete}
             disabled={submitting}
           >
-            <span data-llm-text={submitting ? '删除中...' : '确认删除'}>
-              {submitting ? '删除中...' : '确认删除'}
+            <span data-llm-text={submitting ? t('deleting') : t('confirm')}>
+              {submitting ? t('deleting') : t('confirm')}
             </span>
           </Button>
         </div>

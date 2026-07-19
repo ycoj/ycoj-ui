@@ -25,6 +25,7 @@ import {
 import { Textarea } from '@/shared/components/ui/textarea';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Navigation, Link2, Info } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo } from 'react';
@@ -38,13 +39,7 @@ type Props = {
   isContestEnded?: boolean;
 };
 
-const baseSchema = z.object({
-  familyKey: z.string().min(1, '请选择语言'),
-  lang: z.string().min(1, '请选择版本'),
-  code: z.string().trim().min(1, '请输入代码'),
-});
-
-type FormValues = z.infer<typeof baseSchema>;
+type FormValues = { familyKey: string; lang: string; code: string };
 
 export default function ProblemSubmitFormClient({
   pid,
@@ -52,6 +47,7 @@ export default function ProblemSubmitFormClient({
   languages,
   isContestEnded,
 }: Props) {
+  const t = useTranslations('problem.submitForm');
   const router = useRouter();
 
   const preferredFamilyKey = 'cc';
@@ -76,31 +72,32 @@ export default function ProblemSubmitFormClient({
     return family.versions[0]?.name ?? '';
   }, [defaultFamilyKey, languages, preferredFamilyKey, preferredLang]);
 
-  const schema = useMemo(
-    () =>
-      baseSchema.superRefine(
-        (values: z.infer<typeof baseSchema>, ctx: z.RefinementCtx) => {
-          const family = languages[values.familyKey];
-          if (!family) {
-            ctx.addIssue({
-              code: 'custom',
-              path: ['familyKey'],
-              message: '请选择语言',
-            });
-            return;
-          }
+  const schema = useMemo(() => {
+    const baseSchema = z.object({
+      familyKey: z.string().min(1, t('selectLanguage')),
+      lang: z.string().min(1, t('selectVersion')),
+      code: z.string().trim().min(1, t('enterCode')),
+    });
+    return baseSchema.superRefine((values, ctx: z.RefinementCtx) => {
+      const family = languages[values.familyKey];
+      if (!family) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['familyKey'],
+          message: t('selectLanguage'),
+        });
+        return;
+      }
 
-          if (!family.versions.some((v) => v.name === values.lang)) {
-            ctx.addIssue({
-              code: 'custom',
-              path: ['lang'],
-              message: '请选择版本',
-            });
-          }
-        }
-      ),
-    [languages]
-  );
+      if (!family.versions.some((v) => v.name === values.lang)) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['lang'],
+          message: t('selectVersion'),
+        });
+      }
+    });
+  }, [languages, t]);
 
   const {
     control,
@@ -175,11 +172,10 @@ export default function ProblemSubmitFormClient({
 
       setError('root.serverError', {
         type: 'server',
-        message: '提交失败',
+        message: t('submitFailed'),
       });
     } catch (error) {
-      const message =
-        error instanceof Error ? error.message : '提交失败，请稍后重试';
+      const message = error instanceof Error ? error.message : t('submitRetry');
       setError('root.serverError', {
         type: 'server',
         message,
@@ -195,9 +191,11 @@ export default function ProblemSubmitFormClient({
           data-llm-visible="true"
         >
           <Info className="size-4" strokeWidth={2} />
-          <AlertTitle data-llm-text="比赛已结束">比赛已结束</AlertTitle>
-          <AlertDescription data-llm-text="比赛已结束，你可以选择在题库中打开本题">
-            比赛已结束，你可以选择在题库中打开本题。
+          <AlertTitle data-llm-text={t('contestEnded')}>
+            {t('contestEnded')}
+          </AlertTitle>
+          <AlertDescription data-llm-text={t('contestEndedDescription')}>
+            {t('contestEndedDescription')}
           </AlertDescription>
         </Alert>
       )}
@@ -208,7 +206,7 @@ export default function ProblemSubmitFormClient({
             name="familyKey"
             render={({ field }) => (
               <Field className="w-auto flex-none">
-                <FieldLabel htmlFor="family-select">语言</FieldLabel>
+                <FieldLabel htmlFor="family-select">{t('language')}</FieldLabel>
                 <FieldContent>
                   <Select
                     value={field.value}
@@ -220,7 +218,7 @@ export default function ProblemSubmitFormClient({
                       aria-invalid={!!errors.familyKey}
                       className="w-60"
                     >
-                      <SelectValue placeholder="选择语言" />
+                      <SelectValue placeholder={t('selectLanguage')} />
                     </SelectTrigger>
                     <SelectContent>
                       {Object.entries(languages).map(([key, fam]) => (
@@ -241,7 +239,7 @@ export default function ProblemSubmitFormClient({
             name="lang"
             render={({ field }) => (
               <Field className="w-auto flex-none">
-                <FieldLabel htmlFor="version-select">版本</FieldLabel>
+                <FieldLabel htmlFor="version-select">{t('version')}</FieldLabel>
                 <FieldContent>
                   <Select
                     value={field.value}
@@ -253,7 +251,7 @@ export default function ProblemSubmitFormClient({
                       aria-invalid={!!errors.lang}
                       className="w-60"
                     >
-                      <SelectValue placeholder="选择版本" />
+                      <SelectValue placeholder={t('selectVersion')} />
                     </SelectTrigger>
                     <SelectContent>
                       {selectedFamily?.versions.map((l) => (
@@ -271,11 +269,11 @@ export default function ProblemSubmitFormClient({
         </div>
 
         <Field>
-          <FieldLabel htmlFor="code-input">代码</FieldLabel>
+          <FieldLabel htmlFor="code-input">{t('code')}</FieldLabel>
           <FieldContent>
             <Textarea
               id="code-input"
-              placeholder="在此粘贴代码..."
+              placeholder={t('codePlaceholder')}
               className="min-h-[320px] max-h-[600px] font-mono"
               aria-invalid={!!errors.code}
               disabled={isSubmitting || isContestEnded}
@@ -299,13 +297,13 @@ export default function ProblemSubmitFormClient({
           disabled={isSubmitting}
         >
           <Navigation strokeWidth={2} data-icon="inline-start" />
-          {isSubmitting ? '提交中...' : '提交'}
+          {isSubmitting ? t('submitting') : t('submit')}
         </Button>
       ) : (
         <Button size="lg" asChild className="w-auto gap-3">
           <Link href={`/problem/${pid}`}>
             <Link2 strokeWidth={2} data-icon="inline-start" />
-            在题库中打开
+            {t('openInProblemSet')}
           </Link>
         </Button>
       )}

@@ -4,6 +4,7 @@ import SolutionContent from '@/features/problem/solution/solution-content';
 import SolutionRight from '@/features/problem/solution/solution-right';
 import TwoColumnLayout from '@/shared/layout/two-column';
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 
 type Params = {
   pid: string;
@@ -16,8 +17,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { pid } = await params;
   const data = await getProblemSolution(pid);
+  const t = await getTranslations('metadata');
   return {
-    title: `${data.pdoc.title} - 题解`,
+    title: `${data.pdoc.title} - ${t('solutions')}`,
   };
 }
 

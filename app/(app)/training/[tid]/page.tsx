@@ -3,6 +3,7 @@ import TrainingContent from '@/features/training/detail/training-content';
 import TrainingSidebar from '@/features/training/detail/training-sidebar';
 import TrainingTitle from '@/features/training/training-title';
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 
 type Params = {
   tid: string;
@@ -15,9 +16,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { tid } = await params;
   const data = await getTrainingDetail(tid);
+  const t = await getTranslations('metadata');
 
   return {
-    title: data.tdoc.title || '训练详情',
+    title: data.tdoc.title || t('trainingDetail'),
   };
 }
 
