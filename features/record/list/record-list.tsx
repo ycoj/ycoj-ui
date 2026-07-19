@@ -37,7 +37,7 @@ export default function RecordList({ data, languages }: Props) {
   return (
     <Table className="table-fixed" data-llm-visible="true">
       <colgroup>
-        <col className="w-20 md:w-28" />
+        <col className="w-20 md:w-34" />
         <col className="w-14" />
         <col />
         <col className="w-28 md:w-48" />

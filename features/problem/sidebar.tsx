@@ -85,18 +85,22 @@ export default function ProblemSidebar({
   const format = useFormatter();
   const isContestMode = Boolean(tid);
   const problemCount = contest?.pids?.length ?? 0;
-  const beginAtText = contest
-    ? format.dateTime(dayjs(contest.beginAt).toDate(), {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-      })
-    : '';
-  const endAtText = contest
-    ? format.dateTime(dayjs(contest.endAt).toDate(), {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-      })
-    : '';
+  const beginAt = contest ? dayjs(contest.beginAt) : null;
+  const endAt = contest ? dayjs(contest.endAt) : null;
+  const beginAtText =
+    beginAt && beginAt.isValid()
+      ? format.dateTime(beginAt.toDate(), {
+          dateStyle: 'medium',
+          timeStyle: 'short',
+        })
+      : '-';
+  const endAtText =
+    endAt && endAt.isValid()
+      ? format.dateTime(endAt.toDate(), {
+          dateStyle: 'medium',
+          timeStyle: 'short',
+        })
+      : '-';
   const parts = contest
     ? getContestDurationParts(contest.beginAt, contest.endAt)
     : null;

@@ -50,7 +50,7 @@ export default function ContestProblemList({ tid, data }: Props) {
   return (
     <Table className="table-fixed" data-llm-visible="true">
       <colgroup>
-        <col className="w-24" />
+        <col className="w-28" />
         <col className="w-8" />
         <col />
       </colgroup>
