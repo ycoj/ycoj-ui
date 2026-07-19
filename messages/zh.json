@@ -18,7 +18,10 @@
     "course": "视频课程",
     "live": "直播课堂",
     "management": "管理域",
-    "loading": "加载中..."
+    "loading": "加载中...",
+    "roleUser": "用户",
+    "roleSuperAdmin": "超级管理员",
+    "roleCoach": "教练"
   },
   "landing": {
     "title": "<modern>现代</modern>、<native>原生智能</native>的在线测评系统",

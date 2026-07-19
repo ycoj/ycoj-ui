@@ -21,11 +21,19 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { DropdownMenu as DropdownMenuPrimitive } from 'radix-ui';
 
+export type SidebarRoleKey = 'user' | 'superAdmin' | 'coach';
+
 type Props = {
   user: Pick<User, '_id' | 'uname'>;
-  modType: string;
+  roleKey: SidebarRoleKey;
   avatarSrc: string;
 };
+
+const roleMessageKeys = {
+  user: 'roleUser',
+  superAdmin: 'roleSuperAdmin',
+  coach: 'roleCoach',
+} as const satisfies Record<SidebarRoleKey, string>;
 
 const menuContentClassName =
   'bg-popover text-popover-foreground data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 ring-foreground/10 z-50 min-w-44 rounded-lg p-1 shadow-md ring-1 duration-100 outline-hidden';
@@ -33,10 +41,11 @@ const menuContentClassName =
 const menuItemClassName =
   'focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0';
 
-export default function SidebarUserMenu({ user, modType, avatarSrc }: Props) {
+export default function SidebarUserMenu({ user, roleKey, avatarSrc }: Props) {
   const locale = useLocale() as Locale;
   const t = useTranslations('common');
   const router = useRouter();
+  const roleLabel = t(roleMessageKeys[roleKey]);
 
   const changeLocale = (value: string) => {
     if (!locales.includes(value as Locale)) return;
@@ -60,8 +69,11 @@ export default function SidebarUserMenu({ user, modType, avatarSrc }: Props) {
           </Avatar>
           <div className="grid flex-1 text-left text-sm leading-tight">
             <span className="truncate font-semibold">{user.uname}</span>
-            <span className="truncate text-xs text-muted-foreground">
-              {modType}
+            <span
+              className="truncate text-xs text-muted-foreground"
+              data-llm-text={roleLabel}
+            >
+              {roleLabel}
             </span>
           </div>
           <ChevronDown className="ml-auto size-4" />

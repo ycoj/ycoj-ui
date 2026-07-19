@@ -18,7 +18,10 @@
     "course": "Courses",
     "live": "Live classroom",
     "management": "Management",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "roleUser": "User",
+    "roleSuperAdmin": "Super Admin",
+    "roleCoach": "Coach"
   },
   "landing": {
     "title": "<modern>Modern</modern>, <native>AI-native</native> online judge",
