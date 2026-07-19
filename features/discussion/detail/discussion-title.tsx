@@ -8,6 +8,7 @@ import type {
 import type { BaseUser } from '@/shared/types/user';
 import dayjs from 'dayjs';
 import { Calendar, Eye, MessageCircle, Pin, Star } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 type Props = {
   ddoc: DiscussionDoc;
@@ -31,6 +32,7 @@ export default function DiscussionTitle({
   vnode,
   drcount,
 }: Props) {
+  const t = useTranslations('discussion');
   const updatedAt = dayjs(ddoc.updateAt);
   const updatedAtText = updatedAt.isValid()
     ? updatedAt.format('YYYY-MM-DD HH:mm')
@@ -53,7 +55,7 @@ export default function DiscussionTitle({
                 className="mr-2 bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400"
               >
                 <Pin data-icon="inline-start" />
-                置顶
+                {t('pinned')}
               </Badge>
             )}
             {ddoc.highlight && (
@@ -62,7 +64,7 @@ export default function DiscussionTitle({
                 className="mr-2 bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400"
               >
                 <Star data-icon="inline-start" />
-                精华
+                {t('featured')}
               </Badge>
             )}
             <span data-llm-text={ddoc.title}>{ddoc.title}</span>
@@ -76,19 +78,19 @@ export default function DiscussionTitle({
             )}
 
             {vnodeTitle && (
-              <Badge variant="secondary" title="讨论节点">
+              <Badge variant="secondary" title={t('node')}>
                 <span data-llm-text={vnodeTitle}>{vnodeTitle}</span>
               </Badge>
             )}
 
-            <Badge variant="secondary" title="回复数">
+            <Badge variant="secondary" title={t('replyCount')}>
               <MessageCircle data-icon="inline-start" />
               <span data-llm-text={String(replyCount)} className="tabular-nums">
                 {replyCount}
               </span>
             </Badge>
 
-            <Badge variant="secondary" title="浏览量">
+            <Badge variant="secondary" title={t('views')}>
               <Eye data-icon="inline-start" />
               <span data-llm-text={String(ddoc.views)} className="tabular-nums">
                 {ddoc.views}

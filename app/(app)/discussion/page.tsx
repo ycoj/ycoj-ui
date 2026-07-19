@@ -3,10 +3,12 @@ import DiscussionList from '@/features/discussion/list/discussion-list';
 import DiscussionNodeFilter from '@/features/discussion/list/discussion-node-filter';
 import Pagination from '@/shared/components/pagination';
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 
-export const metadata: Metadata = {
-  title: '讨论列表',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('metadata');
+  return { title: t('discussionList') };
+}
 
 export type SearchParams = {
   page?: string;

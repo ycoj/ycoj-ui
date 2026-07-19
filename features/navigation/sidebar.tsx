@@ -28,6 +28,7 @@ import {
   Settings,
   type LucideIcon,
 } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -44,21 +45,6 @@ const NAV_ROUTE_MAP: Record<string, string> = {
   manage_dashboard: '/manage',
   course_list: '/course',
   live_main: '/live',
-};
-
-const navItemsTranslation: Record<string, string> = {
-  homepage: '首页',
-  problem_main: '题目',
-  training_main: '训练',
-  contest_main: '比赛',
-  homework_main: '作业',
-  discussion_main: '讨论',
-  record_main: '评测记录',
-  ranking: '排名',
-  domain_dashboard: '管理域',
-  manage_dashboard: '系统设置',
-  course_list: '视频课程',
-  live_main: '直播课堂',
 };
 
 const NAV_ICON_MAP: Record<string, LucideIcon> = {
@@ -97,6 +83,9 @@ const buildHref = (item: NavItem) => {
 };
 
 export default async function AppSidebar() {
+  const t = await getTranslations('common');
+  const misc = await getTranslations('misc');
+  const siteName = process.env.SITE_NAME ?? '';
   const data = await getNavInfos();
   const items = data.navItems ?? [];
   const user = data.user;
@@ -109,7 +98,7 @@ export default async function AppSidebar() {
             width={100}
             height={27}
             src="/nav-logo-small_light.png"
-            alt="logo"
+            alt={misc('logoAlt', { siteName })}
           />
           <SidebarTrigger className="opacity-60" />
         </div>
@@ -129,7 +118,22 @@ export default async function AppSidebar() {
                             return <Icon strokeWidth={2} />;
                           })()}
                         <span>
-                          {navItemsTranslation[item.name] ??
+                          {(
+                            {
+                              homepage: t('home'),
+                              problem_main: t('problem'),
+                              training_main: t('training'),
+                              contest_main: t('contest'),
+                              homework_main: t('homework'),
+                              discussion_main: t('discussion'),
+                              record_main: t('record'),
+                              ranking: t('ranking'),
+                              domain_dashboard: t('management'),
+                              manage_dashboard: t('settings'),
+                              course_list: t('course'),
+                              live_main: t('live'),
+                            } as Record<string, string>
+                          )[item.name] ??
                             item.args.displayName ??
                             item.name}
                         </span>

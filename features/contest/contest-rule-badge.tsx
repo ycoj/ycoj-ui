@@ -1,7 +1,8 @@
 import { Badge } from '@/shared/components/ui/badge';
 import { cn } from '@/shared/lib/utils';
-import { RuleTexts, type ContestRule } from '@/shared/types/contest';
+import type { ContestRule } from '@/shared/types/contest';
 import { Trophy } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 type Props = {
   rule: ContestRule;
@@ -23,7 +24,8 @@ function getRuleStyle(rule: ContestRule) {
 }
 
 export default function ContestRuleBadge({ rule }: Props) {
-  const ruleText = RuleTexts[rule];
+  const t = useTranslations('contest.rule');
+  const ruleText = t(rule);
   const styleClass = getRuleStyle(rule);
 
   return (

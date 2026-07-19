@@ -13,6 +13,7 @@ import {
 } from '@/shared/components/ui/tabs';
 import { ContestDetailProjectionProblem } from '@/shared/types/problem';
 import { Info } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 const LANGUAGE_LABELS = {
   zh: '简体中文',
@@ -27,6 +28,7 @@ export default function ProblemContent({
 }: {
   problem: ContestDetailProjectionProblem;
 }) {
+  const t = useTranslations('problem');
   const contents = parseProblemContent(problem.content);
   const showFileIoAlert = problem.config?.type === 'fileio';
   const subType = problem.config?.subType ?? '';
@@ -38,27 +40,28 @@ export default function ProblemContent({
       className="border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-900/50 dark:bg-blue-950/40 dark:text-blue-300"
     >
       <Info strokeWidth={2} className="text-current" />
-      <AlertTitle data-llm-text="文件输入输出">文件输入输出</AlertTitle>
+      <AlertTitle data-llm-text={t('fileIoTitle')}>
+        {t('fileIoTitle')}
+      </AlertTitle>
       <AlertDescription>
-        <span data-llm-text="本题需要文件输入输出，请从文件">
-          本题需要文件输入输出，请从文件
-        </span>
-        <span
-          className="mx-1 font-mono text-foreground"
-          data-llm-text={fileInName}
-        >
-          {fileInName}
-        </span>
-        <span data-llm-text="中读取数据，并将答案写入文件">
-          中读取数据，并将答案写入文件
-        </span>
-        <span
-          className="mx-1 font-mono text-foreground"
-          data-llm-text={fileOutName}
-        >
-          {fileOutName}
-        </span>
-        <span data-llm-text="中">中</span>
+        {t.rich('fileIoDescription', {
+          input: () => (
+            <span
+              className="mx-1 font-mono text-foreground"
+              data-llm-text={fileInName}
+            >
+              {fileInName}
+            </span>
+          ),
+          output: () => (
+            <span
+              className="mx-1 font-mono text-foreground"
+              data-llm-text={fileOutName}
+            >
+              {fileOutName}
+            </span>
+          ),
+        })}
       </AlertDescription>
     </Alert>
   ) : null;
@@ -81,7 +84,7 @@ export default function ProblemContent({
         <TabsList>
           {contents.map(({ language }) => (
             <TabsTrigger key={language} value={language}>
-              {LANGUAGE_LABELS[language]}
+              {LANGUAGE_LABELS[language] ?? language}
             </TabsTrigger>
           ))}
         </TabsList>

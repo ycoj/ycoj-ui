@@ -14,6 +14,7 @@ import { cn } from '@/shared/lib/utils';
 import type { Contest } from '@/shared/types/contest';
 import dayjs from 'dayjs';
 import { Award, Calendar, Star, Users } from 'lucide-react';
+import { useFormatter, useTranslations } from 'next-intl';
 import Link from 'next/link';
 
 type Props = {
@@ -37,6 +38,8 @@ function getContestStatus(
 }
 
 function ContestRow({ contest }: { contest: Contest }) {
+  const t = useTranslations('contest');
+  const format = useFormatter();
   const now = dayjs();
   const status = getContestStatus(contest, now);
   const statusClassName = getContestStatusTextClassName(status);
@@ -45,9 +48,7 @@ function ContestRow({ contest }: { contest: Contest }) {
   const endAt = dayjs(contest.endAt);
   const timeText =
     beginAt.isValid() && endAt.isValid()
-      ? `${beginAt.format('MM-DD HH:mm')} ~ ${endAt.format(
-          beginAt.year() === endAt.year() ? 'MM-DD HH:mm' : 'YYYY-MM-DD HH:mm'
-        )}`
+      ? `${format.dateTime(beginAt.toDate(), { dateStyle: 'short', timeStyle: 'short' })} ~ ${format.dateTime(endAt.toDate(), { dateStyle: 'short', timeStyle: 'short' })}`
       : '';
 
   return (
@@ -72,20 +73,20 @@ function ContestRow({ contest }: { contest: Contest }) {
           <Badge
             variant="secondary"
             className="bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400"
-            title="Rated"
+            title={t('rated')}
           >
             <Star data-icon="inline-start" />
-            <span data-llm-text="Rated">Rated</span>
+            <span data-llm-text={t('rated')}>{t('rated')}</span>
           </Badge>
         )}
-        <Badge variant="secondary" title="参赛人数">
+        <Badge variant="secondary" title={t('participants')}>
           <Users data-icon="inline-start" />
           <span data-llm-text={String(contest.attend)} className="tabular-nums">
             {contest.attend}
           </span>
         </Badge>
         {timeText && (
-          <Badge variant="secondary" title="比赛时间">
+          <Badge variant="secondary" title={t('time')}>
             <Calendar data-icon="inline-start" />
             <span data-llm-text={timeText} className="tabular-nums">
               {timeText}
@@ -98,6 +99,7 @@ function ContestRow({ contest }: { contest: Contest }) {
 }
 
 export default function Contests({ contests }: Props) {
+  const t = useTranslations('homepage');
   if (!contests.length) return null;
 
   const lastIndexByColumn: Record<number, number> = { 0: -1, 1: -1 };
@@ -110,7 +112,7 @@ export default function Contests({ contests }: Props) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <Award className="size-5" />
-          <span data-llm-text="最近比赛">最近比赛</span>
+          <span data-llm-text={t('recentContests')}>{t('recentContests')}</span>
         </CardTitle>
       </CardHeader>
       <CardContent>

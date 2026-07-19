@@ -15,12 +15,10 @@ import {
 } from '@/shared/components/ui/table';
 import type { RpInfo } from '@/shared/types/user';
 import { Users } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 /** RP category key -> display label (Problems, Contests, etc.) */
-const RP_CATEGORY_LABELS: Array<{ key: keyof RpInfo; label: string }> = [
-  { key: 'problem', label: '做题' },
-  { key: 'contest', label: '比赛' },
-];
+const RP_CATEGORIES: Array<keyof RpInfo> = ['problem', 'contest'];
 
 type Props = {
   udocs: RankingUser[];
@@ -34,6 +32,8 @@ function formatRp(value: number | undefined): string {
 }
 
 export default function RankingLeaderboard({ udocs, page, pageSize }: Props) {
+  const t = useTranslations('ranking');
+  const common = useTranslations('common');
   if (!udocs.length) {
     return (
       <Empty className="border border-dashed" data-llm-visible="true">
@@ -41,7 +41,7 @@ export default function RankingLeaderboard({ udocs, page, pageSize }: Props) {
           <Users strokeWidth={2} />
         </EmptyMedia>
         <EmptyHeader>
-          <EmptyTitle data-llm-text="暂无用户">暂无用户</EmptyTitle>
+          <EmptyTitle data-llm-text={t('noUsers')}>{t('noUsers')}</EmptyTitle>
         </EmptyHeader>
       </Empty>
     );
@@ -53,7 +53,7 @@ export default function RankingLeaderboard({ udocs, page, pageSize }: Props) {
         <col className="w-14" />
         <col className="w-32 md:w-40" />
         <col className="w-16" />
-        {RP_CATEGORY_LABELS.map(({ key }) => (
+        {RP_CATEGORIES.map((key) => (
           <col key={key} className="w-16 hidden lg:table-column" />
         ))}
         <col />
@@ -61,17 +61,17 @@ export default function RankingLeaderboard({ udocs, page, pageSize }: Props) {
       <TableHeader>
         <TableRow>
           <TableCell className="font-medium">#</TableCell>
-          <TableCell className="font-medium">用户</TableCell>
+          <TableCell className="font-medium">{common('user')}</TableCell>
           <TableCell className="font-medium text-center">RP</TableCell>
-          {RP_CATEGORY_LABELS.map(({ key, label }) => (
+          {RP_CATEGORIES.map((key) => (
             <TableCell
               key={key}
               className="hidden text-center font-medium lg:table-cell"
             >
-              {label}
+              {t(`category.${key}`)}
             </TableCell>
           ))}
-          <TableCell className="font-medium">自我介绍</TableCell>
+          <TableCell className="font-medium">{t('bio')}</TableCell>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -89,7 +89,7 @@ export default function RankingLeaderboard({ udocs, page, pageSize }: Props) {
               >
                 {formatRp(user.rp)}
               </TableCell>
-              {RP_CATEGORY_LABELS.map(({ key }) => (
+              {RP_CATEGORIES.map((key) => (
                 <TableCell
                   key={key}
                   className="hidden text-center lg:table-cell"

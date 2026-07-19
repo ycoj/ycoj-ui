@@ -3,10 +3,12 @@ import RecordFilter from '@/features/record/list/record-filter';
 import RecordList from '@/features/record/list/record-list';
 import Pagination from '@/shared/components/pagination';
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 
-export const metadata: Metadata = {
-  title: '评测记录',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('metadata');
+  return { title: t('recordList') };
+}
 
 export type SearchParams = {
   page?: string;

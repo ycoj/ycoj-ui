@@ -15,6 +15,7 @@ import { Separator } from '@/shared/components/ui/separator';
 import type { ContestListProjection } from '@/shared/types/contest';
 import dayjs from 'dayjs';
 import { Calendar, Search, Check, Users } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Fragment } from 'react';
 
@@ -45,6 +46,7 @@ function HomeworkItem({
   homework: ContestListProjection;
   attended: boolean;
 }) {
+  const t = useTranslations('homework');
   const now = dayjs();
   const status = getHomeworkStatus(homework, now);
 
@@ -69,7 +71,7 @@ function HomeworkItem({
       <div className="flex items-center gap-3 text-xs">
         <div className="text-muted-foreground flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1.5">
           <ContestRuleBadge rule={homework.rule} />
-          <Badge variant="secondary" title="参与人数">
+          <Badge variant="secondary" title={t('participants')}>
             <Users data-icon="inline-start" />
             <span
               data-llm-text={String(homework.attend)}
@@ -79,7 +81,7 @@ function HomeworkItem({
             </span>
           </Badge>
           {timeText && (
-            <Badge variant="secondary" title="作业时间">
+            <Badge variant="secondary" title={t('time')}>
               <Calendar data-icon="inline-start" />
               <span data-llm-text={timeText} className="tabular-nums">
                 {timeText}
@@ -92,7 +94,7 @@ function HomeworkItem({
               className="bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400"
             >
               <Check data-icon="inline-start" />
-              <span data-llm-text="已参加">已参加</span>
+              <span data-llm-text={t('joined')}>{t('joined')}</span>
             </Badge>
           )}
         </div>
@@ -102,6 +104,7 @@ function HomeworkItem({
 }
 
 export default function HomeworkList({ data }: Props) {
+  const t = useTranslations('homework');
   if (!data.tdocs.length) {
     return (
       <Empty className="border border-dashed" data-llm-visible="true">
@@ -109,9 +112,9 @@ export default function HomeworkList({ data }: Props) {
           <Search strokeWidth={2} />
         </EmptyMedia>
         <EmptyHeader>
-          <EmptyTitle data-llm-text="暂无作业">暂无作业</EmptyTitle>
-          <EmptyDescription data-llm-text="暂无作业">
-            教练还没有添加作业，或是你没有对应权限。
+          <EmptyTitle data-llm-text={t('none')}>{t('none')}</EmptyTitle>
+          <EmptyDescription data-llm-text={t('noneDescription')}>
+            {t('noneDescription')}
           </EmptyDescription>
         </EmptyHeader>
       </Empty>

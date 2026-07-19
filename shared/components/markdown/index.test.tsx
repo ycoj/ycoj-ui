@@ -1,5 +1,7 @@
 import Markdown from '.';
+import messages from '@/messages/en.json';
 import { render, screen } from '@testing-library/react';
+import { NextIntlClientProvider } from 'next-intl';
 import { Children, type ReactElement, type ReactNode } from 'react';
 import { MarkdownAsync, type Options } from 'react-markdown';
 import { describe, expect, it, vi } from 'vitest';
@@ -14,7 +16,13 @@ async function renderMarkdown(source: string) {
   const asyncMarkdown = Children.toArray(children)[0] as ReactElement<Options>;
   const rendered = await MarkdownAsync(asyncMarkdown.props);
 
-  return render(rendered);
+  return render(rendered, {
+    wrapper: ({ children }) => (
+      <NextIntlClientProvider locale="en" messages={messages}>
+        {children}
+      </NextIntlClientProvider>
+    ),
+  });
 }
 
 describe('Markdown PDF rendering', () => {

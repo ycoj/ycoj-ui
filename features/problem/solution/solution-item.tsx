@@ -9,6 +9,7 @@ import type { ObjectId } from '@/shared/types/shared';
 import type { BaseUserDict } from '@/shared/types/user';
 import dayjs from 'dayjs';
 import { Pencil } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
 type Props = {
@@ -34,6 +35,7 @@ export default function SolutionItem({
   allowDeleteAny,
   allowDeleteSelf,
 }: Props) {
+  const t = useTranslations('solution');
   const user = udict[solution.owner];
   const vote = solution.vote;
   const userVote = (pssdict[solution.docId]?.vote ?? 0) as 0 | 1 | -1;
@@ -66,13 +68,13 @@ export default function SolutionItem({
               variant="ghost"
               size="icon-xs"
               className="text-muted-foreground hover:text-foreground"
-              aria-label="编辑题解"
-              title="编辑题解"
+              aria-label={t('edit')}
+              title={t('edit')}
             >
               <Link href={`/problem/${pid}/solution/${solution.docId}/edit`}>
                 <Pencil strokeWidth={2} />
-                <span className="sr-only" data-llm-text="编辑题解">
-                  编辑题解
+                <span className="sr-only" data-llm-text={t('edit')}>
+                  {t('edit')}
                 </span>
               </Link>
             </Button>

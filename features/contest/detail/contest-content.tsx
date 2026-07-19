@@ -6,6 +6,7 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/shared/components/ui/tabs';
+import { useTranslations } from 'next-intl';
 
 type Props = {
   tid: string;
@@ -13,12 +14,13 @@ type Props = {
 };
 
 export default function ContestContent({ tid, introduction }: Props) {
+  const t = useTranslations('contest');
   return (
     <div data-llm-visible="true">
       <Tabs defaultValue="introduction">
         <TabsList>
-          <TabsTrigger value="introduction">比赛介绍</TabsTrigger>
-          <TabsTrigger value="problems">题目列表</TabsTrigger>
+          <TabsTrigger value="introduction">{t('introduction')}</TabsTrigger>
+          <TabsTrigger value="problems">{t('problemList')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="introduction" className="pt-2">

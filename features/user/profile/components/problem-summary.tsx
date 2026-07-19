@@ -2,18 +2,23 @@ import type { UserProfileProps } from './shared';
 import { Badge } from '@/shared/components/ui/badge';
 import { Empty, EmptyHeader, EmptyTitle } from '@/shared/components/ui/empty';
 import {
-  PROBLEMS_DIFFICULTY_SHORT,
+  PROBLEMS_DIFFICULTY_SHORT_KEYS,
   PROBLEMS_DIFFICULTY_COLOR,
 } from '@/shared/configs/difficulty';
 import { ListChecks } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
 export default function ProblemSummary({ data }: UserProfileProps) {
+  const t = useTranslations('user');
+  const difficultyT = useTranslations('difficulty');
   if (!data.pdocs.length) {
     return (
       <Empty className="border border-dashed" data-llm-visible="true">
         <EmptyHeader>
-          <EmptyTitle data-llm-text="暂无通过题目">暂无通过题目</EmptyTitle>
+          <EmptyTitle data-llm-text={t('noSolvedProblems')}>
+            {t('noSolvedProblems')}
+          </EmptyTitle>
         </EmptyHeader>
       </Empty>
     );
@@ -33,7 +38,10 @@ export default function ProblemSummary({ data }: UserProfileProps) {
     .map(([difficulty, count]) => ({
       difficulty,
       count,
-      label: PROBLEMS_DIFFICULTY_SHORT[difficulty] ?? `难度 ${difficulty}`,
+      label: difficultyT(
+        PROBLEMS_DIFFICULTY_SHORT_KEYS[difficulty] ?? 'level',
+        { level: difficulty }
+      ),
       color: PROBLEMS_DIFFICULTY_COLOR[difficulty] ?? '#9ca3af',
     }));
   const maxCount = Math.max(...rows.map((row) => row.count));
@@ -43,14 +51,16 @@ export default function ProblemSummary({ data }: UserProfileProps) {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="inline-flex items-center gap-2 text-base font-medium">
           <ListChecks className="size-4 text-muted-foreground" />
-          <span data-llm-text="做题概览">做题概览</span>
+          <span data-llm-text={t('problemOverview')}>
+            {t('problemOverview')}
+          </span>
         </h2>
         <Link
           href={`/record?uidOrName=${encodeURIComponent(data.udoc.uname)}`}
           className="text-sm text-primary hover:underline"
-          data-llm-text="查看提交记录"
+          data-llm-text={t('viewSubmissions')}
         >
-          查看提交记录
+          {t('viewSubmissions')}
         </Link>
       </div>
 

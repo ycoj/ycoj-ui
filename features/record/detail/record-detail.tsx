@@ -21,6 +21,7 @@ import type {
 import type { RecordDoc } from '@/shared/types/record';
 import type { User } from '@/shared/types/user';
 import dayjs from 'dayjs';
+import { useTranslations } from 'next-intl';
 
 type Props = {
   rdoc: RecordDoc;
@@ -37,6 +38,8 @@ export default function RecordDetail({
   languages,
   allowRejudge,
 }: Props) {
+  const t = useTranslations('record');
+  const common = useTranslations('common');
   const submittedAtMs = oid2ts(rdoc._id);
   const submittedAt = Number.isFinite(submittedAtMs)
     ? dayjs(submittedAtMs).format('MM-DD HH:mm:ss')
@@ -86,16 +89,18 @@ export default function RecordDetail({
 
       <TableHeader>
         <TableRow>
-          <TableCell>状态</TableCell>
-          <TableCell>得分</TableCell>
-          <TableCell>题目</TableCell>
-          <TableCell className="text-right">提交者</TableCell>
-          <TableCell className="text-center">语言</TableCell>
-          <TableCell className="text-center">代码长度</TableCell>
-          <TableCell className="text-center">用时</TableCell>
-          <TableCell className="text-center">内存</TableCell>
-          <TableCell className="text-center">提交时间</TableCell>
-          <TableCell className="text-right">评测时间</TableCell>
+          <TableCell>{common('status')}</TableCell>
+          <TableCell>{common('score')}</TableCell>
+          <TableCell>{common('problem')}</TableCell>
+          <TableCell className="text-right">{common('submitter')}</TableCell>
+          <TableCell className="text-center">
+            {common('languageLabel')}
+          </TableCell>
+          <TableCell className="text-center">{t('codeLength')}</TableCell>
+          <TableCell className="text-center">{common('time')}</TableCell>
+          <TableCell className="text-center">{common('memory')}</TableCell>
+          <TableCell className="text-center">{common('submitTime')}</TableCell>
+          <TableCell className="text-right">{common('judgeTime')}</TableCell>
         </TableRow>
       </TableHeader>
 
@@ -106,8 +111,8 @@ export default function RecordDetail({
               <ProblemStatus status={statusDoc} />
               {allowRejudge && (
                 <div className="flex items-center gap-2">
-                  <Button size="xs">重测</Button>
-                  <Button size="xs">取消成绩</Button>
+                  <Button size="xs">{t('rejudge')}</Button>
+                  <Button size="xs">{t('cancelResult')}</Button>
                 </div>
               )}
             </div>

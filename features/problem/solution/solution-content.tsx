@@ -5,6 +5,7 @@ import { hasPerm, PERM } from '@/features/user/lib/priv';
 import { Button } from '@/shared/components/ui/button';
 import { Separator } from '@/shared/components/ui/separator';
 import { Plus } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 
 type Props = {
@@ -12,6 +13,7 @@ type Props = {
 };
 
 export default async function SolutionContent({ data }: Props) {
+  const t = await getTranslations('solution');
   const user = await getUser();
   const allowCreate =
     !!user?._id && hasPerm(user, PERM.PERM_CREATE_PROBLEM_SOLUTION);
@@ -29,11 +31,11 @@ export default async function SolutionContent({ data }: Props) {
     <div className="space-y-4">
       {allowCreate && (
         <div className="text-foreground flex items-center">
-          <span className="text-muted-foreground">没有我的做法？</span>
+          <span className="text-muted-foreground">{t('missingYours')}</span>
           <Button variant="outline" size="sm" asChild>
             <Link href={`/problem/${pid}/solution/create`}>
               <Plus className="size-4" />
-              创建题解
+              {t('create')}
             </Link>
           </Button>
         </div>

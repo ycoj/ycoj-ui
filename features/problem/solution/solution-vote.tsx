@@ -4,6 +4,7 @@ import ClientApis from '@/api/client/method';
 import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/utils';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 type Props = {
@@ -19,6 +20,7 @@ export default function SolutionVote({
   initialVote,
   initialUserVote = 0,
 }: Props) {
+  const t = useTranslations('solution');
   const [vote, setVote] = useState(initialVote);
   const [userVote, setUserVote] = useState<1 | -1 | 0>(initialUserVote);
   const [submitting, setSubmitting] = useState(false);
@@ -53,7 +55,7 @@ export default function SolutionVote({
         )}
         onClick={handleUpvote}
         disabled={submitting}
-        aria-label="upvote"
+        aria-label={t('upvote')}
       >
         <ChevronUp strokeWidth={2.5} />
       </Button>
@@ -70,7 +72,7 @@ export default function SolutionVote({
         )}
         onClick={handleDownvote}
         disabled={submitting}
-        aria-label="downvote"
+        aria-label={t('downvote')}
       >
         <ChevronDown strokeWidth={2.5} />
       </Button>

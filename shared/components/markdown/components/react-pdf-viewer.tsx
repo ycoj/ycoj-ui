@@ -1,6 +1,7 @@
 'use client';
 
 import { TriangleAlert } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/Page/AnnotationLayer.css';
@@ -27,7 +28,8 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 ).toString();
 
 function PdfError() {
-  const message = 'The PDF could not be displayed.';
+  const t = useTranslations('pdf');
+  const message = t('error');
 
   return (
     <div
@@ -44,7 +46,8 @@ function PdfError() {
 }
 
 function PdfPageLimitWarning({ pageCount }: { pageCount: number }) {
-  const message = `Only the first ${MAX_PDF_PAGES} of ${pageCount} pages are shown.`;
+  const t = useTranslations('pdf');
+  const message = t('pageLimit', { limit: MAX_PDF_PAGES, count: pageCount });
 
   return (
     <div
@@ -115,6 +118,7 @@ function LazyPdfPage({
 }
 
 export default function ReactPdfViewer({ src }: Props) {
+  const t = useTranslations('pdf');
   const [scrollContainer, setScrollContainer] = useState<HTMLDivElement | null>(
     null
   );
@@ -142,7 +146,7 @@ export default function ReactPdfViewer({ src }: Props) {
       ref={setScrollContainer}
       className="size-full overflow-auto bg-muted/60 p-3"
     >
-      <div aria-label="PDF document" role="document">
+      <div aria-label={t('document')} role="document">
         <Document
           className="flex flex-col items-center gap-3"
           error={<PdfError />}
@@ -152,7 +156,7 @@ export default function ReactPdfViewer({ src }: Props) {
               className="flex min-h-48 items-center justify-center text-sm text-muted-foreground"
               role="status"
             >
-              Loading PDF
+              {t('loading')}
             </div>
           }
           onLoadSuccess={({ numPages }) => setPageCount(numPages)}

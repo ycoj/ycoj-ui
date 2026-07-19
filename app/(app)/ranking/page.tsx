@@ -2,10 +2,12 @@ import ServerApis from '@/api/server/method';
 import RankingLeaderboard from '@/features/ranking/ranking-leaderboard';
 import Pagination from '@/shared/components/pagination';
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 
-export const metadata: Metadata = {
-  title: '排名',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('metadata');
+  return { title: t('ranking') };
+}
 
 export type SearchParams = {
   page?: string;

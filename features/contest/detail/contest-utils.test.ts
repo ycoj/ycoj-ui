@@ -1,5 +1,5 @@
 import {
-  formatContestDuration,
+  getContestDurationParts,
   getContestProblemLabel,
   getContestStatus,
 } from './contest-utils';
@@ -70,59 +70,61 @@ describe('getContestProblemLabel', () => {
   });
 });
 
-describe('formatContestDuration', () => {
-  it('returns empty string for invalid or non-positive ranges', () => {
-    expect(formatContestDuration('bad', '2024-01-01T00:00:00.000Z')).toBe('');
+describe('getContestDurationParts', () => {
+  it('returns null for invalid or non-positive ranges', () => {
     expect(
-      formatContestDuration(
+      getContestDurationParts('bad', '2024-01-01T00:00:00.000Z')
+    ).toBeNull();
+    expect(
+      getContestDurationParts(
         '2024-01-01T12:00:00.000Z',
         '2024-01-01T10:00:00.000Z'
       )
-    ).toBe('');
+    ).toBeNull();
     expect(
-      formatContestDuration(
+      getContestDurationParts(
         '2024-01-01T10:00:00.000Z',
         '2024-01-01T10:00:00.000Z'
       )
-    ).toBe('');
+    ).toBeNull();
   });
 
   it('formats minutes only', () => {
     expect(
-      formatContestDuration(
+      getContestDurationParts(
         '2024-01-01T10:00:00.000Z',
         '2024-01-01T10:45:00.000Z'
       )
-    ).toBe('45 分钟');
+    ).toEqual({ days: 0, hours: 0, minutes: 45 });
   });
 
   it('formats hours and optional minutes', () => {
     expect(
-      formatContestDuration(
+      getContestDurationParts(
         '2024-01-01T10:00:00.000Z',
         '2024-01-01T12:00:00.000Z'
       )
-    ).toBe('2 小时');
+    ).toEqual({ days: 0, hours: 2, minutes: 0 });
     expect(
-      formatContestDuration(
+      getContestDurationParts(
         '2024-01-01T10:00:00.000Z',
         '2024-01-01T12:30:00.000Z'
       )
-    ).toBe('2 小时 30 分钟');
+    ).toEqual({ days: 0, hours: 2, minutes: 30 });
   });
 
   it('formats days and optional hours', () => {
     expect(
-      formatContestDuration(
+      getContestDurationParts(
         '2024-01-01T00:00:00.000Z',
         '2024-01-03T00:00:00.000Z'
       )
-    ).toBe('2 天');
+    ).toEqual({ days: 2, hours: 0, minutes: 0 });
     expect(
-      formatContestDuration(
+      getContestDurationParts(
         '2024-01-01T00:00:00.000Z',
         '2024-01-03T05:00:00.000Z'
       )
-    ).toBe('2 天 5 小时');
+    ).toEqual({ days: 2, hours: 5, minutes: 0 });
   });
 });

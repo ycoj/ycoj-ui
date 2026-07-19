@@ -10,6 +10,7 @@ import type { Discussion } from '@/shared/types/discussion';
 import type { BaseUserDict } from '@/shared/types/user';
 import dayjs from 'dayjs';
 import { Calendar, MessageCircle, Eye, type LucideIcon } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
@@ -81,6 +82,7 @@ function DiscussionRow({
 }
 
 export default function Discussions({ discussions, udict }: Props) {
+  const t = useTranslations('homepage');
   if (!discussions.length) return null;
 
   const lastIndexByColumn: Record<number, number> = { 0: -1, 1: -1 };
@@ -93,7 +95,9 @@ export default function Discussions({ discussions, udict }: Props) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <MessageCircle className="size-5" />
-          <span data-llm-text="最近讨论">最近讨论</span>
+          <span data-llm-text={t('recentDiscussions')}>
+            {t('recentDiscussions')}
+          </span>
         </CardTitle>
       </CardHeader>
       <CardContent>

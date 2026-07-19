@@ -1,6 +1,7 @@
 import { CollapsedTrigger } from '@/features/navigation/collapsed-trigger';
 import AppSidebar from '@/features/navigation/sidebar';
 import { SidebarInset, SidebarProvider } from '@/shared/components/ui/sidebar';
+import { getTranslations } from 'next-intl/server';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -10,6 +11,7 @@ export default async function AppLayout({
   children: React.ReactNode;
 }) {
   const siteName = process.env.SITE_NAME ?? '';
+  const t = await getTranslations('misc');
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -22,7 +24,7 @@ export default async function AppLayout({
                 width={120}
                 height={32}
                 src="/nav-logo-small_light.png"
-                alt={`${siteName} Logo`}
+                alt={t('logoAlt', { siteName })}
                 className="h-auto w-30 dark:invert"
               />
             </Link>

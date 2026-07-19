@@ -2,6 +2,7 @@
 
 import ClientApis from '@/api/client/method';
 import { Button } from '@/shared/components/ui/button';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -10,6 +11,7 @@ type Props = {
 };
 
 export default function UnlockButton({ tid }: Props) {
+  const t = useTranslations('scoreboard');
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -32,7 +34,7 @@ export default function UnlockButton({ tid }: Props) {
       onClick={handleUnlock}
       disabled={loading}
     >
-      {loading ? '解锁中...' : '解锁成绩表'}
+      {loading ? t('unlocking') : t('unlock')}
     </Button>
   );
 }

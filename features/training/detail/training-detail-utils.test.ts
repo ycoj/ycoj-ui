@@ -37,7 +37,7 @@ describe('getTrainingNodeStatusMeta', () => {
       isInvalid: false,
     };
     expect(getTrainingNodeStatusMeta(status)).toEqual({
-      text: '已完成',
+      key: 'completed',
       className:
         'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-400',
     });
@@ -52,7 +52,7 @@ describe('getTrainingNodeStatusMeta', () => {
       isInvalid: false,
     };
     expect(getTrainingNodeStatusMeta(status)).toEqual({
-      text: '进行中',
+      key: 'inProgress',
       className: '',
     });
   });

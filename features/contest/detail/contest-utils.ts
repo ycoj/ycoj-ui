@@ -28,30 +28,20 @@ export function getContestStatus(
   return 'ended';
 }
 
-export function formatContestDuration(
+export function getContestDurationParts(
   beginAtValue: Date | string,
   endAtValue: Date | string
 ) {
   const beginAt = dayjs(beginAtValue);
   const endAt = dayjs(endAtValue);
-  if (!beginAt.isValid() || !endAt.isValid()) return '';
+  if (!beginAt.isValid() || !endAt.isValid()) return null;
 
   const totalMinutes = endAt.diff(beginAt, 'minute');
-  if (totalMinutes <= 0) return '';
+  if (totalMinutes <= 0) return null;
 
   const days = Math.floor(totalMinutes / (24 * 60));
   const hours = Math.floor((totalMinutes % (24 * 60)) / 60);
   const minutes = totalMinutes % 60;
 
-  if (days > 0) {
-    if (hours > 0) return `${days} 天 ${hours} 小时`;
-    return `${days} 天`;
-  }
-
-  if (hours > 0) {
-    if (minutes > 0) return `${hours} 小时 ${minutes} 分钟`;
-    return `${hours} 小时`;
-  }
-
-  return `${minutes} 分钟`;
+  return { days, hours, minutes };
 }

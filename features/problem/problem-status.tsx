@@ -1,11 +1,12 @@
 import { Badge } from '@/shared/components/ui/badge';
 import {
   STATUS,
-  STATUS_TEXTS,
+  STATUS_TEXT_KEYS,
   STATUS_BACKGROUND_COLOR,
 } from '@/shared/configs/status';
 import { ProblemStatus as ProblemStatusDoc } from '@/shared/types/problem';
 import { CircleCheck, XCircle } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
 type Props = {
@@ -13,10 +14,12 @@ type Props = {
 };
 
 export default function ProblemStatus({ status }: Props) {
+  const t = useTranslations('judgeStatus.label');
   if (status.status === undefined || status.status === null) return <></>;
 
   const statusCode = status.status;
-  const statusText = STATUS_TEXTS[statusCode as keyof typeof STATUS_TEXTS];
+  const statusKey = STATUS_TEXT_KEYS[statusCode];
+  const statusText = statusKey ? t(statusKey) : undefined;
   const bgColor =
     STATUS_BACKGROUND_COLOR[statusCode as keyof typeof STATUS_BACKGROUND_COLOR];
   const isAccepted = statusCode === STATUS.STATUS_ACCEPTED;

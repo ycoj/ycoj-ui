@@ -6,11 +6,13 @@ import { RecordTestcases } from '@/features/record/detail/record-testcases';
 import { getUser } from '@/features/user/lib/get-user';
 import { hasPerm, PERM } from '@/features/user/lib/priv';
 import TwoColumnLayout from '@/shared/layout/two-column';
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 
-export const metadata: Metadata = {
-  title: '记录详情',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('metadata');
+  return { title: t('recordDetail') };
+}
 
 type Props = {
   params: Promise<{

@@ -11,6 +11,7 @@ import {
 } from '@/shared/components/ui/empty';
 import { Separator } from '@/shared/components/ui/separator';
 import { Lightbulb, RefreshCw } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Fragment } from 'react';
 
@@ -31,6 +32,7 @@ export default function SolutionList({
   allowDeleteAny,
   allowDeleteSelf,
 }: Props) {
+  const t = useTranslations('solution');
   const pid = data.pdoc.pid ?? data.pdoc.docId;
 
   if (!data.psdocs.length) {
@@ -40,9 +42,9 @@ export default function SolutionList({
           <Lightbulb strokeWidth={2} />
         </EmptyMedia>
         <EmptyHeader>
-          <EmptyTitle data-llm-text="暂无题解">暂无题解</EmptyTitle>
-          <EmptyDescription data-llm-text="成为第一个分享解法的人吧">
-            目前还没有人分享题解，你可以成为第一个分享题解的人。
+          <EmptyTitle data-llm-text={t('none')}>{t('none')}</EmptyTitle>
+          <EmptyDescription data-llm-text={t('noneDescription')}>
+            {t('noneDescription')}
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
@@ -53,7 +55,7 @@ export default function SolutionList({
                 className="size-4"
                 data-icon="inline-start"
               />
-              <span data-llm-text="刷新">刷新</span>
+              <span data-llm-text={t('refresh')}>{t('refresh')}</span>
             </Link>
           </Button>
         </EmptyContent>

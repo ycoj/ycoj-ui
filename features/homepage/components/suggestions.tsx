@@ -6,6 +6,7 @@ import {
   CardTitle,
 } from '@/shared/components/ui/card';
 import { Globe } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
 export default function Suggestions({
@@ -13,6 +14,7 @@ export default function Suggestions({
 }: {
   sections: SuggestionSection[];
 }) {
+  const t = useTranslations('homepage');
   const visibleSections = sections.filter(
     (section) => section.sites.length > 0
   );
@@ -23,7 +25,7 @@ export default function Suggestions({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-base">
           <Globe className="size-5" />
-          <span data-llm-text="推荐">推荐</span>
+          <span data-llm-text={t('suggestions')}>{t('suggestions')}</span>
         </CardTitle>
       </CardHeader>
       <CardContent>

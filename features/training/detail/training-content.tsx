@@ -18,12 +18,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/components/ui/table';
+import { useTranslations } from 'next-intl';
 
 type Props = {
   data: TrainingDetailResponse;
 };
 
 export default function TrainingContent({ data }: Props) {
+  const t = useTranslations('training');
+  const common = useTranslations('common');
   const description = data.tdoc.description.trim();
   const sections = data.tdoc.dag ?? [];
   const defaultOpenSections = sections.map((node) => String(node._id));
@@ -45,7 +48,10 @@ export default function TrainingContent({ data }: Props) {
         >
           {sections.map((node, index) => {
             const sectionTitle = node.title.trim();
-            const chapterLabel = `第 ${index + 1} 章. ${sectionTitle}`;
+            const chapterLabel = t('chapter', {
+              number: index + 1,
+              title: sectionTitle,
+            });
 
             return (
               <AccordionItem
@@ -75,10 +81,12 @@ export default function TrainingContent({ data }: Props) {
                     </colgroup>
                     <TableHeader>
                       <TableRow>
-                        <TableCell>状态</TableCell>
-                        <TableCell>题号</TableCell>
-                        <TableCell>题目</TableCell>
-                        <TableCell className="text-center">难度</TableCell>
+                        <TableCell>{common('status')}</TableCell>
+                        <TableCell>{t('problemNumber')}</TableCell>
+                        <TableCell>{common('problem')}</TableCell>
+                        <TableCell className="text-center">
+                          {t('difficulty')}
+                        </TableCell>
                       </TableRow>
                     </TableHeader>
                     <TableBody>

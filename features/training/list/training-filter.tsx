@@ -3,10 +3,13 @@
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import { Search } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import type { FormEvent } from 'react';
 
 export default function TrainingFilter() {
+  const t = useTranslations('training');
+  const common = useTranslations('common');
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -35,7 +38,7 @@ export default function TrainingFilter() {
           <Input
             name="q"
             defaultValue={searchParams.get('q') || ''}
-            placeholder="搜索训练标题"
+            placeholder={t('searchPlaceholder')}
             className="pl-9 pr-3 text-sm"
           />
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -43,7 +46,7 @@ export default function TrainingFilter() {
 
         <Button type="submit" variant="secondary" className="ml-auto gap-2">
           <Search strokeWidth={2} />
-          筛选
+          {common('filter')}
         </Button>
       </div>
     </form>

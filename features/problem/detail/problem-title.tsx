@@ -6,17 +6,22 @@ import type { Contest } from '@/shared/types/contest';
 import type { Homework } from '@/shared/types/homework';
 import type { PublicProjectionProblem } from '@/shared/types/problem';
 import { Award, Clock, Code2, Server } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 type Props = {
   problem: PublicProjectionProblem;
   contest?: Contest | Homework;
 };
 
-const PROBLEM_TYPE_LABEL: Record<string, string> = {
-  default: '传统',
-  traditional: '传统',
-  fileio: '文件读写',
-  remote_judge: '远程评测',
+const PROBLEM_TYPE_KEYS: Record<string, string> = {
+  default: 'traditional',
+  traditional: 'traditional',
+  objective: 'objective',
+  submit_answer: 'submitAnswer',
+  fileio: 'fileIoShort',
+  interactive: 'interactive',
+  communication: 'communication',
+  remote_judge: 'remoteJudgeShort',
 };
 
 function StatItem({ value, label }: { value?: number; label: string }) {
@@ -30,9 +35,11 @@ function StatItem({ value, label }: { value?: number; label: string }) {
 }
 
 export default function ProblemTitle({ problem, contest }: Props) {
-  const typeLabel =
-    (problem.config?.type && PROBLEM_TYPE_LABEL[problem.config.type]) ||
-    problem.config?.type;
+  const t = useTranslations('problem');
+  const typeKey = problem.config?.type
+    ? PROBLEM_TYPE_KEYS[problem.config.type]
+    : undefined;
+  const typeLabel = typeKey ? t(typeKey) : problem.config?.type;
   const tagList = Array.isArray(problem.tag) ? problem.tag : [];
 
   return (
@@ -78,8 +85,8 @@ export default function ProblemTitle({ problem, contest }: Props) {
       </div>
 
       <div className="flex shrink-0 items-start gap-8">
-        <StatItem value={problem.nAccept} label="通过" />
-        <StatItem value={problem.nSubmit} label="提交" />
+        <StatItem value={problem.nAccept} label={t('accepted')} />
+        <StatItem value={problem.nSubmit} label={t('submissions')} />
       </div>
     </div>
   );

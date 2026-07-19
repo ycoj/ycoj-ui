@@ -4,6 +4,7 @@ import ContestSidebar from '@/features/contest/detail/contest-sidebar';
 import { getContestDetail } from '@/features/contest/detail/get-contest-detail';
 import TwoColumnLayout from '@/shared/layout/two-column';
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 
 type Params = {
   tid: string;
@@ -16,9 +17,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { tid } = await params;
   const data = await getContestDetail(tid);
+  const t = await getTranslations('metadata');
 
   return {
-    title: data.tdoc.title || '比赛详情',
+    title: data.tdoc.title || t('contestDetail'),
   };
 }
 

@@ -3,6 +3,7 @@
 import { Badge } from '@/shared/components/ui/badge';
 import { cn } from '@/shared/lib/utils';
 import { ChevronRight, Tag } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 type Props = {
@@ -10,6 +11,7 @@ type Props = {
 };
 
 export function ProblemTags({ tagList }: Props) {
+  const t = useTranslations('problem');
   const [visible, setVisible] = useState(false);
 
   if (!tagList.length) return null;
@@ -22,7 +24,7 @@ export function ProblemTags({ tagList }: Props) {
         className={cn('cursor-pointer select-none font-medium')}
       >
         <button type="button" onClick={() => setVisible(true)}>
-          显示标签
+          {t('showTags')}
           <ChevronRight strokeWidth={3} data-icon="inline-start" />
         </button>
       </Badge>

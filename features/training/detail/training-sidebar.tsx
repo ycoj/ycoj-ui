@@ -10,6 +10,7 @@ import UserSpan from '@/features/user/user-span';
 import { Button } from '@/shared/components/ui/button';
 import type { BaseUser } from '@/shared/types/user';
 import { PlusSquare } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -39,6 +40,8 @@ function InfoRow({
 }
 
 export default function TrainingSidebar({ tid, data, owner }: Props) {
+  const t = useTranslations('training');
+  const common = useTranslations('common');
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const isEnrolled = Boolean(data.tsdoc?.enroll);
@@ -77,34 +80,34 @@ export default function TrainingSidebar({ tid, data, owner }: Props) {
             disabled={submitting}
           >
             <PlusSquare strokeWidth={2} />
-            <span data-llm-text={submitting ? '参加中...' : '参加训练'}>
-              {submitting ? '参加中...' : '参加训练'}
+            <span data-llm-text={submitting ? t('joining') : t('join')}>
+              {submitting ? t('joining') : t('join')}
             </span>
           </Button>
         </div>
       )}
 
       <div className="space-y-3 pb-4 border-b">
-        <h2 className="text-sm font-medium" data-llm-text="训练信息">
-          训练信息
+        <h2 className="text-sm font-medium" data-llm-text={t('information')}>
+          {t('information')}
         </h2>
         <InfoRow
-          label="章节数量"
-          value={`${sectionCount} 小节`}
+          label={t('sectionCount')}
+          value={common('sections', { count: sectionCount })}
           llmText={String(sectionCount)}
         />
         <InfoRow
-          label="题目数量"
-          value={`${problemCount} 道题`}
+          label={t('problemCount')}
+          value={common('problems', { count: problemCount })}
           llmText={String(problemCount)}
         />
         <InfoRow
-          label="参加人数"
+          label={t('participants')}
           value={<span className="tabular-nums">{data.tdoc.attend}</span>}
           llmText={String(data.tdoc.attend)}
         />
         <InfoRow
-          label="完成进度"
+          label={t('progress')}
           value={
             <span className="tabular-nums">
               {progressText} ({progressPercent}%)
@@ -113,26 +116,29 @@ export default function TrainingSidebar({ tid, data, owner }: Props) {
           llmText={`${progressText} (${progressPercent}%)`}
         />
         <InfoRow
-          label="完成章节"
+          label={t('completedSections')}
           value={`${doneSectionCount}/${sectionCount}`}
           llmText={`${doneSectionCount}/${sectionCount}`}
         />
         <InfoRow
-          label="创建者"
+          label={t('creator')}
           value={owner ? <UserSpan user={owner} /> : '-'}
           llmText={owner?.uname}
         />
       </div>
 
       <div className="md:sticky md:top-4 space-y-3">
-        <h2 className="text-sm font-medium" data-llm-text="章节目录">
-          章节目录
+        <h2 className="text-sm font-medium" data-llm-text={t('directory')}>
+          {t('directory')}
         </h2>
         <div className="space-y-1 md:max-h-[calc(100vh-2rem)] md:overflow-y-auto">
           {data.tdoc.dag.length ? (
             data.tdoc.dag.map((node, index) => {
-              const sectionTitle = node.title?.trim() || '未命名章节';
-              const chapterLabel = `第${index + 1}章. ${sectionTitle}`;
+              const sectionTitle = node.title?.trim() || t('unnamedSection');
+              const chapterLabel = t('chapter', {
+                number: index + 1,
+                title: sectionTitle,
+              });
 
               return (
                 <a
@@ -149,9 +155,9 @@ export default function TrainingSidebar({ tid, data, owner }: Props) {
           ) : (
             <p
               className="text-sm text-muted-foreground"
-              data-llm-text="暂无章节"
+              data-llm-text={t('noSections')}
             >
-              暂无章节
+              {t('noSections')}
             </p>
           )}
         </div>

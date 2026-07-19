@@ -3,10 +3,12 @@ import ContestFilter from '@/features/contest/list/contest-filter';
 import ContestList from '@/features/contest/list/contest-list';
 import Pagination from '@/shared/components/pagination';
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 
-export const metadata: Metadata = {
-  title: '比赛列表',
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations('metadata');
+  return { title: t('contestList') };
+}
 
 export type SearchParams = {
   q?: string;

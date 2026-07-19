@@ -20,6 +20,7 @@ import type { ObjectId } from '@/shared/types/shared';
 import type { BaseUser, BaseUserDict } from '@/shared/types/user';
 import dayjs from 'dayjs';
 import { MessageCircle, Send } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { Fragment, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -66,6 +67,7 @@ export default function DiscussionRepliesClient({
   currentUser,
   canReply,
 }: Props) {
+  const t = useTranslations('discussion.replies');
   const router = useRouter();
   const [activeReplyId, setActiveReplyId] = useState<ObjectId | null>(null);
   const [rootSubmitting, setRootSubmitting] = useState(false);
@@ -91,7 +93,7 @@ export default function DiscussionRepliesClient({
 
     const content = data.content.trim();
     if (!content) {
-      rootForm.setError('content', { message: '评论内容不能为空' });
+      rootForm.setError('content', { message: t('commentRequired') });
       return;
     }
 
@@ -103,7 +105,7 @@ export default function DiscussionRepliesClient({
       router.refresh();
     } catch (error) {
       const message =
-        error instanceof Error ? error.message : '评论发布失败，请稍后重试';
+        error instanceof Error ? error.message : t('commentFailed');
       rootForm.setError('content', { message });
     } finally {
       setRootSubmitting(false);
@@ -116,7 +118,7 @@ export default function DiscussionRepliesClient({
 
       const content = data.content.trim();
       if (!content) {
-        tailForm.setError('content', { message: '回复内容不能为空' });
+        tailForm.setError('content', { message: t('replyRequired') });
         return;
       }
 
@@ -133,7 +135,7 @@ export default function DiscussionRepliesClient({
         router.refresh();
       } catch (error) {
         const message =
-          error instanceof Error ? error.message : '回复失败，请稍后重试';
+          error instanceof Error ? error.message : t('replyFailed');
         tailForm.setError('content', { message });
       } finally {
         setTailSubmittingId(null);
@@ -169,7 +171,7 @@ export default function DiscussionRepliesClient({
               {...rootForm.register('content')}
               disabled={!canReply || rootSubmitting}
               placeholder={
-                canReply ? '发一条友善的评论吧...' : '你当前没有评论权限'
+                canReply ? t('commentPlaceholder') : t('noPermission')
               }
               className="min-h-24 resize-y"
               onFocus={() => setIsRootFocused(true)}
@@ -189,8 +191,12 @@ export default function DiscussionRepliesClient({
                   disabled={!canReply || rootSubmitting}
                 >
                   <Send strokeWidth={2} />
-                  <span data-llm-text={rootSubmitting ? '发布中...' : '发布'}>
-                    {rootSubmitting ? '发布中...' : '发布'}
+                  <span
+                    data-llm-text={
+                      rootSubmitting ? t('publishing') : t('publish')
+                    }
+                  >
+                    {rootSubmitting ? t('publishing') : t('publish')}
                   </span>
                 </Button>
               </div>
@@ -205,9 +211,9 @@ export default function DiscussionRepliesClient({
             <MessageCircle strokeWidth={2} />
           </EmptyMedia>
           <EmptyHeader>
-            <EmptyTitle data-llm-text="暂无评论">暂无评论</EmptyTitle>
-            <EmptyDescription data-llm-text="还没有人评论，快来抢沙发吧">
-              还没有人评论，快来抢沙发吧。
+            <EmptyTitle data-llm-text={t('none')}>{t('none')}</EmptyTitle>
+            <EmptyDescription data-llm-text={t('noneDescription')}>
+              {t('noneDescription')}
             </EmptyDescription>
           </EmptyHeader>
         </Empty>
@@ -260,10 +266,10 @@ export default function DiscussionRepliesClient({
                           >
                             <span
                               data-llm-text={
-                                replyFormVisible ? '取消回复' : '回复'
+                                replyFormVisible ? t('cancelReply') : t('reply')
                               }
                             >
-                              {replyFormVisible ? '取消回复' : '回复'}
+                              {replyFormVisible ? t('cancelReply') : t('reply')}
                             </span>
                           </Button>
                         )}
@@ -303,7 +309,7 @@ export default function DiscussionRepliesClient({
                           <Textarea
                             {...tailForm.register('content')}
                             disabled={tailSubmitting}
-                            placeholder="回复该评论..."
+                            placeholder={t('replyPlaceholder')}
                             className="min-h-20 resize-y"
                           />
                           <div className="flex items-center justify-between gap-2">
@@ -322,10 +328,10 @@ export default function DiscussionRepliesClient({
                               <Send strokeWidth={2} />
                               <span
                                 data-llm-text={
-                                  tailSubmitting ? '回复中...' : '回复'
+                                  tailSubmitting ? t('replying') : t('reply')
                                 }
                               >
-                                {tailSubmitting ? '回复中...' : '回复'}
+                                {tailSubmitting ? t('replying') : t('reply')}
                               </span>
                             </Button>
                           </div>

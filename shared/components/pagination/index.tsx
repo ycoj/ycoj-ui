@@ -9,6 +9,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/shared/components/ui/pagination';
+import { useTranslations } from 'next-intl';
 import { usePathname, useSearchParams } from 'next/navigation';
 
 type Props = {
@@ -24,6 +25,7 @@ export default function Pagination({
   totalPages,
   infinite = false,
 }: Props) {
+  const t = useTranslations('pagination');
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -80,6 +82,8 @@ export default function Pagination({
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious
+            aria-label={t('previousAria')}
+            text={t('previous')}
             href={prevHref}
             aria-disabled={safePage <= 1}
             tabIndex={safePage <= 1 ? -1 : undefined}
@@ -110,6 +114,8 @@ export default function Pagination({
 
         <PaginationItem>
           <PaginationNext
+            aria-label={t('nextAria')}
+            text={t('next')}
             href={nextHref}
             aria-disabled={!infinite && safePage >= safeTotalPages}
             tabIndex={!infinite && safePage >= safeTotalPages ? -1 : undefined}

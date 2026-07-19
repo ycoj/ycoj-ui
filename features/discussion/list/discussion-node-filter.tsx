@@ -10,6 +10,7 @@ import {
 } from '@/shared/components/ui/select';
 import type { Node } from '@/shared/types/discussion';
 import { Plus, Tag } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
@@ -19,6 +20,7 @@ type Props = {
 };
 
 export default function DiscussionNodeFilter({ vnodes }: Props) {
+  const t = useTranslations('discussion');
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -51,11 +53,11 @@ export default function DiscussionNodeFilter({ vnodes }: Props) {
         <SelectTrigger className="w-64 min-w-[256px]">
           <div className="flex items-center gap-2">
             <Tag className="size-4 text-muted-foreground" />
-            <SelectValue placeholder="讨论节点" />
+            <SelectValue placeholder={t('node')} />
           </div>
         </SelectTrigger>
         <SelectContent position="popper">
-          <SelectItem value="all">全部节点</SelectItem>
+          <SelectItem value="all">{t('allNodes')}</SelectItem>
           {nodeOptions.map((option) => (
             <SelectItem key={option.id} value={option.id}>
               {option.title}
@@ -71,7 +73,7 @@ export default function DiscussionNodeFilter({ vnodes }: Props) {
             className="gap-2"
           >
             <Plus strokeWidth={2} />
-            创建讨论
+            {t('create')}
           </Link>
         </Button>
       )}

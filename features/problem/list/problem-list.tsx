@@ -13,6 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/components/ui/table';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
 type Props = {
@@ -22,6 +23,8 @@ type Props = {
 };
 
 export default function ProblemList({ data, showTags, searchParams }: Props) {
+  const t = useTranslations('problem');
+  const common = useTranslations('common');
   const toggleShowTagsHref = `/problem?${new URLSearchParams({
     ...searchParams,
     showTags: String(!showTags),
@@ -39,19 +42,19 @@ export default function ProblemList({ data, showTags, searchParams }: Props) {
       </colgroup>
       <TableHeader>
         <TableRow>
-          <TableCell>状态</TableCell>
-          <TableCell>题目 ID</TableCell>
-          <TableCell>题目</TableCell>
+          <TableCell>{common('status')}</TableCell>
+          <TableCell>{common('problemId')}</TableCell>
+          <TableCell>{common('problem')}</TableCell>
           <TableCell className="text-right">
             <Button variant="link" className="h-auto p-0 text-sm font-medium">
               <Link href={toggleShowTagsHref}>
-                {showTags ? '隐藏标签' : '展示标签'}
+                {showTags ? t('hideTags') : t('showTags')}
               </Link>
             </Button>
           </TableCell>
-          <TableCell className="text-center">难度</TableCell>
+          <TableCell className="text-center">{t('difficulty')}</TableCell>
           <TableCell className="hidden text-center md:table-cell">
-            通过率
+            {t('acceptanceRate')}
           </TableCell>
         </TableRow>
       </TableHeader>

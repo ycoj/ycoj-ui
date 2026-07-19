@@ -1,29 +1,29 @@
-export const PROBLEMS_DIFFICULTY = [
-  '暂无评定',
-  '入门',
-  '普及-',
-  '普及/提高-',
-  '普及+/提高',
-  '提高+/省选-',
-  '省选/NOI-',
-  'NOI/NOI+',
-  'NOI+/CSTC',
-  'NOI+/CSTC',
-  'NOI+/CSTC',
+export const PROBLEMS_DIFFICULTY_KEYS = [
+  'unrated',
+  'beginner',
+  'basicMinus',
+  'basicAdvancedMinus',
+  'basicPlusAdvanced',
+  'advancedPlusProvincialMinus',
+  'provincialNoiMinus',
+  'noiNoiPlus',
+  'noiPlusCstc',
+  'noiPlusCstc',
+  'noiPlusCstc',
 ] as const;
 
-export const PROBLEMS_DIFFICULTY_SHORT = [
-  '无',
-  '入门',
-  '普及-',
-  '提高-',
-  '提高',
-  '省选-',
-  '省选',
-  'NOI',
-  'NOI+',
-  'NOI+',
-  'NOI+',
+export const PROBLEMS_DIFFICULTY_SHORT_KEYS = [
+  'none',
+  'beginner',
+  'basicMinus',
+  'advancedMinus',
+  'advanced',
+  'provincialMinus',
+  'provincial',
+  'noi',
+  'noiPlus',
+  'noiPlus',
+  'noiPlus',
 ] as const;
 
 const rgb = (r: number, g: number, b: number) => {

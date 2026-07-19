@@ -1,7 +1,7 @@
 import ContestInfo from '@/features/contest/contest-info';
 import ContestStatusBadge from '@/features/contest/contest-status';
 import {
-  formatContestDuration,
+  getContestDurationParts,
   getContestProblemLabel,
   getContestStatus,
 } from '@/features/contest/detail/contest-utils';
@@ -9,7 +9,6 @@ import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import { Separator } from '@/shared/components/ui/separator';
 import type { Contest, ContestStatus } from '@/shared/types/contest';
-import { RuleTexts } from '@/shared/types/contest';
 import type { Homework } from '@/shared/types/homework';
 import type { ContestListProjectionProblem } from '@/shared/types/problem';
 import dayjs from 'dayjs';
@@ -21,6 +20,7 @@ import {
   Navigation,
   type LucideIcon,
 } from 'lucide-react';
+import { useFormatter, useTranslations } from 'next-intl';
 import Link from 'next/link';
 
 type Props = {
@@ -79,16 +79,37 @@ export default function ProblemSidebar({
   tid,
   contest,
 }: Props) {
+  const t = useTranslations('problem');
+  const common = useTranslations('common');
+  const contestT = useTranslations('contest');
+  const format = useFormatter();
   const isContestMode = Boolean(tid);
   const problemCount = contest?.pids?.length ?? 0;
-  const beginAtText = contest
-    ? dayjs(contest.beginAt).format('YYYY-MM-DD HH:mm')
-    : '';
-  const endAtText = contest
-    ? dayjs(contest.endAt).format('YYYY-MM-DD HH:mm')
-    : '';
-  const durationText = contest
-    ? formatContestDuration(contest.beginAt, contest.endAt) || '-'
+  const beginAt = contest ? dayjs(contest.beginAt) : null;
+  const endAt = contest ? dayjs(contest.endAt) : null;
+  const beginAtText =
+    beginAt && beginAt.isValid()
+      ? format.dateTime(beginAt.toDate(), {
+          dateStyle: 'medium',
+          timeStyle: 'short',
+        })
+      : '-';
+  const endAtText =
+    endAt && endAt.isValid()
+      ? format.dateTime(endAt.toDate(), {
+          dateStyle: 'medium',
+          timeStyle: 'short',
+        })
+      : '-';
+  const parts = contest
+    ? getContestDurationParts(contest.beginAt, contest.endAt)
+    : null;
+  const durationText = parts
+    ? parts.days > 0
+      ? contestT('durationDaysHours', parts)
+      : parts.hours > 0
+        ? contestT('durationHoursMinutes', parts)
+        : contestT('durationMinutes', parts)
     : '-';
   return (
     <div className="w-full space-y-4" data-llm-visible="true">
@@ -102,7 +123,7 @@ export default function ProblemSidebar({
               )}
             >
               <Navigation strokeWidth={2} />
-              <span data-llm-text="提交">提交</span>
+              <span data-llm-text={t('submit')}>{t('submit')}</span>
             </Link>
           </Button>
         )}
@@ -112,14 +133,16 @@ export default function ProblemSidebar({
               href={withTid(`/problem/${problem.pid ?? problem.docId}`, tid)}
             >
               <ArrowLeft strokeWidth={2} />
-              <span data-llm-text="返回题目">返回题目</span>
+              <span data-llm-text={t('backToProblem')}>
+                {t('backToProblem')}
+              </span>
             </Link>
           </Button>
         )}
         {!isContestMode && (
           <SidebarButton
             icon={MessageCircle}
-            text="讨论"
+            text={common('discussion')}
             href="#"
             count={discussionCount}
           />
@@ -127,7 +150,7 @@ export default function ProblemSidebar({
         {!isContestMode && (
           <SidebarButton
             icon={BookOpen}
-            text="题解"
+            text={t('solutions')}
             href={withTid(
               `/problem/${problem.pid ?? problem.docId}/solution`,
               tid
@@ -137,7 +160,7 @@ export default function ProblemSidebar({
         )}
         <SidebarButton
           icon={File}
-          text="文件"
+          text={t('files')}
           href={withTid(`/problem/${problem.pid ?? problem.docId}/files`, tid)}
         />
       </div>
@@ -178,8 +201,8 @@ export default function ProblemSidebar({
 
           <ContestInfo
             status={<ContestStatusBadge status={getContestStatus(contest)} />}
-            rule={RuleTexts[contest.rule]}
-            ruleText={RuleTexts[contest.rule]}
+            rule={contestT(`rule.${contest.rule}`)}
+            ruleText={contestT(`rule.${contest.rule}`)}
             problemCount={problemCount}
             beginAtText={beginAtText}
             endAtText={endAtText}

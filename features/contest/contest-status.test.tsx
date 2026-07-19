@@ -1,18 +1,13 @@
 import ContestStatus, {
   getContestStatusBadgeClassName,
-  getContestStatusLabel,
   getContestStatusTextClassName,
 } from './contest-status';
+import messages from '@/messages/en.json';
 import { render, screen } from '@testing-library/react';
+import { NextIntlClientProvider } from 'next-intl';
 import { describe, expect, it } from 'vitest';
 
 describe('contest status helpers', () => {
-  it('maps status to Chinese labels', () => {
-    expect(getContestStatusLabel('running')).toBe('进行中');
-    expect(getContestStatusLabel('pending')).toBe('即将开始');
-    expect(getContestStatusLabel('ended')).toBe('已结束');
-  });
-
   it('returns distinct text classes by status', () => {
     expect(getContestStatusTextClassName('running')).toContain('text-pink-600');
     expect(getContestStatusTextClassName('pending')).toContain('text-blue-500');
@@ -28,15 +23,27 @@ describe('contest status helpers', () => {
 
 describe('ContestStatus', () => {
   it('renders the label for the given status', () => {
-    render(<ContestStatus status="running" />);
-    expect(screen.getByText('进行中')).toBeInTheDocument();
+    render(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <ContestStatus status="running" />
+      </NextIntlClientProvider>
+    );
+    expect(screen.getByText('Running')).toBeInTheDocument();
   });
 
   it('renders pending and ended labels', () => {
-    const { rerender } = render(<ContestStatus status="pending" />);
-    expect(screen.getByText('即将开始')).toBeInTheDocument();
+    const { rerender } = render(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <ContestStatus status="pending" />
+      </NextIntlClientProvider>
+    );
+    expect(screen.getByText('Upcoming')).toBeInTheDocument();
 
-    rerender(<ContestStatus status="ended" />);
-    expect(screen.getByText('已结束')).toBeInTheDocument();
+    rerender(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <ContestStatus status="ended" />
+      </NextIntlClientProvider>
+    );
+    expect(screen.getByText('Ended')).toBeInTheDocument();
   });
 });

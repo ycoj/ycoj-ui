@@ -2,6 +2,7 @@ import ProblemTitle from '@/features/problem/detail/problem-title';
 import { getProblemSolution } from '@/features/problem/solution/get-problem-solution';
 import SolutionCreateForm from '@/features/problem/solution/solution-create-form';
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 
 type Params = {
   pid: string;
@@ -15,8 +16,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { pid } = await params;
   const data = await getProblemSolution(pid);
+  const t = await getTranslations('metadata');
   return {
-    title: `${data.pdoc.title} - 编辑题解`,
+    title: `${data.pdoc.title} - ${t('editSolution')}`,
   };
 }
 
