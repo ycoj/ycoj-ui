@@ -16,7 +16,11 @@ type Props = {
 const PROBLEM_TYPE_KEYS: Record<string, string> = {
   default: 'traditional',
   traditional: 'traditional',
+  objective: 'objective',
+  submit_answer: 'submitAnswer',
   fileio: 'fileIoShort',
+  interactive: 'interactive',
+  communication: 'communication',
   remote_judge: 'remoteJudgeShort',
 };
 
@@ -32,10 +36,10 @@ function StatItem({ value, label }: { value?: number; label: string }) {
 
 export default function ProblemTitle({ problem, contest }: Props) {
   const t = useTranslations('problem');
-  const typeLabel =
-    (problem.config?.type &&
-      t(PROBLEM_TYPE_KEYS[problem.config.type] ?? 'traditional')) ||
-    problem.config?.type;
+  const typeKey = problem.config?.type
+    ? PROBLEM_TYPE_KEYS[problem.config.type]
+    : undefined;
+  const typeLabel = typeKey ? t(typeKey) : problem.config?.type;
   const tagList = Array.isArray(problem.tag) ? problem.tag : [];
 
   return (

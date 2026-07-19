@@ -55,10 +55,9 @@ export default async function IndexPage() {
             </h1>
             <p className="max-w-prose text-pretty text-base text-muted-foreground sm:text-lg">
               {t.rich('landing.description', {
-                siteName: () => (
-                  <span className="font-medium text-foreground">
-                    {siteName}
-                  </span>
+                siteName,
+                highlight: (chunks) => (
+                  <span className="font-medium text-foreground">{chunks}</span>
                 ),
               })}
             </p>
