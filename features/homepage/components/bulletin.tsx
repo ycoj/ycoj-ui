@@ -6,14 +6,14 @@ import {
   CardTitle,
 } from '@/shared/components/ui/card';
 import { Megaphone } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 
 export type Props = {
   bulletin?: string;
 };
 
-export default function Bulletin({ bulletin }: Props) {
-  const t = useTranslations('homepage');
+export default async function Bulletin({ bulletin }: Props) {
+  const t = await getTranslations('homepage');
   if (!bulletin) return null;
 
   return (

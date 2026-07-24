@@ -3,6 +3,7 @@ import ContestStatus, {
   getContestStatusTextClassName,
   type ContestStatus as ContestRuntimeStatus,
 } from '@/features/contest/contest-status';
+import TimeDurationBadge from '@/shared/components/time-duration-badge';
 import { Badge } from '@/shared/components/ui/badge';
 import {
   Card,
@@ -13,8 +14,8 @@ import {
 import { cn } from '@/shared/lib/utils';
 import type { Contest } from '@/shared/types/contest';
 import dayjs from 'dayjs';
-import { Award, Calendar, Star, Users } from 'lucide-react';
-import { useFormatter, useTranslations } from 'next-intl';
+import { Award, Star, Users } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
 type Props = {
@@ -39,17 +40,9 @@ function getContestStatus(
 
 function ContestRow({ contest }: { contest: Contest }) {
   const t = useTranslations('contest');
-  const format = useFormatter();
   const now = dayjs();
   const status = getContestStatus(contest, now);
   const statusClassName = getContestStatusTextClassName(status);
-
-  const beginAt = dayjs(contest.beginAt);
-  const endAt = dayjs(contest.endAt);
-  const timeText =
-    beginAt.isValid() && endAt.isValid()
-      ? `${format.dateTime(beginAt.toDate(), { dateStyle: 'short', timeStyle: 'short' })} ~ ${format.dateTime(endAt.toDate(), { dateStyle: 'short', timeStyle: 'short' })}`
-      : '';
 
   return (
     <div data-llm-visible="true" className="space-y-1.5">
@@ -85,14 +78,13 @@ function ContestRow({ contest }: { contest: Contest }) {
             {contest.attend}
           </span>
         </Badge>
-        {timeText && (
-          <Badge variant="secondary" title={t('time')}>
-            <Calendar data-icon="inline-start" />
-            <span data-llm-text={timeText} className="tabular-nums">
-              {timeText}
-            </span>
-          </Badge>
-        )}
+        <TimeDurationBadge
+          startTime={contest.beginAt}
+          endTime={contest.endAt}
+          showDuration={false}
+          dateStyle="short"
+          timeRangeLabel={t('time')}
+        />
       </div>
     </div>
   );

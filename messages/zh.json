@@ -133,7 +133,7 @@
     "time": "比赛时间",
     "host": "主持人",
     "scoreboard": "成绩表",
-    "rated": "Rating 赛",
+    "rated": "Rated",
     "noContests": "暂无比赛",
     "noContestsDescription": "教练还没有添加比赛，或是你没有对应权限。",
     "durationDaysHours": "{days} 天 {hours} 小时",
