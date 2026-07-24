@@ -3,6 +3,7 @@ import ContestRuleBadge from '@/features/contest/contest-rule-badge';
 import ContestStatus, {
   type ContestStatus as ContestRuntimeStatus,
 } from '@/features/contest/contest-status';
+import TimeDurationBadge from '@/shared/components/time-duration-badge';
 import { Badge } from '@/shared/components/ui/badge';
 import {
   Empty,
@@ -14,16 +15,8 @@ import {
 import { Separator } from '@/shared/components/ui/separator';
 import type { ContestListProjection } from '@/shared/types/contest';
 import dayjs from 'dayjs';
-import {
-  Calendar,
-  Clock,
-  Code2,
-  Search,
-  Star,
-  Check,
-  Users,
-} from 'lucide-react';
-import { useFormatter, useTranslations } from 'next-intl';
+import { Code2, Search, Star, Check, Users } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Fragment } from 'react';
 
@@ -47,18 +40,6 @@ function getContestStatus(
   return 'ended';
 }
 
-function getDurationParts(beginAt: dayjs.Dayjs, endAt: dayjs.Dayjs) {
-  if (!beginAt.isValid() || !endAt.isValid()) return null;
-  const totalMinutes = endAt.diff(beginAt, 'minute');
-  if (totalMinutes <= 0) return null;
-
-  const days = Math.floor(totalMinutes / (24 * 60));
-  const hours = Math.floor((totalMinutes % (24 * 60)) / 60);
-  const minutes = totalMinutes % 60;
-
-  return { days, hours, minutes };
-}
-
 function ContestItem({
   contest,
   attended,
@@ -68,24 +49,9 @@ function ContestItem({
 }) {
   const t = useTranslations('contest');
   const common = useTranslations('common');
-  const format = useFormatter();
   const now = dayjs();
   const status = getContestStatus(contest, now);
 
-  const beginAt = dayjs(contest.beginAt);
-  const endAt = dayjs(contest.endAt);
-  const timeText =
-    beginAt.isValid() && endAt.isValid()
-      ? `${format.dateTime(beginAt.toDate(), { dateStyle: 'medium', timeStyle: 'short' })} ~ ${format.dateTime(endAt.toDate(), { dateStyle: 'medium', timeStyle: 'short' })}`
-      : '';
-  const parts = getDurationParts(beginAt, endAt);
-  const durationText = parts
-    ? parts.days > 0
-      ? t('durationDaysHours', parts)
-      : parts.hours > 0
-        ? t('durationHoursMinutes', parts)
-        : t('durationMinutes', parts)
-    : '';
   const problemCount = contest.pids?.length ?? 0;
   const contestHref = `/contest/${contest.docId}`;
 
@@ -124,28 +90,18 @@ function ContestItem({
               {contest.attend}
             </span>
           </Badge>
-          {durationText && (
-            <Badge variant="secondary" title={t('duration')}>
-              <Clock data-icon="inline-start" />
-              <span data-llm-text={durationText} className="tabular-nums">
-                {durationText}
-              </span>
-            </Badge>
-          )}
+          <TimeDurationBadge
+            startTime={contest.beginAt}
+            endTime={contest.endAt}
+            durationLabel={t('duration')}
+            timeRangeLabel={t('time')}
+          />
           <Badge variant="secondary" title={t('problemCount')}>
             <Code2 data-icon="inline-start" />
             <span data-llm-text={String(problemCount)} className="tabular-nums">
               {common('problems', { count: problemCount })}
             </span>
           </Badge>
-          {timeText && (
-            <Badge variant="secondary" title={t('time')}>
-              <Calendar data-icon="inline-start" />
-              <span data-llm-text={timeText} className="tabular-nums">
-                {timeText}
-              </span>
-            </Badge>
-          )}
           {attended && (
             <Badge
               variant="secondary"

@@ -1,11 +1,10 @@
 import ContestRuleBadge from '@/features/contest/contest-rule-badge';
-import { getContestDurationParts } from '@/features/contest/detail/contest-utils';
+import TimeDurationBadge from '@/shared/components/time-duration-badge';
 import { Badge } from '@/shared/components/ui/badge';
 import type { Contest } from '@/shared/types/contest';
 import type { Homework } from '@/shared/types/homework';
-import dayjs from 'dayjs';
-import { Calendar, Clock, Code2, Star, Users } from 'lucide-react';
-import { useFormatter, useTranslations } from 'next-intl';
+import { Code2, Star, Users } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 type Props = {
   tdoc: Contest | Homework;
@@ -15,22 +14,7 @@ export default function ContestTitle({ tdoc }: Props) {
   const t = useTranslations('contest');
   const homework = useTranslations('homework');
   const common = useTranslations('common');
-  const format = useFormatter();
-  const parts = getContestDurationParts(tdoc.beginAt, tdoc.endAt);
-  const durationText = parts
-    ? parts.days > 0
-      ? t('durationDaysHours', parts)
-      : parts.hours > 0
-        ? t('durationHoursMinutes', parts)
-        : t('durationMinutes', parts)
-    : '';
   const problemCount = tdoc.pids?.length ?? 0;
-  const beginAt = dayjs(tdoc.beginAt);
-  const endAt = dayjs(tdoc.endAt);
-  const timeText =
-    beginAt.isValid() && endAt.isValid()
-      ? `${format.dateTime(beginAt.toDate(), { dateStyle: 'medium', timeStyle: 'short' })} ~ ${format.dateTime(endAt.toDate(), { dateStyle: 'medium', timeStyle: 'short' })}`
-      : '';
 
   const isHomework = tdoc.rule === 'homework';
   const hasRated = 'rated' in tdoc && tdoc.rated;
@@ -69,17 +53,12 @@ export default function ContestTitle({ tdoc }: Props) {
           </span>
         </Badge>
 
-        {durationText && (
-          <Badge
-            variant="secondary"
-            title={isHomework ? homework('duration') : t('duration')}
-          >
-            <Clock data-icon="inline-start" />
-            <span data-llm-text={durationText} className="tabular-nums">
-              {durationText}
-            </span>
-          </Badge>
-        )}
+        <TimeDurationBadge
+          startTime={tdoc.beginAt}
+          endTime={tdoc.endAt}
+          durationLabel={isHomework ? homework('duration') : t('duration')}
+          timeRangeLabel={isHomework ? homework('time') : t('time')}
+        />
 
         <Badge variant="secondary" title={t('problemCount')}>
           <Code2 data-icon="inline-start" />
@@ -87,13 +66,6 @@ export default function ContestTitle({ tdoc }: Props) {
             {common('problems', { count: problemCount })}
           </span>
         </Badge>
-
-        {timeText && (
-          <div className="text-sm text-muted-foreground inline-flex items-center gap-1.5">
-            <Calendar className="size-4" />
-            <span data-llm-text={timeText}>{timeText}</span>
-          </div>
-        )}
       </div>
     </div>
   );

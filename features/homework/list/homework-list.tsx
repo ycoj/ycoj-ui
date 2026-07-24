@@ -3,6 +3,7 @@ import ContestRuleBadge from '@/features/contest/contest-rule-badge';
 import ContestStatus, {
   type ContestStatus as ContestRuntimeStatus,
 } from '@/features/contest/contest-status';
+import TimeDurationBadge from '@/shared/components/time-duration-badge';
 import { Badge } from '@/shared/components/ui/badge';
 import {
   Empty,
@@ -14,7 +15,7 @@ import {
 import { Separator } from '@/shared/components/ui/separator';
 import type { ContestListProjection } from '@/shared/types/contest';
 import dayjs from 'dayjs';
-import { Calendar, Search, Check, Users } from 'lucide-react';
+import { Search, Check, Users } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Fragment } from 'react';
@@ -50,9 +51,6 @@ function HomeworkItem({
   const now = dayjs();
   const status = getHomeworkStatus(homework, now);
 
-  const beginAt = dayjs(homework.beginAt).format('YYYY-MM-DD HH:mm');
-  const endAt = dayjs(homework.endAt).format('YYYY-MM-DD HH:mm');
-  const timeText = beginAt && endAt ? `${beginAt} - ${endAt}` : '';
   const homeworkHref = `/homework/${homework.docId}`;
 
   return (
@@ -80,14 +78,12 @@ function HomeworkItem({
               {homework.attend}
             </span>
           </Badge>
-          {timeText && (
-            <Badge variant="secondary" title={t('time')}>
-              <Calendar data-icon="inline-start" />
-              <span data-llm-text={timeText} className="tabular-nums">
-                {timeText}
-              </span>
-            </Badge>
-          )}
+          <TimeDurationBadge
+            startTime={homework.beginAt}
+            endTime={homework.endAt}
+            showDuration={false}
+            timeRangeLabel={t('time')}
+          />
           {attended && (
             <Badge
               variant="secondary"
