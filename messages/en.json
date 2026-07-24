@@ -248,6 +248,7 @@
     "monthsDays": "{months}mo {days}d",
     "days": "{days}d",
     "untilStart": "{time} until {name} starts",
+    "noEvents": "No events are currently in progress",
     "bannerAlt": "Banner {number}"
   },
   "training": {

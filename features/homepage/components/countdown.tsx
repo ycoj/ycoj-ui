@@ -95,6 +95,13 @@ export default function Countdown({ config }: { config: CountdownConfig }) {
   );
   if (!events.length) return null;
 
+  const hasActiveEvents = events.some((event) => {
+    const now = dayjs();
+    const start = dayjs(event.date);
+    const end = start.add(event.duration, 'day');
+    return now.isBefore(end);
+  });
+
   return (
     <Card data-llm-visible="true">
       <CardHeader>
@@ -104,11 +111,20 @@ export default function Countdown({ config }: { config: CountdownConfig }) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-2">
-          {events.map((event, index) => (
-            <EventCountdown key={index} event={event} />
-          ))}
-        </div>
+        {hasActiveEvents ? (
+          <div className="space-y-2">
+            {events.map((event, index) => (
+              <EventCountdown key={index} event={event} />
+            ))}
+          </div>
+        ) : (
+          <p
+            data-llm-visible="true"
+            className="text-muted-foreground text-center text-sm"
+          >
+            {t('noEvents')}
+          </p>
+        )}
       </CardContent>
     </Card>
   );

@@ -248,6 +248,7 @@
     "monthsDays": "{months} 月 {days} 天",
     "days": "{days} 天",
     "untilStart": "距离 {name} 开始还剩 {time}",
+    "noEvents": "暂无进行中的赛事",
     "bannerAlt": "横幅 {number}"
   },
   "training": {
