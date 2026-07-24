@@ -1,10 +1,8 @@
-'use client';
-
 import { getContestDurationParts } from '@/features/contest/detail/contest-utils';
 import { Badge } from '@/shared/components/ui/badge';
 import dayjs from 'dayjs';
 import { Calendar, Clock } from 'lucide-react';
-import { useFormatter, useTranslations } from 'next-intl';
+import { getFormatter, getTranslations } from 'next-intl/server';
 
 type TimeDurationBadgeProps = {
   startTime: Date | string;
@@ -18,7 +16,7 @@ type TimeDurationBadgeProps = {
   className?: string;
 };
 
-export default function TimeDurationBadge({
+export default async function TimeDurationBadge({
   startTime,
   endTime,
   duration: durationHours,
@@ -29,8 +27,8 @@ export default function TimeDurationBadge({
   timeRangeLabel,
   className,
 }: TimeDurationBadgeProps) {
-  const t = useTranslations('contest');
-  const format = useFormatter();
+  const t = await getTranslations('contest');
+  const format = await getFormatter();
 
   const beginAt = dayjs(startTime);
   if (!beginAt.isValid()) return null;
