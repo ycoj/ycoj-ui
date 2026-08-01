@@ -17,11 +17,11 @@ import { Label } from '@/shared/components/ui/label';
 import { PROBLEMS_DIFFICULTY_KEYS } from '@/shared/configs/difficulty';
 import { cn } from '@/shared/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, Check, Plus, Sparkles } from 'lucide-react';
+import { ArrowLeft, Check, ChevronLeft, Plus, Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Controller, useForm } from 'react-hook-form';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 
 const MAX_DIFFICULTY = 7;
@@ -64,7 +64,6 @@ export default function ProblemCreateForm({ tags }: Props) {
     register,
     setError,
     setValue,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
@@ -77,16 +76,30 @@ export default function ProblemCreateForm({ tags }: Props) {
       content: DEFAULT_PROBLEM_CONTENT,
     },
   });
-  const currentTags = watch('tag')
+  const currentTags = (useWatch({ control, name: 'tag' }) ?? '')
     .split(/[,，]/)
     .map((tag) => tag.trim())
     .filter(Boolean);
 
-  const toggleTag = (tag: string) => {
-    const nextTags = currentTags.includes(tag)
-      ? currentTags.filter((item) => item !== tag)
-      : [...currentTags, tag];
+  const updateTags = (nextTags: string[]) => {
     setValue('tag', nextTags.join(', '), { shouldDirty: true });
+  };
+
+  const toggleTag = (tag: string) => {
+    updateTags(
+      currentTags.includes(tag)
+        ? currentTags.filter((item) => item !== tag)
+        : [...currentTags, tag]
+    );
+  };
+
+  const toggleChildTag = (category: string, child: string) => {
+    if (currentTags.includes(category) && currentTags.includes(child)) {
+      updateTags(currentTags.filter((tag) => tag !== child));
+      return;
+    }
+
+    updateTags([...new Set([...currentTags, category, child])]);
   };
 
   const onSubmit = async (values: FormValues) => {
@@ -255,23 +268,60 @@ export default function ProblemCreateForm({ tags }: Props) {
           </p>
         </header>
         <div className="grid grid-cols-2 gap-2">
-          {Object.keys(tags).map((tag) => {
-            const selected = currentTags.includes(tag);
+          {Object.entries(tags).map(([category, childTags], categoryIndex) => {
+            const selected = currentTags.includes(category);
             return (
-              <button
-                key={tag}
-                type="button"
-                onClick={() => toggleTag(tag)}
-                className={cn(
-                  'bg-background hover:bg-muted flex min-h-8 items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-sm transition-colors',
-                  selected && 'bg-secondary font-medium'
+              <div key={category} className="group/category relative">
+                <button
+                  type="button"
+                  onClick={() => toggleTag(category)}
+                  className={cn(
+                    'bg-background hover:bg-muted flex min-h-8 w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-sm transition-colors',
+                    selected && 'bg-secondary font-medium'
+                  )}
+                  aria-pressed={selected}
+                  disabled={isSubmitting}
+                >
+                  <span data-llm-text={category}>{category}</span>
+                  <span className="flex items-center gap-1">
+                    {selected && <Check className="size-3.5" />}
+                    {childTags.length > 0 && (
+                      <ChevronLeft className="text-muted-foreground size-3.5" />
+                    )}
+                  </span>
+                </button>
+
+                {childTags.length > 0 && (
+                  <div
+                    className={cn(
+                      'bg-popover invisible absolute right-full z-20 grid max-h-[calc(100vh-2rem)] w-72 grid-cols-2 gap-1 overflow-y-auto rounded-lg p-2 opacity-0 shadow-lg transition-[visibility,opacity] group-focus-within/category:visible group-focus-within/category:opacity-100 group-hover/category:visible group-hover/category:opacity-100',
+                      categoryIndex < Object.keys(tags).length / 2
+                        ? 'top-0'
+                        : 'bottom-0'
+                    )}
+                  >
+                    {childTags.map((child) => {
+                      const childSelected = currentTags.includes(child);
+                      return (
+                        <button
+                          key={child}
+                          type="button"
+                          onClick={() => toggleChildTag(category, child)}
+                          className={cn(
+                            'hover:bg-muted flex min-h-8 items-center justify-between rounded-md px-2 py-1 text-left text-sm transition-colors',
+                            childSelected && 'bg-secondary font-medium'
+                          )}
+                          aria-pressed={childSelected}
+                          disabled={isSubmitting}
+                        >
+                          <span data-llm-text={child}>{child}</span>
+                          {childSelected && <Check className="size-3.5" />}
+                        </button>
+                      );
+                    })}
+                  </div>
                 )}
-                aria-pressed={selected}
-                disabled={isSubmitting}
-              >
-                <span data-llm-text={tag}>{tag}</span>
-                {selected && <Check className="size-3.5" />}
-              </button>
+              </div>
             );
           })}
         </div>

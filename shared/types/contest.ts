@@ -4,12 +4,7 @@ import type { ProblemDict } from './problem';
 import type { BaseUserDict } from './user';
 
 export type ContestRule =
-  | 'acm'
-  | 'oi'
-  | 'homework'
-  | 'ioi'
-  | 'ledo'
-  | 'strictioi';
+  'acm' | 'oi' | 'homework' | 'ioi' | 'ledo' | 'strictioi';
 
 export type BaseContest = {
   _id: string;
