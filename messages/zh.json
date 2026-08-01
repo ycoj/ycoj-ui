@@ -331,6 +331,41 @@
     "noEvents": "暂无进行中的赛事",
     "bannerAlt": "横幅 {number}"
   },
+  "checkin": {
+    "title": "每日签到",
+    "welcome": "欢迎回来，<username>{username}</username>",
+    "dateAria": "{date}，{weekday}，UTC+8",
+    "button": "点击打卡",
+    "checkingIn": "打卡中……",
+    "unavailable": "当前暂不可签到",
+    "error": "签到未完成，请稍后重试",
+    "hitokotoError": "今日一言暂时不可用，签到未完成",
+    "historyTitle": "签到记录",
+    "totalDays": "共签到 {count} 天",
+    "heatmapLabel": "{from} 至 {to} 的 UTC+8 签到日历",
+    "emptyHistory": "最近一年暂无签到记录",
+    "legend": "卦象图例",
+    "noRecord": "无记录",
+    "dayNotCheckedIn": "当日未签到",
+    "checkedDayAria": "{date}：{fortune}。一言：{hitokoto}",
+    "emptyDayAria": "{date}：当日未签到",
+    "fortune": {
+      "da_ji": "大吉",
+      "ji": "吉",
+      "ping": "平",
+      "xiong": "凶",
+      "da_xiong": "大凶"
+    },
+    "weekday": {
+      "sun": "日",
+      "mon": "一",
+      "tue": "二",
+      "wed": "三",
+      "thu": "四",
+      "fri": "五",
+      "sat": "六"
+    }
+  },
   "training": {
     "searchPlaceholder": "搜索训练标题",
     "sectionCount": "章节数量",

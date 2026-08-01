@@ -331,6 +331,41 @@
     "noEvents": "No events are currently in progress",
     "bannerAlt": "Banner {number}"
   },
+  "checkin": {
+    "title": "Daily check-in",
+    "welcome": "Welcome back, <username>{username}</username>",
+    "dateAria": "{date}, {weekday}, UTC+8",
+    "button": "Check in",
+    "checkingIn": "Checking in…",
+    "unavailable": "Check-in is currently unavailable",
+    "error": "Check-in was not completed. Please try again later.",
+    "hitokotoError": "Today's quote is temporarily unavailable. Check-in was not completed.",
+    "historyTitle": "Check-in history",
+    "totalDays": "{count, plural, one {# day checked in} other {# days checked in}}",
+    "heatmapLabel": "Check-in calendar from {from} through {to}, UTC+8",
+    "emptyHistory": "No check-in records in the past year",
+    "legend": "Fortune legend",
+    "noRecord": "No record",
+    "dayNotCheckedIn": "Not checked in that day",
+    "checkedDayAria": "{date}: {fortune}. Quote: {hitokoto}",
+    "emptyDayAria": "{date}: not checked in",
+    "fortune": {
+      "da_ji": "Great Fortune",
+      "ji": "Fortune",
+      "ping": "Neutral",
+      "xiong": "Misfortune",
+      "da_xiong": "Great Misfortune"
+    },
+    "weekday": {
+      "sun": "Sun",
+      "mon": "Mon",
+      "tue": "Tue",
+      "wed": "Wed",
+      "thu": "Thu",
+      "fri": "Fri",
+      "sat": "Sat"
+    }
+  },
   "training": {
     "searchPlaceholder": "Search training titles",
     "sectionCount": "Sections",

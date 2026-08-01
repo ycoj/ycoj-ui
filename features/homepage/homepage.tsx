@@ -3,11 +3,14 @@ import RecentBlogs from './components/blogs';
 import Bulletin from './components/bulletin';
 import Contests from './components/contests';
 import Countdown from './components/countdown';
+import DailyCheckin from './components/daily-checkin';
 import Discussions from './components/discussions';
 import Suggestions from './components/suggestions';
 import ServerApis from '@/api/server/method';
 import type { SectionType } from '@/api/server/method/ui/homepage';
+import { getUser } from '@/features/user/lib/get-user';
 import TwoColumnLayout from '@/shared/layout/two-column';
+import type { HomepageCheckin } from '@/shared/types/checkin';
 import type { BaseUserDict } from '@/shared/types/user';
 
 type SectionMap = {
@@ -19,6 +22,11 @@ type ColumnProps = {
   udict: BaseUserDict;
 
   bulletin?: string;
+};
+
+type RightColumnProps = ColumnProps & {
+  checkin: HomepageCheckin;
+  username: string;
 };
 
 async function LeftColumn({ contents, udict, bulletin }: ColumnProps) {
@@ -38,9 +46,15 @@ async function LeftColumn({ contents, udict, bulletin }: ColumnProps) {
   );
 }
 
-async function RightColumn({ contents, udict }: ColumnProps) {
+async function RightColumn({
+  contents,
+  udict,
+  checkin,
+  username,
+}: RightColumnProps) {
   return (
     <div className="space-y-6">
+      <DailyCheckin checkin={checkin} username={username} />
       {contents.countdown && <Countdown config={contents.countdown} />}
       {contents.suggestions && <Suggestions sections={contents.suggestions} />}
       {contents.recent_blogs && (
@@ -51,7 +65,10 @@ async function RightColumn({ contents, udict }: ColumnProps) {
 }
 
 export default async function Homepage() {
-  const homepage = await ServerApis.UI.getHomepage();
+  const [homepage, user] = await Promise.all([
+    ServerApis.UI.getHomepage(),
+    getUser(),
+  ]);
 
   const contents = homepage.contents
     .flatMap((content) => content.sections)
@@ -72,7 +89,14 @@ export default async function Homepage() {
           bulletin={homepage.domain.bulletin}
         />
       }
-      right={<RightColumn contents={contents} udict={udict} />}
+      right={
+        <RightColumn
+          contents={contents}
+          udict={udict}
+          checkin={homepage.checkin}
+          username={user.uname}
+        />
+      }
     />
   );
 }
