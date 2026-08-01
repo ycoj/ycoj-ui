@@ -17,6 +17,7 @@ export type ContestDetailResponse = {
   tdoc: ContestDetailTdoc;
   tsdoc: ContestDetailStatus | null;
   udict: BaseUserDict;
+  /** Private attachments returned after the user attends and the contest starts. */
   files: FileInfo[];
 };
 

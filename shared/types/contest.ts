@@ -28,6 +28,7 @@ export type BaseContest = {
   pids: number[];
   rated?: boolean;
   assign?: string[];
+  /** Public attachments available to `file://` references in the contest content. */
   files?: FileInfo[];
 };
 

@@ -11,6 +11,7 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/shared/components/ui/tabs';
+import { resolveFileUrls } from '@/shared/lib/resolve-file-urls';
 import { ContestDetailProjectionProblem } from '@/shared/types/problem';
 import { Info } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -25,11 +26,20 @@ const LANGUAGE_LABELS = {
 
 export default function ProblemContent({
   problem,
+  tid,
 }: {
   problem: ContestDetailProjectionProblem;
+  tid?: string;
 }) {
   const t = useTranslations('problem');
-  const contents = parseProblemContent(problem.content);
+  const contents = parseProblemContent(problem.content).map((item) => ({
+    ...item,
+    content: resolveFileUrls(item.content, {
+      baseUrl: `/api/p/${problem.docId}/file`,
+      filenames: problem.additional_file.map(({ name }) => name),
+      query: { tid },
+    }),
+  }));
   const showFileIoAlert = problem.config?.type === 'fileio';
   const subType = problem.config?.subType ?? '';
   const fileInName = `${subType}.in`;

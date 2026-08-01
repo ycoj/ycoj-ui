@@ -72,7 +72,7 @@ function ProblemDetailContent({
       <ProblemTitle problem={data.pdoc} contest={data.tdoc} />
       <TwoColumnLayout
         ratio="8-2"
-        left={<ProblemContent problem={data.pdoc} />}
+        left={<ProblemContent problem={data.pdoc} tid={searchParams.tid} />}
         right={
           <ProblemSidebar
             allowSubmit={true}

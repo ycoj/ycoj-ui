@@ -1,5 +1,6 @@
 import Markdown from '.';
 import messages from '@/messages/en.json';
+import { resolveFileUrls } from '@/shared/lib/resolve-file-urls';
 import { render, screen } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { Children, type ReactElement, type ReactNode } from 'react';
@@ -55,5 +56,28 @@ describe('Markdown PDF rendering', () => {
     expect(
       screen.queryByRole('document', { name: 'PDF document' })
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('Markdown resolved file URLs', () => {
+  it('renders resolved attachment links and images through the sanitized pipeline', async () => {
+    const source = resolveFileUrls(
+      '[download](file://asset.zip)\n\n![image](file://image.jpg)',
+      {
+        baseUrl: '/api/p/42/file',
+        filenames: ['asset.zip', 'image.jpg'],
+      }
+    );
+
+    await renderMarkdown(source);
+
+    expect(screen.getByRole('link', { name: 'download' })).toHaveAttribute(
+      'href',
+      '/api/p/42/file/asset.zip'
+    );
+    expect(screen.getByRole('img', { name: 'image' })).toHaveAttribute(
+      'src',
+      '/api/p/42/file/image.jpg'
+    );
   });
 });

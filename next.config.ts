@@ -1,6 +1,8 @@
 import withNextIntl from './next-intl.config';
 import type { NextConfig } from 'next';
 
+const backendBaseUrl = process.env.BACKEND_BASEURL?.replace(/\/+$/, '');
+
 const nextConfig: NextConfig = {
   env: {
     SITE_NAME: process.env.SITE_NAME ?? '',
@@ -11,7 +13,11 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: `${process.env.BACKEND_BASEURL}/:path*`,
+        destination: `${backendBaseUrl}/:path*`,
+      },
+      {
+        source: '/fs/:path*',
+        destination: `${backendBaseUrl}/fs/:path*`,
       },
     ];
   },
