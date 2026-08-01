@@ -12,7 +12,7 @@ import {
   TabsTrigger,
 } from '@/shared/components/ui/tabs';
 import { resolveFileUrls } from '@/shared/lib/resolve-file-urls';
-import { ContestDetailProjectionProblem } from '@/shared/types/problem';
+import type { ContestDetailProjectionProblem } from '@/shared/types/problem';
 import { Info } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -32,11 +32,13 @@ export default function ProblemContent({
   tid?: string;
 }) {
   const t = useTranslations('problem');
+  const additionalFilenames =
+    problem.additional_file?.map(({ name }) => name) ?? [];
   const contents = parseProblemContent(problem.content).map((item) => ({
     ...item,
     content: resolveFileUrls(item.content, {
       baseUrl: `/api/p/${problem.docId}/file`,
-      filenames: problem.additional_file.map(({ name }) => name),
+      filenames: additionalFilenames,
       query: { tid },
     }),
   }));
