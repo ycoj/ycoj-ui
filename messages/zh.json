@@ -239,23 +239,7 @@
     "createFailed": "创建题目失败，请稍后重试。",
     "creating": "创建中...",
     "create": "创建题目",
-    "cancel": "返回题目列表",
-    "tagSuggestions": {
-      "dynamicProgramming": "动态规划",
-      "search": "搜索",
-      "computationalGeometry": "计算几何",
-      "greedy": "贪心",
-      "tree": "树结构",
-      "graph": "图结构",
-      "numberTheory": "数论",
-      "simulation": "模拟",
-      "dataStructures": "数据结构",
-      "string": "字符串",
-      "linearAlgebra": "线性代数",
-      "highPrecision": "高精度",
-      "recursion": "递推",
-      "probability": "概率论"
-    }
+    "cancel": "返回题目列表"
   },
   "problemImport": {
     "title": "从 {format} 导入",

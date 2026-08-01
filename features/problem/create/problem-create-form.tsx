@@ -1,5 +1,6 @@
 'use client';
 
+import { DEFAULT_PROBLEM_CONTENT } from './default-problem-content';
 import ClientApis from '@/api/client/method';
 import MarkdownEditor from '@/shared/components/markdown-editor';
 import { Button } from '@/shared/components/ui/button';
@@ -23,53 +24,6 @@ import { useRouter } from 'next/navigation';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-const DEFAULT_CONTENT = `# Background
-
-Describe the background of the problem.
-
-# Description
-
-Describe the task to be solved.
-
-# Input Format
-
-Describe the input format.
-
-# Output Format
-
-Describe the output format.
-
-# Samples
-
-\`\`\`input1
-
-\`\`\`
-
-\`\`\`output1
-
-\`\`\`
-
-# Hint
-
-Add any additional explanation here.`;
-
-const SUGGESTED_TAGS = [
-  'dynamicProgramming',
-  'search',
-  'computationalGeometry',
-  'greedy',
-  'tree',
-  'graph',
-  'numberTheory',
-  'simulation',
-  'dataStructures',
-  'string',
-  'linearAlgebra',
-  'highPrecision',
-  'recursion',
-  'probability',
-] as const;
-
 const MAX_DIFFICULTY = 7;
 
 type FormValues = {
@@ -81,7 +35,11 @@ type FormValues = {
   content: string;
 };
 
-export default function ProblemCreateForm() {
+type Props = {
+  tags: Record<string, string[]>;
+};
+
+export default function ProblemCreateForm({ tags }: Props) {
   const t = useTranslations('problemCreate');
   const difficulty = useTranslations('difficulty');
   const router = useRouter();
@@ -116,7 +74,7 @@ export default function ProblemCreateForm() {
       tag: '',
       difficulty: 0,
       hidden: false,
-      content: DEFAULT_CONTENT,
+      content: DEFAULT_PROBLEM_CONTENT,
     },
   });
   const currentTags = watch('tag')
@@ -241,7 +199,7 @@ export default function ProblemCreateForm() {
             <FieldContent>
               <MarkdownEditor
                 {...register('content')}
-                defaultValue={DEFAULT_CONTENT}
+                defaultValue={DEFAULT_PROBLEM_CONTENT}
                 disabled={isSubmitting}
                 aria-invalid={!!errors.content}
                 className="min-h-120"
@@ -297,12 +255,11 @@ export default function ProblemCreateForm() {
           </p>
         </header>
         <div className="grid grid-cols-2 gap-2">
-          {SUGGESTED_TAGS.map((tagKey) => {
-            const tag = t(`tagSuggestions.${tagKey}`);
+          {Object.keys(tags).map((tag) => {
             const selected = currentTags.includes(tag);
             return (
               <button
-                key={tagKey}
+                key={tag}
                 type="button"
                 onClick={() => toggleTag(tag)}
                 className={cn(

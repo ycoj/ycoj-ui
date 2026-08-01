@@ -1,3 +1,4 @@
+import ServerApis from '@/api/server/method';
 import ProblemCreateForm from '@/features/problem/create/problem-create-form';
 import { getUser } from '@/features/user/lib/get-user';
 import { hasPerm, PERM } from '@/features/user/lib/priv';
@@ -11,8 +12,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ProblemCreatePage() {
-  const user = await getUser();
+  const [user, tags] = await Promise.all([
+    getUser(),
+    ServerApis.Problems.getProblemTags(),
+  ]);
   if (!hasPerm(user, PERM.PERM_CREATE_PROBLEM)) redirect('/problem');
 
-  return <ProblemCreateForm />;
+  return <ProblemCreateForm tags={tags} />;
 }
