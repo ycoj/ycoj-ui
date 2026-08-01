@@ -1,9 +1,17 @@
 import CheckinHeatmap from './checkin-heatmap';
 import messages from '@/messages/en.json';
 import type { CheckinHistory } from '@/shared/types/checkin';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+class ResizeObserverMock {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+vi.stubGlobal('ResizeObserver', ResizeObserverMock);
 
 function renderHeatmap(history: CheckinHistory) {
   return render(
@@ -50,7 +58,6 @@ describe('CheckinHeatmap', () => {
       records: fortunes.map((fortune, index) => ({
         date: dates[index],
         fortune,
-        createdAt: '2026-07-28T04:00:00.000Z',
         hitokoto: {
           id: index,
           uuid: `quote-${index}`,
@@ -72,5 +79,27 @@ describe('CheckinHeatmap', () => {
         name: '2026-08-01: Great Misfortune. Quote: Quote 4',
       })
     ).toBeInTheDocument();
+  });
+
+  it('uses roving tabindex and moves focus with arrow keys', () => {
+    renderHeatmap({
+      timezone: 'UTC+08:00',
+      from: '2026-07-28',
+      to: '2026-08-03',
+      total: 0,
+      records: [],
+    });
+
+    const cells = screen.getAllByRole('gridcell');
+    expect(cells[0]).toHaveAttribute('tabindex', '0');
+    expect(
+      cells.filter((cell) => cell.getAttribute('tabindex') === '-1')
+    ).toHaveLength(cells.length - 1);
+
+    cells[0].focus();
+    fireEvent.keyDown(cells[0], { key: 'ArrowRight' });
+
+    expect(cells[5]).toHaveFocus();
+    expect(cells[5]).toHaveAttribute('tabindex', '0');
   });
 });

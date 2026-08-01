@@ -15,7 +15,6 @@ function makeRecord(
   return {
     date,
     fortune: 'da_ji',
-    createdAt: `${date}T04:00:00.000Z`,
     hitokoto: {
       id: 1,
       uuid: 'quote-1',

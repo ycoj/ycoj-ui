@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/shared/components/ui/card';
 import type { HomepageCheckin } from '@/shared/types/checkin';
 import { CalendarCheck2 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type Props = {
   checkin: HomepageCheckin;
@@ -34,11 +34,19 @@ export default function DailyCheckin({ checkin, username }: Props) {
   const t = useTranslations('checkin');
   const locale = useLocale();
   const [record, setRecord] = useState(checkin.record);
+  const previousCheckinDate = useRef(checkin.date);
   const [submitting, setSubmitting] = useState(false);
   const [errorKey, setErrorKey] = useState<'error' | 'hitokotoError' | null>(
     null
   );
   const requestInFlight = useRef(false);
+
+  useEffect(() => {
+    if (previousCheckinDate.current === checkin.date) return;
+    previousCheckinDate.current = checkin.date;
+    setRecord(checkin.record);
+  }, [checkin.date, checkin.record]);
+
   const date = parseCheckinDate(checkin.date);
   const day = checkin.date.slice(-2);
   const month = date

@@ -26,7 +26,6 @@ vi.mock('@/api/client/method', () => ({
 const record: CheckinRecord = {
   date: '2026-08-01',
   fortune: 'da_ji',
-  createdAt: '2026-08-01T04:00:00.000Z',
   hitokoto: {
     id: 1,
     uuid: 'quote-uuid',
@@ -121,6 +120,34 @@ describe('DailyCheckin', () => {
     expect(mocks.checkin).not.toHaveBeenCalled();
     expect(screen.getByText('——《A Book》')).toBeInTheDocument();
     expect(screen.queryByRole('link')).toBeNull();
+  });
+
+  it('resets the record when the check-in date changes', async () => {
+    mocks.checkin.mockReturnValue({
+      send: vi.fn().mockResolvedValue({ created: true, record }),
+    });
+    const { rerender } = renderCheckin();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Check in' }));
+    expect(await screen.findByText('Great Fortune')).toBeInTheDocument();
+
+    rerender(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <DailyCheckin
+          checkin={{
+            timezone: 'UTC+08:00',
+            date: '2026-08-02',
+            canCheckin: true,
+            record: null,
+          }}
+          username="visitor"
+        />
+      </NextIntlClientProvider>
+    );
+
+    expect(
+      await screen.findByRole('button', { name: 'Check in' })
+    ).toBeEnabled();
   });
 
   it('renders quote text as escaped plain text', async () => {

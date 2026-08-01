@@ -3,7 +3,6 @@ export type CheckinFortune = 'da_ji' | 'ji' | 'ping' | 'xiong' | 'da_xiong';
 export type CheckinRecord = {
   date: string;
   fortune: CheckinFortune;
-  createdAt: string;
   hitokoto: {
     id: number;
     uuid: string;

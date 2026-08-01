@@ -18,7 +18,7 @@ import { cn } from '@/shared/lib/utils';
 import type { CheckinHistory, CheckinRecord } from '@/shared/types/checkin';
 import { CalendarDays } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useMemo } from 'react';
+import { type KeyboardEvent, useMemo, useRef, useState } from 'react';
 
 type Props = {
   history: CheckinHistory;
@@ -79,6 +79,8 @@ function DayDetails({
 
 export default function CheckinHeatmap({ history }: Props) {
   const t = useTranslations('checkin');
+  const cellRefs = useRef<(HTMLSpanElement | null)[]>([]);
+  const [focusedCellIndex, setFocusedCellIndex] = useState(0);
   const cells = useMemo(() => {
     const recordByDate = new Map(
       history.records.map((record) => [record.date, record])
@@ -88,6 +90,45 @@ export default function CheckinHeatmap({ history }: Props) {
       record: recordByDate.get(date),
     }));
   }, [history.from, history.records, history.to]);
+
+  const tabStopIndex = Math.min(
+    focusedCellIndex,
+    Math.max(0, cells.length - 1)
+  );
+
+  const handleCellKeyDown = (
+    event: KeyboardEvent<HTMLSpanElement>,
+    index: number
+  ) => {
+    const rowCount = 5;
+    const row = index % rowCount;
+    const column = Math.floor(index / rowCount);
+    const columnCount = Math.ceil(cells.length / rowCount);
+    let nextIndex = index;
+
+    switch (event.key) {
+      case 'ArrowLeft':
+        if (column > 0) nextIndex -= rowCount;
+        break;
+      case 'ArrowRight':
+        if (column < columnCount - 1 && index + rowCount < cells.length) {
+          nextIndex += rowCount;
+        }
+        break;
+      case 'ArrowUp':
+        if (row > 0) nextIndex -= 1;
+        break;
+      case 'ArrowDown':
+        if (row < rowCount - 1 && index + 1 < cells.length) nextIndex += 1;
+        break;
+      default:
+        return;
+    }
+
+    event.preventDefault();
+    setFocusedCellIndex(nextIndex);
+    cellRefs.current[nextIndex]?.focus();
+  };
 
   return (
     <section className="space-y-3" data-llm-visible="true">
@@ -117,7 +158,7 @@ export default function CheckinHeatmap({ history }: Props) {
               className="grid w-max shrink-0 grid-flow-col auto-cols-[24px] grid-rows-5 gap-1"
               role="grid"
             >
-              {cells.map((cell) => {
+              {cells.map((cell, index) => {
                 const ariaLabel = cell.record
                   ? t('checkedDayAria', {
                       date: cell.date,
@@ -129,9 +170,14 @@ export default function CheckinHeatmap({ history }: Props) {
                   <Tooltip key={cell.date}>
                     <TooltipTrigger asChild>
                       <span
+                        ref={(element) => {
+                          cellRefs.current[index] = element;
+                        }}
                         role="gridcell"
-                        tabIndex={0}
+                        tabIndex={tabStopIndex === index ? 0 : -1}
                         aria-label={ariaLabel}
+                        onFocus={() => setFocusedCellIndex(index)}
+                        onKeyDown={(event) => handleCellKeyDown(event, index)}
                         className={cn(
                           'size-6 rounded-[3px] border border-black/5 transition-shadow hover:ring-2 hover:ring-inset hover:ring-ring/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring',
                           cell.record
