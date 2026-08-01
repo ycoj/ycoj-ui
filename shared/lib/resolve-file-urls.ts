@@ -4,7 +4,24 @@ type ResolveFileUrlsOptions = {
   query?: Record<string, string | undefined>;
 };
 
-const FILE_URL_PATTERN = /file:\/\/([^\s)\\'"<>]+)/g;
+const FILE_URL_PREFIX = 'file://';
+
+function findFileInfoEnd(content: string, start: number) {
+  let parenthesisDepth = 0;
+
+  for (let index = start; index < content.length; index += 1) {
+    const character = content[index];
+
+    if (/\s|[\\'"<>]/.test(character)) return index;
+    if (character === '(') parenthesisDepth += 1;
+    if (character === ')') {
+      if (parenthesisDepth === 0) return index;
+      parenthesisDepth -= 1;
+    }
+  }
+
+  return content.length;
+}
 
 function appendQuery(url: string, query: URLSearchParams) {
   const value = query.toString();
@@ -33,7 +50,8 @@ export function resolveFileUrls(
     if (value !== undefined) queryParams.set(key, value);
   }
 
-  return content.replace(FILE_URL_PATTERN, (original, fileInfo: string) => {
+  function resolveFileInfo(fileInfo: string) {
+    const original = `${FILE_URL_PREFIX}${fileInfo}`;
     const suffixIndex = fileInfo.search(/[?#]/);
     const encodedFilename =
       suffixIndex === -1 ? fileInfo : fileInfo.slice(0, suffixIndex);
@@ -49,5 +67,28 @@ export function resolveFileUrls(
 
     const resolvedUrl = `${baseUrl.replace(/\/$/, '')}/${fileInfo}`;
     return appendQuery(resolvedUrl, queryParams);
-  });
+  }
+
+  let result = '';
+  let cursor = 0;
+
+  while (cursor < content.length) {
+    const prefixIndex = content.indexOf(FILE_URL_PREFIX, cursor);
+    if (prefixIndex === -1) {
+      result += content.slice(cursor);
+      break;
+    }
+
+    const fileInfoStart = prefixIndex + FILE_URL_PREFIX.length;
+    const fileInfoEnd = findFileInfoEnd(content, fileInfoStart);
+    const fileInfo = content.slice(fileInfoStart, fileInfoEnd);
+
+    result += content.slice(cursor, prefixIndex);
+    result += fileInfo
+      ? resolveFileInfo(fileInfo)
+      : content.slice(prefixIndex, fileInfoStart);
+    cursor = fileInfoEnd;
+  }
+
+  return result;
 }

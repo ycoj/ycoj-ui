@@ -52,6 +52,20 @@ describe('resolveFileUrls', () => {
     ).toBe('@[pdf](/api/p/7/file/document.pdf?tid=abc#page=2)');
   });
 
+  it('resolves filenames containing balanced parentheses', () => {
+    expect(
+      resolveFileUrls(
+        '[result](file://result(1).png)\n[nested](file://result((2)).png)',
+        {
+          baseUrl: '/api/p/7/file',
+          filenames: ['result(1).png', 'result((2)).png'],
+        }
+      )
+    ).toBe(
+      '[result](/api/p/7/file/result(1).png)\n[nested](/api/p/7/file/result((2)).png)'
+    );
+  });
+
   it('leaves unknown and malformed filenames unchanged', () => {
     const content = [
       '![missing](file://missing.jpg)',
