@@ -89,7 +89,7 @@ export function LoginPage() {
       const redirectUrl = (response as { url?: string })?.url;
 
       if (redirectUrl) {
-        window.location.href = redirectUrl;
+        window.location.assign(redirectUrl);
         return;
       }
 

@@ -1,6 +1,8 @@
 import ServerApis from '@/api/server/method';
 import ProblemList from '@/features/problem/list/problem-list';
 import ProblemSearch from '@/features/problem/list/problem-search';
+import { getUser } from '@/features/user/lib/get-user';
+import { hasPerm, PERM } from '@/features/user/lib/priv';
 import Pagination from '@/shared/components/pagination';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
@@ -23,14 +25,14 @@ export default async function ProblemListPage({
 }) {
   const searchParams = await searchParamsPromise;
   const { q, page, showTags } = searchParams;
-  const data = await ServerApis.Problems.getProblemsList(
-    q,
-    parseInt(page || '1', 10)
-  );
+  const [data, user] = await Promise.all([
+    ServerApis.Problems.getProblemsList(q, parseInt(page || '1', 10)),
+    getUser(),
+  ]);
 
   return (
     <div className="space-y-4">
-      <ProblemSearch />
+      <ProblemSearch canCreate={hasPerm(user, PERM.PERM_CREATE_PROBLEM)} />
       <ProblemList
         data={data}
         showTags={showTags === 'true'}

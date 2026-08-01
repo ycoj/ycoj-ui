@@ -57,6 +57,7 @@ export default function SidebarUserMenu({ user, roleKey, avatarSrc }: Props) {
     <DropdownMenuPrimitive.Root>
       <DropdownMenuPrimitive.Trigger asChild>
         <SidebarMenuButton
+          id="sidebar-user-menu-trigger"
           size="lg"
           className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
           aria-label={user.uname}

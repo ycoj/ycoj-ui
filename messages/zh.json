@@ -97,6 +97,8 @@
     "recordDetail": "记录详情",
     "problemList": "题目列表",
     "problemDetail": "题目详情",
+    "createProblem": "创建题目",
+    "importProblem": "导入 {format} 题目",
     "submit": "提交",
     "solutions": "题解",
     "createSolution": "创建题解",
@@ -164,6 +166,18 @@
     "solutions": "题解",
     "files": "文件",
     "searchPlaceholder": "搜索题目...",
+    "createOrImport": "创建或导入",
+    "addProblem": "添加题目",
+    "createProblem": "创建题目",
+    "createProblemDescription": "编写新题面并进行配置",
+    "importProblem": "导入题目包",
+    "close": "关闭",
+    "importFormats": {
+      "hydro": "Hydro",
+      "fps": "FPS",
+      "hoj": "HOJ",
+      "qduoj": "QDUOJ"
+    },
     "showTags": "展示标签",
     "hideTags": "隐藏标签",
     "difficulty": "难度",
@@ -204,6 +218,72 @@
       "submit": "提交",
       "openInProblemSet": "在题库中打开"
     }
+  },
+  "problemCreate": {
+    "title": "创建题目",
+    "description": "填写题目的基本信息和题面，创建后可继续配置测试数据。",
+    "problemId": "题目 ID",
+    "problemTitle": "标题",
+    "titlePlaceholder": "请输入清晰的题目标题",
+    "tags": "标签",
+    "tagsPlaceholder": "动态规划, 图结构",
+    "tagsHelp": "多个标签请用逗号分隔。",
+    "difficulty": "难度",
+    "hidden": "隐藏此题目",
+    "statement": "题目描述",
+    "suggestedTags": "分类标签",
+    "suggestedTagsDescription": "点击即可添加或移除分类。",
+    "invalidPid": "请使用字母和数字，并以字母开头（例如 P1000）。",
+    "titleRequired": "请输入题目标题。",
+    "contentRequired": "请输入题目描述。",
+    "createFailed": "创建题目失败，请稍后重试。",
+    "creating": "创建中...",
+    "create": "创建题目",
+    "cancel": "返回题目列表"
+  },
+  "problemImport": {
+    "title": "从 {format} 导入",
+    "formats": {
+      "hydro": "Hydro 题目包",
+      "fps": "FPS 文件",
+      "hoj": "HOJ 导出包",
+      "qduoj": "QDUOJ 导出包"
+    },
+    "descriptions": {
+      "hydro": "从 Hydro 题目包中恢复一道或多道题目。",
+      "fps": "从 Free Problem Set XML 文件或 ZIP 压缩包导入题目。",
+      "hoj": "导入由 HOJ 导出的题目包 ZIP 文件。",
+      "qduoj": "导入由 QDUOJ 或兼容 OnlineJudge 系统导出的题目包 ZIP 文件。"
+    },
+    "file": "题目包文件",
+    "fileRequired": "请选择题目包文件。",
+    "fileHelp": {
+      "hydro": "请选择 Hydro 导出的 .zip 题目包。",
+      "fps": "请选择 FPS .xml 文件，或包含 FPS 文件的 .zip 压缩包。",
+      "hoj": "请选择从 HOJ 导出的 .zip 文件。",
+      "qduoj": "请选择从 QDUOJ 导出的 .zip 文件。"
+    },
+    "preferredPrefix": "首选题目 ID 前缀",
+    "preferredPrefixPlaceholder": "留空则使用默认设置",
+    "preferredPrefixHelp": "仅支持英文字母；导入的题目 ID 需要替换时会使用此前缀。",
+    "preferredPrefixInvalid": "前缀只能包含英文字母。",
+    "hidden": "导入为隐藏题目",
+    "hiddenHelp": "只有拥有相应权限的用户才能查看导入的题目。",
+    "keepUser": "保留原作者",
+    "keepUserHelp": "仅应对从当前系统导出的题目包使用此选项。",
+    "about": "格式说明",
+    "aboutText": {
+      "hydro": "Hydro 题目包可保留题面、测试数据、附加文件与题目配置。",
+      "fps": "FPS 是多种在线评测系统支持的 XML 题目交换格式。",
+      "hoj": "HOJ 导入器会读取导出包中的题目信息、样例、测试点、特殊评测和附加文件。",
+      "qduoj": "QDUOJ 导入器会读取 problem.json、测试点、分值以及受支持的特殊评测配置。"
+    },
+    "fpsMemoryWarning": "大型 FPS XML 文件解析时会占用较多内存，建议先拆分体积异常大的题目包。",
+    "importNotice": "导入可能需要一段时间，请在上传完成前保持此页面开启。",
+    "importFailed": "导入题目失败，请检查文件格式后重试。",
+    "importing": "导入中...",
+    "import": "导入题目",
+    "cancel": "返回题目列表"
   },
   "user": {
     "noSolvedProblems": "暂无通过题目",

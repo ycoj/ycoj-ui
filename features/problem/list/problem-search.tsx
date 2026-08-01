@@ -1,12 +1,17 @@
 'use client';
 
+import ProblemCreateOrImportDialog from './problem-create-or-import-dialog';
 import { Input } from '@/shared/components/ui/input';
 import { Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { FormEvent, useState } from 'react';
+import { type FormEvent, useState } from 'react';
 
-export default function ProblemSearch() {
+type Props = {
+  canCreate: boolean;
+};
+
+export default function ProblemSearch({ canCreate }: Props) {
   const t = useTranslations('problem');
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -24,17 +29,22 @@ export default function ProblemSearch() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="relative">
-        <Input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={t('searchPlaceholder')}
-          className="h-10 pl-10 pr-4 text-sm"
-        />
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-      </div>
-    </form>
+    <div className="flex items-stretch gap-2">
+      <form onSubmit={handleSubmit} className="min-w-0 flex-1">
+        <div className="relative">
+          <Input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t('searchPlaceholder')}
+            aria-label={t('searchPlaceholder')}
+            className="pl-10 pr-4 text-sm"
+          />
+          <Search className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+        </div>
+      </form>
+
+      {canCreate && <ProblemCreateOrImportDialog />}
+    </div>
   );
 }
