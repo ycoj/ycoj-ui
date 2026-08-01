@@ -1,4 +1,5 @@
 [![Lint](https://github.com/TaiRuiQu/tboj-ui/actions/workflows/lint.yml/badge.svg)](https://github.com/TaiRuiQu/tboj-ui/actions/workflows/lint.yml)
+[![CodSpeed](https://img.shields.io/endpoint?url=https://codspeed.io/badge.json)](https://app.codspeed.io/ycoj/ycoj-ui?utm_source=badge)
 
 ## 项目简介
 

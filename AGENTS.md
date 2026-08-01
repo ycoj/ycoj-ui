@@ -35,6 +35,13 @@
 - Prefer extracting pure helpers from components when logic is hard to test in isolation.
 - After test changes, run `pnpm test` in addition to lint/type/format.
 
+### Benchmarks
+
+- `pnpm bench` (Vitest benchmarks, measured in CI by CodSpeed).
+- Colocate benchmarks as `*.bench.ts` next to the source file.
+- Benchmark pure helpers only; avoid network access, timers and randomness so
+  results stay comparable between runs.
+
 ## Code style guidelines
 
 ### Formatting and layout
