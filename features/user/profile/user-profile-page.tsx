@@ -1,4 +1,5 @@
 import BioSection from './components/bio-section';
+import CheckinHeatmap from './components/checkin-heatmap';
 import CoreStats from './components/core-stats';
 import HeaderSection from './components/header-section';
 import ParticipationSummary from './components/participation-summary';
@@ -16,6 +17,7 @@ export default function UserProfilePage({ data }: Props) {
       <HeaderSection data={data} />
       <BioSection data={data} />
       <CoreStats data={data} />
+      <CheckinHeatmap history={data.checkinHistory} />
       <ProblemSummary data={data} />
       <ParticipationSummary data={data} />
       <SolutionSummary data={data} />

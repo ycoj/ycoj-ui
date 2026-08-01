@@ -1,4 +1,5 @@
 import Auth from './auth';
+import * as Checkin from './checkin';
 import Contest from './contest';
 import Discussion from './discussion';
 import Homework from './homework';
@@ -8,6 +9,7 @@ import Training from './training';
 
 const ClientApis = {
   Auth,
+  Checkin,
   Contest,
   Discussion,
   Homework,

@@ -1,5 +1,6 @@
 import { alova } from '@/api/server';
 import type { Blog } from '@/shared/types/blog';
+import type { HomepageCheckin } from '@/shared/types/checkin';
 import type { Contest as ContestDoc } from '@/shared/types/contest';
 import type {
   Discussion as DiscussionDoc,
@@ -67,6 +68,7 @@ export type Content = {
 };
 
 export type HomepageResponse = {
+  checkin: HomepageCheckin;
   bulletin: string;
   contents: Content[];
   udict: BaseUserDict;

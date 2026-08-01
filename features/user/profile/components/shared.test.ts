@@ -10,6 +10,13 @@ function makeUserDetail(
     >
 ): UserDetailResponse {
   return {
+    checkinHistory: {
+      timezone: 'UTC+08:00',
+      from: '2025-01-01',
+      to: '2025-12-31',
+      total: 0,
+      records: [],
+    },
     isSelfProfile: false,
     udoc,
     sdoc: null,

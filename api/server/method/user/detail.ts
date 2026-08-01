@@ -1,4 +1,5 @@
 import { alova } from '@/api/server';
+import type { CheckinHistory } from '@/shared/types/checkin';
 import type { Contest } from '@/shared/types/contest';
 import type { Homework } from '@/shared/types/homework';
 import type {
@@ -27,6 +28,7 @@ export type SolutionDocumentDoc = Pick<
 >;
 
 export type UserDetailResponse = {
+  checkinHistory: CheckinHistory;
   /** Whether this is the current logged-in user's own profile. */
   isSelfProfile: boolean;
   udoc: Udoc;
