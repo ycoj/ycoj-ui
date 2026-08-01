@@ -1,7 +1,16 @@
-.milkdown .ProseMirror {
-  padding: 0px 6px !important;
+.md-editor.markdown-editor {
+  --md-color: var(--foreground);
+  --md-hover-color: var(--foreground);
+  --md-bk-color: var(--background);
+  --md-bk-color-outstand: var(--muted);
+  --md-bk-hover-color: var(--accent);
+  --md-border-color: var(--border);
+  --md-border-hover-color: var(--ring);
+  --md-border-active-color: var(--ring);
+
+  border-radius: var(--radius);
 }
 
-.milkdown .ProseMirror blockquote {
-  padding-left: 14px !important;
+.md-editor.markdown-editor-invalid {
+  --md-border-color: var(--destructive);
 }
