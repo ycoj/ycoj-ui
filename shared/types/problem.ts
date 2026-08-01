@@ -1,6 +1,6 @@
 import type { DiscussionReplyDoc } from './discussion';
-import { FileInfo } from './file';
-import { ObjectId } from './shared';
+import type { FileInfo } from './file';
+import type { ObjectId } from './shared';
 
 export type ProblemStatus = {
   _id: ObjectId;
@@ -58,7 +58,7 @@ export type ContestDetailProjectionProblem = ContestListProjectionProblem & {
   html?: boolean;
   data: FileInfo[];
   config: ProblemConfig;
-  additional_file: FileInfo[];
+  additional_file?: FileInfo[];
   reference?: {
     domainId: string;
     pid: number;
