@@ -39,7 +39,11 @@ export default async function ContestDetailPage({
       <TwoColumnLayout
         ratio="8-2"
         left={
-          <ContestContent tid={tid} introduction={data.tdoc.content ?? ''} />
+          <ContestContent
+            tid={tid}
+            introduction={data.tdoc.content ?? ''}
+            files={data.tdoc.files ?? []}
+          />
         }
         right={
           <ContestSidebar
