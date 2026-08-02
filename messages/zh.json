@@ -396,7 +396,11 @@
     "rejudge": "重测",
     "cancelResult": "取消成绩",
     "subtask": "子任务 {id}",
-    "testcaseDetails": "测试点详情"
+    "testcaseDetails": "测试点详情",
+    "judgeVersion": "评测版本",
+    "latestVersion": "最新版本",
+    "historicalVersion": "历史版本",
+    "judgedAt": "评测于 {time}"
   },
   "discussion": {
     "node": "讨论节点",

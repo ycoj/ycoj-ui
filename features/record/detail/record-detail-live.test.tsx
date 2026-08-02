@@ -13,6 +13,12 @@ const socketMock = vi.hoisted(() => ({
 
 const clientMock = vi.hoisted(() => ({
   rejudge: vi.fn(),
+  cancel: vi.fn(),
+}));
+
+const routerMock = vi.hoisted(() => ({
+  refresh: vi.fn(),
+  push: vi.fn(),
 }));
 
 vi.mock('@/shared/hooks/use-record-socket', () => ({
@@ -28,27 +34,46 @@ vi.mock('@/api/client/method', () => ({
   default: {
     Record: {
       rejudge: clientMock.rejudge,
+      cancel: clientMock.cancel,
     },
   },
 }));
 
+vi.mock('next/navigation', () => ({
+  useRouter: () => routerMock,
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 vi.mock('@/features/record/detail/record-detail', () => ({
+  default: ({ rdoc }: { rdoc: RecordDoc }) => (
+    <div data-testid="detail">{`${rdoc.status}:${rdoc.score}:${rdoc.time}`}</div>
+  ),
+}));
+
+vi.mock('@/features/record/detail/record-sidebar', () => ({
   default: ({
-    rdoc,
     onRejudge,
+    onCancel,
   }: {
-    rdoc: RecordDoc;
-    onRejudge?: () => Promise<void>;
+    onRejudge: () => Promise<void>;
+    onCancel: () => Promise<void>;
   }) => (
     <div>
-      <div data-testid="detail">{`${rdoc.status}:${rdoc.score}:${rdoc.time}`}</div>
       <button
         type="button"
         onClick={() => {
-          void onRejudge?.().catch(() => {});
+          void onRejudge().catch(() => {});
         }}
       >
         rejudge
+      </button>
+      <button
+        type="button"
+        onClick={() => {
+          void onCancel().catch(() => {});
+        }}
+      >
+        cancel
       </button>
     </div>
   ),
@@ -75,7 +100,18 @@ vi.mock('@/features/record/detail/record-testcases', () => ({
 }));
 
 vi.mock('@/shared/layout/two-column', () => ({
-  default: ({ left }: { left: React.ReactNode }) => <div>{left}</div>,
+  default: ({
+    left,
+    right,
+  }: {
+    left: React.ReactNode;
+    right?: React.ReactNode;
+  }) => (
+    <div>
+      {left}
+      {right}
+    </div>
+  ),
 }));
 
 const rdoc: RecordDoc = {
@@ -103,12 +139,16 @@ const props = {
   udoc: { _id: 2, uname: 'alice' } as User,
   languages: {},
   allowRejudge: false,
+  allRevs: {},
 };
 
 beforeEach(() => {
   socketMock.options = null;
   socketMock.reconnect.mockClear();
   clientMock.rejudge.mockReset();
+  clientMock.cancel.mockReset();
+  routerMock.refresh.mockClear();
+  routerMock.push.mockClear();
 });
 
 describe('RecordDetailLive', () => {
@@ -163,7 +203,25 @@ describe('RecordDetailLive', () => {
     expect(screen.getByTestId('code')).toHaveTextContent('original code');
   });
 
-  it('reopens the websocket connection after a successful rejudge', async () => {
+  it('ignores websocket frames while viewing a historical version', () => {
+    render(
+      <RecordDetailLive
+        {...props}
+        allRevs={{ '66ab1234567890abcdef0000': '2024-01-01T00:00:00.000Z' }}
+        selectedRev="66ab1234567890abcdef0000"
+      />
+    );
+
+    act(() =>
+      socketMock.options!.onMessage({
+        rdoc: { _id: rdoc._id, status: 1, score: 100, time: 25 },
+      })
+    );
+
+    expect(screen.getByTestId('detail')).toHaveTextContent('0:0:0');
+  });
+
+  it('reopens the websocket connection and refreshes after a successful rejudge', async () => {
     const user = userEvent.setup();
     clientMock.rejudge.mockResolvedValue({});
     render(<RecordDetailLive {...props} allowRejudge />);
@@ -172,6 +230,7 @@ describe('RecordDetailLive', () => {
 
     expect(clientMock.rejudge).toHaveBeenCalledWith(rdoc._id);
     expect(socketMock.reconnect).toHaveBeenCalledTimes(1);
+    expect(routerMock.refresh).toHaveBeenCalledTimes(1);
   });
 
   it('keeps the websocket closed when the rejudge request fails', async () => {
@@ -185,5 +244,30 @@ describe('RecordDetailLive', () => {
 
     expect(clientMock.rejudge).toHaveBeenCalledWith(rdoc._id);
     expect(socketMock.reconnect).not.toHaveBeenCalled();
+    expect(routerMock.refresh).not.toHaveBeenCalled();
+  });
+
+  it('refreshes server data after a successful cancel', async () => {
+    const user = userEvent.setup();
+    clientMock.cancel.mockResolvedValue({});
+    render(<RecordDetailLive {...props} allowRejudge />);
+
+    await user.click(screen.getByRole('button', { name: 'cancel' }));
+
+    expect(clientMock.cancel).toHaveBeenCalledWith(rdoc._id);
+    expect(routerMock.refresh).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not refresh when the cancel request fails', async () => {
+    const user = userEvent.setup();
+    clientMock.cancel.mockResolvedValue({
+      error: { name: 'PermissionError', message: 'denied' },
+    });
+    render(<RecordDetailLive {...props} allowRejudge />);
+
+    await user.click(screen.getByRole('button', { name: 'cancel' }));
+
+    expect(clientMock.cancel).toHaveBeenCalledWith(rdoc._id);
+    expect(routerMock.refresh).not.toHaveBeenCalled();
   });
 });
