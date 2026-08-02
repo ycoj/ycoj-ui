@@ -1,5 +1,6 @@
 'use client';
 
+import ClientApis from '@/api/client/method';
 import { locales, type Locale } from '@/i18n/config';
 import {
   Avatar,
@@ -14,12 +15,15 @@ import {
   ChevronDown,
   ChevronRight,
   Languages,
+  LoaderCircle,
+  LogOut,
   UserRound,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { DropdownMenu as DropdownMenuPrimitive } from 'radix-ui';
+import { useState } from 'react';
 
 export type SidebarRoleKey = 'user' | 'superAdmin' | 'coach';
 
@@ -46,11 +50,25 @@ export default function SidebarUserMenu({ user, roleKey, avatarSrc }: Props) {
   const t = useTranslations('common');
   const router = useRouter();
   const roleLabel = t(roleMessageKeys[roleKey]);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const changeLocale = (value: string) => {
     if (!locales.includes(value as Locale)) return;
     document.cookie = `NEXT_LOCALE=${value}; Path=/; Max-Age=31536000; SameSite=Lax`;
     router.refresh();
+  };
+
+  const handleLogout = async (event: Event) => {
+    // Keep the menu open while logging out so the spinner is visible
+    event.preventDefault();
+    if (loggingOut) return;
+    setLoggingOut(true);
+    try {
+      const response = await ClientApis.Auth.logout().send();
+      window.location.assign(response.url || '/');
+    } catch {
+      setLoggingOut(false);
+    }
   };
 
   return (
@@ -118,6 +136,19 @@ export default function SidebarUserMenu({ user, roleKey, avatarSrc }: Props) {
               </DropdownMenuPrimitive.SubContent>
             </DropdownMenuPrimitive.Portal>
           </DropdownMenuPrimitive.Sub>
+          <DropdownMenuPrimitive.Separator className="bg-foreground/10 -mx-1 my-1 h-px" />
+          <DropdownMenuPrimitive.Item
+            className={menuItemClassName}
+            disabled={loggingOut}
+            onSelect={handleLogout}
+          >
+            {loggingOut ? (
+              <LoaderCircle className="animate-spin" aria-hidden="true" />
+            ) : (
+              <LogOut aria-hidden="true" />
+            )}
+            <span data-llm-text={t('logout')}>{t('logout')}</span>
+          </DropdownMenuPrimitive.Item>
         </DropdownMenuPrimitive.Content>
       </DropdownMenuPrimitive.Portal>
     </DropdownMenuPrimitive.Root>

@@ -6,6 +6,7 @@
     "english": "English",
     "poweredBy": "由 {name} 提供支持",
     "login": "登录",
+    "logout": "退出登录",
     "home": "首页",
     "problem": "题目",
     "training": "训练",
