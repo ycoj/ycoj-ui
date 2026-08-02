@@ -1,6 +1,5 @@
 import type { UserProfileProps } from './shared';
 import { Badge } from '@/shared/components/ui/badge';
-import { Empty, EmptyHeader, EmptyTitle } from '@/shared/components/ui/empty';
 import {
   PROBLEMS_DIFFICULTY_SHORT_KEYS,
   PROBLEMS_DIFFICULTY_COLOR,
@@ -14,13 +13,29 @@ export default function ProblemSummary({ data }: UserProfileProps) {
   const difficultyT = useTranslations('difficulty');
   if (!data.pdocs.length) {
     return (
-      <Empty className="border border-dashed" data-llm-visible="true">
-        <EmptyHeader>
-          <EmptyTitle data-llm-text={t('noSolvedProblems')}>
-            {t('noSolvedProblems')}
-          </EmptyTitle>
-        </EmptyHeader>
-      </Empty>
+      <section className="space-y-3" data-llm-visible="true">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h2 className="inline-flex items-center gap-2 text-base font-medium">
+            <ListChecks className="size-4 text-muted-foreground" />
+            <span data-llm-text={t('problemOverview')}>
+              {t('problemOverview')}
+            </span>
+          </h2>
+          <Link
+            href={`/record?uidOrName=${encodeURIComponent(data.udoc.uname)}`}
+            className="text-sm text-primary hover:underline"
+            data-llm-text={t('viewSubmissions')}
+          >
+            {t('viewSubmissions')}
+          </Link>
+        </div>
+        <p
+          className="text-sm text-muted-foreground"
+          data-llm-text={t('noSolvedProblems')}
+        >
+          {t('noSolvedProblems')}
+        </p>
+      </section>
     );
   }
 
