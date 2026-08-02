@@ -1,11 +1,7 @@
 import ServerApis from '@/api/server/method';
-import RecordCode from '@/features/record/detail/record-code';
-import { RecordCompilerMessage } from '@/features/record/detail/record-compiler-message';
-import RecordDetail from '@/features/record/detail/record-detail';
-import { RecordTestcases } from '@/features/record/detail/record-testcases';
+import RecordDetailLive from '@/features/record/detail/record-detail-live';
 import { getUser } from '@/features/user/lib/get-user';
 import { hasPerm, PERM } from '@/features/user/lib/priv';
-import TwoColumnLayout from '@/shared/layout/two-column';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
@@ -31,23 +27,14 @@ export default async function RecordDetailPage({ params }: Props) {
 
   const allowRejudge = hasPerm(user, PERM.PERM_REJUDGE);
   return (
-    <div className="space-y-6">
-      <RecordDetail
-        rdoc={rdoc}
-        pdoc={pdoc}
-        udoc={udoc}
-        languages={languages.languages}
-        allowRejudge={allowRejudge}
-      />
-      <TwoColumnLayout
-        left={
-          <div className="space-y-6">
-            {rdoc.code && <RecordCode rdoc={rdoc} />}
-            <RecordCompilerMessage rdoc={rdoc} />
-            <RecordTestcases rdoc={rdoc} />
-          </div>
-        }
-      />
-    </div>
+    // key 保证在记录之间导航时重置实时状态与连接。
+    <RecordDetailLive
+      key={rdoc._id}
+      rdoc={rdoc}
+      pdoc={pdoc}
+      udoc={udoc}
+      languages={languages.languages}
+      allowRejudge={allowRejudge}
+    />
   );
 }

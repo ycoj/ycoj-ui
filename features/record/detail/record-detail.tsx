@@ -22,6 +22,7 @@ import type { RecordDoc } from '@/shared/types/record';
 import type { User } from '@/shared/types/user';
 import dayjs from 'dayjs';
 import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 
 type Props = {
   rdoc: RecordDoc;
@@ -29,6 +30,7 @@ type Props = {
   udoc: User;
   languages: Record<string, LanguageFamily>;
   allowRejudge: boolean;
+  onRejudge?: () => Promise<void>;
 };
 
 export default function RecordDetail({
@@ -37,9 +39,25 @@ export default function RecordDetail({
   udoc,
   languages,
   allowRejudge,
+  onRejudge,
 }: Props) {
   const t = useTranslations('record');
   const common = useTranslations('common');
+  const [rejudging, setRejudging] = useState(false);
+  const [rejudgeError, setRejudgeError] = useState('');
+
+  const handleRejudge = async () => {
+    if (rejudging) return;
+    setRejudging(true);
+    setRejudgeError('');
+    try {
+      await onRejudge?.();
+    } catch (error) {
+      setRejudgeError(error instanceof Error ? error.message : String(error));
+    } finally {
+      setRejudging(false);
+    }
+  };
   const submittedAtMs = oid2ts(rdoc._id);
   const submittedAt = Number.isFinite(submittedAtMs)
     ? dayjs(submittedAtMs).format('MM-DD HH:mm:ss')
@@ -111,9 +129,24 @@ export default function RecordDetail({
               <ProblemStatus status={statusDoc} />
               {allowRejudge && (
                 <div className="flex items-center gap-2">
-                  <Button size="xs">{t('rejudge')}</Button>
+                  <Button
+                    type="button"
+                    size="xs"
+                    disabled={rejudging}
+                    onClick={handleRejudge}
+                  >
+                    {t('rejudge')}
+                  </Button>
                   <Button size="xs">{t('cancelResult')}</Button>
                 </div>
+              )}
+              {rejudgeError && (
+                <span
+                  className="text-destructive text-xs"
+                  data-llm-text={rejudgeError}
+                >
+                  {rejudgeError}
+                </span>
               )}
             </div>
           </TableCell>

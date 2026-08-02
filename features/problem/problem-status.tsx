@@ -1,13 +1,55 @@
 import { Badge } from '@/shared/components/ui/badge';
 import {
   STATUS,
+  STATUS_CODES,
   STATUS_TEXT_KEYS,
   STATUS_BACKGROUND_COLOR,
 } from '@/shared/configs/status';
 import { ProblemStatus as ProblemStatusDoc } from '@/shared/types/problem';
-import { CircleCheck, XCircle } from 'lucide-react';
+import {
+  AlignStartVertical,
+  Ban,
+  Bug,
+  CircleCheck,
+  CircleQuestionMark,
+  CircleSlash,
+  CircleX,
+  Clock,
+  FileExclamationPoint,
+  FileOutput,
+  LoaderCircle,
+  MemoryStick,
+  ServerCrash,
+  ShieldX,
+  Skull,
+  Swords,
+  Timer,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
+
+const STATUS_ICONS: Record<number, LucideIcon> = {
+  [STATUS.STATUS_WAITING]: Clock,
+  [STATUS.STATUS_ACCEPTED]: CircleCheck,
+  [STATUS.STATUS_WRONG_ANSWER]: CircleX,
+  [STATUS.STATUS_TIME_LIMIT_EXCEEDED]: Timer,
+  [STATUS.STATUS_MEMORY_LIMIT_EXCEEDED]: MemoryStick,
+  [STATUS.STATUS_OUTPUT_LIMIT_EXCEEDED]: FileOutput,
+  [STATUS.STATUS_RUNTIME_ERROR]: Bug,
+  [STATUS.STATUS_COMPILE_ERROR]: FileExclamationPoint,
+  [STATUS.STATUS_SYSTEM_ERROR]: ServerCrash,
+  [STATUS.STATUS_CANCELED]: Ban,
+  [STATUS.STATUS_ETC]: CircleQuestionMark,
+  [STATUS.STATUS_HACKED]: Skull,
+  [STATUS.STATUS_JUDGING]: LoaderCircle,
+  [STATUS.STATUS_COMPILING]: LoaderCircle,
+  [STATUS.STATUS_FETCHED]: LoaderCircle,
+  [STATUS.STATUS_IGNORED]: CircleSlash,
+  [STATUS.STATUS_FORMAT_ERROR]: AlignStartVertical,
+  [STATUS.STATUS_HACK_SUCCESSFUL]: Swords,
+  [STATUS.STATUS_HACK_UNSUCCESSFUL]: ShieldX,
+};
 
 type Props = {
   status: ProblemStatusDoc;
@@ -22,7 +64,8 @@ export default function ProblemStatus({ status }: Props) {
   const statusText = statusKey ? t(statusKey) : undefined;
   const bgColor =
     STATUS_BACKGROUND_COLOR[statusCode as keyof typeof STATUS_BACKGROUND_COLOR];
-  const isAccepted = statusCode === STATUS.STATUS_ACCEPTED;
+  const Icon = STATUS_ICONS[statusCode] ?? CircleQuestionMark;
+  const isPending = STATUS_CODES[statusCode] === 'progress';
 
   if (!statusText) return <></>;
 
@@ -34,11 +77,11 @@ export default function ProblemStatus({ status }: Props) {
       asChild
     >
       <Link href={status.rid ? `/record/${status.rid}` : '#'}>
-        {isAccepted ? (
-          <CircleCheck size={16} strokeWidth={3} />
-        ) : (
-          <XCircle size={16} strokeWidth={3} />
-        )}
+        <Icon
+          size={16}
+          strokeWidth={3}
+          className={isPending ? 'animate-spin' : undefined}
+        />
         <span className="hidden md:inline-block">{statusText}</span>
       </Link>
     </Badge>
