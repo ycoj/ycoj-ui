@@ -7,7 +7,7 @@ import { useRecordSocket } from '@/shared/hooks/use-record-socket';
 import type { ProblemDoc } from '@/shared/types/problem';
 import type { RecordListItem } from '@/shared/types/record';
 import type { BaseUser } from '@/shared/types/user';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type Props = {
   data: RecordListResponse;
@@ -35,6 +35,10 @@ export default function RecordListLive({ data, languages, domainId }: Props) {
   const [liveData, setLiveData] = useState(data);
   const initialSize = useRef(data.rdocs.length);
   const rids = useRef(data.rdocs.map((rdoc) => rdoc._id));
+
+  useEffect(() => {
+    rids.current = liveData.rdocs.map((rdoc) => rdoc._id);
+  }, [liveData]);
 
   useRecordSocket({
     path: '/record-conn',
@@ -66,7 +70,6 @@ export default function RecordListLive({ data, languages, domainId }: Props) {
             rdocs = rdocs.slice(0, initialSize.current);
           }
         }
-        rids.current = rdocs.map((rdoc) => rdoc._id);
 
         return {
           ...current,

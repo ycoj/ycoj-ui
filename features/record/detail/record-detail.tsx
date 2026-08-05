@@ -120,7 +120,7 @@ export default function RecordDetail({ rdoc, pdoc, udoc, languages }: Props) {
             {getLanguageDisplayName(rdoc.lang)}
           </TableCell>
           <TableCell className="text-center tabular-nums">
-            {formatMemory(rdoc.code.length)}
+            {rdoc.code ? formatMemory(rdoc.code.length) : '-'}
           </TableCell>
           <TableCell className="text-center tabular-nums">
             {formatTime(rdoc.time)}
