@@ -51,8 +51,13 @@ export default function RecordDetailLive({
   selectedRev,
 }: Props) {
   const [rdoc, setRdoc] = useState(initialRdoc);
+  const [lastInitialRdoc, setLastInitialRdoc] = useState(initialRdoc);
+  if (lastInitialRdoc !== initialRdoc) {
+    setLastInitialRdoc(initialRdoc);
+    setRdoc(initialRdoc);
+  }
   const router = useRouter();
-  // 历史版本是只读快照，忽略实时评测消息
+
   const isHistorical = !!selectedRev;
 
   const { reconnect } = useRecordSocket({

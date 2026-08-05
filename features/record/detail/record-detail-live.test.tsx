@@ -203,6 +203,40 @@ describe('RecordDetailLive', () => {
     expect(screen.getByTestId('code')).toHaveTextContent('original code');
   });
 
+  it('resets local state when the server prop changes', () => {
+    const { rerender } = render(<RecordDetailLive {...props} />);
+
+    act(() =>
+      socketMock.options!.onMessage({
+        rdoc: { _id: rdoc._id, status: 1, score: 100, time: 25 },
+      })
+    );
+    expect(screen.getByTestId('detail')).toHaveTextContent('1:100:25');
+
+    rerender(
+      <RecordDetailLive
+        {...props}
+        rdoc={{ ...rdoc, status: 3, score: 60, time: 42 }}
+      />
+    );
+
+    expect(screen.getByTestId('detail')).toHaveTextContent('3:60:42');
+  });
+
+  it('keeps socket updates while the server prop is unchanged', () => {
+    const { rerender } = render(<RecordDetailLive {...props} />);
+
+    act(() =>
+      socketMock.options!.onMessage({
+        rdoc: { _id: rdoc._id, status: 1, score: 100 },
+      })
+    );
+
+    rerender(<RecordDetailLive {...props} />);
+
+    expect(screen.getByTestId('detail')).toHaveTextContent('1:100:0');
+  });
+
   it('ignores websocket frames while viewing a historical version', () => {
     render(
       <RecordDetailLive
