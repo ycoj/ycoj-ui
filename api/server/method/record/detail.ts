@@ -11,9 +11,12 @@ export type RecordDetailResponse = {
   pdoc: ProblemDoc;
   rdoc: RecordDoc;
   tdoc: Contest | Homework;
-  rev: ObjectId;
-  allRevs: Record<ObjectId, Date>;
+  rev?: ObjectId;
+  // JSON 序列化后 judgeAt 为 ISO 字符串
+  allRevs: Record<ObjectId, string>;
 };
 
-export const getRecordDetail = (rid: string) =>
-  alova.Get<RecordDetailResponse>(`/record/${rid}`);
+export const getRecordDetail = (rid: string, rev?: string) =>
+  alova.Get<RecordDetailResponse>(`/record/${rid}`, {
+    params: rev ? { rev } : undefined,
+  });

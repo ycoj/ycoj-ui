@@ -2,7 +2,6 @@ import type { LanguageFamily } from '@/api/server/method/ui/languages';
 import ProblemLink from '@/features/problem/problem-link';
 import ProblemStatus from '@/features/problem/problem-status';
 import UserSpan from '@/features/user/user-span';
-import { Button } from '@/shared/components/ui/button';
 import {
   Table,
   TableBody,
@@ -13,7 +12,6 @@ import {
 import { STATUS_BACKGROUND_COLOR } from '@/shared/configs/status';
 import { formatMemory, formatTime } from '@/shared/lib/format-units';
 import oid2ts from '@/shared/lib/oid2ts';
-import { cn } from '@/shared/lib/utils';
 import type {
   ProblemDoc,
   ProblemStatus as ProblemStatusDoc,
@@ -28,16 +26,9 @@ type Props = {
   pdoc: ProblemDoc;
   udoc: User;
   languages: Record<string, LanguageFamily>;
-  allowRejudge: boolean;
 };
 
-export default function RecordDetail({
-  rdoc,
-  pdoc,
-  udoc,
-  languages,
-  allowRejudge,
-}: Props) {
+export default function RecordDetail({ rdoc, pdoc, udoc, languages }: Props) {
   const t = useTranslations('record');
   const common = useTranslations('common');
   const submittedAtMs = oid2ts(rdoc._id);
@@ -75,7 +66,7 @@ export default function RecordDetail({
   return (
     <Table className="table-fixed" data-llm-visible="true">
       <colgroup>
-        <col className={cn(allowRejudge ? 'w-28 md:w-56' : 'w-20 md:w-28')} />
+        <col className="w-20 md:w-32" />
         <col className="w-14" />
         <col />
         <col className="w-28 md:w-48" />
@@ -107,15 +98,7 @@ export default function RecordDetail({
       <TableBody>
         <TableRow>
           <TableCell>
-            <div className="flex items-center gap-2">
-              <ProblemStatus status={statusDoc} />
-              {allowRejudge && (
-                <div className="flex items-center gap-2">
-                  <Button size="xs">{t('rejudge')}</Button>
-                  <Button size="xs">{t('cancelResult')}</Button>
-                </div>
-              )}
-            </div>
+            <ProblemStatus status={statusDoc} />
           </TableCell>
           <TableCell className="tabular-nums">
             <span
@@ -137,7 +120,7 @@ export default function RecordDetail({
             {getLanguageDisplayName(rdoc.lang)}
           </TableCell>
           <TableCell className="text-center tabular-nums">
-            {formatMemory(rdoc.code.length)}
+            {rdoc.code ? formatMemory(rdoc.code.length) : '-'}
           </TableCell>
           <TableCell className="text-center tabular-nums">
             {formatTime(rdoc.time)}

@@ -393,11 +393,15 @@
   "record": {
     "submitterPlaceholder": "Submitter UID / username",
     "allStatuses": "All statuses",
-    "codeLength": "Code length",
+    "codeLength": "Length",
     "rejudge": "Rejudge",
     "cancelResult": "Cancel result",
     "subtask": "Subtask {id}",
-    "testcaseDetails": "Testcase details"
+    "testcaseDetails": "Testcase details",
+    "judgeVersion": "Judge version",
+    "latestVersion": "Latest",
+    "historicalVersion": "Historical version",
+    "judgedAt": "Judged at {time}"
   },
   "discussion": {
     "node": "Discussion node",

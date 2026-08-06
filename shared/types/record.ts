@@ -52,4 +52,25 @@ export type RecordDoc = {
   subtasks?: Record<number, SubtaskResultResponse>;
 };
 
+/** Fields returned by Hydro's record list projection. */
+export type RecordListItem = Pick<
+  RecordDoc,
+  | '_id'
+  | 'domainId'
+  | 'pid'
+  | 'uid'
+  | 'lang'
+  | 'score'
+  | 'memory'
+  | 'time'
+  | 'rejudged'
+  | 'progress'
+  | 'judger'
+  | 'judgeAt'
+  | 'status'
+  | 'source'
+  | 'contest'
+  | 'files'
+>;
+
 export type RecordDict = Record<string, RecordDoc>;

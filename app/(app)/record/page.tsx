@@ -1,6 +1,6 @@
 import ServerApis from '@/api/server/method';
 import RecordFilter from '@/features/record/list/record-filter';
-import RecordList from '@/features/record/list/record-list';
+import RecordListLive from '@/features/record/list/record-list-live';
 import Pagination from '@/shared/components/pagination';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
@@ -49,10 +49,23 @@ export default async function RecordListPage({
     ServerApis.UI.getAvailableLanguages(),
   ]);
 
+  let domainId = data.rdocs[0]?.domainId ?? data.tdoc?.domainId;
+  if (!domainId) {
+    const homepage = await ServerApis.UI.getHomepage();
+    domainId = homepage.domain?._id;
+  }
+
   return (
     <div className="space-y-4">
       <RecordFilter key={filterKey} />
-      <RecordList data={data} languages={languages.languages} />
+      <RecordListLive
+        key={`${filterKey}:${data.page}:${data.rdocs
+          .map((rdoc) => rdoc._id)
+          .join(',')}`}
+        data={data}
+        languages={languages.languages}
+        domainId={domainId}
+      />
       <Pagination page={data.page} infinite />
     </div>
   );
