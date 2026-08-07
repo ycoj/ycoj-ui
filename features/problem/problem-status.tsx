@@ -83,7 +83,9 @@ export default function ProblemStatus({ status, progress }: Props) {
         strokeWidth={3}
         className={isPending ? 'animate-spin' : undefined}
       />
-      <span className="hidden md:inline-block">{statusText}</span>
+      <span className="hidden md:inline-block" data-llm-text={statusText}>
+        {statusText}
+      </span>
     </>
   );
 
@@ -98,7 +100,9 @@ export default function ProblemStatus({ status, progress }: Props) {
   ) {
     return (
       <Badge style={{ backgroundColor: color }} asChild>
-        <Link href={href}>{content}</Link>
+        <Link href={href} data-llm-visible="true">
+          {content}
+        </Link>
       </Badge>
     );
   }
@@ -110,7 +114,7 @@ export default function ProblemStatus({ status, progress }: Props) {
       style={{ borderColor: color, color }}
       asChild
     >
-      <Link href={href}>
+      <Link href={href} data-llm-visible="true">
         {content}
         <span
           aria-hidden
