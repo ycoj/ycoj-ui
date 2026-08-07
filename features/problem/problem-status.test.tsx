@@ -74,3 +74,63 @@ describe('ProblemStatus', () => {
     expect(unknownContainer.querySelector('svg')).toBeNull();
   });
 });
+
+function renderStatusWithProgress(status?: number, progress?: number) {
+  return render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      <ProblemStatus status={makeStatusDoc(status)} progress={progress} />
+    </NextIntlClientProvider>
+  );
+}
+
+const JUDGING_COLOR = 'rgb(75, 85, 99)';
+
+function getBadge(container: HTMLElement) {
+  return container.querySelector('[data-slot="badge"]') as HTMLElement;
+}
+
+function getProgressFill(container: HTMLElement) {
+  return container.querySelector(
+    '[data-slot="badge"] > span[aria-hidden="true"]'
+  ) as HTMLElement | null;
+}
+
+describe('ProblemStatus progress', () => {
+  it('fills the badge background up to the judging progress', () => {
+    const { container } = renderStatusWithProgress(STATUS.STATUS_JUDGING, 40);
+
+    expect(getBadge(container).style.borderColor).toBe(JUDGING_COLOR);
+    const fill = getProgressFill(container);
+    expect(fill).not.toBeNull();
+    expect(fill!.style.backgroundColor).toBe(JUDGING_COLOR);
+    expect(fill!.style.clipPath).toBe('inset(0 60% 0 0)');
+  });
+
+  it('shows only the outline at 0% and a full fill at 100%', () => {
+    const { container: atZero } = renderStatusWithProgress(
+      STATUS.STATUS_JUDGING,
+      0
+    );
+    expect(getProgressFill(atZero)!.style.clipPath).toBe('inset(0 100% 0 0)');
+
+    const { container: atFull } = renderStatusWithProgress(
+      STATUS.STATUS_JUDGING,
+      100
+    );
+    expect(getProgressFill(atFull)!.style.clipPath).toBe('inset(0 0% 0 0)');
+  });
+
+  it('keeps the solid badge when progress is missing', () => {
+    const { container } = renderStatusWithProgress(STATUS.STATUS_JUDGING);
+
+    expect(getProgressFill(container)).toBeNull();
+    expect(getBadge(container).style.backgroundColor).toBe(JUDGING_COLOR);
+  });
+
+  it('ignores progress for finished statuses', () => {
+    const { container } = renderStatusWithProgress(STATUS.STATUS_ACCEPTED, 60);
+
+    expect(getProgressFill(container)).toBeNull();
+    expect(getBadge(container).style.backgroundColor).toBe('rgb(22, 163, 74)');
+  });
+});
