@@ -98,7 +98,7 @@ export default function RecordDetail({ rdoc, pdoc, udoc, languages }: Props) {
       <TableBody>
         <TableRow>
           <TableCell>
-            <ProblemStatus status={statusDoc} />
+            <ProblemStatus status={statusDoc} progress={rdoc.progress} />
           </TableCell>
           <TableCell className="tabular-nums">
             <span
