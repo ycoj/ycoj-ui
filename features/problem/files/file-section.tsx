@@ -1,5 +1,6 @@
 'use client';
 
+import { isEditableFile } from './editable-file';
 import { formatFileSize } from './format-file-size';
 import { Button } from '@/shared/components/ui/button';
 import { Checkbox } from '@/shared/components/ui/checkbox';
@@ -20,6 +21,7 @@ type Props = {
   onCreate: (type: ProblemFileType) => void;
   onUpload: (type: ProblemFileType, file: File) => Promise<void>;
   onRename: (type: ProblemFileType, file: FileInfo) => void;
+  onEdit: (type: ProblemFileType, file: FileInfo) => void;
   onDelete: (type: ProblemFileType, names: string[]) => void;
   onDownload: (type: ProblemFileType, names: string[]) => void;
 };
@@ -34,6 +36,7 @@ export default function FileSection({
   onCreate,
   onUpload,
   onRename,
+  onEdit,
   onDelete,
   onDownload,
 }: Props) {
@@ -115,6 +118,7 @@ export default function FileSection({
           <ul>
             {files.map((file) => {
               const checked = selected.includes(file.name);
+              const editable = canManage && isEditableFile(file.name);
               return (
                 <li
                   key={file.name}
@@ -127,13 +131,25 @@ export default function FileSection({
                       toggle(file.name, value === true)
                     }
                   />
-                  <span
-                    className="min-w-0 truncate font-mono"
-                    title={file.name}
-                    data-llm-text={file.name}
-                  >
-                    {file.name}
-                  </span>
+                  {editable ? (
+                    <button
+                      type="button"
+                      className="min-w-0 cursor-pointer truncate text-left font-mono hover:text-primary hover:underline"
+                      title={t('editFile')}
+                      data-llm-text={file.name}
+                      onClick={() => onEdit(type, file)}
+                    >
+                      {file.name}
+                    </button>
+                  ) : (
+                    <span
+                      className="min-w-0 truncate font-mono"
+                      title={file.name}
+                      data-llm-text={file.name}
+                    >
+                      {file.name}
+                    </span>
+                  )}
                   <span className="text-muted-foreground">
                     {formatFileSize(file.size)}
                   </span>

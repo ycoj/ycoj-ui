@@ -21,7 +21,7 @@ type Props = {
   canDownloadTestdata?: boolean;
 };
 
-type RenameTarget = {
+type FileTarget = {
   type: ProblemFileType;
   file: FileInfo;
 };
@@ -37,7 +37,8 @@ export default function ProblemFilesManager({
   const t = useTranslations('problem.fileManager');
   const router = useRouter();
   const [createType, setCreateType] = useState<ProblemFileType | null>(null);
-  const [renameTarget, setRenameTarget] = useState<RenameTarget | null>(null);
+  const [renameTarget, setRenameTarget] = useState<FileTarget | null>(null);
+  const [editTarget, setEditTarget] = useState<FileTarget | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{
     type: ProblemFileType;
     names: string[];
@@ -49,6 +50,8 @@ export default function ProblemFilesManager({
   const openCreate = (type: ProblemFileType) => setCreateType(type);
   const openRename = (type: ProblemFileType, file: FileInfo) =>
     setRenameTarget({ type, file });
+  const openEdit = (type: ProblemFileType, file: FileInfo) =>
+    setEditTarget({ type, file });
 
   const deleteFiles = (type: ProblemFileType, names: string[]) => {
     if (!names.length) return;
@@ -138,6 +141,7 @@ export default function ProblemFilesManager({
           onCreate={openCreate}
           onUpload={uploadFile}
           onRename={openRename}
+          onEdit={openEdit}
           onDelete={deleteFiles}
           onDownload={downloadFiles}
         />
@@ -152,17 +156,30 @@ export default function ProblemFilesManager({
           onCreate={openCreate}
           onUpload={uploadFile}
           onRename={openRename}
+          onEdit={openEdit}
           onDelete={deleteFiles}
           onDownload={downloadFiles}
         />
       </div>
 
       <CreateFileDialog
-        key={createType ? `create:${createType}` : 'create:closed'}
+        key={
+          editTarget
+            ? `edit:${editTarget.type}:${editTarget.file.name}`
+            : createType
+              ? `create:${createType}`
+              : 'closed'
+        }
         pid={pid}
         tid={tid}
-        type={createType}
-        onOpenChange={(open) => !open && setCreateType(null)}
+        type={editTarget?.type ?? createType}
+        editFile={editTarget?.file ?? null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setCreateType(null);
+            setEditTarget(null);
+          }
+        }}
         onSaved={() => router.refresh()}
         onError={setPageError}
       />

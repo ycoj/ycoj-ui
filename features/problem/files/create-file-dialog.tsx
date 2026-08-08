@@ -1,20 +1,23 @@
 'use client';
 
+import { isBinaryContent, isEditableFile } from './editable-file';
 import ClientApis from '@/api/client/method';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
+import type { FileInfo } from '@/shared/types/file';
 import type { ProblemFileType } from '@/shared/types/problem-file';
 import Editor from '@monaco-editor/react';
 import { X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 import { Dialog } from 'radix-ui';
-import { type PointerEvent, useState } from 'react';
+import { type PointerEvent, useEffect, useState } from 'react';
 
 type Props = {
   pid: string;
   tid?: string;
   type: ProblemFileType | null;
+  editFile?: FileInfo | null;
   onOpenChange: (open: boolean) => void;
   onSaved: () => void;
   onError?: (message: string) => void;
@@ -24,16 +27,61 @@ export default function CreateFileDialog({
   pid,
   tid,
   type,
+  editFile = null,
   onOpenChange,
   onSaved,
   onError,
 }: Props) {
   const t = useTranslations('problem.fileManager');
   const { resolvedTheme } = useTheme();
-  const [name, setName] = useState('');
+  const editing = editFile !== null;
+  const notEditable = editing && !isEditableFile(editFile.name);
+  const [name, setName] = useState(editFile?.name ?? '');
   const [content, setContent] = useState('');
+  const [loading, setLoading] = useState(editing);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const errorMessage = notEditable ? t('notEditable') : error;
+
+  useEffect(() => {
+    if (type === null || editFile === null || notEditable) return;
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const data = await ClientApis.Problem.getProblemFileLinks(
+          pid,
+          [editFile.name],
+          type,
+          tid
+        ).send();
+        const url = data.links?.[editFile.name];
+        if (!url) throw new Error(t('actionFailed'));
+        const response = await fetch(url);
+        if (!response.ok) throw new Error(t('actionFailed'));
+        const text = await response.text();
+        if (isBinaryContent(text)) throw new Error(t('notEditable'));
+        if (!cancelled) {
+          setContent(text);
+          setLoading(false);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          // Keep `loading` set so the editor stays hidden and an empty
+          // buffer can never be saved over the original file.
+          const message =
+            err instanceof Error ? err.message : t('actionFailed');
+          setError(message);
+          onError?.(message);
+        }
+      }
+    };
+    void load();
+    return () => {
+      cancelled = true;
+    };
+    // The parent remounts this dialog per target via `key`, so load once.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const close = () => {
     if (!busy) onOpenChange(false);
@@ -45,7 +93,7 @@ export default function CreateFileDialog({
   };
   const submit = async () => {
     const trimmedName = name.trim();
-    if (type === null || !trimmedName || busy) return;
+    if (type === null || !trimmedName || busy || loading) return;
     if (/[\\/]/.test(trimmedName)) {
       setError(t('invalidFilename'));
       return;
@@ -86,9 +134,9 @@ export default function CreateFileDialog({
         >
           <Dialog.Title
             className="pr-10 text-lg font-semibold"
-            data-llm-text={t('createFile')}
+            data-llm-text={editing ? t('editFile') : t('createFile')}
           >
-            {t('createFile')}
+            {editing ? t('editFile') : t('createFile')}
           </Dialog.Title>
           <Button
             type="button"
@@ -111,28 +159,38 @@ export default function CreateFileDialog({
               onChange={(event) => setName(event.target.value)}
               placeholder={t('filenamePlaceholder')}
               aria-label={t('filename')}
-              autoFocus
+              readOnly={editing}
+              autoFocus={!editing}
             />
             <div className="overflow-hidden rounded-lg border">
-              <Editor
-                height="480px"
-                defaultLanguage="plaintext"
-                theme={resolvedTheme === 'dark' ? 'vs-dark' : 'light'}
-                value={content}
-                onChange={(value) => setContent(value ?? '')}
-                options={{
-                  minimap: { enabled: false },
-                  lineNumbers: 'on',
-                  wordWrap: 'on',
-                  padding: { top: 12, bottom: 12 },
-                  tabSize: 2,
-                  ariaLabel: t('content'),
-                }}
-              />
+              {loading ? (
+                <div
+                  className="flex h-120 items-center justify-center text-sm text-muted-foreground"
+                  data-llm-text={errorMessage || t('loadingContent')}
+                >
+                  {errorMessage || t('loadingContent')}
+                </div>
+              ) : (
+                <Editor
+                  height="480px"
+                  defaultLanguage="plaintext"
+                  theme={resolvedTheme === 'dark' ? 'vs-dark' : 'light'}
+                  value={content}
+                  onChange={(value) => setContent(value ?? '')}
+                  options={{
+                    minimap: { enabled: false },
+                    lineNumbers: 'on',
+                    wordWrap: 'on',
+                    padding: { top: 12, bottom: 12 },
+                    tabSize: 2,
+                    ariaLabel: t('content'),
+                  }}
+                />
+              )}
             </div>
-            {error && (
+            {errorMessage && (
               <p className="text-sm text-destructive" role="alert">
-                {error}
+                {errorMessage}
               </p>
             )}
             <div className="flex justify-end gap-2">
@@ -150,7 +208,7 @@ export default function CreateFileDialog({
               </Button>
               <Button
                 type="button"
-                disabled={busy || !name.trim()}
+                disabled={busy || loading || !name.trim()}
                 onClick={() => void submit()}
               >
                 {busy ? t('saving') : t('save')}
