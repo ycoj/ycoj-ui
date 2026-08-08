@@ -6,12 +6,19 @@ import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import type { FileInfo } from '@/shared/types/file';
 import type { ProblemFileType } from '@/shared/types/problem-file';
-import Editor from '@monaco-editor/react';
 import { X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
+import dynamic from 'next/dynamic';
 import { Dialog } from 'radix-ui';
 import { type PointerEvent, useEffect, useState } from 'react';
+
+// Load the editor (and Monaco) only once the dialog's editor branch renders,
+// keeping the heavy dependencies out of the initial route client bundle.
+const Editor = dynamic(() => import('@monaco-editor/react'), {
+  loading: () => <div className="h-120 bg-muted/30" aria-hidden="true" />,
+  ssr: false,
+});
 
 type Props = {
   pid: string;
