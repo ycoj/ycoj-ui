@@ -95,10 +95,11 @@ export default async function AppSidebar() {
       <SidebarHeader className="mt-1">
         <div className="flex items-center justify-between">
           <Image
-            width={100}
-            height={27}
+            width={290}
+            height={87}
             src="/nav-logo-small_light.png"
             alt={misc('logoAlt', { siteName })}
+            className="h-auto w-[100px]"
           />
           <SidebarTrigger className="opacity-60" />
         </div>

@@ -21,8 +21,8 @@ export default async function AppLayout({
           <div className="mb-2 flex md:hidden px-2">
             <Link href="/home" aria-label={siteName}>
               <Image
-                width={120}
-                height={32}
+                width={290}
+                height={87}
                 src="/nav-logo-small_light.png"
                 alt={t('logoAlt', { siteName })}
                 className="h-auto w-30 dark:invert"

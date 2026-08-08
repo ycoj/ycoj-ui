@@ -113,10 +113,11 @@ export function LoginPage() {
         <Image
           src="/nav-logo-small_light.png"
           alt={t('misc.logoAlt', { siteName })}
-          width={160}
-          height={44}
+          width={290}
+          height={87}
           priority
           sizes="160px"
+          className="h-auto w-[160px]"
         />
 
         <Card className="w-full">
