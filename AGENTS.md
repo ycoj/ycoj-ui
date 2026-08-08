@@ -108,7 +108,7 @@
 ### Comments and docs
 
 - Do not write comments for obvious or self-explanatory code. Comments should be added only to type definitions or complex logic.
-- Inline documentation can be bilingual (repo uses Chinese + English).
+- All comments and inline documentation must be written in English.
 
 ### Assets and configs
 

@@ -7,12 +7,24 @@ import type {
 import type { ObjectId } from '@/shared/types/shared';
 
 export type ProblemFileLinksResponse = ProblemFileLinksData;
+/** The base problem context returned after upload, rename, or deletion. */
 export type ProblemFilesMutationResponse = ProblemFilesHandlerData;
+export type GenerateProblemTestdataResponse = ProblemFilesMutationResponse & {
+  /** URL of the record page that tracks the asynchronous testdata-generation job. */
+  url: string;
+};
 
 const problemFilesConfig = (tid?: ObjectId) => ({
   params: tid ? { tid } : {},
 });
 
+/**
+ * Creates temporary download URLs for problem files.
+ *
+ * @param files Stored file names to authorize for download.
+ * @param type File collection containing the requested names.
+ * @param tid Contest identifier used to resolve the problem in a contest context.
+ */
 export const getProblemFileLinks = (
   pid: string | number,
   files: string[],
@@ -29,6 +41,14 @@ export const getProblemFileLinks = (
     problemFilesConfig(tid)
   );
 
+/**
+ * Uploads a problem file.
+ *
+ * @param type Destination file collection.
+ * @param filename Stored name for a single uploaded file. A testdata ZIP is
+ * unpacked and uses the archive entry names instead.
+ * @param tid Contest identifier used to resolve the problem in a contest context.
+ */
 export const uploadProblemFile = (
   pid: string | number,
   file: File,
@@ -49,6 +69,14 @@ export const uploadProblemFile = (
   );
 };
 
+/**
+ * Renames files in a problem file collection.
+ *
+ * @param files Existing file names.
+ * @param newNames Replacement names paired with `files` by index.
+ * @param type File collection containing the files.
+ * @param tid Contest identifier used to resolve the problem in a contest context.
+ */
 export const renameProblemFiles = (
   pid: string | number,
   files: string[],
@@ -67,6 +95,13 @@ export const renameProblemFiles = (
     problemFilesConfig(tid)
   );
 
+/**
+ * Deletes files from a problem file collection.
+ *
+ * @param files Stored file names to delete.
+ * @param type File collection containing the files.
+ * @param tid Contest identifier used to resolve the problem in a contest context.
+ */
 export const deleteProblemFiles = (
   pid: string | number,
   files: string[],
@@ -83,13 +118,20 @@ export const deleteProblemFiles = (
     problemFilesConfig(tid)
   );
 
+/**
+ * Starts an asynchronous testdata-generation record.
+ *
+ * @param std Name of a testdata file containing the standard solution program.
+ * @param gen Name of a testdata file containing the generator program.
+ * @param tid Contest identifier used to resolve the problem in a contest context.
+ */
 export const generateProblemTestdata = (
   pid: string | number,
   std: string,
   gen: string,
   tid?: ObjectId
 ) =>
-  clientRequest.Post<ProblemFilesMutationResponse>(
+  clientRequest.Post<GenerateProblemTestdataResponse>(
     `/p/${pid}/files`,
     {
       operation: 'generate_testdata',
