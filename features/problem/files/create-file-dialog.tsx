@@ -17,6 +17,7 @@ type Props = {
   type: ProblemFileType | null;
   onOpenChange: (open: boolean) => void;
   onSaved: () => void;
+  onError?: (message: string) => void;
 };
 
 export default function CreateFileDialog({
@@ -25,6 +26,7 @@ export default function CreateFileDialog({
   type,
   onOpenChange,
   onSaved,
+  onError,
 }: Props) {
   const t = useTranslations('problem.fileManager');
   const { resolvedTheme } = useTheme();
@@ -62,7 +64,9 @@ export default function CreateFileDialog({
       onOpenChange(false);
       onSaved();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('actionFailed'));
+      const message = err instanceof Error ? err.message : t('actionFailed');
+      setError(message);
+      onError?.(message);
     } finally {
       setBusy(false);
     }
@@ -77,7 +81,7 @@ export default function CreateFileDialog({
         <Dialog.Overlay className="data-open:animate-in data-closed:animate-out fixed inset-0 z-50 bg-black/30 backdrop-blur-xs" />
         <Dialog.Content
           aria-describedby={undefined}
-          className="bg-background data-open:animate-in data-closed:animate-out fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 rounded-lg border p-5 outline-none [&_[data-slot=button]:not(:disabled)]:cursor-pointer"
+          className="bg-background data-open:animate-in data-closed:animate-out fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-5xl -translate-x-1/2 -translate-y-1/2 rounded-lg border p-5 outline-none [&_[data-slot=button]:not(:disabled)]:cursor-pointer"
           data-llm-visible="true"
         >
           <Dialog.Title
@@ -111,7 +115,7 @@ export default function CreateFileDialog({
             />
             <div className="overflow-hidden rounded-lg border">
               <Editor
-                height="240px"
+                height="480px"
                 defaultLanguage="plaintext"
                 theme={resolvedTheme === 'dark' ? 'vs-dark' : 'light'}
                 value={content}

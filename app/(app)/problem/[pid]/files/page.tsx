@@ -3,7 +3,7 @@ import ProblemTitle from '@/features/problem/detail/problem-title';
 import ProblemFilesManager from '@/features/problem/files/problem-files-manager';
 import ProblemSidebar from '@/features/problem/sidebar';
 import { getUser } from '@/features/user/lib/get-user';
-import { hasPerm, PERM } from '@/features/user/lib/priv';
+import { hasPerm, hasPriv, PERM, PRIV } from '@/features/user/lib/priv';
 import { Errored } from '@/shared/components/errored';
 import TwoColumnLayout from '@/shared/layout/two-column';
 import type { ProblemFilesData } from '@/shared/types/problem-file';
@@ -58,6 +58,10 @@ export default async function ProblemFilesPage({
     ((user._id === data.pdoc.owner &&
       hasPerm(user, PERM.PERM_EDIT_PROBLEM_SELF)) ||
       hasPerm(user, PERM.PERM_EDIT_PROBLEM));
+  const canDownloadTestdata =
+    user._id === data.pdoc.owner ||
+    hasPriv(user, PRIV.PRIV_READ_PROBLEM_DATA) ||
+    hasPerm(user, PERM.PERM_READ_PROBLEM_DATA);
 
   return (
     <ProblemFilesContent
@@ -65,6 +69,7 @@ export default async function ProblemFilesPage({
       pid={pid}
       tid={searchParams.tid}
       canManage={canManage}
+      canDownloadTestdata={canDownloadTestdata}
     />
   );
 }
@@ -74,11 +79,13 @@ function ProblemFilesContent({
   pid,
   tid,
   canManage,
+  canDownloadTestdata,
 }: {
   data: ProblemFilesData;
   pid: string;
   tid?: string;
   canManage: boolean;
+  canDownloadTestdata: boolean;
 }) {
   return (
     <div className="space-y-6 [&_[data-slot=button]:not(:disabled)]:cursor-pointer">
@@ -92,6 +99,7 @@ function ProblemFilesContent({
             testdata={data.testdata}
             additionalFiles={data.additional_file}
             canManage={canManage}
+            canDownloadTestdata={canDownloadTestdata}
           />
         }
         right={

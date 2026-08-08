@@ -16,6 +16,7 @@ type Props = {
   target: { type: ProblemFileType; file: FileInfo } | null;
   onOpenChange: (open: boolean) => void;
   onSaved: () => void;
+  onError?: (message: string) => void;
 };
 
 export default function RenameFileDialog({
@@ -24,6 +25,7 @@ export default function RenameFileDialog({
   target,
   onOpenChange,
   onSaved,
+  onError,
 }: Props) {
   const t = useTranslations('problem.fileManager');
   const [name, setName] = useState(target?.file.name ?? '');
@@ -53,7 +55,9 @@ export default function RenameFileDialog({
       onOpenChange(false);
       onSaved();
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('actionFailed'));
+      const message = err instanceof Error ? err.message : t('actionFailed');
+      setError(message);
+      onError?.(message);
     } finally {
       setBusy(false);
     }

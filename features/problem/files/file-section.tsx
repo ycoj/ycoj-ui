@@ -14,6 +14,7 @@ type Props = {
   type: ProblemFileType;
   files: FileInfo[];
   canManage: boolean;
+  canDownload?: boolean;
   uploading: boolean;
   deleting: boolean;
   onCreate: (type: ProblemFileType) => void;
@@ -27,6 +28,7 @@ export default function FileSection({
   type,
   files,
   canManage,
+  canDownload = true,
   uploading,
   deleting,
   onCreate,
@@ -136,16 +138,18 @@ export default function FileSection({
                     {formatFileSize(file.size)}
                   </span>
                   <div className="flex items-center justify-end gap-1">
-                    <Button
-                      type="button"
-                      size="icon-xs"
-                      variant="ghost"
-                      title={t('download')}
-                      aria-label={t('download')}
-                      onClick={() => onDownload(type, [file.name])}
-                    >
-                      <Download />
-                    </Button>
+                    {canDownload && (
+                      <Button
+                        type="button"
+                        size="icon-xs"
+                        variant="ghost"
+                        title={t('download')}
+                        aria-label={t('download')}
+                        onClick={() => onDownload(type, [file.name])}
+                      >
+                        <Download />
+                      </Button>
+                    )}
                     {canManage && (
                       <>
                         <Button
@@ -178,16 +182,18 @@ export default function FileSection({
             })}
           </ul>
           <div className="flex flex-wrap gap-2 border-b px-3 py-4">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={!selected.length}
-              onClick={() => onDownload(type, selected)}
-            >
-              <Download />
-              <span>{t('downloadSelected')}</span>
-            </Button>
+            {canDownload && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                disabled={!selected.length}
+                onClick={() => onDownload(type, selected)}
+              >
+                <Download />
+                <span>{t('downloadSelected')}</span>
+              </Button>
+            )}
             {canManage && (
               <Button
                 type="button"

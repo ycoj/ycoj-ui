@@ -18,6 +18,7 @@ type Props = {
   testdata: FileInfo[];
   additionalFiles: FileInfo[];
   canManage: boolean;
+  canDownloadTestdata?: boolean;
 };
 
 type RenameTarget = {
@@ -31,6 +32,7 @@ export default function ProblemFilesManager({
   testdata,
   additionalFiles,
   canManage,
+  canDownloadTestdata = canManage,
 }: Props) {
   const t = useTranslations('problem.fileManager');
   const router = useRouter();
@@ -79,7 +81,9 @@ export default function ProblemFilesManager({
         type,
         tid
       ).send();
-      Object.entries(data.links ?? {}).forEach(([name, url]) => {
+      const links = Object.entries(data.links ?? {});
+      if (links.length !== names.length) throw new Error(t('actionFailed'));
+      links.forEach(([name, url]) => {
         const anchor = document.createElement('a');
         anchor.href = url;
         anchor.download = name;
@@ -128,6 +132,7 @@ export default function ProblemFilesManager({
           type="testdata"
           files={testdata}
           canManage={canManage}
+          canDownload={canDownloadTestdata}
           uploading={uploading}
           deleting={deleting}
           onCreate={openCreate}
@@ -141,6 +146,7 @@ export default function ProblemFilesManager({
           type="additional_file"
           files={additionalFiles}
           canManage={canManage}
+          canDownload
           uploading={uploading}
           deleting={deleting}
           onCreate={openCreate}
@@ -158,6 +164,7 @@ export default function ProblemFilesManager({
         type={createType}
         onOpenChange={(open) => !open && setCreateType(null)}
         onSaved={() => router.refresh()}
+        onError={setPageError}
       />
       <RenameFileDialog
         key={
@@ -170,7 +177,41 @@ export default function ProblemFilesManager({
         target={renameTarget}
         onOpenChange={(open) => !open && setRenameTarget(null)}
         onSaved={() => router.refresh()}
+        onError={setPageError}
       />
+
+      <AlertDialog.Root
+        open={Boolean(pageError)}
+        onOpenChange={(open) => {
+          if (!open) setPageError('');
+        }}
+      >
+        <AlertDialog.Portal>
+          <AlertDialog.Overlay className="data-open:animate-in data-closed:animate-out fixed inset-0 z-50 bg-black/30 backdrop-blur-xs" />
+          <AlertDialog.Content
+            className="bg-background data-open:animate-in data-closed:animate-out fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border p-5 outline-none [&_[data-slot=button]:not(:disabled)]:cursor-pointer"
+            data-llm-visible="true"
+          >
+            <AlertDialog.Title
+              className="text-lg font-semibold"
+              data-llm-text={t('actionFailed')}
+            >
+              {t('actionFailed')}
+            </AlertDialog.Title>
+            <AlertDialog.Description
+              className="mt-2 text-sm text-muted-foreground"
+              data-llm-text={pageError}
+            >
+              {pageError}
+            </AlertDialog.Description>
+            <div className="mt-5 flex justify-end">
+              <Button type="button" onClick={() => setPageError('')}>
+                {t('close')}
+              </Button>
+            </div>
+          </AlertDialog.Content>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>
 
       <AlertDialog.Root
         open={deleteTarget !== null}
@@ -181,7 +222,6 @@ export default function ProblemFilesManager({
         <AlertDialog.Portal>
           <AlertDialog.Overlay className="data-open:animate-in data-closed:animate-out fixed inset-0 z-50 bg-black/30 backdrop-blur-xs" />
           <AlertDialog.Content
-            aria-describedby={undefined}
             className="bg-background data-open:animate-in data-closed:animate-out fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border p-5 outline-none [&_[data-slot=button]:not(:disabled)]:cursor-pointer"
             data-llm-visible="true"
           >
