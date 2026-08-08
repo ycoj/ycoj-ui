@@ -5,12 +5,14 @@ import FileSection from './file-section';
 import RenameFileDialog from './rename-file-dialog';
 import ClientApis from '@/api/client/method';
 import { Button } from '@/shared/components/ui/button';
+import { Progress } from '@/shared/components/ui/progress';
 import type { FileInfo } from '@/shared/types/file';
 import type { ProblemFileType } from '@/shared/types/problem-file';
+import { useUploader } from 'alova/client';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { AlertDialog } from 'radix-ui';
-import { useState } from 'react';
+import { AlertDialog, Dialog } from 'radix-ui';
+import { useRef, useState } from 'react';
 
 type Props = {
   pid: string;
@@ -24,6 +26,11 @@ type Props = {
 type FileTarget = {
   type: ProblemFileType;
   file: FileInfo;
+};
+
+type ActiveUpload = {
+  files: File[];
+  progress: Map<File, number>;
 };
 
 export default function ProblemFilesManager({
@@ -43,9 +50,52 @@ export default function ProblemFilesManager({
     type: ProblemFileType;
     names: string[];
   } | null>(null);
-  const [uploading, setUploading] = useState(false);
+  const uploadTypeRef = useRef<ProblemFileType>('testdata');
+  const uploadBatchActiveRef = useRef(false);
+  const [activeUpload, setActiveUpload] = useState<ActiveUpload | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [pageError, setPageError] = useState('');
+  const {
+    appendFiles,
+    removeFiles,
+    upload,
+    uploading: uploaderUploading,
+  } = useUploader(({ file }) => {
+    const request = ClientApis.Problem.uploadProblemFile(
+      pid,
+      file,
+      uploadTypeRef.current,
+      undefined,
+      tid
+    );
+    request.onUpload(({ loaded, total }) => {
+      setActiveUpload((current) => {
+        if (!current) return current;
+        const progress = new Map(current.progress);
+        progress.set(
+          file,
+          total > 0 ? Math.min(1, Math.max(0, loaded / total)) : 0
+        );
+        return { ...current, progress };
+      });
+    });
+    return request;
+  });
+  const uploading = uploaderUploading || activeUpload !== null;
+  const uploadWeight =
+    activeUpload?.files.reduce(
+      (total, file) => total + Math.max(file.size, 1),
+      0
+    ) ?? 0;
+  const uploadedWeight =
+    activeUpload?.files.reduce(
+      (total, file) =>
+        total + Math.max(file.size, 1) * (activeUpload.progress.get(file) ?? 0),
+      0
+    ) ?? 0;
+  const uploadProgress = uploadWeight
+    ? Math.round((uploadedWeight / uploadWeight) * 100)
+    : 0;
 
   const openCreate = (type: ProblemFileType) => setCreateType(type);
   const openRename = (type: ProblemFileType, file: FileInfo) =>
@@ -99,22 +149,27 @@ export default function ProblemFilesManager({
     }
   };
 
-  const uploadFile = async (type: ProblemFileType, file: File) => {
-    setUploading(true);
+  const uploadFiles = async (type: ProblemFileType, files: File[]) => {
+    if (!files.length || uploadBatchActiveRef.current) return;
+    uploadBatchActiveRef.current = true;
+    uploadTypeRef.current = type;
     setPageError('');
     try {
-      await ClientApis.Problem.uploadProblemFile(
-        pid,
-        file,
-        type,
-        undefined,
-        tid
-      ).send();
-      router.refresh();
+      await appendFiles(files.map((file) => ({ file })));
+      const uploadPromise = upload();
+      setActiveUpload({ files, progress: new Map() });
+      const results = await uploadPromise;
+      const failed = results.filter((result) => result instanceof Error).length;
+      if (failed < results.length) router.refresh();
+      if (failed) {
+        setPageError(t('uploadFailed', { failed, total: results.length }));
+      }
     } catch (err) {
       setPageError(err instanceof Error ? err.message : t('actionFailed'));
     } finally {
-      setUploading(false);
+      removeFiles();
+      setActiveUpload(null);
+      uploadBatchActiveRef.current = false;
     }
   };
 
@@ -139,7 +194,7 @@ export default function ProblemFilesManager({
           uploading={uploading}
           deleting={deleting}
           onCreate={openCreate}
-          onUpload={uploadFile}
+          onUpload={uploadFiles}
           onRename={openRename}
           onEdit={openEdit}
           onDelete={deleteFiles}
@@ -154,7 +209,7 @@ export default function ProblemFilesManager({
           uploading={uploading}
           deleting={deleting}
           onCreate={openCreate}
-          onUpload={uploadFile}
+          onUpload={uploadFiles}
           onRename={openRename}
           onEdit={openEdit}
           onDelete={deleteFiles}
@@ -196,6 +251,55 @@ export default function ProblemFilesManager({
         onSaved={() => router.refresh()}
         onError={setPageError}
       />
+
+      <Dialog.Root open={activeUpload !== null} onOpenChange={() => undefined}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="data-open:animate-in data-closed:animate-out fixed inset-0 z-50 bg-black/30 backdrop-blur-xs" />
+          <Dialog.Content
+            aria-describedby={undefined}
+            className="bg-background data-open:animate-in data-closed:animate-out fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border p-5 outline-none"
+            data-llm-visible="true"
+            onEscapeKeyDown={(event) => event.preventDefault()}
+            onPointerDownOutside={(event) => event.preventDefault()}
+          >
+            <Dialog.Title
+              className="text-lg font-semibold"
+              data-llm-text={t('uploadingFiles', {
+                count: activeUpload?.files.length ?? 0,
+              })}
+            >
+              {t('uploadingFiles', {
+                count: activeUpload?.files.length ?? 0,
+              })}
+            </Dialog.Title>
+            <div className="mt-5 space-y-2">
+              <div className="flex items-center justify-between gap-4 text-sm">
+                <span
+                  className="text-muted-foreground"
+                  data-llm-text={t('uploadProgress')}
+                >
+                  {t('uploadProgress')}
+                </span>
+                <span
+                  className="font-medium tabular-nums"
+                  data-llm-text={`${uploadProgress}%`}
+                >
+                  {uploadProgress}%
+                </span>
+              </div>
+              <Progress
+                className="h-2"
+                value={uploadProgress}
+                role="progressbar"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={uploadProgress}
+                aria-label={t('uploadProgress')}
+              />
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
 
       <AlertDialog.Root
         open={Boolean(pageError)}

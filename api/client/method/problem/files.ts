@@ -1,4 +1,4 @@
-import { clientRequest } from '@/api/client';
+import { clientRequest, uploadClientRequest } from '@/api/client';
 import type {
   ProblemFileLinksData,
   ProblemFilesHandlerData,
@@ -25,7 +25,7 @@ const problemFileUploadConfig = (url: string, tid?: ObjectId) => {
   const config = problemFilesConfig(tid);
   if (
     typeof window === 'undefined' ||
-    new URL(url).host === window.location.host
+    new URL(url, window.location.origin).host === window.location.host
   )
     return config;
 
@@ -84,7 +84,7 @@ export const uploadProblemFile = (
   if (filename) formData.append('filename', filename);
 
   const url = `${getUploadBaseUrl()}/p/${pid}/files`;
-  return clientRequest.Post<ProblemFilesMutationResponse>(
+  return uploadClientRequest.Post<ProblemFilesMutationResponse>(
     url,
     formData,
     problemFileUploadConfig(url, tid)

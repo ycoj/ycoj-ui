@@ -19,7 +19,7 @@ type Props = {
   uploading: boolean;
   deleting: boolean;
   onCreate: (type: ProblemFileType) => void;
-  onUpload: (type: ProblemFileType, file: File) => Promise<void>;
+  onUpload: (type: ProblemFileType, files: File[]) => Promise<void>;
   onRename: (type: ProblemFileType, file: FileInfo) => void;
   onEdit: (type: ProblemFileType, file: FileInfo) => void;
   onDelete: (type: ProblemFileType, names: string[]) => void;
@@ -54,10 +54,10 @@ export default function FileSection({
   };
   const allSelected = files.length > 0 && selected.length === files.length;
 
-  const upload = async (file?: File) => {
-    if (!file) return;
+  const upload = async (files?: FileList | null) => {
+    if (!files?.length) return;
     try {
-      await onUpload(type, file);
+      await onUpload(type, Array.from(files));
     } finally {
       if (inputRef.current) inputRef.current.value = '';
     }
@@ -89,10 +89,11 @@ export default function FileSection({
               <Input
                 ref={inputRef}
                 type="file"
+                multiple
                 className="hidden"
                 aria-label={t('uploadFile')}
                 disabled={uploading}
-                onChange={(event) => void upload(event.target.files?.[0])}
+                onChange={(event) => void upload(event.target.files)}
               />
             </>
           )}
