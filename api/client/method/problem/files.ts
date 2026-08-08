@@ -18,6 +18,27 @@ const problemFilesConfig = (tid?: ObjectId) => ({
   params: tid ? { tid } : {},
 });
 
+const getUploadBaseUrl = () =>
+  process.env.NEXT_PUBLIC_UPLOAD_BASEURL?.replace(/\/+$/, '') ?? '';
+
+const problemFileUploadConfig = (url: string, tid?: ObjectId) => {
+  const config = problemFilesConfig(tid);
+  if (
+    typeof window === 'undefined' ||
+    new URL(url).host === window.location.host
+  )
+    return config;
+
+  // Login is proxied through Next.js, so its host-scoped session cookie is not
+  // available to a different upload host. Hydro also accepts sid as a query.
+  const sid = document.cookie
+    .split('; ')
+    .find((cookie) => cookie.startsWith('sid='))
+    ?.slice('sid='.length);
+
+  return sid ? { params: { ...config.params, sid } } : config;
+};
+
 /**
  * Creates temporary download URLs for problem files.
  *
@@ -62,10 +83,11 @@ export const uploadProblemFile = (
   formData.append('type', type);
   if (filename) formData.append('filename', filename);
 
+  const url = `${getUploadBaseUrl()}/p/${pid}/files`;
   return clientRequest.Post<ProblemFilesMutationResponse>(
-    `/p/${pid}/files`,
+    url,
     formData,
-    problemFilesConfig(tid)
+    problemFileUploadConfig(url, tid)
   );
 };
 

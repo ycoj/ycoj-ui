@@ -2,9 +2,14 @@ import withNextIntl from './next-intl.config';
 import type { NextConfig } from 'next';
 
 const backendBaseUrl = process.env.BACKEND_BASEURL?.replace(/\/+$/, '');
+const uploadBaseUrl =
+  process.env.NEXT_PUBLIC_UPLOAD_BASEURL?.replace(/\/+$/, '') ??
+  backendBaseUrl ??
+  '';
 
 const nextConfig: NextConfig = {
   env: {
+    NEXT_PUBLIC_UPLOAD_BASEURL: uploadBaseUrl,
     SITE_NAME: process.env.SITE_NAME ?? '',
   },
   assetPrefix:
