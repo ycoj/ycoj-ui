@@ -14,6 +14,8 @@ type Props = {
   type: ProblemFileType;
   files: FileInfo[];
   canManage: boolean;
+  uploading: boolean;
+  deleting: boolean;
   onCreate: (type: ProblemFileType) => void;
   onUpload: (type: ProblemFileType, file: File) => Promise<void>;
   onRename: (type: ProblemFileType, file: FileInfo) => void;
@@ -25,6 +27,8 @@ export default function FileSection({
   type,
   files,
   canManage,
+  uploading,
+  deleting,
   onCreate,
   onUpload,
   onRename,
@@ -71,6 +75,7 @@ export default function FileSection({
                 type="button"
                 size="sm"
                 variant="secondary"
+                disabled={uploading}
                 onClick={() => inputRef.current?.click()}
               >
                 <FileUp />
@@ -81,6 +86,7 @@ export default function FileSection({
                 type="file"
                 className="hidden"
                 aria-label={t('uploadFile')}
+                disabled={uploading}
                 onChange={(event) => void upload(event.target.files?.[0])}
               />
             </>
@@ -159,6 +165,7 @@ export default function FileSection({
                           className="text-destructive hover:text-destructive"
                           title={t('delete')}
                           aria-label={t('delete')}
+                          disabled={deleting}
                           onClick={() => onDelete(type, [file.name])}
                         >
                           <Trash2 />
@@ -186,7 +193,7 @@ export default function FileSection({
                 type="button"
                 variant="outline"
                 size="sm"
-                disabled={!selected.length}
+                disabled={!selected.length || deleting}
                 onClick={() => onDelete(type, selected)}
               >
                 <Trash2 />

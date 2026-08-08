@@ -7,6 +7,7 @@ import type { ProblemFileType } from '@/shared/types/problem-file';
 import Editor from '@monaco-editor/react';
 import { X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useTheme } from 'next-themes';
 import { Dialog } from 'radix-ui';
 import { type PointerEvent, useState } from 'react';
 
@@ -26,6 +27,7 @@ export default function CreateFileDialog({
   onSaved,
 }: Props) {
   const t = useTranslations('problem.fileManager');
+  const { resolvedTheme } = useTheme();
   const [name, setName] = useState('');
   const [content, setContent] = useState('');
   const [busy, setBusy] = useState(false);
@@ -40,16 +42,21 @@ export default function CreateFileDialog({
     close();
   };
   const submit = async () => {
-    if (type === null || !name.trim() || busy) return;
+    const trimmedName = name.trim();
+    if (type === null || !trimmedName || busy) return;
+    if (/[\\/]/.test(trimmedName)) {
+      setError(t('invalidFilename'));
+      return;
+    }
     setBusy(true);
     setError('');
     try {
-      const file = new File([content], name.trim(), { type: 'text/plain' });
+      const file = new File([content], trimmedName, { type: 'text/plain' });
       await ClientApis.Problem.uploadProblemFile(
         pid,
         file,
         type,
-        name.trim(),
+        trimmedName,
         tid
       ).send();
       onOpenChange(false);
@@ -62,7 +69,10 @@ export default function CreateFileDialog({
   };
 
   return (
-    <Dialog.Root open={type !== null} onOpenChange={onOpenChange}>
+    <Dialog.Root
+      open={type !== null}
+      onOpenChange={(open) => (open ? onOpenChange(true) : close())}
+    >
       <Dialog.Portal>
         <Dialog.Overlay className="data-open:animate-in data-closed:animate-out fixed inset-0 z-50 bg-black/30 backdrop-blur-xs" />
         <Dialog.Content
@@ -99,14 +109,11 @@ export default function CreateFileDialog({
               aria-label={t('filename')}
               autoFocus
             />
-            <div
-              className="overflow-hidden rounded-lg border"
-              aria-label={t('content')}
-            >
+            <div className="overflow-hidden rounded-lg border">
               <Editor
                 height="240px"
                 defaultLanguage="plaintext"
-                theme="vs-light"
+                theme={resolvedTheme === 'dark' ? 'vs-dark' : 'light'}
                 value={content}
                 onChange={(value) => setContent(value ?? '')}
                 options={{
@@ -115,6 +122,7 @@ export default function CreateFileDialog({
                   wordWrap: 'on',
                   padding: { top: 12, bottom: 12 },
                   tabSize: 2,
+                  ariaLabel: t('content'),
                 }}
               />
             </div>

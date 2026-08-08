@@ -60,7 +60,10 @@ export default function RenameFileDialog({
   };
 
   return (
-    <Dialog.Root open={target !== null} onOpenChange={onOpenChange}>
+    <Dialog.Root
+      open={target !== null}
+      onOpenChange={(open) => (open ? onOpenChange(true) : close())}
+    >
       <Dialog.Portal>
         <Dialog.Overlay className="data-open:animate-in data-closed:animate-out fixed inset-0 z-50 bg-black/30 backdrop-blur-xs" />
         <Dialog.Content

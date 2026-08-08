@@ -2,11 +2,18 @@ import { getProblemFiles } from '@/api/server/method/problems/files';
 import ProblemTitle from '@/features/problem/detail/problem-title';
 import ProblemFilesManager from '@/features/problem/files/problem-files-manager';
 import ProblemSidebar from '@/features/problem/sidebar';
+import { getUser } from '@/features/user/lib/get-user';
+import { hasPerm, PERM } from '@/features/user/lib/priv';
 import { Errored } from '@/shared/components/errored';
 import TwoColumnLayout from '@/shared/layout/two-column';
 import type { ProblemFilesData } from '@/shared/types/problem-file';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
+import { cache } from 'react';
+
+const loadProblemFiles = cache((pid: string, tid?: string) =>
+  getProblemFiles(pid, undefined, false, tid)
+);
 
 type Params = { pid: string };
 type SearchParams = { tid?: string };
@@ -20,7 +27,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { pid } = await params;
   const searchParams = await searchParamsPromise;
-  const data = await getProblemFiles(pid, undefined, false, searchParams.tid);
+  const data = await loadProblemFiles(pid, searchParams.tid);
   const t = await getTranslations('metadata');
 
   if ('error' in data) return { title: t('files') };
@@ -36,24 +43,42 @@ export default async function ProblemFilesPage({
 }) {
   const { pid } = await params;
   const searchParams = await searchParamsPromise;
-  const data = await getProblemFiles(pid, undefined, false, searchParams.tid);
+  const [data, user] = await Promise.all([
+    loadProblemFiles(pid, searchParams.tid),
+    getUser(),
+  ]);
   const t = await getTranslations('problem');
 
   if ('error' in data) {
     return <Errored title={t('unavailable')} error={data.error} />;
   }
 
-  return <ProblemFilesContent data={data} pid={pid} tid={searchParams.tid} />;
+  const canManage =
+    !data.reference &&
+    ((user._id === data.pdoc.owner &&
+      hasPerm(user, PERM.PERM_EDIT_PROBLEM_SELF)) ||
+      hasPerm(user, PERM.PERM_EDIT_PROBLEM));
+
+  return (
+    <ProblemFilesContent
+      data={data}
+      pid={pid}
+      tid={searchParams.tid}
+      canManage={canManage}
+    />
+  );
 }
 
 function ProblemFilesContent({
   data,
   pid,
   tid,
+  canManage,
 }: {
   data: ProblemFilesData;
   pid: string;
   tid?: string;
+  canManage: boolean;
 }) {
   return (
     <div className="space-y-6 [&_[data-slot=button]:not(:disabled)]:cursor-pointer">
@@ -66,7 +91,7 @@ function ProblemFilesContent({
             tid={tid}
             testdata={data.testdata}
             additionalFiles={data.additional_file}
-            canManage={data.mode === 'normal'}
+            canManage={canManage}
           />
         }
         right={
