@@ -115,7 +115,7 @@ function RecordSubtask({
           </div>
         </div>
       </AccordionTrigger>
-      <AccordionContent>
+      <AccordionContent className="h-auto">
         <RecordTestcaseList
           testcases={testcases}
           className="flex flex-wrap h-max gap-4 mt-2 px-2"

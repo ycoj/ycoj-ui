@@ -2,23 +2,15 @@
 
 import { isBinaryContent, isEditableFile } from './editable-file';
 import ClientApis from '@/api/client/method';
+import CodeEditor from '@/shared/components/code/code-editor';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import type { FileInfo } from '@/shared/types/file';
 import type { ProblemFileType } from '@/shared/types/problem-file';
 import { X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useTheme } from 'next-themes';
-import dynamic from 'next/dynamic';
 import { Dialog } from 'radix-ui';
 import { type PointerEvent, useEffect, useState } from 'react';
-
-// Load the editor (and Monaco) only once the dialog's editor branch renders,
-// keeping the heavy dependencies out of the initial route client bundle.
-const Editor = dynamic(() => import('@monaco-editor/react'), {
-  loading: () => <div className="h-120 bg-muted/30" aria-hidden="true" />,
-  ssr: false,
-});
 
 type Props = {
   pid: string;
@@ -40,7 +32,6 @@ export default function CreateFileDialog({
   onError,
 }: Props) {
   const t = useTranslations('problem.fileManager');
-  const { resolvedTheme } = useTheme();
   const editing = editFile !== null;
   const notEditable = editing && !isEditableFile(editFile.name);
   const [name, setName] = useState(editFile?.name ?? '');
@@ -169,32 +160,21 @@ export default function CreateFileDialog({
               readOnly={editing}
               autoFocus={!editing}
             />
-            <div className="overflow-hidden rounded-lg border">
-              {loading ? (
-                <div
-                  className="flex h-120 items-center justify-center text-sm text-muted-foreground"
-                  data-llm-text={errorMessage || t('loadingContent')}
-                >
-                  {errorMessage || t('loadingContent')}
-                </div>
-              ) : (
-                <Editor
-                  height="480px"
-                  defaultLanguage="plaintext"
-                  theme={resolvedTheme === 'dark' ? 'vs-dark' : 'light'}
-                  value={content}
-                  onChange={(value) => setContent(value ?? '')}
-                  options={{
-                    minimap: { enabled: false },
-                    lineNumbers: 'on',
-                    wordWrap: 'on',
-                    padding: { top: 12, bottom: 12 },
-                    tabSize: 2,
-                    ariaLabel: t('content'),
-                  }}
-                />
-              )}
-            </div>
+            {loading ? (
+              <div
+                className="text-muted-foreground flex h-120 items-center justify-center rounded-lg border text-sm"
+                data-llm-text={errorMessage || t('loadingContent')}
+              >
+                {errorMessage || t('loadingContent')}
+              </div>
+            ) : (
+              <CodeEditor
+                value={content}
+                onChange={setContent}
+                height="480px"
+                ariaLabel={t('content')}
+              />
+            )}
             {errorMessage && (
               <p className="text-sm text-destructive" role="alert">
                 {errorMessage}

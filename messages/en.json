@@ -249,6 +249,7 @@
       "version": "Version",
       "code": "Code",
       "codePlaceholder": "Paste code here...",
+      "useCodeEditor": "Use code editor",
       "submitting": "Submitting...",
       "submit": "Submit",
       "openInProblemSet": "Open in problem set"
