@@ -2,12 +2,14 @@
 
 import ClientApis from '@/api/client/method';
 import type { LanguageFamily } from '@/api/server/method/ui/languages';
+import CodeEditor from '@/shared/components/code/code-editor';
 import {
   Alert,
   AlertDescription,
   AlertTitle,
 } from '@/shared/components/ui/alert';
 import { Button } from '@/shared/components/ui/button';
+import { Checkbox } from '@/shared/components/ui/checkbox';
 import {
   Field,
   FieldContent,
@@ -15,6 +17,7 @@ import {
   FieldGroup,
   FieldLabel,
 } from '@/shared/components/ui/field';
+import { Label } from '@/shared/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -23,6 +26,8 @@ import {
   SelectValue,
 } from '@/shared/components/ui/select';
 import { Textarea } from '@/shared/components/ui/textarea';
+import { useCodeEditorPreference } from '@/shared/hooks/use-code-editor-preference';
+import { getSyntaxLanguage } from '@/shared/lib/code-language';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Navigation, Link2, Info } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -49,6 +54,7 @@ export default function ProblemSubmitFormClient({
 }: Props) {
   const t = useTranslations('problem.submitForm');
   const router = useRouter();
+  const [codeEditorEnabled, setCodeEditorEnabled] = useCodeEditorPreference();
 
   const preferredFamilyKey = 'cc';
   const preferredLang = 'cc.cc14o2';
@@ -101,7 +107,6 @@ export default function ProblemSubmitFormClient({
 
   const {
     control,
-    register,
     getValues,
     setValue,
     setError,
@@ -269,18 +274,34 @@ export default function ProblemSubmitFormClient({
         </div>
 
         <Field>
-          <FieldLabel htmlFor="code-input">{t('code')}</FieldLabel>
+          <FieldLabel>{t('code')}</FieldLabel>
           <FieldContent>
-            <Textarea
-              id="code-input"
-              placeholder={t('codePlaceholder')}
-              className="min-h-[320px] max-h-[600px] font-mono"
-              aria-invalid={!!errors.code}
-              disabled={isSubmitting || isContestEnded}
-              spellCheck={false}
-              autoCorrect="off"
-              autoCapitalize="none"
-              {...register('code')}
+            <Controller
+              control={control}
+              name="code"
+              render={({ field }) =>
+                codeEditorEnabled === true ? (
+                  <CodeEditor
+                    value={field.value}
+                    onChange={field.onChange}
+                    language={getSyntaxLanguage(familyKey) || undefined}
+                    height="480px"
+                    readOnly={isSubmitting || isContestEnded}
+                    invalid={!!errors.code}
+                    ariaLabel={t('code')}
+                  />
+                ) : (
+                  <Textarea
+                    value={field.value}
+                    onChange={(event) => field.onChange(event.target.value)}
+                    placeholder={t('codePlaceholder')}
+                    aria-label={t('code')}
+                    aria-invalid={!!errors.code}
+                    disabled={isSubmitting || isContestEnded}
+                    className="min-h-120 font-mono"
+                  />
+                )
+              }
             />
             <FieldError errors={[errors.code]} />
           </FieldContent>
@@ -288,6 +309,18 @@ export default function ProblemSubmitFormClient({
       </FieldGroup>
 
       <FieldError errors={[errors.root?.serverError]} />
+
+      <div className="-mt-3 flex items-center gap-2">
+        <Checkbox
+          id="use-code-editor"
+          checked={codeEditorEnabled === true}
+          onCheckedChange={(checked) => setCodeEditorEnabled(checked === true)}
+          disabled={isSubmitting || isContestEnded}
+        />
+        <Label htmlFor="use-code-editor" className="text-sm">
+          {t('useCodeEditor')}
+        </Label>
+      </div>
 
       {!isContestEnded ? (
         <Button

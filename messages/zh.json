@@ -249,6 +249,7 @@
       "version": "版本",
       "code": "代码",
       "codePlaceholder": "在此粘贴代码...",
+      "useCodeEditor": "使用代码编辑器",
       "submitting": "提交中...",
       "submit": "提交",
       "openInProblemSet": "在题库中打开"
