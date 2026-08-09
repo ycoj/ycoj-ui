@@ -24,6 +24,10 @@ const PROBLEM_TYPE_KEYS: Record<string, string> = {
   remote_judge: 'remoteJudgeShort',
 };
 
+const DEFAULT_TIME_MS = 1000;
+const DEFAULT_MEMORY_MB = 256;
+const DEFAULT_PROBLEM_TYPE = 'default';
+
 function StatItem({ value, label }: { value?: number; label: string }) {
   const display = typeof value === 'number' ? value : 0;
   return (
@@ -36,9 +40,8 @@ function StatItem({ value, label }: { value?: number; label: string }) {
 
 export default function ProblemTitle({ problem, contest }: Props) {
   const t = useTranslations('problem');
-  const typeKey = problem.config?.type
-    ? PROBLEM_TYPE_KEYS[problem.config.type]
-    : undefined;
+  const typeKey =
+    PROBLEM_TYPE_KEYS[problem.config?.type || DEFAULT_PROBLEM_TYPE];
   const typeLabel = typeKey ? t(typeKey) : problem.config?.type;
   const tagList = Array.isArray(problem.tag) ? problem.tag : [];
 
@@ -65,12 +68,14 @@ export default function ProblemTitle({ problem, contest }: Props) {
           </Badge>
           <Badge variant="secondary">
             <Clock strokeWidth={3} data-icon="inline-start" />
-            {formatTime(problem.config?.timeMax ?? 0, 'ms')}
+            {formatTime(problem.config?.timeMax ?? DEFAULT_TIME_MS, 'ms')}
           </Badge>
 
           <Badge variant="secondary">
             <Server strokeWidth={2} data-icon="inline-start" />
-            {formatMemory((problem.config?.memoryMax ?? 0) * 1024 * 1024)}
+            {formatMemory(
+              (problem.config?.memoryMax ?? DEFAULT_MEMORY_MB) * 1024 * 1024
+            )}
           </Badge>
 
           {contest && (
