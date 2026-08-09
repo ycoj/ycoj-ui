@@ -4,8 +4,6 @@ import { cn } from '@/shared/lib/utils';
 import { useTheme } from 'next-themes';
 import dynamic from 'next/dynamic';
 
-// Load the editor (and Monaco) only once it renders, keeping the heavy
-// dependencies out of the initial route client bundle.
 const Editor = dynamic(() => import('@monaco-editor/react'), {
   ssr: false,
 });

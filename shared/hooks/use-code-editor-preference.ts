@@ -25,18 +25,17 @@ function emitChange() {
  * Remembers whether the user prefers the rich code editor (Monaco) over the
  * plain textarea on the problem submit page. Defaults to the code editor.
  *
- * Backed by `useSyncExternalStore`, so the server snapshot (code editor on)
- * keeps SSR and hydration consistent while the stored preference applies on
- * the client.
+ * Backed by `useSyncExternalStore`, with an unresolved server snapshot so the
+ * stored preference can determine whether the code editor mounts.
  */
 export function useCodeEditorPreference(): [
-  enabled: boolean,
+  enabled: boolean | undefined,
   setEnabled: (enabled: boolean) => void,
 ] {
   const enabled = useSyncExternalStore(
     subscribe,
     readStoredPreference,
-    () => true
+    () => undefined
   );
 
   const updateEnabled = useCallback((next: boolean) => {

@@ -280,7 +280,7 @@ export default function ProblemSubmitFormClient({
               control={control}
               name="code"
               render={({ field }) =>
-                codeEditorEnabled ? (
+                codeEditorEnabled === true ? (
                   <CodeEditor
                     value={field.value}
                     onChange={field.onChange}
