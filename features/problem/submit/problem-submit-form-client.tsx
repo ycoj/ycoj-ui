@@ -313,7 +313,7 @@ export default function ProblemSubmitFormClient({
       <div className="-mt-3 flex items-center gap-2">
         <Checkbox
           id="use-code-editor"
-          checked={codeEditorEnabled}
+          checked={codeEditorEnabled === true}
           onCheckedChange={(checked) => setCodeEditorEnabled(checked === true)}
           disabled={isSubmitting || isContestEnded}
         />
