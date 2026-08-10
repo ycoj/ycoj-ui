@@ -116,7 +116,9 @@ export default function DailyCheckin({ checkin, username }: Props) {
           </div>
         )}
 
-        {record && <CheckinRecordContent record={record} />}
+        {record && (
+          <CheckinRecordContent record={record} streak={checkin.streak} />
+        )}
 
         {!record && checkin.canCheckin && (
           <Button

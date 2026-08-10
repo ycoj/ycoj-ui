@@ -18,6 +18,8 @@ export type HomepageCheckin = {
   date: string;
   canCheckin: boolean;
   record: CheckinRecord | null;
+  /** Consecutive check-in days ending on `date` (0 when not checked in today). */
+  streak: number;
 };
 
 export type CheckinResponse = {

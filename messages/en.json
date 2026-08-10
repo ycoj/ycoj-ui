@@ -378,6 +378,7 @@
     "hitokotoError": "Today's quote is temporarily unavailable. Check-in was not completed.",
     "historyTitle": "Check-in history",
     "totalDays": "{count, plural, one {# day checked in} other {# days checked in}}",
+    "streak": "{count, plural, one {Current streak: # day} other {Current streak: # days}}",
     "heatmapLabel": "Check-in calendar from {from} through {to}, UTC+8",
     "emptyHistory": "No check-in records in the past year",
     "legend": "Fortune legend",
