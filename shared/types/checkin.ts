@@ -25,6 +25,7 @@ export type HomepageCheckin = {
 export type CheckinResponse = {
   created: boolean;
   record: CheckinRecord;
+  streak: number;
 };
 
 export type CheckinHistory = {

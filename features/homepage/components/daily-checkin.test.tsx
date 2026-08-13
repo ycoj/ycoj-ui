@@ -90,7 +90,7 @@ describe('DailyCheckin', () => {
     expect(send).toHaveBeenCalledTimes(1);
 
     await act(async () => {
-      resolveRequest({ created: false, record });
+      resolveRequest({ created: false, record, streak: 1 });
     });
 
     expect(screen.getByText('Great Fortune')).toBeInTheDocument();
