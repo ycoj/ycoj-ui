@@ -7,9 +7,14 @@ import { useTranslations } from 'next-intl';
 type Props = {
   record: CheckinRecord;
   compact?: boolean;
+  streak?: number;
 };
 
-export default function CheckinRecordContent({ record, compact }: Props) {
+export default function CheckinRecordContent({
+  record,
+  compact,
+  streak,
+}: Props) {
   const t = useTranslations('checkin');
   const source = formatHitokotoSource(record);
 
@@ -48,6 +53,14 @@ export default function CheckinRecordContent({ record, compact }: Props) {
           data-llm-text={source}
         >
           {source}
+        </p>
+      )}
+      {streak != null && streak > 0 && (
+        <p
+          className="text-sm font-medium text-orange-600 dark:text-orange-400"
+          data-llm-text={t('streak', { count: streak })}
+        >
+          {t('streak', { count: streak })}
         </p>
       )}
     </div>

@@ -45,6 +45,7 @@ function renderCheckin(
     date: '2026-08-01',
     canCheckin: true,
     record: null,
+    streak: 0,
     ...overrides,
   };
   return render(
@@ -89,11 +90,12 @@ describe('DailyCheckin', () => {
     expect(send).toHaveBeenCalledTimes(1);
 
     await act(async () => {
-      resolveRequest({ created: false, record });
+      resolveRequest({ created: false, record, streak: 1 });
     });
 
     expect(screen.getByText('Great Fortune')).toBeInTheDocument();
     expect(screen.getByText(`“${record.hitokoto.text}”`)).toBeInTheDocument();
+    expect(screen.getByText('Current streak: 1 day')).toBeInTheDocument();
     expect(screen.queryByText('01')).toBeNull();
     expect(screen.queryByRole('button', { name: 'Check in' })).toBeNull();
   });
@@ -113,18 +115,25 @@ describe('DailyCheckin', () => {
   });
 
   it('does not offer another action when already checked in', () => {
-    renderCheckin({ record, canCheckin: false });
+    renderCheckin({ record, canCheckin: false, streak: 5 });
 
     expect(screen.getByText('Great Fortune')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Check in' })).toBeNull();
     expect(mocks.checkin).not.toHaveBeenCalled();
     expect(screen.getByText('——《A Book》')).toBeInTheDocument();
+    expect(screen.getByText('Current streak: 5 days')).toBeInTheDocument();
     expect(screen.queryByRole('link')).toBeNull();
+  });
+
+  it('hides streak when the user has not checked in today', () => {
+    renderCheckin({ streak: 0 });
+
+    expect(screen.queryByText(/Current streak/)).toBeNull();
   });
 
   it('resets the record when the check-in date changes', async () => {
     mocks.checkin.mockReturnValue({
-      send: vi.fn().mockResolvedValue({ created: true, record }),
+      send: vi.fn().mockResolvedValue({ created: true, record, streak: 1 }),
     });
     const { rerender } = renderCheckin();
 
@@ -139,6 +148,7 @@ describe('DailyCheckin', () => {
             date: '2026-08-02',
             canCheckin: true,
             record: null,
+            streak: 0,
           }}
           username="visitor"
         />

@@ -12,6 +12,8 @@
 
 ## Build, lint, format, test
 
+If you are Codex, you should run all `pnpm` commands outside of sandbox.
+
 ### Lint and type checks
 
 - `pnpm lint` (ESLint with Next.js + Prettier configs).

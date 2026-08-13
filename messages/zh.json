@@ -378,6 +378,7 @@
     "hitokotoError": "今日一言暂时不可用，签到未完成",
     "historyTitle": "签到记录",
     "totalDays": "共签到 {count} 天",
+    "streak": "已连续签到 {count} 天",
     "heatmapLabel": "{from} 至 {to} 的 UTC+8 签到日历",
     "emptyHistory": "最近一年暂无签到记录",
     "legend": "卦象图例",
