@@ -34,6 +34,7 @@ export default function DailyCheckin({ checkin, username }: Props) {
   const t = useTranslations('checkin');
   const locale = useLocale();
   const [record, setRecord] = useState(checkin.record);
+  const [streak, setStreak] = useState(checkin.streak);
   const previousCheckinDate = useRef(checkin.date);
   const [submitting, setSubmitting] = useState(false);
   const [errorKey, setErrorKey] = useState<'error' | 'hitokotoError' | null>(
@@ -45,7 +46,8 @@ export default function DailyCheckin({ checkin, username }: Props) {
     if (previousCheckinDate.current === checkin.date) return;
     previousCheckinDate.current = checkin.date;
     setRecord(checkin.record);
-  }, [checkin.date, checkin.record]);
+    setStreak(checkin.streak);
+  }, [checkin.date, checkin.record, checkin.streak]);
 
   const date = parseCheckinDate(checkin.date);
   const day = checkin.date.slice(-2);
@@ -70,6 +72,7 @@ export default function DailyCheckin({ checkin, username }: Props) {
     try {
       const response = await ClientApis.Checkin.checkin().send();
       setRecord(response.record);
+      setStreak(response.streak);
     } catch (error) {
       setErrorKey(isHitokotoError(error) ? 'hitokotoError' : 'error');
     } finally {
@@ -116,9 +119,7 @@ export default function DailyCheckin({ checkin, username }: Props) {
           </div>
         )}
 
-        {record && (
-          <CheckinRecordContent record={record} streak={checkin.streak} />
-        )}
+        {record && <CheckinRecordContent record={record} streak={streak} />}
 
         {!record && checkin.canCheckin && (
           <Button

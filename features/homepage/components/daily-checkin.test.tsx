@@ -95,6 +95,7 @@ describe('DailyCheckin', () => {
 
     expect(screen.getByText('Great Fortune')).toBeInTheDocument();
     expect(screen.getByText(`“${record.hitokoto.text}”`)).toBeInTheDocument();
+    expect(screen.getByText('Current streak: 1 day')).toBeInTheDocument();
     expect(screen.queryByText('01')).toBeNull();
     expect(screen.queryByRole('button', { name: 'Check in' })).toBeNull();
   });
@@ -132,7 +133,7 @@ describe('DailyCheckin', () => {
 
   it('resets the record when the check-in date changes', async () => {
     mocks.checkin.mockReturnValue({
-      send: vi.fn().mockResolvedValue({ created: true, record }),
+      send: vi.fn().mockResolvedValue({ created: true, record, streak: 1 }),
     });
     const { rerender } = renderCheckin();
 
