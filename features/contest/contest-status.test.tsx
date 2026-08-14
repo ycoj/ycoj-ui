@@ -2,7 +2,7 @@ import ContestStatus, {
   getContestStatusBadgeClassName,
   getContestStatusHoverTextClassName,
   getContestStatusTextClassName,
-} from './contest-status';
+} from '@/features/contest/contest-status';
 import messages from '@/messages/en.json';
 import { render, screen } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
