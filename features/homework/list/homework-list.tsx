@@ -1,6 +1,7 @@
 import type { HomeworkListResponse } from '@/api/server/method/homework/list';
 import ContestRuleBadge from '@/features/contest/contest-rule-badge';
 import ContestStatus, {
+  getContestStatusTextClassName,
   type ContestStatus as ContestRuntimeStatus,
 } from '@/features/contest/contest-status';
 import TimeDurationBadge from '@/shared/components/time-duration-badge';
@@ -13,6 +14,7 @@ import {
   EmptyTitle,
 } from '@/shared/components/ui/empty';
 import { Separator } from '@/shared/components/ui/separator';
+import { cn } from '@/shared/lib/utils';
 import type { ContestListProjection } from '@/shared/types/contest';
 import dayjs from 'dayjs';
 import { Search, Check, Users } from 'lucide-react';
@@ -59,7 +61,10 @@ function HomeworkItem({
         <Link
           href={homeworkHref}
           data-llm-text={homework.title}
-          className="truncate text-sm font-medium text-foreground hover:text-primary hover:underline md:text-lg"
+          className={cn(
+            'truncate text-sm font-medium hover:text-primary hover:underline md:text-lg',
+            getContestStatusTextClassName(status)
+          )}
         >
           {homework.title}
         </Link>

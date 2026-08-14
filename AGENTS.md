@@ -178,3 +178,14 @@ If you are Codex, you should run all `pnpm` commands outside of sandbox.
 1. Read related feature files before editing (follow local patterns).
 2. Run `pnpm lint`, `pnpm lint:type`, `pnpm test` and `pnpm format` after code changes. Do not prefix these commands with additional content. That is, do not run `cd ... && pnpm lint`, `pnpm lint 2>&1`, `pnpm format -- <some file`, etc. Run only `pnpm lint`, `pnpm lint:type`, `pnpm test` and `pnpm format`.
 3. New linter errors introduced by changes should be fixed. Linter errors existing before changes can be ignored.
+4. Do not start a development server unless the user explicitly asks for one.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
