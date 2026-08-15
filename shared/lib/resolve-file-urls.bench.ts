@@ -30,21 +30,12 @@ function makeStatement(sections: number) {
   return parts.join('\n\n');
 }
 
-const shortStatement = makeStatement(1);
 const longStatement = makeStatement(120);
-const noFileUrls = longStatement.replaceAll('file://', 'https://cdn.invalid/');
 
 // Keeps results reachable so the engine cannot drop the calls entirely.
 const sink: { value: unknown } = { value: undefined };
 
 describe('resolveFileUrls', () => {
-  bench('short problem statement', () => {
-    sink.value = resolveFileUrls(shortStatement, {
-      baseUrl: '/api/p/42/file',
-      filenames,
-    });
-  });
-
   bench('long problem statement', () => {
     sink.value = resolveFileUrls(longStatement, {
       baseUrl: '/api/p/42/file',
@@ -57,13 +48,6 @@ describe('resolveFileUrls', () => {
       baseUrl: '/api/p/42/file',
       filenames,
       query: { secret: 'token-value', type: 'additional_file' },
-    });
-  });
-
-  bench('long statement without file urls', () => {
-    sink.value = resolveFileUrls(noFileUrls, {
-      baseUrl: '/api/p/42/file',
-      filenames,
     });
   });
 });
