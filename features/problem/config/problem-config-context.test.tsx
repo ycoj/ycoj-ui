@@ -77,7 +77,7 @@ describe('ProblemConfigProvider synchronization', () => {
   it('synchronizes valid YAML to the GUI and GUI changes back to YAML', async () => {
     const user = userEvent.setup();
     render(
-      <ProblemConfigProvider raw="type: default\n" testdata={[]}>
+      <ProblemConfigProvider raw={'type: default\n'} testdata={[]}>
         <StateHarness />
       </ProblemConfigProvider>
     );
@@ -95,7 +95,7 @@ describe('ProblemConfigProvider synchronization', () => {
   it('validates GUI changes before updating validity', async () => {
     const user = userEvent.setup();
     render(
-      <ProblemConfigProvider raw="type: default\n" testdata={[]}>
+      <ProblemConfigProvider raw={'type: default\n'} testdata={[]}>
         <StateHarness />
       </ProblemConfigProvider>
     );
@@ -111,7 +111,7 @@ describe('ProblemConfigProvider synchronization', () => {
   it('keeps the last valid GUI state, shows errors, and restores the working tab', async () => {
     const user = userEvent.setup();
     render(
-      <ProblemConfigProvider raw="type: default\n" testdata={[]}>
+      <ProblemConfigProvider raw={'type: default\n'} testdata={[]}>
         <StateHarness />
       </ProblemConfigProvider>
     );
@@ -133,7 +133,7 @@ describe('ProblemConfigProvider synchronization', () => {
   it('preserves edits made while a save is pending', async () => {
     const user = userEvent.setup();
     render(
-      <ProblemConfigProvider raw="type: default\n" testdata={[]}>
+      <ProblemConfigProvider raw={'type: default\n'} testdata={[]}>
         <StateHarness />
       </ProblemConfigProvider>
     );
@@ -154,7 +154,7 @@ describe('BasicConfigTab', () => {
     const user = userEvent.setup();
     render(
       <NextIntlClientProvider locale="en" messages={en}>
-        <ProblemConfigProvider raw="type: default\n" testdata={[]}>
+        <ProblemConfigProvider raw={'type: default\n'} testdata={[]}>
           <BasicConfigTab languageOptions={[]} />
         </ProblemConfigProvider>
       </NextIntlClientProvider>
@@ -179,7 +179,7 @@ describe('BasicConfigTab', () => {
     const user = userEvent.setup();
     render(
       <NextIntlClientProvider locale="en" messages={en}>
-        <ProblemConfigProvider raw="type: default\n" testdata={[]}>
+        <ProblemConfigProvider raw={'type: default\n'} testdata={[]}>
           <BasicConfigTab languageOptions={[]} />
         </ProblemConfigProvider>
       </NextIntlClientProvider>
