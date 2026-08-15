@@ -1,12 +1,12 @@
-import type { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
-import { cache } from 'react';
 import ServerApis from '@/api/server/method';
 import ProblemConfigWorkspace from '@/features/problem/config/problem-config-workspace';
 import ProblemTitle from '@/features/problem/detail/problem-title';
 import { getUser } from '@/features/user/lib/get-user';
 import { hasPerm, PERM } from '@/features/user/lib/priv';
 import { Errored } from '@/shared/components/errored';
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
+import { cache } from 'react';
 
 const loadProblemConfig = cache((pid: string) =>
   ServerApis.Problems.getProblemConfig(pid)
