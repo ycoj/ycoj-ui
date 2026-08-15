@@ -1,4 +1,5 @@
 import './globals.css';
+import { Toaster } from '@/shared/components/ui/sonner';
 import { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
@@ -40,6 +41,7 @@ export default async function RootLayout({
       >
         <NextIntlClientProvider locale={locale} messages={messages}>
           {children}
+          <Toaster richColors position="top-right" />
         </NextIntlClientProvider>
       </body>
     </html>

@@ -1,4 +1,5 @@
 import { clientRequest, uploadClientRequest } from '@/api/client';
+import type { FileInfo } from '@/shared/types/file';
 import type {
   ProblemFileLinksData,
   ProblemFilesHandlerData,
@@ -60,6 +61,42 @@ export const getProblemFileLinks = (
       type,
     },
     problemFilesConfig(tid)
+  );
+
+/** Refreshes the current testdata list without navigating away from an editor. */
+export const refreshProblemTestdata = async (
+  pid: string | number,
+  tid?: ObjectId
+) => {
+  const response = await clientRequest
+    .Get<{ testdata: FileInfo[] }>(`/p/${pid}/files`, problemFilesConfig(tid))
+    .send();
+  return response.testdata;
+};
+
+/** Resolves one short-lived direct download URL. */
+export const getProblemFileDownloadUrl = async (
+  pid: string | number,
+  filename: string,
+  type: ProblemFileType = 'testdata',
+  tid?: ObjectId
+) => {
+  const response = await getProblemFileLinks(pid, [filename], type, tid).send();
+  return response.links[filename] ?? '';
+};
+
+/** Uploads config.yaml using the same file endpoint as other testdata. */
+export const uploadProblemConfig = (
+  pid: string | number,
+  yaml: string,
+  tid?: ObjectId
+) =>
+  uploadProblemFile(
+    pid,
+    new File([yaml], 'config.yaml', { type: 'text/yaml' }),
+    'testdata',
+    'config.yaml',
+    tid
   );
 
 /**

@@ -1,3 +1,4 @@
+import { getProblemConfig } from './config';
 import { getProblemDetail } from './detail';
 import { getProblemFiles } from './files';
 import { getProblemsList } from './list';
@@ -7,6 +8,7 @@ import { getProblemTags } from './tags';
 
 const Problems = {
   getProblemsList,
+  getProblemConfig,
   getProblemDetail,
   getProblemFiles,
   submitProblem,

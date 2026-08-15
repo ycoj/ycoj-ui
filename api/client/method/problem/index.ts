@@ -2,8 +2,11 @@ import { createProblem } from './create';
 import {
   deleteProblemFiles,
   generateProblemTestdata,
+  getProblemFileDownloadUrl,
   getProblemFileLinks,
+  refreshProblemTestdata,
   renameProblemFiles,
+  uploadProblemConfig,
   uploadProblemFile,
 } from './files';
 import { importProblems } from './import';
@@ -17,7 +20,10 @@ import { submitProblem } from './submit';
 const Problem = {
   createProblem,
   getProblemFileLinks,
+  getProblemFileDownloadUrl,
+  refreshProblemTestdata,
   uploadProblemFile,
+  uploadProblemConfig,
   renameProblemFiles,
   deleteProblemFiles,
   generateProblemTestdata,
