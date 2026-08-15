@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "codspeed-setup-harness": {
+      "source": "CodSpeedHQ/codspeed",
+      "sourceType": "github",
+      "skillPath": "skills/codspeed-setup-harness/SKILL.md",
+      "computedHash": "834c15007f062d93261e1b865c9e37aa67c658659e438bf7fcfb8a8d21f38536"
+    }
+  }
+}

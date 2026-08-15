@@ -1,6 +1,5 @@
-import './style/both.css';
-import starryNight from '@/shared/lib/code-highlighter';
-import { toHtml } from 'hast-util-to-html';
+import '@/shared/components/code/style/both.css';
+import { highlightCodeToHtml } from '@/shared/lib/code-highlighter';
 
 type Props = {
   code: string;
@@ -14,9 +13,6 @@ type Props = {
  * @param language 代码的语言，会被转换为 starry-night 的 scope
  */
 export default function CodeRenderer({ code, language }: Props) {
-  const scope =
-    starryNight.flagToScope(language) ?? starryNight.flagToScope('cpp');
-  const tree = starryNight.highlight(code, scope!);
-  const html = toHtml(tree);
+  const html = highlightCodeToHtml(code, language);
   return <pre dangerouslySetInnerHTML={{ __html: html }}></pre>;
 }
