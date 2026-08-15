@@ -1,6 +1,5 @@
 import remarkPdf from './remark-pdf';
 import remarkProblemSamples from './remark-problem-samples';
-import { getSafePdfUrl } from '@/shared/components/markdown/pdf-url';
 import { bench, describe } from 'vitest';
 
 type MdastNode = {
@@ -68,14 +67,6 @@ function buildStatementTree(sections: number): MdastNode {
 
 const SECTIONS = 40;
 
-const pdfUrlCandidates = [
-  'https://cdn.invalid/statement.pdf',
-  'http://cdn.invalid/statement.pdf',
-  'javascript:alert(1)',
-  '/files/statement.pdf',
-  '   ',
-];
-
 // Keeps results reachable so the engine cannot drop the calls entirely.
 const sink: { value: unknown } = { value: undefined };
 
@@ -104,17 +95,5 @@ describe('markdown remark plugins', () => {
     remarkProblemSamples()(tree);
     remarkPdf()(tree);
     sink.value = tree;
-  });
-});
-
-describe('getSafePdfUrl', () => {
-  bench('mixed url candidates', () => {
-    let matches = 0;
-    for (let index = 0; index < 100; index += 1) {
-      for (const candidate of pdfUrlCandidates) {
-        if (getSafePdfUrl(candidate) !== null) matches += 1;
-      }
-    }
-    sink.value = matches;
   });
 });
