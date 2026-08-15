@@ -42,7 +42,7 @@ function ContestRow({ contest }: { contest: Contest }) {
   const t = useTranslations('contest');
   const now = dayjs();
   const status = getContestStatus(contest, now);
-  const statusClassName = getContestStatusTextClassName(status);
+  const titleStatusClassName = getContestStatusTextClassName(status);
 
   return (
     <div data-llm-visible="true" className="space-y-1.5">
@@ -52,7 +52,7 @@ function ContestRow({ contest }: { contest: Contest }) {
           data-llm-text={contest.title}
           className={cn(
             'overflow-hidden text-sm font-medium text-ellipsis whitespace-nowrap hover:underline',
-            statusClassName
+            titleStatusClassName
           )}
         >
           {contest.title}

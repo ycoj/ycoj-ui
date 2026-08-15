@@ -1,6 +1,8 @@
 import type { ContestListResponse } from '@/api/server/method/contests/list';
 import ContestRuleBadge from '@/features/contest/contest-rule-badge';
 import ContestStatus, {
+  getContestStatusHoverTextClassName,
+  getContestStatusTextClassName,
   type ContestStatus as ContestRuntimeStatus,
 } from '@/features/contest/contest-status';
 import TimeDurationBadge from '@/shared/components/time-duration-badge';
@@ -13,6 +15,7 @@ import {
   EmptyTitle,
 } from '@/shared/components/ui/empty';
 import { Separator } from '@/shared/components/ui/separator';
+import { cn } from '@/shared/lib/utils';
 import type { ContestListProjection } from '@/shared/types/contest';
 import dayjs from 'dayjs';
 import { Code2, Search, Star, Check, Users } from 'lucide-react';
@@ -61,7 +64,11 @@ function ContestItem({
         <Link
           href={contestHref}
           data-llm-text={contest.title}
-          className="truncate text-sm font-medium text-foreground hover:text-primary hover:underline md:text-lg"
+          className={cn(
+            'truncate text-sm font-medium hover:underline md:text-lg',
+            getContestStatusTextClassName(status),
+            getContestStatusHoverTextClassName(status)
+          )}
         >
           {contest.title}
         </Link>

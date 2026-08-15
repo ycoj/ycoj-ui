@@ -1,7 +1,8 @@
 import ContestStatus, {
   getContestStatusBadgeClassName,
+  getContestStatusHoverTextClassName,
   getContestStatusTextClassName,
-} from './contest-status';
+} from '@/features/contest/contest-status';
 import messages from '@/messages/en.json';
 import { render, screen } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
@@ -10,13 +11,25 @@ import { describe, expect, it } from 'vitest';
 describe('contest status helpers', () => {
   it('returns distinct text classes by status', () => {
     expect(getContestStatusTextClassName('running')).toContain('text-pink-600');
-    expect(getContestStatusTextClassName('pending')).toContain('text-blue-500');
+    expect(getContestStatusTextClassName('pending')).toContain('text-sky-700');
     expect(getContestStatusTextClassName('ended')).toContain('text-foreground');
+  });
+
+  it('keeps hover text colors aligned with status colors', () => {
+    expect(getContestStatusHoverTextClassName('running')).toContain(
+      'hover:text-pink-600'
+    );
+    expect(getContestStatusHoverTextClassName('pending')).toContain(
+      'hover:text-sky-700'
+    );
+    expect(getContestStatusHoverTextClassName('ended')).toContain(
+      'hover:text-primary'
+    );
   });
 
   it('returns badge classes with running/pending overrides', () => {
     expect(getContestStatusBadgeClassName('running')).toContain('bg-pink-100');
-    expect(getContestStatusBadgeClassName('pending')).toContain('bg-blue-100');
+    expect(getContestStatusBadgeClassName('pending')).toContain('bg-sky-100');
     expect(getContestStatusBadgeClassName('ended')).toContain('bg-muted');
   });
 });
@@ -37,7 +50,12 @@ describe('ContestStatus', () => {
         <ContestStatus status="pending" />
       </NextIntlClientProvider>
     );
-    expect(screen.getByText('Upcoming')).toBeInTheDocument();
+    const pendingLabel = screen.getByText('Upcoming');
+    expect(pendingLabel).toBeInTheDocument();
+    expect(pendingLabel.closest('[data-slot="badge"]')).toHaveClass(
+      'bg-sky-100',
+      'text-sky-700'
+    );
 
     rerender(
       <NextIntlClientProvider locale="en" messages={messages}>
