@@ -1,10 +1,9 @@
 import avatarUrl from './avatar-url';
-import getUsernameColor from './username-color';
 import type { BaseUser } from '@/shared/types/user';
 import { bench, describe } from 'vitest';
 
-// Ranking and scoreboard pages render hundreds of users at once, each one
-// needing an avatar url (md5 based for gravatar) and a rating color.
+// Ranking and scoreboard pages render hundreds of users at once. Gravatar
+// URLs require an MD5 hash, so avatar generation can accumulate on the list.
 const USER_COUNT = 200;
 
 const providers = ['gravatar', 'qq', 'github'] as const;
@@ -34,12 +33,6 @@ describe('user display helpers', () => {
   bench('avatarUrl - mixed providers', () => {
     let length = 0;
     for (const user of users) length += avatarUrl(user.avatar, 64).length;
-    sink.value = length;
-  });
-
-  bench('getUsernameColor - rating spread', () => {
-    let length = 0;
-    for (const user of users) length += getUsernameColor(user).length;
     sink.value = length;
   });
 });
