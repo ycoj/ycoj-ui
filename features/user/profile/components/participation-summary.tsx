@@ -1,6 +1,9 @@
 import { type UserProfileProps } from './shared';
-import ContestStatus from '@/features/contest/contest-status';
+import ContestStatus, {
+  getContestStatusTextClassName,
+} from '@/features/contest/contest-status';
 import { getContestStatus } from '@/features/contest/detail/contest-utils';
+import { cn } from '@/shared/lib/utils';
 import dayjs from 'dayjs';
 import { Trophy } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -81,19 +84,23 @@ export default function ParticipationSummary({ data }: UserProfileProps) {
             item.rule === 'homework'
               ? `/homework/${item.docId}`
               : `/contest/${item.docId}`;
+          const status = getContestStatus(item);
           return (
             <Link
               key={item.docId}
               href={href}
               className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs hover:bg-accent/40"
             >
-              <span className="max-w-40 truncate" data-llm-text={item.title}>
+              <span
+                className={cn(
+                  'max-w-40 truncate',
+                  getContestStatusTextClassName(status)
+                )}
+                data-llm-text={item.title}
+              >
                 {item.title}
               </span>
-              <ContestStatus
-                status={getContestStatus(item)}
-                className="h-5 px-1.5"
-              />
+              <ContestStatus status={status} className="h-5 px-1.5" />
             </Link>
           );
         })}

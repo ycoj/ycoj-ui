@@ -178,6 +178,7 @@ If you are Codex, you should run all `pnpm` commands outside of sandbox.
 1. Read related feature files before editing (follow local patterns).
 2. Run `pnpm lint`, `pnpm lint:type`, `pnpm test` and `pnpm format` after code changes. Do not prefix these commands with additional content. That is, do not run `cd ... && pnpm lint`, `pnpm lint 2>&1`, `pnpm format -- <some file`, etc. Run only `pnpm lint`, `pnpm lint:type`, `pnpm test` and `pnpm format`.
 3. New linter errors introduced by changes should be fixed. Linter errors existing before changes can be ignored.
+4. Do not start a development server unless the user explicitly asks for one.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
