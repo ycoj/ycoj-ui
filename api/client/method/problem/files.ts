@@ -16,7 +16,7 @@ export type GenerateProblemTestdataResponse = ProblemFilesMutationResponse & {
 };
 
 const isValidRenameTarget = (name: string) =>
-  name !== '.' && name !== '..' && !/[\\/]/.test(name);
+  name.length > 0 && name !== '.' && name !== '..' && !/[\\/]/.test(name);
 
 const problemFilesConfig = (tid?: ObjectId) => ({
   params: tid ? { tid } : {},

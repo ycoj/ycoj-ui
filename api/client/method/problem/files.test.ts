@@ -145,7 +145,7 @@ describe('uploadProblemFile', () => {
     );
   });
 
-  it.each(['nested/file.in', 'nested\\file.in', '.', '..'])(
+  it.each(['', 'nested/file.in', 'nested\\file.in', '.', '..'])(
     'rejects invalid rename target %s before sending',
     (name) => {
       expect(() => renameProblemFiles(1000, ['old.in'], [name])).toThrowError(

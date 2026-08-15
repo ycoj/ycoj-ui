@@ -309,6 +309,7 @@
       "uploading": "正在上传文件",
       "uploadProgress": "上传进度",
       "uploadSuccess": "已上传 {count} 个文件",
+      "uploadFailed": "{count} 个文件上传失败",
       "uploadPartialFailure": "{total} 个文件中有 {failed} 个上传失败",
       "download": "下载",
       "downloadAll": "下载全部 ZIP",

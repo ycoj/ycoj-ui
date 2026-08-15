@@ -18,11 +18,27 @@ function StateHarness() {
       <output data-testid="valid">{String(state.valid)}</output>
       <output data-testid="error-count">{state.errors.length}</output>
       <output data-testid="raw">{state.raw}</output>
+      <output data-testid="dirty">{String(state.dirty)}</output>
       <button
         type="button"
         onClick={() => dispatch({ type: 'tabChanged', tab: 'subtasks' })}
       >
         Subtasks tab
+      </button>
+      <button type="button" onClick={() => dispatch({ type: 'saveStarted' })}>
+        Start save
+      </button>
+      <button
+        type="button"
+        onClick={() =>
+          dispatch({
+            type: 'saveSucceeded',
+            savedRaw: 'type: default\n',
+            sourceRaw: 'type: default\n',
+          })
+        }
+      >
+        Finish save
       </button>
       <button
         type="button"
@@ -112,6 +128,24 @@ describe('ProblemConfigProvider synchronization', () => {
     });
     expect(screen.getByTestId('valid')).toHaveTextContent('true');
     expect(screen.getByTestId('tab')).toHaveTextContent('subtasks');
+  });
+
+  it('preserves edits made while a save is pending', async () => {
+    const user = userEvent.setup();
+    render(
+      <ProblemConfigProvider raw="type: default\n" testdata={[]}>
+        <StateHarness />
+      </ProblemConfigProvider>
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Start save' }));
+    fireEvent.change(screen.getByRole('textbox', { name: 'raw' }), {
+      target: { value: 'type: interactive\n' },
+    });
+    await user.click(screen.getByRole('button', { name: 'Finish save' }));
+
+    expect(screen.getByTestId('raw')).toHaveTextContent('type: interactive');
+    expect(screen.getByTestId('dirty')).toHaveTextContent('true');
   });
 });
 

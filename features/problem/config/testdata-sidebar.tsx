@@ -94,9 +94,10 @@ export default function TestdataSidebar({ pid, docId, title }: Props) {
           return request.send();
         })
       );
-      await refresh();
       const failed = results.filter((result) => result.status === 'rejected');
-      if (failed.length) {
+      if (failed.length === results.length) {
+        toast.error(t('uploadFailed', { count: results.length }));
+      } else if (failed.length) {
         toast.error(
           t('uploadPartialFailure', {
             failed: failed.length,
@@ -106,10 +107,13 @@ export default function TestdataSidebar({ pid, docId, title }: Props) {
       } else {
         toast.success(t('uploadSuccess', { count: results.length }));
       }
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : t('fileActionFailed')
-      );
+
+      try {
+        await refresh();
+      } catch {
+        dispatch({ type: 'testdataRefreshed', testdata: [] });
+        toast.error(t('refreshFailed'));
+      }
     } finally {
       setUploading(false);
       setUploadProgress(0);

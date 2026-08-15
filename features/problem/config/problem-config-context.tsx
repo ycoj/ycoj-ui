@@ -60,7 +60,7 @@ type Action =
   | { type: 'removeUnassigned'; keys: string[] }
   | { type: 'autoConfigure' }
   | { type: 'saveStarted' }
-  | { type: 'saveSucceeded'; raw: string; testdata: FileInfo[] }
+  | { type: 'saveSucceeded'; savedRaw: string; sourceRaw: string }
   | { type: 'saveFailed' }
   | { type: 'fileMutationStarted' }
   | { type: 'testdataRefreshed'; testdata: FileInfo[] }
@@ -231,15 +231,16 @@ function reducer(
     }
     case 'saveStarted':
       return { ...state, saving: true };
-    case 'saveSucceeded':
+    case 'saveSucceeded': {
+      const unchangedSinceSave = state.raw === action.sourceRaw;
       return {
         ...state,
-        raw: action.raw,
-        savedRaw: action.raw,
-        testdata: action.testdata,
-        dirty: false,
+        raw: unchangedSinceSave ? action.savedRaw : state.raw,
+        savedRaw: action.savedRaw,
+        dirty: unchangedSinceSave ? false : state.raw !== action.savedRaw,
         saving: false,
       };
+    }
     case 'saveFailed':
       return { ...state, saving: false };
     case 'fileMutationStarted':

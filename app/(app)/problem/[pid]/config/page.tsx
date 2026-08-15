@@ -1,18 +1,19 @@
+import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
+import { cache } from 'react';
 import ServerApis from '@/api/server/method';
 import ProblemConfigWorkspace from '@/features/problem/config/problem-config-workspace';
 import ProblemTitle from '@/features/problem/detail/problem-title';
 import { getUser } from '@/features/user/lib/get-user';
 import { hasPerm, PERM } from '@/features/user/lib/priv';
 import { Errored } from '@/shared/components/errored';
-import type { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
-import { cache } from 'react';
 
 const loadProblemConfig = cache((pid: string) =>
   ServerApis.Problems.getProblemConfig(pid)
 );
 
 type Params = { pid: string };
+type SearchParams = { tid?: string };
 
 export async function generateMetadata({
   params,
@@ -28,16 +29,20 @@ export async function generateMetadata({
 
 export default async function ProblemConfigPage({
   params,
+  searchParams: searchParamsPromise,
 }: {
   params: Promise<Params>;
+  searchParams: Promise<SearchParams>;
 }) {
   const { pid } = await params;
+  const searchParams = await searchParamsPromise;
   const [data, user] = await Promise.all([loadProblemConfig(pid), getUser()]);
   const t = await getTranslations('problem');
   if ('error' in data)
     return <Errored title={t('unavailable')} error={data.error} />;
 
   const canConfigure =
+    searchParams.tid === undefined &&
     Boolean(user._id) &&
     !data.pdoc.reference &&
     ((user._id === data.pdoc.owner &&

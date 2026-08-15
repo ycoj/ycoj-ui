@@ -135,11 +135,12 @@ function Workspace({
 
   const save = async () => {
     if (state.saving || state.mutatingFiles) return;
+    const sourceRaw = state.raw;
     const raw = selectSaveYaml(state.valid, state.raw, state.config);
     dispatch({ type: 'saveStarted' });
     try {
       await ClientApis.Problem.uploadProblemConfig(pid, raw).send();
-      dispatch({ type: 'saveSucceeded', raw, testdata: state.testdata });
+      dispatch({ type: 'saveSucceeded', savedRaw: raw, sourceRaw });
       setConfirmInvalid(false);
       toast.success(t('saveSuccess'));
     } catch (error) {

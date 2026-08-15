@@ -309,6 +309,7 @@
       "uploading": "Uploading files",
       "uploadProgress": "Upload progress",
       "uploadSuccess": "Uploaded {count, plural, one {# file} other {# files}}.",
+      "uploadFailed": "Failed to upload {count, plural, one {# file} other {# files}}.",
       "uploadPartialFailure": "{failed} of {total} files failed to upload.",
       "download": "Download",
       "downloadAll": "Download all as ZIP",
