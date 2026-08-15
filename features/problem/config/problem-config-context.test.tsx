@@ -16,6 +16,7 @@ function StateHarness() {
       <output data-testid="type">{state.config.type}</output>
       <output data-testid="tab">{state.tab}</output>
       <output data-testid="valid">{String(state.valid)}</output>
+      <output data-testid="error-count">{state.errors.length}</output>
       <output data-testid="raw">{state.raw}</output>
       <button
         type="button"
@@ -33,6 +34,17 @@ function StateHarness() {
         }
       >
         GUI change
+      </button>
+      <button
+        type="button"
+        onClick={() =>
+          dispatch({
+            type: 'configChanged',
+            config: { ...state.config, num_processes: 0 },
+          })
+        }
+      >
+        Invalid GUI change
       </button>
       <textarea
         aria-label="raw"
@@ -62,6 +74,22 @@ describe('ProblemConfigProvider synchronization', () => {
       target: { value: 'type: communication\n' },
     });
     expect(screen.getByTestId('type')).toHaveTextContent('communication');
+  });
+
+  it('validates GUI changes before updating validity', async () => {
+    const user = userEvent.setup();
+    render(
+      <ProblemConfigProvider raw="type: default\n" testdata={[]}>
+        <StateHarness />
+      </ProblemConfigProvider>
+    );
+
+    await user.click(
+      screen.getByRole('button', { name: 'Invalid GUI change' })
+    );
+
+    expect(screen.getByTestId('valid')).toHaveTextContent('false');
+    expect(screen.getByTestId('error-count')).not.toHaveTextContent('0');
   });
 
   it('keeps the last valid GUI state, shows errors, and restores the working tab', async () => {
@@ -107,5 +135,27 @@ describe('BasicConfigTab', () => {
     expect(
       screen.queryByRole('textbox', { name: 'Filename' })
     ).not.toBeInTheDocument();
+    await user.click(screen.getByRole('radio', { name: 'Communication' }));
+    expect(
+      screen.getByRole('spinbutton', { name: 'Processes' })
+    ).toBeInTheDocument();
+  });
+
+  it('associates the preset checker label with its select', async () => {
+    const user = userEvent.setup();
+    render(
+      <NextIntlClientProvider locale="en" messages={en}>
+        <ProblemConfigProvider raw="type: default\n" testdata={[]}>
+          <BasicConfigTab languageOptions={[]} />
+        </ProblemConfigProvider>
+      </NextIntlClientProvider>
+    );
+
+    await user.click(screen.getByRole('radio', { name: 'Testlib' }));
+    await user.click(screen.getByRole('radio', { name: 'Preset' }));
+
+    expect(
+      screen.getByRole('combobox', { name: 'Preset checker' })
+    ).toBeInTheDocument();
   });
 });

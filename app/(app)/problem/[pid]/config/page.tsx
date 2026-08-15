@@ -1,6 +1,8 @@
 import ServerApis from '@/api/server/method';
 import ProblemConfigWorkspace from '@/features/problem/config/problem-config-workspace';
 import ProblemTitle from '@/features/problem/detail/problem-title';
+import { getUser } from '@/features/user/lib/get-user';
+import { hasPerm, PERM } from '@/features/user/lib/priv';
 import { Errored } from '@/shared/components/errored';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
@@ -30,13 +32,21 @@ export default async function ProblemConfigPage({
   params: Promise<Params>;
 }) {
   const { pid } = await params;
-  const [data, languages] = await Promise.all([
-    loadProblemConfig(pid),
-    ServerApis.UI.getAvailableLanguages(),
-  ]);
+  const [data, user] = await Promise.all([loadProblemConfig(pid), getUser()]);
   const t = await getTranslations('problem');
   if ('error' in data)
     return <Errored title={t('unavailable')} error={data.error} />;
+
+  const canConfigure =
+    Boolean(user._id) &&
+    !data.pdoc.reference &&
+    ((user._id === data.pdoc.owner &&
+      hasPerm(user, PERM.PERM_EDIT_PROBLEM_SELF)) ||
+      hasPerm(user, PERM.PERM_EDIT_PROBLEM));
+  if (!canConfigure)
+    return <Errored title={t('unavailable')} error={t('unavailable')} />;
+
+  const languages = await ServerApis.UI.getAvailableLanguages();
 
   const languageOptions = Object.entries(languages.languages).flatMap(
     ([family, info]) =>

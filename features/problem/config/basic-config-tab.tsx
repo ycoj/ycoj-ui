@@ -23,7 +23,7 @@ import type {
   ProblemType,
 } from '@/shared/types/problem-config';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 
 type Props = {
   languageOptions: Array<{ value: string; label: string }>;
@@ -31,6 +31,7 @@ type Props = {
 
 export default function BasicConfigTab({ languageOptions }: Props) {
   const t = useTranslations('problem.config');
+  const controlId = useId();
   const { state, dispatch } = useProblemConfig();
   const config = state.config;
   const type = config.type ?? 'default';
@@ -91,8 +92,12 @@ export default function BasicConfigTab({ languageOptions }: Props) {
       {['default', 'submit_answer'].includes(type) ? (
         <section className="space-y-4">
           <h3 className="text-base font-semibold">{t('checker')}</h3>
-          <ConfigField label={t('checkerMode')}>
+          <ConfigField
+            label={t('checkerMode')}
+            controlId={`${controlId}-checker-mode`}
+          >
             <SegmentedControl
+              id={`${controlId}-checker-mode`}
               value={checkerMode}
               ariaLabel={t('checkerMode')}
               options={(['default', 'testlib', 'other'] as const).map(
@@ -108,8 +113,12 @@ export default function BasicConfigTab({ languageOptions }: Props) {
             />
           </ConfigField>
           {checkerMode === 'default' ? (
-            <ConfigField label={t('whitespace')}>
+            <ConfigField
+              label={t('whitespace')}
+              controlId={`${controlId}-whitespace`}
+            >
               <ConfigCheckbox
+                id={`${controlId}-whitespace`}
                 checked={config.checker_type !== 'strict'}
                 label={t('ignoreWhitespace')}
                 onCheckedChange={(checked) =>
@@ -120,8 +129,12 @@ export default function BasicConfigTab({ languageOptions }: Props) {
           ) : null}
           {checkerMode === 'testlib' ? (
             <>
-              <ConfigField label={t('checkerSource')}>
+              <ConfigField
+                label={t('checkerSource')}
+                controlId={`${controlId}-checker-source`}
+              >
                 <SegmentedControl
+                  id={`${controlId}-checker-source`}
                   value={testlibMode}
                   ariaLabel={t('checkerSource')}
                   options={(['preset', 'custom'] as const).map((value) => ({
@@ -137,7 +150,10 @@ export default function BasicConfigTab({ languageOptions }: Props) {
                 />
               </ConfigField>
               {testlibMode === 'preset' ? (
-                <ConfigField label={t('preset')}>
+                <ConfigField
+                  label={t('preset')}
+                  controlId={`${controlId}-preset`}
+                >
                   <Select
                     value={
                       typeof config.checker === 'string'
@@ -146,7 +162,10 @@ export default function BasicConfigTab({ languageOptions }: Props) {
                     }
                     onValueChange={(checker) => update({ checker })}
                   >
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger
+                      id={`${controlId}-preset`}
+                      className="w-full"
+                    >
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -159,8 +178,12 @@ export default function BasicConfigTab({ languageOptions }: Props) {
                   </Select>
                 </ConfigField>
               ) : (
-                <ConfigField label={t('checkerFile')}>
+                <ConfigField
+                  label={t('checkerFile')}
+                  controlId={`${controlId}-checker-file`}
+                >
                   <SourceField
+                    id={`${controlId}-checker-file`}
                     value={config.checker}
                     files={files}
                     languageOptions={languages}
@@ -175,14 +198,20 @@ export default function BasicConfigTab({ languageOptions }: Props) {
           ) : null}
           {checkerMode === 'other' ? (
             <>
-              <ConfigField label={t('checkerFormat')}>
+              <ConfigField
+                label={t('checkerFormat')}
+                controlId={`${controlId}-checker-format`}
+              >
                 <Select
                   value={config.checker_type ?? 'syzoj'}
                   onValueChange={(checkerType) =>
                     update({ checker_type: checkerType as ProblemCheckerType })
                   }
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger
+                    id={`${controlId}-checker-format`}
+                    className="w-full"
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -196,8 +225,12 @@ export default function BasicConfigTab({ languageOptions }: Props) {
                   </SelectContent>
                 </Select>
               </ConfigField>
-              <ConfigField label={t('checkerFile')}>
+              <ConfigField
+                label={t('checkerFile')}
+                controlId={`${controlId}-checker-file`}
+              >
                 <SourceField
+                  id={`${controlId}-checker-file`}
                   value={config.checker}
                   files={files}
                   languageOptions={languages}
@@ -214,8 +247,12 @@ export default function BasicConfigTab({ languageOptions }: Props) {
 
       {type === 'interactive' ? (
         <section>
-          <ConfigField label={t('interactor')}>
+          <ConfigField
+            label={t('interactor')}
+            controlId={`${controlId}-interactor`}
+          >
             <SourceField
+              id={`${controlId}-interactor`}
               value={config.interactor}
               files={files}
               languageOptions={languages}
@@ -231,8 +268,9 @@ export default function BasicConfigTab({ languageOptions }: Props) {
       {type === 'communication' ? (
         <section className="space-y-4">
           <h3 className="text-base font-semibold">{t('communication')}</h3>
-          <ConfigField label={t('manager')}>
+          <ConfigField label={t('manager')} controlId={`${controlId}-manager`}>
             <SourceField
+              id={`${controlId}-manager`}
               value={config.manager}
               files={files}
               languageOptions={languages}
@@ -242,8 +280,12 @@ export default function BasicConfigTab({ languageOptions }: Props) {
               onChange={(manager) => update({ manager })}
             />
           </ConfigField>
-          <ConfigField label={t('processes')}>
+          <ConfigField
+            label={t('processes')}
+            controlId={`${controlId}-processes`}
+          >
             <Input
+              id={`${controlId}-processes`}
               type="number"
               min={1}
               max={5}
@@ -264,8 +306,12 @@ export default function BasicConfigTab({ languageOptions }: Props) {
       {type === 'submit_answer' ? (
         <section className="space-y-4">
           <h3 className="text-base font-semibold">{t('submitAnswer')}</h3>
-          <ConfigField label={t('answerMode')}>
+          <ConfigField
+            label={t('answerMode')}
+            controlId={`${controlId}-answer-mode`}
+          >
             <SegmentedControl
+              id={`${controlId}-answer-mode`}
               value={config.subType === 'multi' ? 'multi' : 'single'}
               ariaLabel={t('answerMode')}
               options={(['single', 'multi'] as const).map((value) => ({
@@ -275,14 +321,20 @@ export default function BasicConfigTab({ languageOptions }: Props) {
               onChange={(subType) => update({ subType })}
             />
           </ConfigField>
-          <ConfigField label={t('resultDetail')}>
+          <ConfigField
+            label={t('resultDetail')}
+            controlId={`${controlId}-result-detail`}
+          >
             <Select
               value={typeof config.detail === 'string' ? config.detail : 'full'}
               onValueChange={(detail) =>
                 update({ detail: detail as 'full' | 'case' | 'none' })
               }
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger
+                id={`${controlId}-result-detail`}
+                className="w-full"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -299,8 +351,12 @@ export default function BasicConfigTab({ languageOptions }: Props) {
 
       {type === 'default' ? (
         <section>
-          <ConfigField label={t('filename')}>
+          <ConfigField
+            label={t('filename')}
+            controlId={`${controlId}-filename`}
+          >
             <Input
+              id={`${controlId}-filename`}
               value={config.filename ?? ''}
               aria-label={t('filename')}
               placeholder={t('filenamePlaceholder')}
@@ -312,8 +368,12 @@ export default function BasicConfigTab({ languageOptions }: Props) {
 
       {['default', 'interactive'].includes(type) ? (
         <section className="space-y-4">
-          <ConfigField label={t('multiPass')}>
+          <ConfigField
+            label={t('multiPass')}
+            controlId={`${controlId}-multi-pass`}
+          >
             <ConfigCheckbox
+              id={`${controlId}-multi-pass`}
               checked={(config.multi_pass ?? 0) > 1}
               label={t('enabled')}
               onCheckedChange={(checked) =>
@@ -322,8 +382,12 @@ export default function BasicConfigTab({ languageOptions }: Props) {
             />
           </ConfigField>
           {(config.multi_pass ?? 0) > 1 ? (
-            <ConfigField label={t('maxPasses')}>
+            <ConfigField
+              label={t('maxPasses')}
+              controlId={`${controlId}-max-passes`}
+            >
               <Input
+                id={`${controlId}-max-passes`}
                 type="number"
                 min={2}
                 max={20}
@@ -345,8 +409,12 @@ export default function BasicConfigTab({ languageOptions }: Props) {
       {!['submit_answer', 'objective'].includes(type) ? (
         <section className="space-y-4">
           <h3 className="text-base font-semibold">{t('restrictions')}</h3>
-          <ConfigField label={t('userExtraFiles')}>
+          <ConfigField
+            label={t('userExtraFiles')}
+            controlId={`${controlId}-user-extra-files`}
+          >
             <MultiSelect
+              id={`${controlId}-user-extra-files`}
               label={t('userExtraFiles')}
               values={config.user_extra_files ?? []}
               options={files.map((file) => ({ value: file, label: file }))}
@@ -356,8 +424,12 @@ export default function BasicConfigTab({ languageOptions }: Props) {
               }
             />
           </ConfigField>
-          <ConfigField label={t('judgeExtraFiles')}>
+          <ConfigField
+            label={t('judgeExtraFiles')}
+            controlId={`${controlId}-judge-extra-files`}
+          >
             <MultiSelect
+              id={`${controlId}-judge-extra-files`}
               label={t('judgeExtraFiles')}
               values={config.judge_extra_files ?? []}
               options={files.map((file) => ({ value: file, label: file }))}
@@ -367,8 +439,12 @@ export default function BasicConfigTab({ languageOptions }: Props) {
               }
             />
           </ConfigField>
-          <ConfigField label={t('allowedLanguages')}>
+          <ConfigField
+            label={t('allowedLanguages')}
+            controlId={`${controlId}-allowed-languages`}
+          >
             <MultiSelect
+              id={`${controlId}-allowed-languages`}
               label={t('allowedLanguages')}
               values={config.langs ?? []}
               options={languageOptions}

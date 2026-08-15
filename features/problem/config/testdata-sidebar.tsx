@@ -41,6 +41,7 @@ function triggerDownload(url: string, filename: string) {
 
 export default function TestdataSidebar({ pid, docId, title }: Props) {
   const t = useTranslations('problem.config');
+  const fileManagerT = useTranslations('problem.fileManager');
   const { state, dispatch } = useProblemConfig();
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -140,16 +141,24 @@ export default function TestdataSidebar({ pid, docId, title }: Props) {
         'testdata'
       ).send();
       const zip = new JSZip();
-      await Promise.all(
-        state.testdata.map(async (file) => {
-          const url = response.links[file.name];
-          if (!url) throw new Error(t('downloadFailed'));
-          const result = await fetch(url);
-          if (!result.ok) throw new Error(t('downloadFailed'));
-          zip.file(file.name, await result.blob());
-        })
-      );
-      const blob = await zip.generateAsync({ type: 'blob' });
+      const batchSize = 4;
+      for (
+        let offset = 0;
+        offset < state.testdata.length;
+        offset += batchSize
+      ) {
+        const batch = state.testdata.slice(offset, offset + batchSize);
+        await Promise.all(
+          batch.map(async (file) => {
+            const url = response.links[file.name];
+            if (!url) throw new Error(t('downloadFailed'));
+            const result = await fetch(url);
+            if (!result.ok) throw new Error(t('downloadFailed'));
+            zip.file(file.name, await result.blob());
+          })
+        );
+      }
+      const blob = await zip.generateAsync({ type: 'blob', streamFiles: true });
       const url = URL.createObjectURL(blob);
       triggerDownload(url, `${docId} ${title}.zip`);
       setTimeout(() => URL.revokeObjectURL(url), 0);
@@ -165,6 +174,10 @@ export default function TestdataSidebar({ pid, docId, title }: Props) {
     const nextName = renameValue.trim();
     if (!renameTarget || !nextName || nextName === renameTarget.name || busy)
       return;
+    if (/[\\/]/.test(nextName)) {
+      toast.error(fileManagerT('invalidFilename'));
+      return;
+    }
     const oldName = renameTarget.name;
     dispatch({ type: 'fileMutationStarted' });
     try {

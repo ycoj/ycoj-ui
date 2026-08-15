@@ -173,6 +173,14 @@ describe('testcase configuration helpers', () => {
     );
   });
 
+  it('retains an existing subtask with id zero', () => {
+    const subtasks = detectTestcasePairs([], {
+      subtasks: [{ id: 0, score: 100, cases: [] }],
+    });
+
+    expect(subtasks).toEqual([{ id: 0, score: 100, cases: [] }]);
+  });
+
   it('normalizes subtask scores to exactly 100', () => {
     expect(normalizeSubtaskScores([{ id: 1 }, { id: 2 }])).toEqual([
       { id: 1, score: 50 },
@@ -190,6 +198,15 @@ describe('testcase configuration helpers', () => {
         0
       )
     ).toBe(100);
+  });
+
+  it('terminates when more than 100 subtasks are already at minimum score', () => {
+    const subtasks = Array.from({ length: 101 }, (_, id) => ({ id, score: 1 }));
+
+    const normalized = normalizeSubtaskScores(subtasks);
+
+    expect(normalized).toHaveLength(101);
+    expect(normalized.every((subtask) => subtask.score === 1)).toBe(true);
   });
 
   it('parses inherited time and memory units', () => {

@@ -10,6 +10,7 @@ import {
   removeDeletedReferences,
   renameConfigReferences,
   testcaseKey,
+  validateProblemConfig,
 } from './problem-config-utils';
 import type { FileInfo } from '@/shared/types/file';
 import type {
@@ -122,6 +123,7 @@ function reducer(
 ): ProblemConfigState {
   switch (action.type) {
     case 'rawChanged': {
+      if (action.raw === state.raw) return state;
       const parsed = parseProblemConfigYaml(action.raw);
       if (!parsed.config) {
         return {
@@ -145,13 +147,14 @@ function reducer(
       };
     }
     case 'configChanged': {
+      const validation = validateProblemConfig(action.config);
       const raw = dumpProblemConfig(action.config);
       return {
         ...state,
         config: action.config,
         raw,
-        valid: true,
-        errors: [],
+        valid: validation.valid,
+        errors: validation.errors,
         dirty: raw !== state.savedRaw,
       };
     }

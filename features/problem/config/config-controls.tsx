@@ -18,15 +18,23 @@ import { useId } from 'react';
 
 export function ConfigField({
   label,
+  controlId,
   children,
 }: {
   label: string;
+  controlId: string;
   children: React.ReactNode;
 }) {
   return (
     <div className="grid gap-2 sm:grid-cols-[11rem_minmax(0,1fr)] sm:items-start">
       <div className="pt-1">
-        <Label data-llm-text={label}>{label}</Label>
+        <Label
+          id={`${controlId}-label`}
+          htmlFor={controlId}
+          data-llm-text={label}
+        >
+          {label}
+        </Label>
       </div>
       <div className="min-w-0">{children}</div>
     </div>
@@ -38,16 +46,20 @@ export function SegmentedControl<T extends string>({
   options,
   onChange,
   ariaLabel,
+  id,
 }: {
   value: T;
   options: Array<{ value: T; label: string }>;
   onChange: (value: T) => void;
   ariaLabel: string;
+  id?: string;
 }) {
   return (
     <div
+      id={id}
       role="radiogroup"
-      aria-label={ariaLabel}
+      aria-label={id ? undefined : ariaLabel}
+      aria-labelledby={id ? `${id}-label` : undefined}
       className="inline-flex max-w-full flex-wrap gap-1 rounded-lg bg-muted p-1"
     >
       {options.map((option) => (
@@ -73,22 +85,26 @@ export function MultiSelect({
   options,
   placeholder,
   onChange,
+  id,
 }: {
   label: string;
   values: string[];
   options: Array<{ value: string; label: string }>;
   placeholder: string;
   onChange: (values: string[]) => void;
+  id?: string;
 }) {
   const selected = new Set(values);
   return (
     <Popover.Root>
       <Popover.Trigger asChild>
         <Button
+          id={id}
           type="button"
           variant="outline"
           className="h-auto min-h-8 w-full justify-between whitespace-normal"
-          aria-label={label}
+          aria-label={id ? undefined : label}
+          aria-labelledby={id ? `${id}-label` : undefined}
         >
           <span className="min-w-0 truncate text-left">
             {values.length
@@ -149,6 +165,7 @@ export function SourceField({
   languageLabel,
   noneLabel,
   onChange,
+  id,
 }: {
   value?: CompilableSource;
   files: string[];
@@ -157,24 +174,33 @@ export function SourceField({
   languageLabel: string;
   noneLabel: string;
   onChange: (value?: CompilableSource) => void;
+  id?: string;
 }) {
   const file = typeof value === 'string' ? value : value?.file;
   const lang = typeof value === 'object' ? value.lang : '';
   const languageId = useId();
+  const noneOptionBase = `${useId()}-no-file`;
+  let noneOptionId = noneOptionBase;
+  while (files.includes(noneOptionId)) noneOptionId += '-';
   return (
     <div className="grid gap-2 sm:grid-cols-2">
       <Select
-        value={file ?? '__none'}
+        value={file ?? noneOptionId}
         onValueChange={(next) => {
-          if (next === '__none') onChange(undefined);
+          if (next === noneOptionId) onChange(undefined);
           else onChange(lang ? { file: next, lang } : next);
         }}
       >
-        <SelectTrigger className="w-full" aria-label={fileLabel}>
+        <SelectTrigger
+          id={id}
+          className="w-full"
+          aria-label={id ? undefined : fileLabel}
+          aria-labelledby={id ? `${id}-label` : undefined}
+        >
           <SelectValue placeholder={fileLabel} />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="__none">{noneLabel}</SelectItem>
+          <SelectItem value={noneOptionId}>{noneLabel}</SelectItem>
           {files.map((name) => (
             <SelectItem key={name} value={name}>
               {name}
@@ -225,12 +251,15 @@ export function ConfigCheckbox({
   checked,
   label,
   onCheckedChange,
+  id: controlId,
 }: {
   checked: boolean;
   label: string;
   onCheckedChange: (checked: boolean) => void;
+  id?: string;
 }) {
-  const id = useId();
+  const generatedId = useId();
+  const id = controlId ?? generatedId;
   return (
     <div className="flex items-center gap-2 py-1">
       <Checkbox

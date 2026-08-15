@@ -1,5 +1,6 @@
 import {
   getProblemFileDownloadUrl,
+  renameProblemFiles,
   refreshProblemTestdata,
   uploadProblemConfig,
   uploadProblemFile,
@@ -143,4 +144,13 @@ describe('uploadProblemFile', () => {
       'https://files/1.in'
     );
   });
+
+  it.each(['nested/file.in', 'nested\\file.in', '.', '..'])(
+    'rejects invalid rename target %s before sending',
+    (name) => {
+      expect(() => renameProblemFiles(1000, ['old.in'], [name])).toThrowError(
+        'Invalid filename'
+      );
+    }
+  );
 });

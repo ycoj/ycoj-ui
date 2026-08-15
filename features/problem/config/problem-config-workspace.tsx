@@ -139,13 +139,20 @@ function Workspace({
     dispatch({ type: 'saveStarted' });
     try {
       await ClientApis.Problem.uploadProblemConfig(pid, raw).send();
-      const testdata = await ClientApis.Problem.refreshProblemTestdata(pid);
-      dispatch({ type: 'saveSucceeded', raw, testdata });
+      dispatch({ type: 'saveSucceeded', raw, testdata: state.testdata });
       setConfirmInvalid(false);
       toast.success(t('saveSuccess'));
     } catch (error) {
       dispatch({ type: 'saveFailed' });
       toast.error(error instanceof Error ? error.message : t('saveFailed'));
+      return;
+    }
+
+    try {
+      const testdata = await ClientApis.Problem.refreshProblemTestdata(pid);
+      dispatch({ type: 'testdataRefreshed', testdata });
+    } catch {
+      toast.error(t('refreshFailed'));
     }
   };
 

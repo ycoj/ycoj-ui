@@ -305,7 +305,7 @@ export function detectTestcasePairs(
   const names = new Set(filenames);
   const subtasks = new Map<number, ProblemSubtask>();
   for (const existing of config.subtasks ?? []) {
-    if (existing.id)
+    if (typeof existing.id === 'number')
       subtasks.set(
         existing.id,
         cloneConfig({ subtasks: [existing] }).subtasks![0]
@@ -378,6 +378,7 @@ export function normalizeSubtaskScores(subtasks: ProblemSubtask[]) {
     .sort((a, b) => b.fraction - a.fraction);
   let cursor = 0;
   while (delta !== 0) {
+    if (delta < 0 && scores.every((score) => score === 1)) break;
     const index = order[cursor % order.length].index;
     if (delta > 0) {
       scores[index] += 1;

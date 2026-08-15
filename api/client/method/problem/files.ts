@@ -15,6 +15,9 @@ export type GenerateProblemTestdataResponse = ProblemFilesMutationResponse & {
   url: string;
 };
 
+const isValidRenameTarget = (name: string) =>
+  name !== '.' && name !== '..' && !/[\\/]/.test(name);
+
 const problemFilesConfig = (tid?: ObjectId) => ({
   params: tid ? { tid } : {},
 });
@@ -142,8 +145,11 @@ export const renameProblemFiles = (
   newNames: string[],
   type: ProblemFileType = 'testdata',
   tid?: ObjectId
-) =>
-  clientRequest.Post<ProblemFilesMutationResponse>(
+) => {
+  if (newNames.some((name) => !isValidRenameTarget(name)))
+    throw new Error('Invalid filename');
+
+  return clientRequest.Post<ProblemFilesMutationResponse>(
     `/p/${pid}/files`,
     {
       operation: 'rename_files',
@@ -153,6 +159,7 @@ export const renameProblemFiles = (
     },
     problemFilesConfig(tid)
   );
+};
 
 /**
  * Deletes files from a problem file collection.

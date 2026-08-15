@@ -63,6 +63,7 @@ export default async function ProblemDetailPage({
   }
 
   const canConfigure =
+    Boolean(user._id) &&
     !searchParams.tid &&
     !data.pdoc.reference &&
     ((user._id === data.pdoc.owner &&

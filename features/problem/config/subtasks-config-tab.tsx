@@ -42,6 +42,7 @@ import { useTranslations } from 'next-intl';
 import { ContextMenu, Dialog } from 'radix-ui';
 import {
   type PointerEvent as ReactPointerEvent,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -63,6 +64,7 @@ function DialogFrame({
   title: string;
   children: React.ReactNode;
 }) {
+  const t = useTranslations('problem.config');
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
@@ -83,7 +85,7 @@ function DialogFrame({
               variant="ghost"
               size="icon-sm"
               className="absolute top-4 right-4"
-              aria-label={title}
+              aria-label={t('close')}
             >
               <X />
             </Button>
@@ -97,23 +99,43 @@ function DialogFrame({
 
 function GlobalSettingsDialog() {
   const t = useTranslations('problem.config');
+  const controlId = useId();
   const { state, dispatch } = useProblemConfig();
   const [open, setOpen] = useState(false);
   const [time, setTime] = useState(() => parseTimeMs(state.config.time));
   const [memory, setMemory] = useState(() =>
     parseMemoryMb(state.config.memory)
   );
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) {
+      setTime(parseTimeMs(state.config.time));
+      setMemory(parseMemoryMb(state.config.memory));
+    }
+    setOpen(nextOpen);
+  };
   return (
     <>
-      <Button type="button" variant="outline" onClick={() => setOpen(true)}>
+      <Button
+        type="button"
+        variant="outline"
+        onClick={() => handleOpenChange(true)}
+      >
         <Settings />
         {t('globalLimits')}
       </Button>
-      <DialogFrame open={open} onOpenChange={setOpen} title={t('globalLimits')}>
+      <DialogFrame
+        open={open}
+        onOpenChange={handleOpenChange}
+        title={t('globalLimits')}
+      >
         <div className="space-y-4">
-          <ConfigField label={t('timeLimit')}>
+          <ConfigField
+            label={t('timeLimit')}
+            controlId={`${controlId}-global-time`}
+          >
             <div className="flex items-center gap-2">
               <Input
+                id={`${controlId}-global-time`}
                 type="number"
                 min={1}
                 value={time}
@@ -124,9 +146,13 @@ function GlobalSettingsDialog() {
               <span className="text-sm text-muted-foreground">ms</span>
             </div>
           </ConfigField>
-          <ConfigField label={t('memoryLimit')}>
+          <ConfigField
+            label={t('memoryLimit')}
+            controlId={`${controlId}-global-memory`}
+          >
             <div className="flex items-center gap-2">
               <Input
+                id={`${controlId}-global-memory`}
                 type="number"
                 min={1}
                 value={memory}
@@ -170,6 +196,7 @@ function GlobalSettingsDialog() {
 
 function ManualPairDialog() {
   const t = useTranslations('problem.config');
+  const controlId = useId();
   const { state, dispatch } = useProblemConfig();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
@@ -194,9 +221,12 @@ function ManualPairDialog() {
       </Button>
       <DialogFrame open={open} onOpenChange={setOpen} title={t('addTestcase')}>
         <div className="space-y-4">
-          <ConfigField label={t('inputFile')}>
+          <ConfigField
+            label={t('inputFile')}
+            controlId={`${controlId}-input-file`}
+          >
             <Select value={input} onValueChange={chooseInput}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger id={`${controlId}-input-file`} className="w-full">
                 <SelectValue placeholder={t('selectInput')} />
               </SelectTrigger>
               <SelectContent>
@@ -208,9 +238,12 @@ function ManualPairDialog() {
               </SelectContent>
             </Select>
           </ConfigField>
-          <ConfigField label={t('outputFile')}>
+          <ConfigField
+            label={t('outputFile')}
+            controlId={`${controlId}-output-file`}
+          >
             <Select value={output} onValueChange={setOutput}>
-              <SelectTrigger className="w-full">
+              <SelectTrigger id={`${controlId}-output-file`} className="w-full">
                 <SelectValue placeholder={t('selectOutput')} />
               </SelectTrigger>
               <SelectContent>
@@ -254,6 +287,7 @@ function ManualPairDialog() {
 
 function SubtaskSettingsDialog({ subtask }: { subtask: ProblemSubtask }) {
   const t = useTranslations('problem.config');
+  const controlId = useId();
   const { state, dispatch } = useProblemConfig();
   const [open, setOpen] = useState(false);
   const [time, setTime] = useState(
@@ -269,13 +303,26 @@ function SubtaskSettingsDialog({ subtask }: { subtask: ProblemSubtask }) {
     (item) => item.id !== subtask.id
   );
 
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) {
+      setTime(subtask.time ? String(parseTimeMs(subtask.time)) : '');
+      setMemory(subtask.memory ? String(parseMemoryMb(subtask.memory)) : '');
+      setScore(String(subtask.score ?? 0));
+      setMethod(subtask.type ?? 'min');
+      setDependencies(subtask.if ?? []);
+    }
+    setOpen(nextOpen);
+  };
+
   const apply = () => {
     const nextSubtasks = (state.config.subtasks ?? []).map((item) =>
       item.id === subtask.id
         ? {
             ...item,
-            time: time ? `${Math.max(1, Number(time))}ms` : undefined,
-            memory: memory ? `${Math.max(1, Number(memory))}MB` : undefined,
+            time: time ? `${Math.max(1, Number(time) || 1)}ms` : undefined,
+            memory: memory
+              ? `${Math.max(1, Number(memory) || 1)}MB`
+              : undefined,
             score: Math.min(100, Math.max(1, Number(score) || 1)),
             type: method,
             if: dependencies.length ? dependencies : undefined,
@@ -300,18 +347,22 @@ function SubtaskSettingsDialog({ subtask }: { subtask: ProblemSubtask }) {
         variant="ghost"
         title={t('subtaskSettings')}
         aria-label={t('subtaskSettings')}
-        onClick={() => setOpen(true)}
+        onClick={() => handleOpenChange(true)}
       >
         <Settings />
       </Button>
       <DialogFrame
         open={open}
-        onOpenChange={setOpen}
+        onOpenChange={handleOpenChange}
         title={t('subtaskSettingsTitle', { id: subtask.id ?? 0 })}
       >
         <div className="space-y-4">
-          <ConfigField label={t('timeLimit')}>
+          <ConfigField
+            label={t('timeLimit')}
+            controlId={`${controlId}-subtask-time`}
+          >
             <Input
+              id={`${controlId}-subtask-time`}
               type="number"
               min={1}
               value={time}
@@ -319,8 +370,12 @@ function SubtaskSettingsDialog({ subtask }: { subtask: ProblemSubtask }) {
               onChange={(event) => setTime(event.target.value)}
             />
           </ConfigField>
-          <ConfigField label={t('memoryLimit')}>
+          <ConfigField
+            label={t('memoryLimit')}
+            controlId={`${controlId}-subtask-memory`}
+          >
             <Input
+              id={`${controlId}-subtask-memory`}
               type="number"
               min={1}
               value={memory}
@@ -328,8 +383,12 @@ function SubtaskSettingsDialog({ subtask }: { subtask: ProblemSubtask }) {
               onChange={(event) => setMemory(event.target.value)}
             />
           </ConfigField>
-          <ConfigField label={t('score')}>
+          <ConfigField
+            label={t('score')}
+            controlId={`${controlId}-subtask-score`}
+          >
             <Input
+              id={`${controlId}-subtask-score`}
               type="number"
               min={1}
               max={100}
@@ -337,14 +396,20 @@ function SubtaskSettingsDialog({ subtask }: { subtask: ProblemSubtask }) {
               onChange={(event) => setScore(event.target.value)}
             />
           </ConfigField>
-          <ConfigField label={t('scoringMethod')}>
+          <ConfigField
+            label={t('scoringMethod')}
+            controlId={`${controlId}-scoring-method`}
+          >
             <Select
               value={method}
               onValueChange={(value) =>
                 setMethod(value as 'min' | 'max' | 'sum')
               }
             >
-              <SelectTrigger className="w-full">
+              <SelectTrigger
+                id={`${controlId}-scoring-method`}
+                className="w-full"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -356,8 +421,16 @@ function SubtaskSettingsDialog({ subtask }: { subtask: ProblemSubtask }) {
               </SelectContent>
             </Select>
           </ConfigField>
-          <ConfigField label={t('dependencies')}>
-            <div className="space-y-2 rounded-lg border p-3">
+          <ConfigField
+            label={t('dependencies')}
+            controlId={`${controlId}-dependencies`}
+          >
+            <div
+              id={`${controlId}-dependencies`}
+              role="group"
+              aria-labelledby={`${controlId}-dependencies-label`}
+              className="space-y-2 rounded-lg border p-3"
+            >
               {available.length ? (
                 available.map((item) => {
                   const id = item.id ?? 0;
@@ -455,11 +528,19 @@ function CaseRow({
             drag(element);
           }}
           role="option"
+          tabIndex={0}
           aria-selected={selected}
           data-selected={selected}
           className="group grid min-h-10 cursor-grab grid-cols-[1.25rem_minmax(0,1fr)_2rem] items-center gap-2 rounded-md px-2 py-1 text-sm select-none data-[selected=true]:bg-primary/10 data-[selected=true]:text-primary"
           style={{ opacity: dragging ? 0.45 : 1 }}
           onClick={(event) => onSelect(event.ctrlKey || event.metaKey)}
+          onKeyDown={(event) => {
+            if (event.target !== event.currentTarget) return;
+            if (event.key === 'Enter' || event.key === ' ') {
+              if (event.key === ' ') event.preventDefault();
+              onSelect(event.ctrlKey || event.metaKey);
+            }
+          }}
         >
           <GripVertical className="size-4 text-muted-foreground" />
           <div className="min-w-0 font-mono text-xs">
