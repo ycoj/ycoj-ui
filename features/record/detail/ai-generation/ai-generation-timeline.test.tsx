@@ -164,10 +164,10 @@ describe('AiGenerationTimeline', () => {
     );
 
     const runningTrigger = screen.getByRole('button', {
-      name: 'Running Command',
+      name: 'Running python3',
     });
     const completedTrigger = screen.getByRole('button', {
-      name: 'Ran Command',
+      name: 'Ran python3',
     });
 
     expect(screen.queryByText('python3 running.py')).toBeNull();
@@ -179,6 +179,36 @@ describe('AiGenerationTimeline', () => {
     expect(screen.getByText('python3 generator.py').tagName).toBe('CODE');
     await user.click(completedTrigger);
     expect(screen.queryByText('python3 generator.py')).toBeNull();
+  });
+
+  it('labels Shell commands with parsed command names', () => {
+    render(
+      <AiGenerationTimeline
+        events={[
+          makeTraceEvent(1, 'tool', 'succeeded', {
+            tool: 'Shell',
+            details: {
+              command: "find . -maxdepth 2 -type f | sort | sed -n '1,200p'",
+            },
+          }),
+          makeTraceEvent(2, 'tool', 'succeeded', {
+            tool: 'Shell',
+            details: { command: 'a 1 | b 2 | c 3 | d 4 | e 5 | f 6' },
+          }),
+        ]}
+      />
+    );
+
+    expect(
+      screen.getByRole('button', { name: 'Ran find, sort, sed (3 commands)' })
+    ).toBeInTheDocument();
+    expect(screen.getByText('find').tagName).toBe('CODE');
+    expect(screen.getByText('sort').tagName).toBe('CODE');
+    expect(screen.getByText('sed').tagName).toBe('CODE');
+    expect(
+      screen.getByRole('button', { name: 'Ran a, b, c, d, e (6 commands)' })
+    ).toBeInTheDocument();
+    expect(screen.queryByText('f')).toBeNull();
   });
 
   it('falls back to summaries and omits missing tool values', () => {

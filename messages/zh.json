@@ -489,7 +489,11 @@
         "readFile": "{action} {path}",
         "editFile": "{action} {path}",
         "runningCommand": "正在运行命令",
+        "runningCommandSingle": "正在运行 {names} 命令",
+        "runningCommandMultiple": "正在运行 {names} 等 {count} 个命令",
         "ranCommand": "已运行命令",
+        "ranCommandSingle": "已运行 {names} 命令",
+        "ranCommandMultiple": "已运行 {names} 等 {count} 个命令",
         "call": "工具调用"
       },
       "cancel": "取消生成",

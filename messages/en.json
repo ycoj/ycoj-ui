@@ -489,7 +489,11 @@
         "readFile": "{action} {path}",
         "editFile": "{action} {path}",
         "runningCommand": "Running Command",
+        "runningCommandSingle": "Running {names}",
+        "runningCommandMultiple": "Running {names} ({count} commands)",
         "ranCommand": "Ran Command",
+        "ranCommandSingle": "Ran {names}",
+        "ranCommandMultiple": "Ran {names} ({count} commands)",
         "call": "Tool call"
       },
       "cancel": "Cancel generation",

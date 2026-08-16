@@ -230,7 +230,7 @@ describe('AiGenerationLog', () => {
     expect(screen.getByText('Edited')).toBeInTheDocument();
     expect(screen.getByText('generator.py').tagName).toBe('CODE');
 
-    const shellTrigger = screen.getByRole('button', { name: 'Ran Command' });
+    const shellTrigger = screen.getByRole('button', { name: 'Ran python3' });
     expect(screen.queryByText('python3 generator.py')).toBeNull();
     await user.click(shellTrigger);
     expect(screen.getByText('python3 generator.py')).toBeVisible();

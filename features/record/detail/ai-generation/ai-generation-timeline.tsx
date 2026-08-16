@@ -1,4 +1,4 @@
-import { getValue } from './ai-generation-helpers';
+import { getValue, parseShellCommandNames } from './ai-generation-helpers';
 import { ToolIcon, TraceIcon } from './ai-generation-icons';
 import type { AiTraceEvent } from './ai-generation-trace';
 import {
@@ -11,6 +11,7 @@ import { STATUS_BACKGROUND_COLOR } from '@/shared/configs/status';
 import { formatTime } from '@/shared/lib/format-units';
 import type { AiTraceEventType, AiTraceMessage } from '@/shared/types/record';
 import { useTranslations } from 'next-intl';
+import { Fragment, type ReactNode } from 'react';
 
 const EVENT_LABEL_KEYS: Record<
   Exclude<AiTraceEventType, 'tool'>,
@@ -87,7 +88,38 @@ function ToolEventRow({ trace }: { trace: AiTraceMessage }) {
 
   if (normalizedTool === 'shell') {
     const command = getToolDetail(trace.data, 'command') ?? summary;
-    const action = running ? t('tools.runningCommand') : t('tools.ranCommand');
+    const commandNames = command ? parseShellCommandNames(command) : [];
+    const baseKey = running ? 'tools.runningCommand' : 'tools.ranCommand';
+    const actionKey =
+      commandNames.length === 0
+        ? baseKey
+        : commandNames.length === 1
+          ? `${baseKey}Single`
+          : `${baseKey}Multiple`;
+    const shownNames = commandNames.slice(0, 5);
+    const namesText = shownNames.join(', ');
+    const action = t(actionKey, {
+      names: namesText,
+      count: commandNames.length,
+    });
+    let actionContent: ReactNode = action;
+    const namesIndex = commandNames.length ? action.indexOf(namesText) : -1;
+    if (namesIndex >= 0) {
+      actionContent = (
+        <>
+          {action.slice(0, namesIndex)}
+          {shownNames.map((name, index) => (
+            <Fragment key={name}>
+              {index > 0 && ', '}
+              <code className="bg-muted rounded px-1 py-0.5 font-mono text-xs break-all">
+                {name}
+              </code>
+            </Fragment>
+          ))}
+          {action.slice(namesIndex + namesText.length)}
+        </>
+      );
+    }
 
     if (!command) {
       return (
@@ -124,7 +156,7 @@ function ToolEventRow({ trace }: { trace: AiTraceMessage }) {
                     runningLabel={t('states.running')}
                   />
                 </span>
-                {action}
+                {actionContent}
               </span>
             </AccordionTrigger>
             <AccordionContent className="pb-2 pl-6">

@@ -29,6 +29,34 @@ export function getValue(
     : null;
 }
 
+export function parseShellCommandNames(command: string): string[] {
+  const names: string[] = [];
+  const heredocDelimiters: string[] = [];
+  for (const line of command.split('\n')) {
+    const trimmed = line.trim();
+    if (heredocDelimiters.length > 0) {
+      if (trimmed === heredocDelimiters[0]) heredocDelimiters.shift();
+      continue;
+    }
+    for (const match of trimmed.matchAll(
+      /<<-?\s*['"]?([A-Za-z_][A-Za-z0-9_]*)['"]?/g
+    )) {
+      heredocDelimiters.push(match[1]);
+    }
+    for (const segment of trimmed.split(/(?:\|\||&&|[|;])/)) {
+      const token = segment
+        .trim()
+        .split(/\s+/)
+        .find((part) => part && !/^[A-Za-z_][A-Za-z0-9_]*=/.test(part))
+        ?.replace(/^\(+/, '');
+      if (!token) continue;
+      const name = token.split('/').pop();
+      if (name && !names.includes(name)) names.push(name);
+    }
+  }
+  return names;
+}
+
 export function stringifyValue(value: unknown): string {
   if (typeof value === 'string') return value;
   if (value === undefined) return '';
