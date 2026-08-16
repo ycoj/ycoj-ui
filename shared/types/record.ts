@@ -1,6 +1,6 @@
 export type JudgeMessageResponse = {
   message: string;
-  params?: string[];
+  params?: Array<string | number>;
   stack?: string;
 };
 
@@ -17,7 +17,48 @@ export type TestCaseResponse = {
   time: number;
   memory: number;
   status: number;
-  message: string;
+  message: string | JudgeMessageResponse;
+};
+
+export type AiGenerationStage =
+  | 'waiting'
+  | 'preparing'
+  | 'agent'
+  | 'validating'
+  | 'replacing'
+  | 'completed'
+  | 'failed'
+  | 'cancelled';
+
+export type AiGenerationMeta = {
+  active: boolean;
+  stage: AiGenerationStage;
+  model: string;
+  sessionId?: string;
+  startedAt?: string;
+  finishedAt?: string;
+};
+
+export type AiTraceEventType =
+  | 'generation'
+  | 'preparation'
+  | 'agent_turn'
+  | 'tool'
+  | 'validation'
+  | 'replacement';
+
+export type AiTraceState =
+  'running' | 'succeeded' | 'failed' | 'cancelled' | 'timed_out';
+
+export type AiTraceMessage = {
+  schema: 'hydro.ai-generation.trace';
+  version: 1;
+  seq: number;
+  type: AiTraceEventType;
+  state: AiTraceState;
+  startedAt: string;
+  finishedAt?: string;
+  data: Record<string, unknown>;
 };
 
 export type RecordDoc = {
@@ -50,6 +91,7 @@ export type RecordDoc = {
 
   files?: Record<string, string>;
   subtasks?: Record<number, SubtaskResultResponse>;
+  aiGeneration?: AiGenerationMeta;
 };
 
 /** Fields returned by Hydro's record list projection. */
@@ -71,6 +113,7 @@ export type RecordListItem = Pick<
   | 'source'
   | 'contest'
   | 'files'
+  | 'aiGeneration'
 >;
 
 export type RecordDict = Record<string, RecordDoc>;

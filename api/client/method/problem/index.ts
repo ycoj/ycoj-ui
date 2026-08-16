@@ -1,3 +1,4 @@
+import { generateAiTestdata } from './ai-generate-testdata';
 import { createProblem } from './create';
 import {
   deleteProblemFiles,
@@ -16,6 +17,7 @@ import { submitProblem } from './submit';
 
 const Problem = {
   createProblem,
+  generateAiTestdata,
   getProblemFileLinks,
   uploadProblemFile,
   renameProblemFiles,

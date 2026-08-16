@@ -198,7 +198,16 @@
       "saving": "Saving...",
       "close": "Close",
       "confirmDelete": "Delete {count} selected {count, plural, one {file} other {files}}?",
-      "actionFailed": "The operation failed. Please try again."
+      "actionFailed": "The operation failed. Please try again.",
+      "generateWithAi": "Generate with AI",
+      "aiInstructions": "Instructions",
+      "aiInstructionsPlaceholder": "Add constraints or cases for the generator...",
+      "aiInstructionsTooLong": "Instructions must be 10,000 characters or fewer.",
+      "startGeneration": "Start generation",
+      "generatingWithAi": "Starting...",
+      "aiGenerationFailed": "Could not start AI generation. Please try again.",
+      "aiGenerationDisabled": "AI test-data generation is currently disabled.",
+      "aiGenerationAlreadyActive": "This problem already has an active AI generation run."
     },
     "searchPlaceholder": "Search problems...",
     "createOrImport": "Create or import",
@@ -437,7 +446,57 @@
     "judgeVersion": "Judge version",
     "latestVersion": "Latest",
     "historicalVersion": "Historical version",
-    "judgedAt": "Judged at {time}"
+    "judgedAt": "Judged at {time}",
+    "aiGeneration": {
+      "title": "AI test-data generation",
+      "pageTitle": "Data generation - {title}",
+      "stages": {
+        "waiting": "Waiting",
+        "preparing": "Preparing",
+        "agent": "Agent working",
+        "validating": "Validating",
+        "replacing": "Installing test data",
+        "completed": "Completed",
+        "failed": "Failed",
+        "cancelled": "Cancelled"
+      },
+      "progress": "Generation progress",
+      "model": "Model",
+      "problem": "Problem",
+      "startedAt": "Started",
+      "finishedAt": "Finished",
+      "recordId": "Record ID",
+      "instructions": "Instructions",
+      "report": "Generation report",
+      "timeline": "Run timeline",
+      "noEvents": "No trace events have been recorded yet.",
+      "events": {
+        "generation": "Generation",
+        "preparation": "Preparation",
+        "agentTurn": "Agent turn",
+        "validation": "Validation",
+        "replacement": "Replacement"
+      },
+      "states": {
+        "running": "Running",
+        "completed": "Completed"
+      },
+      "tools": {
+        "reading": "Reading",
+        "read": "Read",
+        "editing": "Editing",
+        "edited": "Edited",
+        "readFile": "{action} {path}",
+        "editFile": "{action} {path}",
+        "runningCommand": "Running Command",
+        "ranCommand": "Ran Command",
+        "call": "Tool call"
+      },
+      "cancel": "Cancel generation",
+      "cancelling": "Cancelling...",
+      "caseCount": "Installed cases: {count}",
+      "totalBytes": "Total size: {size}"
+    }
   },
   "discussion": {
     "node": "Discussion node",
