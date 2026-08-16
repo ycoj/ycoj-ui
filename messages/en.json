@@ -36,7 +36,6 @@
     "submitTime": "Submitted",
     "judgeTime": "Judged",
     "problemId": "Problem ID",
-    "contestId": "Contest ID",
     "group": "Group",
     "allGroups": "All groups",
     "search": "Search",
@@ -58,6 +57,14 @@
     "problems": "{count, plural, one {# problem} other {# problems}}",
     "people": "{count, plural, one {# person} other {# people}}",
     "percent": "{value}%"
+  },
+  "autoComplete": {
+    "loading": "Searching...",
+    "noResults": "No matches found",
+    "loadFailed": "Could not load suggestions",
+    "clear": "Clear selection",
+    "problemId": "ID = {id}",
+    "userId": "UID = {id}"
   },
   "landing": {
     "title": "<modern>Modern</modern>, <native>AI-native</native> online judge",

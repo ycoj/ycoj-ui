@@ -11,7 +11,7 @@ type Props = {
 export default function UserSpan({ user, showAvatar = true }: Props) {
   return (
     <Link href={`/user/${user._id}`} className="no-underline">
-      <span className="inline-flex items-center gap-2 text-sm text-gray-500">
+      <span className="inline-flex items-center gap-2 align-middle text-sm text-gray-500">
         {showAvatar && <UserAvatar user={user} size="sm" />}
         <span
           className="text-foreground font-medium"

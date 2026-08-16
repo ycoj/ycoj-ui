@@ -1,4 +1,5 @@
 import { generateAiTestdata } from './ai-generate-testdata';
+import { searchProblems } from './auto-complete';
 import { createProblem } from './create';
 import {
   deleteProblemFiles,
@@ -19,6 +20,7 @@ import { voteSolution } from './solution-vote';
 import { submitProblem } from './submit';
 
 const Problem = {
+  searchProblems,
   createProblem,
   generateAiTestdata,
   getProblemFileLinks,

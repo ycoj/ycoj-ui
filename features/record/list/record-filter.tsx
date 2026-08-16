@@ -1,7 +1,8 @@
 'use client';
 
+import ProblemAutoComplete from '@/features/problem/problem-auto-complete';
+import UserAutoComplete from '@/features/user/user-auto-complete';
 import { Button } from '@/shared/components/ui/button';
-import { Input } from '@/shared/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -10,11 +11,21 @@ import {
   SelectValue,
 } from '@/shared/components/ui/select';
 import { STATUS_TEXT_KEYS } from '@/shared/configs/status';
-import { Activity, Award, Code2, Search, User } from 'lucide-react';
+import { Activity, Code2, Search, User } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+
+type Props = {
+  domainId: string;
+};
+
+type FormValues = {
+  uidOrName: string;
+  pid: string;
+  status: string;
+};
 
 const buildStatusOptions = () =>
   Object.entries(STATUS_TEXT_KEYS)
@@ -24,17 +35,16 @@ const buildStatusOptions = () =>
     }))
     .sort((a, b) => Number(a.value) - Number(b.value));
 
-export default function RecordFilter() {
+export default function RecordFilter({ domainId }: Props) {
   const t = useTranslations('record');
   const common = useTranslations('common');
   const statusT = useTranslations('judgeStatus.label');
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { register, handleSubmit, control } = useForm({
+  const { handleSubmit, control } = useForm<FormValues>({
     defaultValues: {
       uidOrName: searchParams.get('uidOrName') || '',
       pid: searchParams.get('pid') || '',
-      tid: searchParams.get('tid') || '',
       status: searchParams.get('status') || '',
     },
   });
@@ -53,7 +63,6 @@ export default function RecordFilter() {
 
     syncParam('uidOrName', values.uidOrName.trim());
     syncParam('pid', values.pid.trim());
-    syncParam('tid', values.tid.trim());
     syncParam('status', values.status.trim());
     params.delete('page');
     router.push(`?${params.toString()}`);
@@ -63,33 +72,41 @@ export default function RecordFilter() {
     <form onSubmit={onSubmit}>
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative w-56 min-w-[200px]">
-          <Input
-            type="text"
-            placeholder={t('submitterPlaceholder')}
-            className="pl-9 pr-3 text-sm"
-            {...register('uidOrName')}
+          <Controller
+            control={control}
+            name="uidOrName"
+            render={({ field }) => (
+              <UserAutoComplete
+                domainId={domainId}
+                value={field.value}
+                onValueChange={field.onChange}
+                onBlur={field.onBlur}
+                placeholder={t('submitterPlaceholder')}
+                ariaLabel={t('submitterPlaceholder')}
+                inputClassName="pl-9 text-sm"
+              />
+            )}
           />
-          <User className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <User className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 size-4 -translate-y-1/2" />
         </div>
 
-        <div className="relative w-40 min-w-[160px]">
-          <Input
-            type="text"
-            placeholder={common('problemId')}
-            className="pl-9 pr-3 text-sm"
-            {...register('pid')}
+        <div className="relative w-72 min-w-[240px] sm:w-80">
+          <Controller
+            control={control}
+            name="pid"
+            render={({ field }) => (
+              <ProblemAutoComplete
+                domainId={domainId}
+                value={field.value}
+                onValueChange={field.onChange}
+                onBlur={field.onBlur}
+                placeholder={common('problemId')}
+                ariaLabel={common('problemId')}
+                inputClassName="pl-9 text-sm"
+              />
+            )}
           />
-          <Code2 className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-        </div>
-
-        <div className="relative w-40 min-w-[160px]">
-          <Input
-            type="text"
-            placeholder={common('contestId')}
-            className="pl-9 pr-3 text-sm"
-            {...register('tid')}
-          />
-          <Award className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Code2 className="text-muted-foreground pointer-events-none absolute top-1/2 left-3 z-10 size-4 -translate-y-1/2" />
         </div>
 
         <Controller

@@ -10,9 +10,15 @@ export type Props = {
   problem: ContestListProjectionProblem;
   tid?: string;
   openInNewTab?: boolean;
+  showId?: boolean;
 };
 
-export default function ProblemLink({ problem, tid, openInNewTab }: Props) {
+export default function ProblemLink({
+  problem,
+  tid,
+  openInNewTab,
+  showId,
+}: Props) {
   const t = useTranslations('misc');
   const problemId = problem.pid ?? problem.docId;
   const href = tid
@@ -29,7 +35,14 @@ export default function ProblemLink({ problem, tid, openInNewTab }: Props) {
         })}
       >
         <span className="space-x-1">
-          <span data-llm-text={problem.title}>{problem.title}</span>
+          <span
+            data-llm-text={
+              showId ? `${problemId}. ${problem.title}` : problem.title
+            }
+          >
+            {showId && `${problemId}. `}
+            {problem.title}
+          </span>
           {(problem as PublicProjectionProblem).hidden && (
             <span className="text-primary" data-llm-text={t('hidden')}>
               {t('hidden')}
