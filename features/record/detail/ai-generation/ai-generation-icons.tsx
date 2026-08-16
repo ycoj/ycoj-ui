@@ -1,6 +1,9 @@
 import type { AiTraceMessage } from '@/shared/types/record';
 import {
+  Ban,
   CheckCircle2,
+  CircleX,
+  ClockAlert,
   FilePenLine,
   FileSearch,
   LoaderCircle,
@@ -12,10 +15,16 @@ export function TraceIcon({
   state,
   runningLabel,
   completedLabel,
+  failedLabel,
+  cancelledLabel,
+  timedOutLabel,
 }: {
   state: AiTraceMessage['state'];
   runningLabel: string;
   completedLabel: string;
+  failedLabel: string;
+  cancelledLabel: string;
+  timedOutLabel: string;
 }) {
   if (state === 'running') {
     return (
@@ -26,9 +35,25 @@ export function TraceIcon({
       />
     );
   }
-  return (
-    <CheckCircle2 className="size-4" aria-label={completedLabel} role="img" />
-  );
+
+  switch (state) {
+    case 'succeeded':
+      return (
+        <CheckCircle2
+          className="size-4"
+          aria-label={completedLabel}
+          role="img"
+        />
+      );
+    case 'failed':
+      return <CircleX className="size-4" aria-label={failedLabel} role="img" />;
+    case 'cancelled':
+      return <Ban className="size-4" aria-label={cancelledLabel} role="img" />;
+    case 'timed_out':
+      return (
+        <ClockAlert className="size-4" aria-label={timedOutLabel} role="img" />
+      );
+  }
 }
 
 export function ToolIcon({

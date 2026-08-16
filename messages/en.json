@@ -479,7 +479,10 @@
       },
       "states": {
         "running": "Running",
-        "completed": "Completed"
+        "completed": "Completed",
+        "failed": "Failed",
+        "cancelled": "Cancelled",
+        "timedOut": "Timed out"
       },
       "tools": {
         "reading": "Reading",

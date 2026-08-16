@@ -232,6 +232,9 @@ export function TraceEventRow({ event }: { event: AiTraceEvent }) {
           state={trace.state}
           runningLabel={t('states.running')}
           completedLabel={t('states.completed')}
+          failedLabel={t('states.failed')}
+          cancelledLabel={t('states.cancelled')}
+          timedOutLabel={t('states.timedOut')}
         />
       </span>
       {label}

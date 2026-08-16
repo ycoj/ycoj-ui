@@ -1,4 +1,4 @@
-import { formatTestcaseMessage } from '../format-testcase-message';
+import { formatTestcaseMessage } from '@/features/record/detail/format-testcase-message';
 import type {
   AiTraceEventType,
   AiTraceMessage,

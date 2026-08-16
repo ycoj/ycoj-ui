@@ -1,4 +1,4 @@
-import AiGenerationLog from './ai-generation-log';
+import AiGenerationLog from '@/features/record/detail/ai-generation/ai-generation-log';
 import messages from '@/messages/en.json';
 import messagesZh from '@/messages/zh.json';
 import type { ProblemDoc } from '@/shared/types/problem';

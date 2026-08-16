@@ -1,4 +1,7 @@
-import { parseAiTraceEvents, parseAiTraceMessage } from './ai-generation-trace';
+import {
+  parseAiTraceEvents,
+  parseAiTraceMessage,
+} from '@/features/record/detail/ai-generation/ai-generation-trace';
 import type { TestCaseResponse } from '@/shared/types/record';
 import { describe, expect, it } from 'vitest';
 

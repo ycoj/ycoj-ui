@@ -1,5 +1,5 @@
-import { AiGenerationTimeline } from './ai-generation-timeline';
-import type { AiTraceEvent } from './ai-generation-trace';
+import { AiGenerationTimeline } from '@/features/record/detail/ai-generation/ai-generation-timeline';
+import type { AiTraceEvent } from '@/features/record/detail/ai-generation/ai-generation-trace';
 import messages from '@/messages/en.json';
 import messagesZh from '@/messages/zh.json';
 import type {
@@ -84,7 +84,10 @@ describe('AiGenerationTimeline', () => {
     expect(screen.getByRole('img', { name: 'Running' })).toHaveClass(
       'animate-spin'
     );
-    expect(screen.getAllByRole('img', { name: 'Completed' })).toHaveLength(4);
+    expect(screen.getByRole('img', { name: 'Completed' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Failed' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Cancelled' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Timed out' })).toBeInTheDocument();
   });
 
   it('renders Read and Edit paths as inline code with state-aware actions', () => {

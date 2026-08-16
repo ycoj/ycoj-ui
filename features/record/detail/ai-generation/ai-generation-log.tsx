@@ -85,7 +85,10 @@ export default function AiGenerationLog({
           >
             {t('aiGeneration.instructions')}
           </h2>
-          <pre className="bg-muted/50 overflow-x-auto rounded-lg p-4 text-sm whitespace-pre-wrap">
+          <pre
+            className="bg-muted/50 overflow-x-auto rounded-lg p-4 text-sm whitespace-pre-wrap"
+            data-llm-text={rdoc.code}
+          >
             {rdoc.code}
           </pre>
         </section>
