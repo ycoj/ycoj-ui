@@ -36,7 +36,6 @@
     "submitTime": "提交时间",
     "judgeTime": "评测时间",
     "problemId": "题目 ID",
-    "contestId": "比赛 ID",
     "group": "分组",
     "allGroups": "全部分组",
     "search": "搜索",
@@ -58,6 +57,14 @@
     "problems": "{count} 道题",
     "people": "{count} 人",
     "percent": "{value}%"
+  },
+  "autoComplete": {
+    "loading": "正在搜索...",
+    "noResults": "没有匹配结果",
+    "loadFailed": "无法加载建议",
+    "clear": "清除选择",
+    "problemId": "ID = {id}",
+    "userId": "UID = {id}"
   },
   "landing": {
     "title": "<modern>现代</modern>、<native>原生智能</native>的在线测评系统",

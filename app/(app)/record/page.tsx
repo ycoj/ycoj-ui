@@ -52,12 +52,12 @@ export default async function RecordListPage({
   let domainId = data.rdocs[0]?.domainId ?? data.tdoc?.domainId;
   if (!domainId) {
     const homepage = await ServerApis.UI.getHomepage();
-    domainId = homepage.domain?._id;
+    domainId = homepage.domain._id;
   }
 
   return (
     <div className="space-y-4">
-      <RecordFilter key={filterKey} />
+      <RecordFilter key={filterKey} domainId={domainId} />
       <RecordListLive
         key={`${filterKey}:${data.page}:${data.rdocs
           .map((rdoc) => rdoc._id)

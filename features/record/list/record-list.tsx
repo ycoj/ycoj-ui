@@ -16,6 +16,7 @@ import oid2ts from '@/shared/lib/oid2ts';
 import type { ProblemStatus as ProblemStatusDoc } from '@/shared/types/problem';
 import dayjs from 'dayjs';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 
 type Props = {
   data: RecordListResponse;
@@ -93,15 +94,21 @@ export default function RecordList({ data, languages }: Props) {
                 <ProblemStatus status={statusDoc} />
               </TableCell>
               <TableCell className="tabular-nums">
-                <span
-                  style={{ color: scoreColor }}
-                  data-llm-text={String(record.score)}
+                <Link
+                  href={`/record/${record._id}`}
+                  className="hover:underline"
+                  data-llm-visible="true"
                 >
-                  {record.score}
-                </span>
+                  <span
+                    style={{ color: scoreColor }}
+                    data-llm-text={String(record.score)}
+                  >
+                    {record.score}
+                  </span>
+                </Link>
               </TableCell>
               <TableCell>
-                {pdoc ? <ProblemLink problem={pdoc} /> : record.pid}
+                {pdoc ? <ProblemLink problem={pdoc} showId /> : record.pid}
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end">

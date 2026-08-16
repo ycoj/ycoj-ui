@@ -6,6 +6,7 @@ import Homework from './homework';
 import Problem from './problem';
 import Record from './record';
 import Training from './training';
+import User from './user';
 
 const ClientApis = {
   Auth,
@@ -16,6 +17,7 @@ const ClientApis = {
   Problem,
   Record,
   Training,
+  User,
 };
 
 export default ClientApis;
