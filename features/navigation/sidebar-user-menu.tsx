@@ -7,7 +7,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from '@/shared/components/ui/avatar';
-import { SidebarMenuButton } from '@/shared/components/ui/sidebar';
+import { SidebarMenuButton, useSidebar } from '@/shared/components/ui/sidebar';
 import { cn } from '@/shared/lib/utils';
 import type { User } from '@/shared/types/user';
 import {
@@ -51,6 +51,7 @@ export default function SidebarUserMenu({ user, roleKey, avatarSrc }: Props) {
   const router = useRouter();
   const roleLabel = t(roleMessageKeys[roleKey]);
   const [loggingOut, setLoggingOut] = useState(false);
+  const { isMobile } = useSidebar();
 
   const changeLocale = (value: string) => {
     if (!locales.includes(value as Locale)) return;
@@ -100,12 +101,12 @@ export default function SidebarUserMenu({ user, roleKey, avatarSrc }: Props) {
       </DropdownMenuPrimitive.Trigger>
       <DropdownMenuPrimitive.Portal>
         <DropdownMenuPrimitive.Content
-          align="end"
+          align={isMobile ? 'start' : 'end'}
           side="top"
           sideOffset={4}
           className={cn(
             menuContentClassName,
-            'w-(--radix-dropdown-menu-trigger-width)'
+            !isMobile && 'w-(--radix-dropdown-menu-trigger-width)'
           )}
           data-llm-visible="true"
         >
