@@ -43,17 +43,53 @@ function getContestStatus(
   return 'ended';
 }
 
+export function groupContestsByStatus(
+  tdocs: ContestListProjection[],
+  now: dayjs.Dayjs
+): Record<ContestRuntimeStatus, ContestListProjection[]> {
+  const groups: Record<ContestRuntimeStatus, ContestListProjection[]> = {
+    running: [],
+    pending: [],
+    ended: [],
+  };
+
+  for (const contest of tdocs) {
+    groups[getContestStatus(contest, now)].push(contest);
+  }
+
+  return groups;
+}
+
+const sectionContainerClassName: Record<'running' | 'pending', string> = {
+  running:
+    'border-pink-300 bg-pink-100 dark:border-pink-500/40 dark:bg-pink-500/20',
+  pending:
+    'border-sky-300 bg-sky-100 dark:border-sky-500/40 dark:bg-sky-500/20',
+};
+
+const sectionStatusBadgeClassName: Record<'running' | 'pending', string> = {
+  running: 'bg-pink-200 text-pink-800 dark:bg-pink-500/30 dark:text-pink-100',
+  pending: 'bg-sky-200 text-sky-800 dark:bg-sky-500/30 dark:text-sky-100',
+};
+
+const sectionItemHoverClassName: Record<'running' | 'pending', string> = {
+  running: 'hover:bg-pink-200/40 dark:hover:bg-pink-500/25',
+  pending: 'hover:bg-sky-200/40 dark:hover:bg-sky-500/25',
+};
+
 function ContestItem({
   contest,
+  status,
   attended,
+  statusBadgeClassName,
 }: {
   contest: ContestListProjection;
+  status: ContestRuntimeStatus;
   attended: boolean;
+  statusBadgeClassName?: string;
 }) {
   const t = useTranslations('contest');
   const common = useTranslations('common');
-  const now = dayjs();
-  const status = getContestStatus(contest, now);
 
   const problemCount = contest.pids?.length ?? 0;
   const contestHref = `/contest/${contest.docId}`;
@@ -72,7 +108,7 @@ function ContestItem({
         >
           {contest.title}
         </Link>
-        <ContestStatus status={status} />
+        <ContestStatus status={status} className={statusBadgeClassName} />
       </div>
 
       <div className="flex items-center gap-3 text-xs">
@@ -124,6 +160,43 @@ function ContestItem({
   );
 }
 
+function ContestItemList({
+  contests,
+  statusById,
+  attendedById,
+  statusBadgeClassName,
+  itemHoverClassName = 'hover:bg-accent/30',
+}: {
+  contests: ContestListProjection[];
+  statusById: Map<string, ContestRuntimeStatus>;
+  attendedById: (docId: string) => boolean;
+  statusBadgeClassName?: string;
+  itemHoverClassName?: string;
+}) {
+  return (
+    <>
+      {contests.map((contest, index) => (
+        <Fragment key={contest.docId}>
+          <div
+            className={cn(
+              'px-4 py-4 transition-colors sm:px-5',
+              itemHoverClassName
+            )}
+          >
+            <ContestItem
+              contest={contest}
+              status={statusById.get(contest.docId) ?? 'ended'}
+              attended={attendedById(contest.docId)}
+              statusBadgeClassName={statusBadgeClassName}
+            />
+          </div>
+          {index < contests.length - 1 && <Separator />}
+        </Fragment>
+      ))}
+    </>
+  );
+}
+
 export default function ContestList({ data }: Props) {
   const t = useTranslations('contest');
   if (!data.tdocs.length) {
@@ -144,22 +217,56 @@ export default function ContestList({ data }: Props) {
     );
   }
 
+  const now = dayjs();
+  const groups = groupContestsByStatus(data.tdocs, now);
+  const statusById = new Map<string, ContestRuntimeStatus>(
+    data.tdocs.map((contest) => [contest.docId, getContestStatus(contest, now)])
+  );
+  const attendedById = (docId: string) => Boolean(data.tsdict?.[docId]?.attend);
+
+  const highlightSections: Array<{
+    status: 'running' | 'pending';
+    contests: ContestListProjection[];
+  }> = [
+    { status: 'running', contests: groups.running },
+    { status: 'pending', contests: groups.pending },
+  ];
+
   return (
-    <div
-      className="overflow-hidden rounded-xl border bg-card/40"
-      data-llm-visible="true"
-    >
-      {data.tdocs.map((contest, index) => (
-        <Fragment key={contest.docId}>
-          <div className="px-4 py-4 transition-colors hover:bg-accent/30 sm:px-5">
-            <ContestItem
-              contest={contest}
-              attended={Boolean(data.tsdict?.[contest.docId]?.attend)}
+    <div className="space-y-4">
+      {highlightSections
+        .filter((section) => section.contests.length > 0)
+        .map((section) => (
+          <section
+            key={section.status}
+            data-llm-visible="true"
+            className={cn(
+              'overflow-hidden rounded-xl border',
+              sectionContainerClassName[section.status]
+            )}
+          >
+            <ContestItemList
+              contests={section.contests}
+              statusById={statusById}
+              attendedById={attendedById}
+              statusBadgeClassName={sectionStatusBadgeClassName[section.status]}
+              itemHoverClassName={sectionItemHoverClassName[section.status]}
             />
-          </div>
-          {index < data.tdocs.length - 1 && <Separator />}
-        </Fragment>
-      ))}
+          </section>
+        ))}
+
+      {groups.ended.length > 0 && (
+        <div
+          className="overflow-hidden rounded-xl border bg-card/40"
+          data-llm-visible="true"
+        >
+          <ContestItemList
+            contests={groups.ended}
+            statusById={statusById}
+            attendedById={attendedById}
+          />
+        </div>
+      )}
     </div>
   );
 }
