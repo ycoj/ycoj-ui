@@ -11,7 +11,7 @@ describe('ProblemDifficulty', () => {
         <ProblemDifficulty difficulty={2} />
       </NextIntlClientProvider>
     );
-    expect(screen.getByText('Basic-')).toBeInTheDocument();
+    expect(screen.getByText('CSP-')).toBeInTheDocument();
   });
 
   it('falls back to Unrated for missing or invalid difficulty', () => {
