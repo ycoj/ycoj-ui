@@ -2,6 +2,7 @@
 
 import ClientApis from '@/api/client/method';
 import type { LanguageFamily } from '@/api/server/method/ui/languages';
+import AiGenerationLog from '@/features/record/detail/ai-generation/ai-generation-log';
 import RecordCode from '@/features/record/detail/record-code';
 import { RecordCompilerMessage } from '@/features/record/detail/record-compiler-message';
 import RecordDetail from '@/features/record/detail/record-detail';
@@ -96,6 +97,20 @@ export default function RecordDetailLive({
 
   const showSidebar =
     (allowRejudge && !isHistorical) || Object.keys(allRevs ?? {}).length > 0;
+
+  if (rdoc.lang === 'ai') {
+    return (
+      <div className="space-y-6">
+        <AiGenerationLog
+          rdoc={rdoc}
+          pdoc={pdoc}
+          udoc={udoc}
+          allowCancel={allowRejudge && !isHistorical}
+          onCancel={handleCancel}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

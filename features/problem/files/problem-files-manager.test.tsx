@@ -103,6 +103,7 @@ function renderManager() {
     <NextIntlClientProvider locale="en" messages={messages}>
       <ProblemFilesManager
         pid="1000"
+        domainId="system"
         tid="contest-id"
         testdata={[]}
         additionalFiles={[]}

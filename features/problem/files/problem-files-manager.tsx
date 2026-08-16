@@ -1,5 +1,6 @@
 'use client';
 
+import AiGenerationSection from './ai-generation-dialog';
 import CreateFileDialog from './create-file-dialog';
 import FileSection from './file-section';
 import RenameFileDialog from './rename-file-dialog';
@@ -16,10 +17,12 @@ import { useRef, useState } from 'react';
 
 type Props = {
   pid: string;
+  domainId: string;
   tid?: string;
   testdata: FileInfo[];
   additionalFiles: FileInfo[];
   canManage: boolean;
+  canGenerate?: boolean;
   canDownloadTestdata?: boolean;
 };
 
@@ -35,10 +38,12 @@ type ActiveUpload = {
 
 export default function ProblemFilesManager({
   pid,
+  domainId,
   tid,
   testdata,
   additionalFiles,
   canManage,
+  canGenerate = false,
   canDownloadTestdata = canManage,
 }: Props) {
   const t = useTranslations('problem.fileManager');
@@ -185,21 +190,24 @@ export default function ProblemFilesManager({
         </p>
       )}
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        <FileSection
-          key={`testdata-${testdata.map((file) => file.name).join(':')}`}
-          type="testdata"
-          files={testdata}
-          canManage={canManage}
-          canDownload={canDownloadTestdata}
-          uploading={uploading}
-          deleting={deleting}
-          onCreate={openCreate}
-          onUpload={uploadFiles}
-          onRename={openRename}
-          onEdit={openEdit}
-          onDelete={deleteFiles}
-          onDownload={downloadFiles}
-        />
+        <div className="space-y-6">
+          <FileSection
+            key={`testdata-${testdata.map((file) => file.name).join(':')}`}
+            type="testdata"
+            files={testdata}
+            canManage={canManage}
+            canDownload={canDownloadTestdata}
+            uploading={uploading}
+            deleting={deleting}
+            onCreate={openCreate}
+            onUpload={uploadFiles}
+            onRename={openRename}
+            onEdit={openEdit}
+            onDelete={deleteFiles}
+            onDownload={downloadFiles}
+          />
+          {canGenerate && <AiGenerationSection domainId={domainId} pid={pid} />}
+        </div>
         <FileSection
           key={`additional-${additionalFiles.map((file) => file.name).join(':')}`}
           type="additional_file"

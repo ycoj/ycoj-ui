@@ -67,8 +67,10 @@ export default async function ProblemFilesPage({
     <ProblemFilesContent
       data={data}
       pid={pid}
+      domainId={data.pdoc.domainId}
       tid={searchParams.tid}
       canManage={canManage}
+      canGenerate={canManage && !searchParams.tid}
       canDownloadTestdata={canDownloadTestdata}
     />
   );
@@ -77,14 +79,18 @@ export default async function ProblemFilesPage({
 function ProblemFilesContent({
   data,
   pid,
+  domainId,
   tid,
   canManage,
+  canGenerate,
   canDownloadTestdata,
 }: {
   data: ProblemFilesData;
   pid: string;
+  domainId: string;
   tid?: string;
   canManage: boolean;
+  canGenerate: boolean;
   canDownloadTestdata: boolean;
 }) {
   return (
@@ -95,10 +101,12 @@ function ProblemFilesContent({
         left={
           <ProblemFilesManager
             pid={pid}
+            domainId={domainId}
             tid={tid}
             testdata={data.testdata}
             additionalFiles={data.additional_file}
             canManage={canManage}
+            canGenerate={canGenerate}
             canDownloadTestdata={canDownloadTestdata}
           />
         }

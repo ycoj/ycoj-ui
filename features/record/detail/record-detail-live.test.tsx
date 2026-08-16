@@ -50,6 +50,12 @@ vi.mock('@/features/record/detail/record-detail', () => ({
   ),
 }));
 
+vi.mock('@/features/record/detail/ai-generation/ai-generation-log', () => ({
+  default: ({ rdoc }: { rdoc: RecordDoc }) => (
+    <div data-testid="ai-log">{`${rdoc.lang}:${rdoc.status}`}</div>
+  ),
+}));
+
 vi.mock('@/features/record/detail/record-sidebar', () => ({
   default: ({
     onRejudge,
@@ -152,6 +158,52 @@ beforeEach(() => {
 });
 
 describe('RecordDetailLive', () => {
+  it('uses the AI log only when lang is ai', () => {
+    render(
+      <RecordDetailLive
+        {...props}
+        rdoc={{
+          ...rdoc,
+          lang: 'ai',
+          aiGeneration: {
+            active: true,
+            stage: 'waiting',
+            model: 'gpt-5',
+          },
+        }}
+      />
+    );
+
+    expect(screen.getByTestId('ai-log')).toHaveTextContent('ai:0');
+    expect(screen.queryByTestId('detail')).toBeNull();
+
+    act(() =>
+      socketMock.options!.onMessage({
+        rdoc: { _id: rdoc._id, status: 20, progress: 10 },
+      })
+    );
+    expect(screen.getByTestId('ai-log')).toHaveTextContent('ai:20');
+  });
+
+  it('keeps the normal record view when only aiGeneration metadata is present', () => {
+    render(
+      <RecordDetailLive
+        {...props}
+        rdoc={{
+          ...rdoc,
+          aiGeneration: {
+            active: true,
+            stage: 'waiting',
+            model: 'gpt-5',
+          },
+        }}
+      />
+    );
+
+    expect(screen.getByTestId('detail')).toHaveTextContent('0:0:0');
+    expect(screen.queryByTestId('ai-log')).toBeNull();
+  });
+
   it('updates every record section from the matching websocket frame', () => {
     render(<RecordDetailLive {...props} />);
 

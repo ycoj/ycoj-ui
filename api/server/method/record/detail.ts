@@ -10,7 +10,7 @@ export type RecordDetailResponse = {
   udoc: User;
   pdoc: ProblemDoc;
   rdoc: RecordDoc;
-  tdoc: Contest | Homework;
+  tdoc: Contest | Homework | null;
   rev?: ObjectId;
   // JSON 序列化后 judgeAt 为 ISO 字符串
   allRevs: Record<ObjectId, string>;

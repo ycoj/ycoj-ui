@@ -198,7 +198,16 @@
       "saving": "保存中...",
       "close": "关闭",
       "confirmDelete": "确认删除选中的 {count} 个文件吗？",
-      "actionFailed": "操作失败，请稍后重试"
+      "actionFailed": "操作失败，请稍后重试",
+      "generateWithAi": "使用 AI 生成",
+      "aiInstructions": "生成要求",
+      "aiInstructionsPlaceholder": "补充生成器需要遵循的限制或测试点要求...",
+      "aiInstructionsTooLong": "生成要求不能超过 10000 个字符。",
+      "startGeneration": "开始生成",
+      "generatingWithAi": "启动中...",
+      "aiGenerationFailed": "无法启动 AI 生成，请稍后重试。",
+      "aiGenerationDisabled": "AI 测试数据生成功能当前未启用。",
+      "aiGenerationAlreadyActive": "该题目已有正在运行的 AI 生成任务。"
     },
     "searchPlaceholder": "搜索题目...",
     "createOrImport": "创建或导入",
@@ -437,7 +446,64 @@
     "judgeVersion": "评测版本",
     "latestVersion": "最新版本",
     "historicalVersion": "历史版本",
-    "judgedAt": "评测于 {time}"
+    "judgedAt": "评测于 {time}",
+    "aiGeneration": {
+      "title": "AI 测试数据生成",
+      "pageTitle": "数据生成 - {title}",
+      "stages": {
+        "waiting": "等待执行",
+        "preparing": "准备环境",
+        "agent": "智能体执行中",
+        "validating": "校验测试数据",
+        "replacing": "安装测试数据",
+        "completed": "已完成",
+        "failed": "失败",
+        "cancelled": "已取消"
+      },
+      "progress": "生成进度",
+      "model": "模型",
+      "problem": "题目",
+      "startedAt": "开始时间",
+      "finishedAt": "完成时间",
+      "recordId": "记录 ID",
+      "instructions": "生成要求",
+      "report": "生成报告",
+      "timeline": "执行时间线",
+      "noEvents": "暂时还没有生成轨迹。",
+      "events": {
+        "generation": "生成测试数据",
+        "preparation": "准备环境",
+        "agentTurn": "智能体回合",
+        "validation": "校验测试数据",
+        "replacement": "安装测试数据"
+      },
+      "states": {
+        "running": "执行中",
+        "completed": "已完成",
+        "failed": "失败",
+        "cancelled": "已取消",
+        "timedOut": "已超时"
+      },
+      "tools": {
+        "reading": "正在读取",
+        "read": "已读取",
+        "editing": "正在编辑",
+        "edited": "已编辑",
+        "readFile": "{action} {path}",
+        "editFile": "{action} {path}",
+        "runningCommand": "正在运行命令",
+        "runningCommandSingle": "正在运行 {names} 命令",
+        "runningCommandMultiple": "正在运行 {names} 等 {count} 个命令",
+        "ranCommand": "已运行命令",
+        "ranCommandSingle": "已运行 {names} 命令",
+        "ranCommandMultiple": "已运行 {names} 等 {count} 个命令",
+        "call": "工具调用"
+      },
+      "cancel": "取消生成",
+      "cancelling": "取消中...",
+      "caseCount": "已安装测试点：{count}",
+      "totalBytes": "总大小：{size}"
+    }
   },
   "discussion": {
     "node": "讨论节点",

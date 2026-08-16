@@ -1,3 +1,4 @@
+import { formatTestcaseMessage } from '@/features/record/detail/format-testcase-message';
 import {
   Accordion,
   AccordionContent,
@@ -21,7 +22,7 @@ import {
   STATUS_SHORT_TEXTS,
 } from '@/shared/configs/status';
 import { formatMemory } from '@/shared/lib/format-units';
-import { RecordDoc, TestCaseResponse } from '@/shared/types/record';
+import type { RecordDoc, TestCaseResponse } from '@/shared/types/record';
 import { useTranslations } from 'next-intl';
 
 type Props = {
@@ -39,6 +40,7 @@ function RecordTestcaseList({
     <TooltipProvider>
       <div className={className}>
         {testcases.map((testcase) => {
+          const message = formatTestcaseMessage(testcase.message);
           const content = (
             <div
               key={`testcase-${testcase.id}`}
@@ -70,7 +72,7 @@ function RecordTestcaseList({
             </div>
           );
 
-          if (!testcase.message?.trim()) {
+          if (!message.trim()) {
             return content;
           }
 
@@ -78,7 +80,7 @@ function RecordTestcaseList({
             <Tooltip key={`testcase-${testcase.id}-tooltip`}>
               <TooltipTrigger asChild>{content}</TooltipTrigger>
               <TooltipContent className="whitespace-pre-wrap">
-                {testcase.message}
+                {message}
               </TooltipContent>
             </Tooltip>
           );
