@@ -156,7 +156,7 @@ export default function CreateFileDialog({
               value={name}
               onChange={(event) => setName(event.target.value)}
               placeholder={t('filenamePlaceholder')}
-              aria-label={t('filename')}
+              aria-label={t('fileNameLabel')}
               readOnly={editing}
               autoFocus={!editing}
             />

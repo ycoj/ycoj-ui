@@ -41,14 +41,19 @@ export default function RenameFileDialog({
     close();
   };
   const submit = async () => {
-    if (!target || !name.trim() || busy) return;
+    const trimmedName = name.trim();
+    if (!target || !trimmedName || busy) return;
+    if (/[\\/]/.test(trimmedName)) {
+      setError(t('invalidFilename'));
+      return;
+    }
     setBusy(true);
     setError('');
     try {
       await ClientApis.Problem.renameProblemFiles(
         pid,
         [target.file.name],
-        [name.trim()],
+        [trimmedName],
         target.type,
         tid
       ).send();
@@ -101,7 +106,7 @@ export default function RenameFileDialog({
               value={name}
               onChange={(event) => setName(event.target.value)}
               placeholder={t('filenamePlaceholder')}
-              aria-label={t('filename')}
+              aria-label={t('fileNameLabel')}
               autoFocus
             />
             {error && (

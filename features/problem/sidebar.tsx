@@ -18,6 +18,7 @@ import {
   MessageCircle,
   File,
   Navigation,
+  Settings2,
   type LucideIcon,
 } from 'lucide-react';
 import { useFormatter, useTranslations } from 'next-intl';
@@ -34,6 +35,7 @@ type Props = {
   tid?: string;
   contest?: Contest | Homework;
   contestStatus?: ContestStatus;
+  allowConfigure?: boolean;
 };
 
 type SidebarButtonProps = {
@@ -78,6 +80,7 @@ export default function ProblemSidebar({
   problem,
   tid,
   contest,
+  allowConfigure,
 }: Props) {
   const t = useTranslations('problem');
   const common = useTranslations('common');
@@ -163,6 +166,13 @@ export default function ProblemSidebar({
           text={t('files')}
           href={withTid(`/problem/${problem.pid ?? problem.docId}/files`, tid)}
         />
+        {!isContestMode && allowConfigure && (
+          <SidebarButton
+            icon={Settings2}
+            text={t('configuration')}
+            href={`/problem/${problem.pid ?? problem.docId}/config`}
+          />
+        )}
       </div>
 
       {isContestMode && contest && (

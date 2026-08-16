@@ -1,6 +1,7 @@
 'use client';
 
 import { cn } from '@/shared/lib/utils';
+import type { OnMount } from '@monaco-editor/react';
 import { useTheme } from 'next-themes';
 import dynamic from 'next/dynamic';
 
@@ -18,6 +19,8 @@ type Props = {
   ariaLabel?: string;
   tabSize?: number;
   className?: string;
+  path?: string;
+  onMount?: OnMount;
 };
 
 export default function CodeEditor({
@@ -30,6 +33,8 @@ export default function CodeEditor({
   ariaLabel,
   tabSize = 2,
   className,
+  path,
+  onMount,
 }: Props) {
   const { resolvedTheme } = useTheme();
 
@@ -48,6 +53,8 @@ export default function CodeEditor({
         language={language}
         theme={resolvedTheme === 'dark' ? 'vs-dark' : 'light'}
         value={value}
+        path={path}
+        onMount={onMount}
         onChange={(next) => onChange?.(next ?? '')}
         loading={
           <div className="h-full w-full bg-muted/30" aria-hidden="true" />

@@ -112,7 +112,7 @@ export default function FileSection({
                 )
               }
             />
-            <span>{t('filename')}</span>
+            <span>{t('fileNameLabel')}</span>
             <span>{t('size')}</span>
             <span className="sr-only">{t('actions')}</span>
           </div>

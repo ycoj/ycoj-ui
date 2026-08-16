@@ -120,6 +120,7 @@ function ProblemFilesContent({
             tid={tid}
             contest={data.tdoc}
             contestStatus={data.tsdoc}
+            allowConfigure={canManage}
           />
         }
       />

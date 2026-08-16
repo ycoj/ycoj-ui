@@ -1,4 +1,5 @@
 import { clientRequest, uploadClientRequest } from '@/api/client';
+import type { FileInfo } from '@/shared/types/file';
 import type {
   ProblemFileLinksData,
   ProblemFilesHandlerData,
@@ -13,6 +14,9 @@ export type GenerateProblemTestdataResponse = ProblemFilesMutationResponse & {
   /** URL of the record page that tracks the asynchronous testdata-generation job. */
   url: string;
 };
+
+const isValidRenameTarget = (name: string) =>
+  name.length > 0 && name !== '.' && name !== '..' && !/[\\/]/.test(name);
 
 const problemFilesConfig = (tid?: ObjectId) => ({
   params: tid ? { tid } : {},
@@ -62,6 +66,42 @@ export const getProblemFileLinks = (
     problemFilesConfig(tid)
   );
 
+/** Refreshes the current testdata list without navigating away from an editor. */
+export const refreshProblemTestdata = async (
+  pid: string | number,
+  tid?: ObjectId
+) => {
+  const response = await clientRequest
+    .Get<{ testdata: FileInfo[] }>(`/p/${pid}/files`, problemFilesConfig(tid))
+    .send();
+  return response.testdata;
+};
+
+/** Resolves one short-lived direct download URL. */
+export const getProblemFileDownloadUrl = async (
+  pid: string | number,
+  filename: string,
+  type: ProblemFileType = 'testdata',
+  tid?: ObjectId
+) => {
+  const response = await getProblemFileLinks(pid, [filename], type, tid).send();
+  return response.links[filename] ?? '';
+};
+
+/** Uploads config.yaml using the same file endpoint as other testdata. */
+export const uploadProblemConfig = (
+  pid: string | number,
+  yaml: string,
+  tid?: ObjectId
+) =>
+  uploadProblemFile(
+    pid,
+    new File([yaml], 'config.yaml', { type: 'text/yaml' }),
+    'testdata',
+    'config.yaml',
+    tid
+  );
+
 /**
  * Uploads a problem file.
  *
@@ -105,8 +145,11 @@ export const renameProblemFiles = (
   newNames: string[],
   type: ProblemFileType = 'testdata',
   tid?: ObjectId
-) =>
-  clientRequest.Post<ProblemFilesMutationResponse>(
+) => {
+  if (newNames.some((name) => !isValidRenameTarget(name)))
+    throw new Error('Invalid filename');
+
+  return clientRequest.Post<ProblemFilesMutationResponse>(
     `/p/${pid}/files`,
     {
       operation: 'rename_files',
@@ -116,6 +159,7 @@ export const renameProblemFiles = (
     },
     problemFilesConfig(tid)
   );
+};
 
 /**
  * Deletes files from a problem file collection.
