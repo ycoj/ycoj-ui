@@ -32,6 +32,7 @@ type Props = {
   contest: ContestDetailTdoc;
   contestStatus?: ContestDetailStatus | null;
   owner?: BaseUser;
+  showScoreboard: boolean;
 };
 
 type SidebarButtonProps = {
@@ -60,6 +61,7 @@ export default function ContestSidebar({
   contest,
   contestStatus,
   owner,
+  showScoreboard,
 }: Props) {
   const t = useTranslations('contest');
   const common = useTranslations('common');
@@ -131,11 +133,13 @@ export default function ContestSidebar({
             </span>
           </Button>
         )}
-        <SidebarButton
-          href={`/contest/${tid}/scoreboard`}
-          icon={Award}
-          text={t('scoreboard')}
-        />
+        {showScoreboard && (
+          <SidebarButton
+            href={`/contest/${tid}/scoreboard`}
+            icon={Award}
+            text={t('scoreboard')}
+          />
+        )}
         <SidebarButton
           href="#"
           icon={MessageCircle}

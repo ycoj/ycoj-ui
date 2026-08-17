@@ -1,7 +1,9 @@
 import ContestTitle from '@/features/contest/contest-title';
 import ContestContent from '@/features/contest/detail/contest-content';
 import ContestSidebar from '@/features/contest/detail/contest-sidebar';
+import { canShowContestScoreboard } from '@/features/contest/detail/contest-utils';
 import { getContestDetail } from '@/features/contest/detail/get-contest-detail';
+import { getUser } from '@/features/user/lib/get-user';
 import TwoColumnLayout from '@/shared/layout/two-column';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
@@ -30,8 +32,9 @@ export default async function ContestDetailPage({
   params: Promise<Params>;
 }) {
   const { tid } = await params;
-  const data = await getContestDetail(tid);
+  const [data, user] = await Promise.all([getContestDetail(tid), getUser()]);
   const owner = data.udict[data.tdoc.owner];
+  const showScoreboard = canShowContestScoreboard(data.tdoc, user);
 
   return (
     <div className="space-y-6">
@@ -51,6 +54,7 @@ export default async function ContestDetailPage({
             contest={data.tdoc}
             contestStatus={data.tsdoc}
             owner={owner}
+            showScoreboard={showScoreboard}
           />
         }
       />

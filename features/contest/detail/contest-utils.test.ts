@@ -1,9 +1,12 @@
 import {
+  canShowContestScoreboard,
   getContestDurationParts,
   getContestProblemLabel,
   getContestStatus,
 } from './contest-utils';
 import type { ContestDetailTdoc } from '@/api/server/method/contests/detail';
+import { PERM } from '@/features/user/lib/priv';
+import type { User } from '@/shared/types/user';
 import dayjs from 'dayjs';
 import { describe, expect, it } from 'vitest';
 
@@ -126,5 +129,76 @@ describe('getContestDurationParts', () => {
         '2024-01-03T05:00:00.000Z'
       )
     ).toEqual({ days: 2, hours: 5, minutes: 0 });
+  });
+});
+
+describe('canShowContestScoreboard', () => {
+  function makeUser(overrides: Partial<User> = {}): User {
+    return {
+      _id: 1,
+      uname: 'tester',
+      mail: 'tester@example.com',
+      avatar: '',
+      perm: 'BigInt::0',
+      role: 'default',
+      priv: 0,
+      regat: '2020-01-01T00:00:00.000Z',
+      loginat: '2020-01-01T00:00:00.000Z',
+      tfa: false,
+      authn: false,
+      ...overrides,
+    };
+  }
+
+  function makeContestWithRule(
+    rule: ContestDetailTdoc['rule'],
+    owner = 100
+  ): ContestDetailTdoc {
+    return {
+      rule,
+      owner,
+      beginAt: new Date('2024-01-01T10:00:00.000Z'),
+      endAt: new Date('2024-01-01T12:00:00.000Z'),
+    } as ContestDetailTdoc;
+  }
+
+  it('shows the scoreboard for non-OI rules without extra permissions', () => {
+    expect(
+      canShowContestScoreboard(makeContestWithRule('acm'), makeUser())
+    ).toBe(true);
+    expect(
+      canShowContestScoreboard(makeContestWithRule('ioi'), makeUser())
+    ).toBe(true);
+  });
+
+  it('hides the scoreboard for OI contests without the hidden-scoreboard permission', () => {
+    expect(
+      canShowContestScoreboard(makeContestWithRule('oi'), makeUser())
+    ).toBe(false);
+  });
+
+  it('shows the scoreboard for OI contests with the hidden-scoreboard permission', () => {
+    const user = makeUser({
+      perm: `BigInt::${PERM.PERM_VIEW_CONTEST_HIDDEN_SCOREBOARD.toString()}`,
+    });
+    expect(canShowContestScoreboard(makeContestWithRule('oi'), user)).toBe(
+      true
+    );
+  });
+
+  it('shows the scoreboard to the contest owner for OI contests', () => {
+    const user = makeUser({ _id: 100 });
+    expect(canShowContestScoreboard(makeContestWithRule('oi', 100), user)).toBe(
+      true
+    );
+  });
+
+  it('does not treat the regular scoreboard permission as the hidden one', () => {
+    const user = makeUser({
+      perm: `BigInt::${PERM.PERM_VIEW_CONTEST_SCOREBOARD.toString()}`,
+    });
+    expect(canShowContestScoreboard(makeContestWithRule('oi'), user)).toBe(
+      false
+    );
   });
 });

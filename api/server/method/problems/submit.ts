@@ -1,4 +1,5 @@
 import { alova } from '@/api/server';
+import type { HydroError } from '@/shared/types/error';
 import type { ObjectId } from '@/shared/types/shared';
 
 export type ProblemSubmitRequest = {
@@ -9,6 +10,7 @@ export type ProblemSubmitRequest = {
 };
 
 export type ProblemSubmitResponse = {
+  error?: HydroError;
   rid?: ObjectId;
   tid?: ObjectId;
 };

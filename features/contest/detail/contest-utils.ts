@@ -1,5 +1,7 @@
 import type { ContestDetailTdoc } from '@/api/server/method/contests/detail';
 import type { ContestStatus } from '@/features/contest/contest-status';
+import { hasPerm, PERM } from '@/features/user/lib/priv';
+import type { User } from '@/shared/types/user';
 import dayjs from 'dayjs';
 
 export function getContestProblemLabel(index: number) {
@@ -44,4 +46,17 @@ export function getContestDurationParts(
   const minutes = totalMinutes % 60;
 
   return { days, hours, minutes };
+}
+
+// OI contests keep the scoreboard hidden until they end, so only the owner or
+// users with the hidden-scoreboard permission may open it.
+export function canShowContestScoreboard(
+  contest: ContestDetailTdoc,
+  user: User
+) {
+  if (contest.rule !== 'oi') return true;
+  return (
+    user._id === contest.owner ||
+    hasPerm(user, PERM.PERM_VIEW_CONTEST_HIDDEN_SCOREBOARD)
+  );
 }

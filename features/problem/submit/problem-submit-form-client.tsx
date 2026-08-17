@@ -3,6 +3,7 @@
 import ClientApis from '@/api/client/method';
 import type { LanguageFamily } from '@/api/server/method/ui/languages';
 import CodeEditor from '@/shared/components/code/code-editor';
+import parseErrorMessage from '@/shared/components/errored/parse-message';
 import {
   Alert,
   AlertDescription,
@@ -178,9 +179,14 @@ export default function ProblemSubmitFormClient({
         return;
       }
 
+      if (res?.tid) {
+        router.push(`/contest/${res.tid}`);
+        return;
+      }
+
       setError('root.serverError', {
         type: 'server',
-        message: t('submitFailed'),
+        message: res?.error ? parseErrorMessage(res.error) : t('submitFailed'),
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : t('submitRetry');
