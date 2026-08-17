@@ -1,5 +1,6 @@
 import ProblemTitle from './problem-title';
 import messages from '@/messages/en.json';
+import type { Contest } from '@/shared/types/contest';
 import type {
   ProblemConfig,
   PublicProjectionProblem,
@@ -26,10 +27,28 @@ function makeProblem(config?: ProblemConfig): PublicProjectionProblem {
   } as PublicProjectionProblem;
 }
 
-function renderTitle(problem: PublicProjectionProblem) {
+function makeContest(): Contest {
+  return {
+    _id: 't'.repeat(24),
+    domainId: 'system',
+    docType: 30,
+    docId: '1',
+    owner: 1,
+    beginAt: new Date('2026-01-01T00:00:00Z'),
+    endAt: new Date('2026-01-02T00:00:00Z'),
+    attend: 0,
+    title: 'Sample Contest',
+    content: '',
+    rule: 'oi',
+    pids: [],
+    duration: 24,
+  } as Contest;
+}
+
+function renderTitle(problem: PublicProjectionProblem, contest?: Contest) {
   return render(
     <NextIntlClientProvider locale="en" messages={messages}>
-      <ProblemTitle problem={problem} />
+      <ProblemTitle problem={problem} contest={contest} />
     </NextIntlClientProvider>
   );
 }
@@ -70,5 +89,22 @@ describe('ProblemTitle info badges', () => {
     expect(screen.getByText('2000ms')).toBeInTheDocument();
     expect(screen.getByText('512MiB')).toBeInTheDocument();
     expect(screen.getByText('Interactive')).toBeInTheDocument();
+  });
+});
+
+describe('ProblemTitle submission stats', () => {
+  it('shows accepted and submission counts outside contest mode', () => {
+    renderTitle(makeProblem());
+    expect(screen.getByText('Accepted')).toBeInTheDocument();
+    expect(screen.getByText('Submissions')).toBeInTheDocument();
+    expect(screen.getByText('1')).toBeInTheDocument();
+    expect(screen.getByText('3')).toBeInTheDocument();
+  });
+
+  it('hides accepted and submission counts in contest mode', () => {
+    renderTitle(makeProblem(), makeContest());
+    expect(screen.queryByText('Accepted')).not.toBeInTheDocument();
+    expect(screen.queryByText('Submissions')).not.toBeInTheDocument();
+    expect(screen.getByText('Sample Contest')).toBeInTheDocument();
   });
 });

@@ -89,10 +89,12 @@ export default function ProblemTitle({ problem, contest }: Props) {
         </div>
       </div>
 
-      <div className="flex shrink-0 items-start gap-8">
-        <StatItem value={problem.nAccept} label={t('accepted')} />
-        <StatItem value={problem.nSubmit} label={t('submissions')} />
-      </div>
+      {!contest && (
+        <div className="flex shrink-0 items-start gap-8">
+          <StatItem value={problem.nAccept} label={t('accepted')} />
+          <StatItem value={problem.nSubmit} label={t('submissions')} />
+        </div>
+      )}
     </div>
   );
 }

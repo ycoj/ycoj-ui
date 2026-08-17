@@ -164,11 +164,14 @@ export default function ProblemSubmitFormClient({
 
   const onSubmit = async (values: FormValues) => {
     try {
-      const res = await ClientApis.Problem.submitProblem(pid, {
-        lang: values.lang,
-        code: values.code,
-        ...(tid ? { tid } : {}),
-      }).send();
+      const res = await ClientApis.Problem.submitProblem(
+        pid,
+        {
+          lang: values.lang,
+          code: values.code,
+        },
+        tid
+      ).send();
 
       if (res?.rid) {
         router.push(`/record/${res.rid}`);

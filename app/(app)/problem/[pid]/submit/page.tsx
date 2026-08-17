@@ -69,7 +69,7 @@ function ProblemSubmitContent({
 }) {
   return (
     <div className="space-y-6">
-      <ProblemTitle problem={data.pdoc} />
+      <ProblemTitle problem={data.pdoc} contest={data.tdoc} />
       <TwoColumnLayout
         ratio="8-2"
         left={

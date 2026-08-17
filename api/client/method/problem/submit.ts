@@ -1,12 +1,11 @@
 import { clientRequest } from '@/api/client';
-import { ObjectId } from '@/shared/types/shared';
+import type { ObjectId } from '@/shared/types/shared';
 
 export type ProblemSubmitRequest = {
   lang: string;
   code?: string;
   pretest?: boolean;
   input?: string[];
-  tid?: ObjectId;
 };
 
 export type ProblemSubmitResponse = {
@@ -14,5 +13,17 @@ export type ProblemSubmitResponse = {
   tid?: ObjectId;
 };
 
-export const submitProblem = (pid: string, payload: ProblemSubmitRequest) =>
-  clientRequest.Post<ProblemSubmitResponse>(`/p/${pid}/submit`, payload);
+/**
+ * Submits a solution for a problem.
+ *
+ * @param tid Contest identifier passed as a URL query parameter to resolve
+ * the problem in a contest context.
+ */
+export const submitProblem = (
+  pid: string,
+  payload: ProblemSubmitRequest,
+  tid?: ObjectId
+) =>
+  clientRequest.Post<ProblemSubmitResponse>(`/p/${pid}/submit`, payload, {
+    params: tid ? { tid } : {},
+  });
