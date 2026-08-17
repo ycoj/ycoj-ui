@@ -18,6 +18,11 @@ type Props = {
   onBlur?: () => void;
 };
 
+const problemKey = (problem: ProblemAutoCompleteItem) => String(problem.docId);
+
+const problemLabel = (problem: ProblemAutoCompleteItem) =>
+  `${problem.pid ? `${problem.pid} ` : ''}${problem.title}`;
+
 export default function ProblemAutoComplete({ domainId, ...props }: Props) {
   const t = useTranslations('autoComplete');
   const searchItems = useCallback(
@@ -25,20 +30,30 @@ export default function ProblemAutoComplete({ domainId, ...props }: Props) {
       (await ClientApis.Problem.searchProblems(domainId, query).send()).pdocs,
     [domainId]
   );
+  const resolveItem = useCallback(
+    async (value: string) => {
+      if (!/^\d+$/.test(value.trim())) return null;
+
+      const docId = Number(value);
+      const items = await searchItems(value);
+      return items.find((problem) => problem.docId === docId) ?? null;
+    },
+    [searchItems]
+  );
 
   return (
     <AsyncAutoComplete<ProblemAutoCompleteItem>
       {...props}
       searchItems={searchItems}
-      itemKey={(problem) => String(problem.docId)}
-      itemLabel={(problem) =>
-        `${problem.pid ? `${problem.pid} ` : ''}${problem.title}`
-      }
+      resolveItem={resolveItem}
+      itemKey={problemKey}
+      itemLabel={problemLabel}
+      itemInputLabel={(problem) => problem.title}
       renderItem={(problem) => (
         <div className="min-w-0">
           <div
             className="truncate font-medium"
-            data-llm-text={`${problem.pid ? `${problem.pid} ` : ''}${problem.title}`}
+            data-llm-text={problemLabel(problem)}
           >
             {problem.pid && `${problem.pid} `}
             {problem.title}

@@ -18,8 +18,10 @@ export type AsyncAutoCompleteProps<Item> = {
   value: string;
   onValueChange: (value: string) => void;
   searchItems: (query: string) => Promise<Item[]>;
+  resolveItem?: (value: string) => Promise<Item | null>;
   itemKey: (item: Item) => string;
   itemLabel: (item: Item) => string;
+  itemInputLabel?: (item: Item) => string;
   renderItem: (item: Item) => ReactNode;
   messages: AsyncAutoCompleteMessages;
   allowEmptyQuery?: boolean;
@@ -42,8 +44,10 @@ export default function AsyncAutoComplete<Item>({
   value,
   onValueChange,
   searchItems,
+  resolveItem,
   itemKey,
   itemLabel,
+  itemInputLabel,
   renderItem,
   messages,
   allowEmptyQuery = false,
@@ -60,12 +64,40 @@ export default function AsyncAutoComplete<Item>({
     null
   );
   const [open, setOpen] = useState(false);
+  const [editingSelection, setEditingSelection] = useState(false);
   const requestId = useRef(0);
+  const resolveRequestId = useRef(0);
   const selectedValue =
     selectedItem && itemKey(selectedItem) === value ? selectedItem : null;
-  const inputValue = selectedValue ? itemLabel(selectedValue) : value;
+  const inputValue = selectedValue
+    ? editingSelection && itemInputLabel
+      ? itemInputLabel(selectedValue)
+      : itemLabel(selectedValue)
+    : value;
   const query = inputValue.trim();
   const shouldSearch = open && (allowEmptyQuery || query.length > 0);
+
+  useEffect(() => {
+    const currentRequestId = ++resolveRequestId.current;
+
+    if (!resolveItem || !value || selectedValue || open) return;
+
+    void resolveItem(value)
+      .then((item) => {
+        if (
+          resolveRequestId.current !== currentRequestId ||
+          !item ||
+          itemKey(item) !== value
+        ) {
+          return;
+        }
+
+        setSelectedItem(item);
+      })
+      .catch(() => {
+        // Resolution is best-effort; free-form input remains supported.
+      });
+  }, [itemKey, open, resolveItem, selectedValue, value]);
 
   useEffect(() => {
     const currentRequestId = ++requestId.current;
@@ -117,6 +149,7 @@ export default function AsyncAutoComplete<Item>({
     if (details.reason === 'item-press') return;
 
     setSelectedItem(null);
+    setEditingSelection(false);
     setSearchState(null);
     onValueChange(nextValue);
     if (nextValue.trim() || allowEmptyQuery) setOpen(true);
@@ -126,6 +159,7 @@ export default function AsyncAutoComplete<Item>({
   const handleSelectedValueChange = (nextItem: Item | null) => {
     if (!nextItem) {
       setSelectedItem(null);
+      setEditingSelection(false);
       setSearchState(null);
       onValueChange('');
       if (!allowEmptyQuery) setOpen(false);
@@ -133,6 +167,7 @@ export default function AsyncAutoComplete<Item>({
     }
 
     setSelectedItem(nextItem);
+    setEditingSelection(false);
     onValueChange(itemKey(nextItem));
   };
 
@@ -152,6 +187,9 @@ export default function AsyncAutoComplete<Item>({
         const canOpen =
           nextOpen && (allowEmptyQuery || inputValue.trim().length > 0);
         setOpen(canOpen);
+        setEditingSelection(
+          Boolean(canOpen && selectedValue && itemInputLabel)
+        );
         if (canOpen) setSearchState(null);
       }}
       open={open}
