@@ -20,12 +20,14 @@ const itemLabel = (item: Item) => item.label;
 
 type HarnessProps = {
   searchItems: (query: string) => Promise<Item[]>;
+  resolveItem?: (value: string) => Promise<Item | null>;
   allowEmptyQuery?: boolean;
   initialValue?: string;
 };
 
 function Harness({
   searchItems,
+  resolveItem,
   allowEmptyQuery,
   initialValue = '',
 }: HarnessProps) {
@@ -37,8 +39,10 @@ function Harness({
         value={value}
         onValueChange={setValue}
         searchItems={searchItems}
+        resolveItem={resolveItem}
         itemKey={itemKey}
         itemLabel={itemLabel}
+        itemInputLabel={itemLabel}
         renderItem={(item) => <span>{item.label}</span>}
         messages={messages}
         allowEmptyQuery={allowEmptyQuery}
@@ -83,6 +87,62 @@ describe('AsyncAutoComplete', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Clear selection' }));
     expect(screen.getByTestId('value')).toBeEmptyDOMElement();
     expect(input).toHaveValue('');
+  });
+
+  it('resolves an existing value to its selected item label', async () => {
+    const searchItems = vi
+      .fn<(query: string) => Promise<Item[]>>()
+      .mockResolvedValue([]);
+    const resolveItem = vi
+      .fn<(value: string) => Promise<Item | null>>()
+      .mockResolvedValue({ id: '1', label: 'Alice' });
+
+    render(
+      <Harness
+        searchItems={searchItems}
+        resolveItem={resolveItem}
+        initialValue="1"
+      />
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(resolveItem).toHaveBeenCalledWith('1');
+    expect(screen.getByRole('combobox', { name: 'Search items' })).toHaveValue(
+      'Alice'
+    );
+    expect(screen.getByTestId('value')).toHaveTextContent('1');
+  });
+
+  it('uses the edit label when opening an existing selection', async () => {
+    const searchItems = vi
+      .fn<(query: string) => Promise<Item[]>>()
+      .mockResolvedValue([]);
+    const resolveItem = vi
+      .fn<(value: string) => Promise<Item | null>>()
+      .mockResolvedValue({ id: '1', label: 'Alice' });
+
+    render(
+      <Harness
+        searchItems={searchItems}
+        resolveItem={resolveItem}
+        initialValue="1"
+      />
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const input = screen.getByRole('combobox', { name: 'Search items' });
+    expect(input).toHaveValue('Alice');
+    fireEvent.mouseDown(input);
+
+    expect(input).toHaveValue('Alice');
   });
 
   it('supports keyboard selection', async () => {
