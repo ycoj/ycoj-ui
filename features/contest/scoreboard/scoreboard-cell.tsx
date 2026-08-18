@@ -39,7 +39,7 @@ function renderByType(
     pageType?: 'contest' | 'homework';
   }
 ): ReactNode {
-  const { isHeader, udict, tid, pageType } = ctx;
+  const { isHeader, udict, pdict, tid } = ctx;
 
   switch (node.type) {
     case 'rank':
@@ -55,12 +55,13 @@ function renderByType(
     }
 
     case 'problem': {
-      if (isHeader && tid && pageType) {
-        const pid = node.raw as number | undefined;
-        if (pid != null) {
-          return (
-            <Link href={`/${pageType}/${tid}/p/${pid}`}>{node.value}</Link>
-          );
+      if (isHeader) {
+        const rawPid = node.raw as number | string | undefined;
+        if (rawPid != null) {
+          const problem = pdict?.[rawPid as number];
+          const pid = problem?.pid ?? problem?.docId ?? rawPid;
+          const href = tid ? `/problem/${pid}?tid=${tid}` : `/problem/${pid}`;
+          return <Link href={href}>{node.value}</Link>;
         }
       }
       return <span>{node.value}</span>;
