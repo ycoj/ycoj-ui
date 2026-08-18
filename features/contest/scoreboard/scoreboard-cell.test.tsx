@@ -1,4 +1,6 @@
-import ScoreboardCell, { getScoreColorClass } from './scoreboard-cell';
+import ScoreboardCell, {
+  getScoreColorClass,
+} from '@/features/contest/scoreboard/scoreboard-cell';
 import type { ScoreboardNode } from '@/shared/types/contest';
 import type { ProblemDict, ProblemDoc } from '@/shared/types/problem';
 import { render, screen } from '@testing-library/react';

@@ -363,6 +363,7 @@
     "objective": "Multiple choice",
     "submitAnswer": "Submit answer",
     "fileIoShort": "File I/O",
+    "fileIoWithName": "File I/O: {name}",
     "interactive": "Interactive",
     "communication": "Communication",
     "remoteJudgeShort": "Remote judge",

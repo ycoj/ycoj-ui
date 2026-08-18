@@ -1,4 +1,4 @@
-import ProblemTitle from './problem-title';
+import ProblemTitle from '@/features/problem/detail/problem-title';
 import messages from '@/messages/en.json';
 import type { Contest } from '@/shared/types/contest';
 import type {
@@ -106,5 +106,37 @@ describe('ProblemTitle submission stats', () => {
     expect(screen.queryByText('Accepted')).not.toBeInTheDocument();
     expect(screen.queryByText('Submissions')).not.toBeInTheDocument();
     expect(screen.getByText('Sample Contest')).toBeInTheDocument();
+  });
+});
+
+describe('ProblemTitle file I/O badge', () => {
+  it('shows the serialized file I/O name for default problems with a subtype', () => {
+    renderTitle(
+      makeProblem({
+        count: 1,
+        memoryMax: 256,
+        memoryMin: 256,
+        timeMax: 1000,
+        timeMin: 1000,
+        type: 'default',
+        subType: 'data',
+      })
+    );
+    expect(screen.getByText('File I/O: data')).toBeInTheDocument();
+  });
+
+  it('does not treat an unsupported fileio type as file I/O', () => {
+    renderTitle(
+      makeProblem({
+        count: 1,
+        memoryMax: 256,
+        memoryMin: 256,
+        timeMax: 1000,
+        timeMin: 1000,
+        type: 'fileio',
+        subType: 'data',
+      })
+    );
+    expect(screen.queryByText('File I/O: data')).not.toBeInTheDocument();
   });
 });

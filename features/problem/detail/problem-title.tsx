@@ -1,11 +1,12 @@
-import { ProblemTags } from './problem-tags';
+import { ProblemTags } from '@/features/problem/detail/problem-tags';
+import { isFileIoProblem } from '@/features/problem/detail/problem-type';
 import ProblemDifficulty from '@/features/problem/problem-difficulty';
 import { Badge } from '@/shared/components/ui/badge';
 import { formatMemory, formatTime } from '@/shared/lib/format-units';
 import type { Contest } from '@/shared/types/contest';
 import type { Homework } from '@/shared/types/homework';
 import type { PublicProjectionProblem } from '@/shared/types/problem';
-import { Award, Clock, Code2, Server } from 'lucide-react';
+import { Award, Clock, Code2, FileInput, Server } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 type Props = {
@@ -44,6 +45,7 @@ export default function ProblemTitle({ problem, contest }: Props) {
     PROBLEM_TYPE_KEYS[problem.config?.type || DEFAULT_PROBLEM_TYPE];
   const typeLabel = typeKey ? t(typeKey) : problem.config?.type;
   const tagList = Array.isArray(problem.tag) ? problem.tag : [];
+  const fileIoName = problem.config?.subType;
 
   return (
     <div
@@ -66,6 +68,12 @@ export default function ProblemTitle({ problem, contest }: Props) {
             <Code2 strokeWidth={2} data-icon="inline-start" />
             {typeLabel}
           </Badge>
+          {isFileIoProblem(problem) && fileIoName && (
+            <Badge variant="secondary">
+              <FileInput strokeWidth={2} data-icon="inline-start" />
+              {t('fileIoWithName', { name: fileIoName })}
+            </Badge>
+          )}
           <Badge variant="secondary">
             <Clock strokeWidth={3} data-icon="inline-start" />
             {formatTime(problem.config?.timeMax ?? DEFAULT_TIME_MS, 'ms')}

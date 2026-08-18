@@ -363,6 +363,7 @@
     "objective": "选择题",
     "submitAnswer": "提交答案",
     "fileIoShort": "文件读写",
+    "fileIoWithName": "文件输入输出：{name}",
     "interactive": "交互",
     "communication": "通信",
     "remoteJudgeShort": "远程评测",
