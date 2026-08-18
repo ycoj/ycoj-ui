@@ -4,6 +4,9 @@ import UnlockButton from './unlock-button';
 import { Button } from '@/shared/components/ui/button';
 import type { Contest } from '@/shared/types/contest';
 import type { Homework } from '@/shared/types/homework';
+import { ArrowLeft } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 
 type Props = {
   tid: string;
@@ -18,6 +21,8 @@ export default function ScoreboardToolbar({
   availableViews,
   tdoc,
 }: Props) {
+  const contestT = useTranslations('contest');
+  const homeworkT = useTranslations('homework');
   const exportViews = availableViews
     ? Object.entries(availableViews).filter(([key]) => key !== 'default')
     : [];
@@ -29,12 +34,17 @@ export default function ScoreboardToolbar({
     !(tdoc as Contest).unlocked &&
     new Date(tdoc.endAt) < new Date();
 
-  if (exportViews.length === 0 && !showUnlock) {
-    return null;
-  }
-
   return (
     <div className="flex flex-wrap items-center gap-2">
+      <Button variant="outline" size="sm" asChild>
+        <Link href={`/${pageType}/${tid}`}>
+          <ArrowLeft data-icon="inline-start" />
+          {pageType === 'homework'
+            ? homeworkT('backToHomework')
+            : contestT('backToContest')}
+        </Link>
+      </Button>
+
       {exportViews.map(([key, label]) => (
         <Button key={key} variant="outline" size="sm" asChild>
           <a

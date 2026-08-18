@@ -92,3 +92,32 @@ describe('ScoreboardCell problem header links', () => {
     expect(screen.getByText('A')).toBeInTheDocument();
   });
 });
+
+describe('ScoreboardCell correction records', () => {
+  it('renders serialized record nodes and links both contest and correction records', () => {
+    const node: ScoreboardNode = {
+      type: 'records',
+      value: '',
+      raw: [
+        { value: 40, score: 40, raw: 'contest-record' },
+        { value: 100, score: 100, raw: 'correction-record' },
+      ],
+    };
+
+    render(<ScoreboardCell node={node} />);
+
+    expect(screen.getByText('40')).toBeInTheDocument();
+    expect(screen.getByText('100')).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: '40' }).parentElement?.parentElement
+    ).toHaveTextContent('40 / 100');
+    expect(screen.getByRole('link', { name: '40' })).toHaveAttribute(
+      'href',
+      '/record/contest-record'
+    );
+    expect(screen.getByRole('link', { name: '100' })).toHaveAttribute(
+      'href',
+      '/record/correction-record'
+    );
+  });
+});
