@@ -145,6 +145,7 @@
     "time": "比赛时间",
     "host": "主持人",
     "scoreboard": "成绩表",
+    "backToContest": "返回比赛",
     "rated": "Rated",
     "noContests": "暂无比赛",
     "noContestsDescription": "教练还没有添加比赛，或是你没有对应权限。",
@@ -163,6 +164,7 @@
     "problems": "题目列表",
     "time": "作业时间",
     "joined": "已参加",
+    "backToHomework": "返回作业",
     "none": "暂无作业",
     "noneDescription": "教练还没有添加作业，或是你没有对应权限。"
   },
@@ -363,6 +365,7 @@
     "objective": "选择题",
     "submitAnswer": "提交答案",
     "fileIoShort": "文件读写",
+    "fileIoWithName": "文件输入输出：{name}",
     "interactive": "交互",
     "communication": "通信",
     "remoteJudgeShort": "远程评测",

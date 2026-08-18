@@ -1,4 +1,5 @@
-import { parseProblemContent } from '../parse-problem-content';
+import { isFileIoProblem } from '@/features/problem/detail/problem-type';
+import { parseProblemContent } from '@/features/problem/parse-problem-content';
 import Markdown from '@/shared/components/markdown';
 import {
   Alert,
@@ -42,7 +43,7 @@ export default function ProblemContent({
       query: { tid },
     }),
   }));
-  const showFileIoAlert = problem.config?.type === 'fileio';
+  const showFileIoAlert = isFileIoProblem(problem);
   const subType = problem.config?.subType ?? '';
   const fileInName = `${subType}.in`;
   const fileOutName = `${subType}.out`;

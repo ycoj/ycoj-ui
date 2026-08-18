@@ -145,6 +145,7 @@
     "time": "Contest time",
     "host": "Host",
     "scoreboard": "Scoreboard",
+    "backToContest": "Back to contest",
     "rated": "Rated",
     "noContests": "No contests",
     "noContestsDescription": "No contests are available yet, or you do not have permission to view them.",
@@ -163,6 +164,7 @@
     "problems": "Problems",
     "time": "Homework time",
     "joined": "Joined",
+    "backToHomework": "Back to homework",
     "none": "No homework",
     "noneDescription": "No homework is available yet, or you do not have permission to view it."
   },
@@ -363,6 +365,7 @@
     "objective": "Multiple choice",
     "submitAnswer": "Submit answer",
     "fileIoShort": "File I/O",
+    "fileIoWithName": "File I/O: {name}",
     "interactive": "Interactive",
     "communication": "Communication",
     "remoteJudgeShort": "Remote judge",

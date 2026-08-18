@@ -142,6 +142,13 @@ export default function ProblemSidebar({
             </Link>
           </Button>
         )}
+        {isContestMode && contest?.rule !== 'homework' && (
+          <SidebarButton
+            icon={ArrowLeft}
+            text={contestT('backToContest')}
+            href={`/contest/${tid}`}
+          />
+        )}
         {!isContestMode && (
           <SidebarButton
             icon={MessageCircle}

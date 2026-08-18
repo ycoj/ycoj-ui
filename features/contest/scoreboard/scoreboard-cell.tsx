@@ -20,6 +20,14 @@ type Props = {
   pageType?: 'contest' | 'homework';
 };
 
+type SerializedRecordNode = {
+  value: string | number;
+  raw?: unknown;
+  score?: number;
+  style?: string;
+  hover?: string;
+};
+
 export function getScoreColorClass(score: number): string {
   return cn(
     'font-semibold',
@@ -39,7 +47,7 @@ function renderByType(
     pageType?: 'contest' | 'homework';
   }
 ): ReactNode {
-  const { isHeader, udict, tid, pageType } = ctx;
+  const { isHeader, udict, pdict, tid } = ctx;
 
   switch (node.type) {
     case 'rank':
@@ -55,12 +63,13 @@ function renderByType(
     }
 
     case 'problem': {
-      if (isHeader && tid && pageType) {
-        const pid = node.raw as number | undefined;
-        if (pid != null) {
-          return (
-            <Link href={`/${pageType}/${tid}/p/${pid}`}>{node.value}</Link>
-          );
+      if (isHeader) {
+        const rawPid = node.raw as number | string | undefined;
+        if (rawPid != null) {
+          const problem = pdict?.[rawPid as number];
+          const pid = problem?.pid ?? problem?.docId ?? rawPid;
+          const href = tid ? `/problem/${pid}?tid=${tid}` : `/problem/${pid}`;
+          return <Link href={href}>{node.value}</Link>;
         }
       }
       return <span>{node.value}</span>;
@@ -98,7 +107,28 @@ function renderByType(
     }
 
     case 'records': {
-      const rids = node.raw as string[] | undefined;
+      const rids = Array.isArray(node.raw)
+        ? node.raw.filter((value): value is string => typeof value === 'string')
+        : undefined;
+      const records = Array.isArray(node.raw)
+        ? node.raw.filter(isSerializedRecordNode)
+        : [];
+
+      if (records.length > 0) {
+        return (
+          <span>
+            {records.map((record, i) => (
+              <span key={i}>
+                {i > 0 && ' / '}
+                {renderByType(
+                  { type: 'record', ...record },
+                  { ...ctx, isHeader: false }
+                )}
+              </span>
+            ))}
+          </span>
+        );
+      }
 
       if (typeof node.value === 'number') {
         return <span>{node.value}</span>;
@@ -151,6 +181,15 @@ function renderByType(
     default:
       return <span>{node.value}</span>;
   }
+}
+
+function isSerializedRecordNode(value: unknown): value is SerializedRecordNode {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    'value' in value &&
+    (typeof value.value === 'string' || typeof value.value === 'number')
+  );
 }
 
 export default function ScoreboardCell({
