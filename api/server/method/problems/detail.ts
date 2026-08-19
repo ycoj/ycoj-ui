@@ -18,7 +18,7 @@ export type ProblemDetailData = {
   solutionCount: number;
   discussionCount: number;
 
-  tdoc?: Contest;
+  tdoc?: Contest | Homework;
   tsdoc?: ContestStatus;
 
   rdoc?: RecordDoc;

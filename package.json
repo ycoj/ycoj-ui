@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "lint:type": "tsc --noEmit",
-    "format": "prettier --write .",
+    "format": "prettier --write --list-different .",
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",

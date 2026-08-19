@@ -1,3 +1,4 @@
+import ContestTimer from '@/features/contest/contest-timer';
 import {
   getProblemDetail,
   type ProblemDetailData,
@@ -90,6 +91,7 @@ function ProblemDetailContent({
 }) {
   return (
     <div className="space-y-6">
+      {data.tdoc && <ContestTimer contest={data.tdoc} status={data.tsdoc} />}
       <ProblemTitle problem={data.pdoc} contest={data.tdoc} />
       <TwoColumnLayout
         ratio="8-2"

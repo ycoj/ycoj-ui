@@ -2,6 +2,7 @@ import type { BaseContest } from './contest';
 
 export type Homework = {
   rule: 'homework';
+  duration: number;
   penaltySince?: Date;
   penaltyRules?: Record<string, number>;
 } & BaseContest;
@@ -27,8 +28,9 @@ export type HomeworkStatus = {
     number,
     { rid: string; pid: number; penaltyScore: number; time: number }
   >;
-  attend?: boolean;
+  attend?: number;
   startAt?: Date;
+  endAt?: Date;
 };
 
 export type HomeworkProblemStatusDict = Record<

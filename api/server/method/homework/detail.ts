@@ -10,7 +10,6 @@ import type { RecordDict } from '@/shared/types/record';
 import type { BaseUserDict } from '@/shared/types/user';
 
 export type HomeworkDetailTdoc = Homework & {
-  duration: number;
   penaltySince?: Date;
   penaltyRules?: Record<string, number>;
   privateFiles?: { name: string; size: number }[];

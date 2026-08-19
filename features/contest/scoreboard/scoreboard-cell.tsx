@@ -2,12 +2,15 @@ import UserSpan from '@/features/user/user-span';
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from '@/shared/components/ui/tooltip';
 import { cn } from '@/shared/lib/utils';
 import type { ScoreboardNode } from '@/shared/types/contest';
 import type { ProblemDict } from '@/shared/types/problem';
 import type { BaseUserDict } from '@/shared/types/user';
+import { Star } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
@@ -119,7 +122,7 @@ function renderByType(
           <span>
             {records.map((record, i) => (
               <span key={i}>
-                {i > 0 && ' / '}
+                {i > 0 && <span className="mx-1">/</span>}
                 {renderByType(
                   { type: 'record', ...record },
                   { ...ctx, isHeader: false }
@@ -192,6 +195,51 @@ function isSerializedRecordNode(value: unknown): value is SerializedRecordNode {
   );
 }
 
+function FirstSolveIndicator({ rid }: { rid?: string }) {
+  const t = useTranslations('scoreboard');
+  const label = t('firstSolve');
+  const star = (
+    <Star
+      aria-hidden="true"
+      className="size-3.5 shrink-0 text-green-600"
+      strokeWidth={3}
+    />
+  );
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        {rid ? (
+          <Link href={`/record/${rid}`} aria-label={label}>
+            {star}
+          </Link>
+        ) : (
+          <span aria-label={label} role="img" tabIndex={0}>
+            {star}
+          </span>
+        )}
+      </TooltipTrigger>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
+  );
+}
+
+function getFirstSolveRid(node: ScoreboardNode): string | undefined {
+  if (node.type === 'record') {
+    return typeof node.raw === 'string' ? node.raw : undefined;
+  }
+  if (node.type === 'records' && Array.isArray(node.raw)) {
+    const first = node.raw[0];
+    if (typeof first === 'string') {
+      return first;
+    }
+    if (isSerializedRecordNode(first) && typeof first.raw === 'string') {
+      return first.raw;
+    }
+  }
+  return undefined;
+}
+
 export default function ScoreboardCell({
   node,
   isHeader,
@@ -201,21 +249,29 @@ export default function ScoreboardCell({
   pageType,
 }: Props) {
   const content = renderByType(node, { isHeader, udict, pdict, tid, pageType });
+  const isFirstSolve =
+    node.first === true && (node.type === 'record' || node.type === 'records');
+  const hoverContent = node.hover ? (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <span>{content}</span>
+      </TooltipTrigger>
+      <TooltipContent>{node.hover}</TooltipContent>
+    </Tooltip>
+  ) : (
+    content
+  );
 
-  if (node.hover) {
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <span>{content}</span>
-        </TooltipTrigger>
-        <TooltipContent>{node.hover}</TooltipContent>
-      </Tooltip>
-    );
-  }
-
-  if (node.style) {
-    return <span>{content}</span>;
-  }
-
-  return content;
+  return (
+    <TooltipProvider>
+      {isFirstSolve ? (
+        <span className="inline-flex items-center gap-1.5 border-b-2 border-green-600 px-1 font-bold">
+          <FirstSolveIndicator rid={getFirstSolveRid(node)} />
+          {hoverContent}
+        </span>
+      ) : (
+        hoverContent
+      )}
+    </TooltipProvider>
+  );
 }
