@@ -110,9 +110,10 @@ describe('ScoreboardCell correction records', () => {
 
     expect(screen.getByText('40')).toBeInTheDocument();
     expect(screen.getByText('100')).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', { name: '40' }).parentElement?.parentElement
-    ).toHaveTextContent('40 / 100');
+    const cell = screen.getByRole('link', { name: '40' }).parentElement
+      ?.parentElement;
+    expect(cell).toHaveTextContent('40/100');
+    expect(cell?.querySelector('span.mx-1')).toHaveTextContent('/');
     expect(screen.getByRole('link', { name: '40' })).toHaveAttribute(
       'href',
       '/record/contest-record'
