@@ -1,4 +1,4 @@
-import ContestTimer from './contest-timer';
+import ContestTimer from '@/features/contest/contest-timer';
 import messages from '@/messages/en.json';
 import type { Contest } from '@/shared/types/contest';
 import { act, render, screen } from '@testing-library/react';

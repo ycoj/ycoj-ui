@@ -1,7 +1,7 @@
 import {
   formatContestCountdown,
   getContestTimerState,
-} from './contest-timer-utils';
+} from '@/features/contest/contest-timer-utils';
 import { describe, expect, it } from 'vitest';
 
 const beginAt = '2026-01-01T10:00:00.000Z';

@@ -3,7 +3,7 @@
 import {
   formatContestCountdown,
   getContestTimerState,
-} from './contest-timer-utils';
+} from '@/features/contest/contest-timer-utils';
 import {
   Tooltip,
   TooltipContent,
