@@ -60,9 +60,10 @@ export const CONTEST_RULES: ContestRule[] = [
 ];
 
 export type ContestStatus = {
-  attend?: boolean;
-  startAt?: string;
-  endAt?: string;
+  attend?: number;
+  subscribe?: number;
+  startAt?: Date;
+  endAt?: Date;
   detail?: Record<number, Record<string, unknown>>;
 };
 
@@ -122,6 +123,7 @@ export type ScoreboardNode = {
   value: string | number;
   raw?: unknown;
   score?: number;
+  first?: boolean;
   style?: string;
   hover?: string;
 };
@@ -136,12 +138,7 @@ export type GDoc = {
 
 export type ScoreboardResponse = {
   tdoc: Contest | Homework;
-  tsdoc: {
-    attend: number;
-    subscribe: number;
-    startAt: Date;
-    endAt?: Date;
-  } | null;
+  tsdoc: ContestStatus | null;
   rows: ScoreboardRow[];
   udict: BaseUserDict;
   pdict: ProblemDict;

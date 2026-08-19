@@ -151,7 +151,9 @@
     "noContestsDescription": "教练还没有添加比赛，或是你没有对应权限。",
     "durationDaysHours": "{days} 天 {hours} 小时",
     "durationHoursMinutes": "{hours} 小时 {minutes} 分钟",
-    "durationMinutes": "{minutes} 分钟"
+    "durationMinutes": "{minutes} 分钟",
+    "timeRemaining": "剩余时间",
+    "contestProgress": "比赛进度"
   },
   "homework": {
     "participants": "参与人数",
@@ -695,6 +697,7 @@
     "noSubmissions": "目前还没有人在此活动中提交题目。",
     "unlock": "解锁成绩表",
     "unlocking": "解锁中...",
+    "firstSolve": "本题首通",
     "error": {
       "notLive": "比赛尚未开始",
       "hidden": "成绩表暂不可见",

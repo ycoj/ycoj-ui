@@ -57,7 +57,6 @@ If you are Codex, you should run all `pnpm` commands outside of sandbox.
 
 - Sort and group imports via Prettier plugins.
 - Use type-only imports where possible: `import type { Foo } from 'bar'`.
-- External packages first, then internal `@/` imports.
 - Use the TS path alias `@/*` for project modules.
 - Side-effect imports (CSS) live at the top of the file.
 
@@ -179,6 +178,7 @@ If you are Codex, you should run all `pnpm` commands outside of sandbox.
 2. Run `pnpm lint`, `pnpm lint:type`, `pnpm test` and `pnpm format` after code changes. Do not prefix these commands with additional content. That is, do not run `cd ... && pnpm lint`, `pnpm lint 2>&1`, `pnpm format -- <some file`, etc. Run only `pnpm lint`, `pnpm lint:type`, `pnpm test` and `pnpm format`.
 3. New linter errors introduced by changes should be fixed. Linter errors existing before changes can be ignored.
 4. Do not start a development server unless the user explicitly asks for one.
+5. Changes produced by `pnpm format` are intentional formatting updates and must not be reverted.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

@@ -1,3 +1,4 @@
+import ContestTimer from '@/features/contest/contest-timer';
 import ContestTitle from '@/features/contest/contest-title';
 import ContestContent from '@/features/contest/detail/contest-content';
 import ContestSidebar from '@/features/contest/detail/contest-sidebar';
@@ -38,6 +39,7 @@ export default async function ContestDetailPage({
 
   return (
     <div className="space-y-6">
+      <ContestTimer contest={data.tdoc} status={data.tsdoc} />
       <ContestTitle tdoc={data.tdoc} />
       <TwoColumnLayout
         ratio="8-2"

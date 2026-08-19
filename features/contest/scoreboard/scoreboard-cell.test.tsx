@@ -1,9 +1,11 @@
 import ScoreboardCell, {
   getScoreColorClass,
 } from '@/features/contest/scoreboard/scoreboard-cell';
+import messages from '@/messages/en.json';
 import type { ScoreboardNode } from '@/shared/types/contest';
 import type { ProblemDict, ProblemDoc } from '@/shared/types/problem';
 import { render, screen } from '@testing-library/react';
+import { NextIntlClientProvider } from 'next-intl';
 import { describe, expect, it } from 'vitest';
 
 describe('getScoreColorClass', () => {
@@ -108,9 +110,10 @@ describe('ScoreboardCell correction records', () => {
 
     expect(screen.getByText('40')).toBeInTheDocument();
     expect(screen.getByText('100')).toBeInTheDocument();
-    expect(
-      screen.getByRole('link', { name: '40' }).parentElement?.parentElement
-    ).toHaveTextContent('40 / 100');
+    const cell = screen.getByRole('link', { name: '40' }).parentElement
+      ?.parentElement;
+    expect(cell).toHaveTextContent('40/100');
+    expect(cell?.querySelector('span.mx-1')).toHaveTextContent('/');
     expect(screen.getByRole('link', { name: '40' })).toHaveAttribute(
       'href',
       '/record/contest-record'
@@ -119,5 +122,46 @@ describe('ScoreboardCell correction records', () => {
       'href',
       '/record/correction-record'
     );
+  });
+});
+
+describe('ScoreboardCell first solves', () => {
+  it('renders a first-solve indicator without changing the record link', () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <ScoreboardCell
+          node={{
+            type: 'record',
+            value: '+1\n01:00',
+            raw: 'first-record',
+            score: 100,
+            first: true,
+          }}
+        />
+      </NextIntlClientProvider>
+    );
+
+    expect(screen.getByLabelText('First solve')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /\+1/ })).toHaveAttribute(
+      'href',
+      '/record/first-record'
+    );
+  });
+
+  it('does not render the indicator for regular records', () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <ScoreboardCell
+          node={{
+            type: 'record',
+            value: '+1',
+            raw: 'regular-record',
+            score: 100,
+          }}
+        />
+      </NextIntlClientProvider>
+    );
+
+    expect(screen.queryByLabelText('First solve')).not.toBeInTheDocument();
   });
 });

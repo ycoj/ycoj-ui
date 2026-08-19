@@ -1,3 +1,4 @@
+import ContestTimer from '@/features/contest/contest-timer';
 import ContestTitle from '@/features/contest/contest-title';
 import ContestScoreboard from '@/features/contest/scoreboard/contest-scoreboard';
 import { getHomeworkScoreboard } from '@/features/homework/scoreboard/get-homework-scoreboard';
@@ -33,6 +34,7 @@ export default async function HomeworkScoreboardPage({
 
   return (
     <div className="space-y-4">
+      <ContestTimer contest={data.tdoc} status={data.tsdoc} />
       <ContestTitle tdoc={data.tdoc} />
       <Separator />
       <ContestScoreboard data={data} tid={tid} pageType="homework" />

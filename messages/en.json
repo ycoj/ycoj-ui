@@ -151,7 +151,9 @@
     "noContestsDescription": "No contests are available yet, or you do not have permission to view them.",
     "durationDaysHours": "{days}d {hours}h",
     "durationHoursMinutes": "{hours}h {minutes}m",
-    "durationMinutes": "{minutes}m"
+    "durationMinutes": "{minutes}m",
+    "timeRemaining": "Time remaining",
+    "contestProgress": "Contest progress"
   },
   "homework": {
     "participants": "Participants",
@@ -699,6 +701,7 @@
     "noSubmissions": "No one has submitted a problem in this event yet.",
     "unlock": "Unlock scoreboard",
     "unlocking": "Unlocking...",
+    "firstSolve": "First solve",
     "error": {
       "notLive": "The contest has not started",
       "hidden": "The scoreboard is not currently visible",
