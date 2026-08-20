@@ -9,7 +9,7 @@ import { cn } from '@/shared/lib/utils';
 import type { ScoreboardNode } from '@/shared/types/contest';
 import type { ProblemDict } from '@/shared/types/problem';
 import type { BaseUserDict } from '@/shared/types/user';
-import { Star } from 'lucide-react';
+import { Balloon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
@@ -21,6 +21,8 @@ type Props = {
   pdict?: ProblemDict;
   tid?: string;
   pageType?: 'contest' | 'homework';
+  balloonColor?: string;
+  ownedBalloonColors?: string[];
 };
 
 type SerializedRecordNode = {
@@ -48,9 +50,10 @@ function renderByType(
     pdict?: ProblemDict;
     tid?: string;
     pageType?: 'contest' | 'homework';
+    ownedBalloonColors?: string[];
   }
 ): ReactNode {
-  const { isHeader, udict, pdict, tid } = ctx;
+  const { isHeader, udict, pdict, tid, ownedBalloonColors } = ctx;
 
   switch (node.type) {
     case 'rank':
@@ -60,7 +63,18 @@ function renderByType(
       const uid = node.raw as number | undefined;
       const udoc = uid != null ? udict?.[uid] : undefined;
       if (udoc) {
-        return <UserSpan user={udoc} showAvatar />;
+        return (
+          <span className="inline-flex items-center gap-1.5">
+            <UserSpan user={udoc} showAvatar />
+            {ownedBalloonColors?.map((color, index) => (
+              <FirstSolveIndicator
+                key={`${color}-${index}`}
+                color={color}
+                compact
+              />
+            ))}
+          </span>
+        );
       }
       return <span>{node.value}</span>;
     }
@@ -195,32 +209,39 @@ function isSerializedRecordNode(value: unknown): value is SerializedRecordNode {
   );
 }
 
-function FirstSolveIndicator({ rid }: { rid?: string }) {
+function FirstSolveIndicator({
+  rid,
+  color,
+  compact = false,
+}: {
+  rid?: string;
+  color?: string;
+  compact?: boolean;
+}) {
   const t = useTranslations('scoreboard');
   const label = t('firstSolve');
-  const star = (
-    <Star
+  const balloon = (
+    <Balloon
       aria-hidden="true"
-      className="size-3.5 shrink-0 text-green-600"
-      strokeWidth={3}
+      className={cn(compact ? 'size-3.5' : 'size-4', 'shrink-0 fill-current')}
+      data-testid="first-solve-balloon"
+      style={{ color: color ?? '#dc2626' }}
+      strokeWidth={1.75}
     />
   );
 
+  if (rid) {
+    return (
+      <Link href={`/record/${rid}`} aria-label={label}>
+        {balloon}
+      </Link>
+    );
+  }
+
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        {rid ? (
-          <Link href={`/record/${rid}`} aria-label={label}>
-            {star}
-          </Link>
-        ) : (
-          <span aria-label={label} role="img" tabIndex={0}>
-            {star}
-          </span>
-        )}
-      </TooltipTrigger>
-      <TooltipContent>{label}</TooltipContent>
-    </Tooltip>
+    <span aria-label={label} role="img">
+      {balloon}
+    </span>
   );
 }
 
@@ -247,8 +268,17 @@ export default function ScoreboardCell({
   pdict,
   tid,
   pageType,
+  balloonColor,
+  ownedBalloonColors,
 }: Props) {
-  const content = renderByType(node, { isHeader, udict, pdict, tid, pageType });
+  const content = renderByType(node, {
+    isHeader,
+    udict,
+    pdict,
+    tid,
+    pageType,
+    ownedBalloonColors,
+  });
   const isFirstSolve =
     node.first === true && (node.type === 'record' || node.type === 'records');
   const hoverContent = node.hover ? (
@@ -265,9 +295,12 @@ export default function ScoreboardCell({
   return (
     <TooltipProvider>
       {isFirstSolve ? (
-        <span className="inline-flex items-center gap-1.5 border-b-2 border-green-600 px-1 font-bold">
-          <FirstSolveIndicator rid={getFirstSolveRid(node)} />
+        <span className="inline-flex items-center gap-1.5 font-bold">
           {hoverContent}
+          <FirstSolveIndicator
+            rid={getFirstSolveRid(node)}
+            color={balloonColor}
+          />
         </span>
       ) : (
         hoverContent
