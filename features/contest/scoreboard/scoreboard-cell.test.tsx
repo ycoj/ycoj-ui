@@ -142,10 +142,32 @@ describe('ScoreboardCell first solves', () => {
     );
 
     expect(screen.getByLabelText('First solve')).toBeInTheDocument();
+    expect(screen.getByTestId('first-solve-balloon')).toHaveStyle({
+      color: '#dc2626',
+    });
     expect(screen.getByRole('link', { name: /\+1/ })).toHaveAttribute(
       'href',
       '/record/first-record'
     );
+  });
+
+  it('uses the problem balloon color', () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <ScoreboardCell
+          balloonColor="#2563eb"
+          node={{
+            type: 'record',
+            value: '+',
+            first: true,
+          }}
+        />
+      </NextIntlClientProvider>
+    );
+
+    expect(screen.getByTestId('first-solve-balloon')).toHaveStyle({
+      color: '#2563eb',
+    });
   });
 
   it('does not render the indicator for regular records', () => {
@@ -163,5 +185,34 @@ describe('ScoreboardCell first solves', () => {
     );
 
     expect(screen.queryByLabelText('First solve')).not.toBeInTheDocument();
+  });
+});
+
+describe('ScoreboardCell participant balloons', () => {
+  it('renders each first-solve balloon beside the participant name', () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <ScoreboardCell
+          node={{ type: 'user', value: 'alice', raw: 1 }}
+          ownedBalloonColors={['#dc2626', '#2563eb']}
+          udict={{
+            1: {
+              _id: 1,
+              uname: 'alice',
+              mail: 'alice@example.com',
+              avatar: '',
+            },
+          }}
+        />
+      </NextIntlClientProvider>
+    );
+
+    expect(screen.getAllByLabelText('First solve')).toHaveLength(2);
+    expect(screen.getAllByTestId('first-solve-balloon')[0]).toHaveStyle({
+      color: '#dc2626',
+    });
+    expect(screen.getAllByTestId('first-solve-balloon')[1]).toHaveStyle({
+      color: '#2563eb',
+    });
   });
 });
