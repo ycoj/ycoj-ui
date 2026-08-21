@@ -1,17 +1,11 @@
-import ContestInfo from '@/features/contest/contest-info';
-import ContestStatusBadge from '@/features/contest/contest-status';
-import {
-  getContestDurationParts,
-  getContestProblemLabel,
-  getContestStatus,
-} from '@/features/contest/detail/contest-utils';
+import ContestInfoCard from '@/shared/components/contest-info-card';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import { Separator } from '@/shared/components/ui/separator';
+import { getContestProblemLabel } from '@/shared/lib/contest-utils';
 import type { Contest, ContestStatus } from '@/shared/types/contest';
 import type { Homework } from '@/shared/types/homework';
 import type { ContestListProjectionProblem } from '@/shared/types/problem';
-import dayjs from 'dayjs';
 import {
   ArrowLeft,
   BookOpen,
@@ -22,7 +16,7 @@ import {
   Settings2,
   type LucideIcon,
 } from 'lucide-react';
-import { useFormatter, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
 type Props = {
@@ -86,35 +80,7 @@ export default function ProblemSidebar({
   const t = useTranslations('problem');
   const common = useTranslations('common');
   const contestT = useTranslations('contest');
-  const format = useFormatter();
   const isContestMode = Boolean(tid);
-  const problemCount = contest?.pids?.length ?? 0;
-  const beginAt = contest ? dayjs(contest.beginAt) : null;
-  const endAt = contest ? dayjs(contest.endAt) : null;
-  const beginAtText =
-    beginAt && beginAt.isValid()
-      ? format.dateTime(beginAt.toDate(), {
-          dateStyle: 'medium',
-          timeStyle: 'short',
-        })
-      : '-';
-  const endAtText =
-    endAt && endAt.isValid()
-      ? format.dateTime(endAt.toDate(), {
-          dateStyle: 'medium',
-          timeStyle: 'short',
-        })
-      : '-';
-  const parts = contest
-    ? getContestDurationParts(contest.beginAt, contest.endAt)
-    : null;
-  const durationText = parts
-    ? parts.days > 0
-      ? contestT('durationDaysHours', parts)
-      : parts.hours > 0
-        ? contestT('durationHoursMinutes', parts)
-        : contestT('durationMinutes', parts)
-    : '-';
   return (
     <div className="w-full space-y-4" data-llm-visible="true">
       <div className="space-y-1">
@@ -224,16 +190,7 @@ export default function ProblemSidebar({
 
           {contest.pids?.length ? <Separator /> : null}
 
-          <ContestInfo
-            status={<ContestStatusBadge status={getContestStatus(contest)} />}
-            rule={contestT(`rule.${contest.rule}`)}
-            ruleText={contestT(`rule.${contest.rule}`)}
-            problemCount={problemCount}
-            beginAtText={beginAtText}
-            endAtText={endAtText}
-            durationText={durationText}
-            attend={contest.attend}
-          />
+          <ContestInfoCard contest={contest} tid={tid} />
         </>
       )}
     </div>

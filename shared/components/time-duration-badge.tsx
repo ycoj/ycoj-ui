@@ -1,7 +1,7 @@
 'use client';
 
-import { getContestDurationParts } from '@/features/contest/detail/contest-utils';
 import { Badge } from '@/shared/components/ui/badge';
+import { getContestDurationParts } from '@/shared/lib/contest-utils';
 import dayjs from 'dayjs';
 import { Calendar, Clock } from 'lucide-react';
 import { useFormatter, useTranslations } from 'next-intl';

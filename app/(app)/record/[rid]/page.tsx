@@ -30,7 +30,7 @@ export default async function RecordDetailPage({
     getUser(),
     ServerApis.UI.getAvailableLanguages(),
   ]);
-  const { pdoc, rdoc, udoc } = data;
+  const { pdoc, rdoc, udoc, tdoc } = data;
 
   // 无效 rev 时后端静默回退到最新结果，这里同步忽略它
   const selectedRev = rev && data.allRevs?.[rev] ? rev : undefined;
@@ -43,6 +43,7 @@ export default async function RecordDetailPage({
       rdoc={rdoc}
       pdoc={pdoc}
       udoc={udoc}
+      tdoc={tdoc}
       languages={languages.languages}
       allowRejudge={allowRejudge}
       allRevs={data.allRevs}

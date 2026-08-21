@@ -2,20 +2,14 @@
 
 import ClientApis from '@/api/client/method';
 import type { HomeworkDetailTdoc } from '@/api/server/method/homework/detail';
-import ContestInfo from '@/features/contest/contest-info';
-import ContestRuleBadge from '@/features/contest/contest-rule-badge';
-import ContestStatus from '@/features/contest/contest-status';
-import {
-  getContestDurationParts,
-  getContestStatus,
-} from '@/features/contest/detail/contest-utils';
 import UserSpan from '@/features/user/user-span';
+import ContestInfoCard from '@/shared/components/contest-info-card';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import { Separator } from '@/shared/components/ui/separator';
+import { getContestStatus } from '@/shared/lib/contest-utils';
 import type { HomeworkStatus } from '@/shared/types/homework';
 import type { BaseUser } from '@/shared/types/user';
-import dayjs from 'dayjs';
 import {
   Award,
   MessageCircle,
@@ -23,7 +17,7 @@ import {
   Check,
   type LucideIcon,
 } from 'lucide-react';
-import { useFormatter, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -65,33 +59,9 @@ export default function HomeworkSidebar({
   const t = useTranslations('homework');
   const contestT = useTranslations('contest');
   const common = useTranslations('common');
-  const format = useFormatter();
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const status = getContestStatus(homework);
-  const beginAt = dayjs(homework.beginAt);
-  const endAt = dayjs(homework.endAt);
-  const beginAtText = beginAt.isValid()
-    ? format.dateTime(beginAt.toDate(), {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-      })
-    : '-';
-  const endAtText = endAt.isValid()
-    ? format.dateTime(endAt.toDate(), {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-      })
-    : '-';
-  const parts = getContestDurationParts(homework.beginAt, homework.endAt);
-  const durationText = parts
-    ? parts.days > 0
-      ? contestT('durationDaysHours', parts)
-      : parts.hours > 0
-        ? contestT('durationHoursMinutes', parts)
-        : contestT('durationMinutes', parts)
-    : '-';
-  const problemCount = homework.pids?.length ?? 0;
   const isEnded = status === 'ended';
   const isAttended = Boolean(homeworkStatus?.attend);
   const attendedBadge = isAttended ? (
@@ -147,16 +117,11 @@ export default function HomeworkSidebar({
 
       <Separator />
 
-      <ContestInfo
-        status={<ContestStatus status={status} />}
-        rule={<ContestRuleBadge rule={homework.rule} />}
-        problemCount={problemCount}
-        beginAtText={beginAtText}
-        endAtText={endAtText}
-        durationText={durationText}
-        attend={homework.attend}
+      <ContestInfoCard
+        contest={homework}
+        tid={tid}
         attendedBadge={attendedBadge}
-        showOwner={true}
+        showOwner
         owner={owner ? <UserSpan user={owner} /> : '-'}
         ownerText={owner?.uname}
       />

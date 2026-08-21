@@ -1,5 +1,6 @@
 'use client';
 
+import ContestInfoCard from '@/shared/components/contest-info-card';
 import { Button } from '@/shared/components/ui/button';
 import {
   Select,
@@ -11,6 +12,8 @@ import {
   SelectValue,
 } from '@/shared/components/ui/select';
 import { Separator } from '@/shared/components/ui/separator';
+import type { Contest } from '@/shared/types/contest';
+import type { Homework } from '@/shared/types/homework';
 import dayjs from 'dayjs';
 import { Ban, RotateCcw } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -25,6 +28,7 @@ type Props = {
   allowRejudge: boolean;
   onRejudge: () => Promise<void>;
   onCancel: () => Promise<void>;
+  tdoc?: Contest | Homework | null;
 };
 
 export default function RecordSidebar({
@@ -33,6 +37,7 @@ export default function RecordSidebar({
   allowRejudge,
   onRejudge,
   onCancel,
+  tdoc,
 }: Props) {
   const t = useTranslations('record');
   const router = useRouter();
@@ -108,7 +113,13 @@ export default function RecordSidebar({
         </div>
       )}
 
-      {showActions && versions.length > 0 && <Separator />}
+      {tdoc && showActions && <Separator />}
+
+      {tdoc && <ContestInfoCard contest={tdoc} showBackLink />}
+
+      {tdoc && versions.length > 0 && <Separator />}
+
+      {showActions && !tdoc && versions.length > 0 && <Separator />}
 
       {versions.length > 0 && (
         <div className="space-y-2">

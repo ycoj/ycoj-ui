@@ -10,6 +10,8 @@ import RecordSidebar from '@/features/record/detail/record-sidebar';
 import { RecordTestcases } from '@/features/record/detail/record-testcases';
 import { useRecordSocket } from '@/shared/hooks/use-record-socket';
 import TwoColumnLayout from '@/shared/layout/two-column';
+import type { Contest } from '@/shared/types/contest';
+import type { Homework } from '@/shared/types/homework';
 import type { ProblemDoc } from '@/shared/types/problem';
 import type { RecordDoc } from '@/shared/types/record';
 import type { User } from '@/shared/types/user';
@@ -20,6 +22,7 @@ type Props = {
   rdoc: RecordDoc;
   pdoc: ProblemDoc;
   udoc: User;
+  tdoc?: Contest | Homework | null;
   languages: Record<string, LanguageFamily>;
   allowRejudge: boolean;
   allRevs: Record<string, string>;
@@ -46,6 +49,7 @@ export default function RecordDetailLive({
   rdoc: initialRdoc,
   pdoc,
   udoc,
+  tdoc,
   languages,
   allowRejudge,
   allRevs,
@@ -96,7 +100,9 @@ export default function RecordDetailLive({
   }, [initialRdoc._id, router]);
 
   const showSidebar =
-    (allowRejudge && !isHistorical) || Object.keys(allRevs ?? {}).length > 0;
+    (allowRejudge && !isHistorical) ||
+    Object.keys(allRevs ?? {}).length > 0 ||
+    !!tdoc;
 
   if (rdoc.lang === 'ai') {
     return (
@@ -132,6 +138,7 @@ export default function RecordDetailLive({
               allowRejudge={allowRejudge}
               onRejudge={handleRejudge}
               onCancel={handleCancel}
+              tdoc={tdoc}
             />
           ) : undefined
         }

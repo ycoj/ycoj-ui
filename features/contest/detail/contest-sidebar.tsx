@@ -1,20 +1,17 @@
 'use client';
 
-import { getContestDurationParts, getContestStatus } from './contest-utils';
 import ClientApis from '@/api/client/method';
 import type {
   ContestDetailStatus,
   ContestDetailTdoc,
 } from '@/api/server/method/contests/detail';
-import ContestInfo from '@/features/contest/contest-info';
-import ContestRuleBadge from '@/features/contest/contest-rule-badge';
-import ContestStatus from '@/features/contest/contest-status';
 import UserSpan from '@/features/user/user-span';
+import ContestInfoCard from '@/shared/components/contest-info-card';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import { Separator } from '@/shared/components/ui/separator';
+import { getContestStatus } from '@/shared/lib/contest-utils';
 import type { BaseUser } from '@/shared/types/user';
-import dayjs from 'dayjs';
 import {
   Award,
   MessageCircle,
@@ -22,7 +19,7 @@ import {
   Check,
   type LucideIcon,
 } from 'lucide-react';
-import { useFormatter, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
@@ -65,33 +62,9 @@ export default function ContestSidebar({
 }: Props) {
   const t = useTranslations('contest');
   const common = useTranslations('common');
-  const format = useFormatter();
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const status = getContestStatus(contest);
-  const beginAt = dayjs(contest.beginAt);
-  const endAt = dayjs(contest.endAt);
-  const beginAtText = beginAt.isValid()
-    ? format.dateTime(beginAt.toDate(), {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-      })
-    : '-';
-  const endAtText = endAt.isValid()
-    ? format.dateTime(endAt.toDate(), {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-      })
-    : '-';
-  const parts = getContestDurationParts(contest.beginAt, contest.endAt);
-  const durationText = parts
-    ? parts.days > 0
-      ? t('durationDaysHours', parts)
-      : parts.hours > 0
-        ? t('durationHoursMinutes', parts)
-        : t('durationMinutes', parts)
-    : '-';
-  const problemCount = contest.pids?.length ?? 0;
   const isEnded = status === 'ended';
   const isAttended = Boolean(contestStatus?.attend);
   const attendedBadge = isAttended ? (
@@ -149,16 +122,11 @@ export default function ContestSidebar({
 
       <Separator />
 
-      <ContestInfo
-        status={<ContestStatus status={status} />}
-        rule={<ContestRuleBadge rule={contest.rule} />}
-        problemCount={problemCount}
-        beginAtText={beginAtText}
-        endAtText={endAtText}
-        durationText={durationText}
-        attend={contest.attend}
+      <ContestInfoCard
+        contest={contest}
+        tid={tid}
         attendedBadge={attendedBadge}
-        showOwner={true}
+        showOwner
         owner={owner ? <UserSpan user={owner} /> : '-'}
         ownerText={owner?.uname}
       />
