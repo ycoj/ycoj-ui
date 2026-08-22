@@ -21,6 +21,46 @@ type Props = {
   currentUid?: number;
 };
 
+const ICPC_BALLOON_COLORS = [
+  '#dc2626',
+  '#2563eb',
+  '#facc15',
+  '#16a34a',
+  '#f97316',
+  '#9333ea',
+  '#ec4899',
+  '#06b6d4',
+  '#84cc16',
+  '#64748b',
+];
+
+export function getProblemBalloonColors(
+  headerRow: ScoreboardRow
+): Map<number, string> {
+  const colors = new Map<number, string>();
+  let problemIndex = 0;
+  headerRow.forEach((node, columnIndex) => {
+    if (node.type === 'problem') {
+      colors.set(
+        columnIndex,
+        ICPC_BALLOON_COLORS[problemIndex % ICPC_BALLOON_COLORS.length]
+      );
+      problemIndex += 1;
+    }
+  });
+  return colors;
+}
+
+export function getOwnedBalloonColors(
+  row: ScoreboardRow,
+  problemColors: Map<number, string>
+): string[] {
+  return row.flatMap((node, columnIndex) => {
+    const color = problemColors.get(columnIndex);
+    return node.first === true && color ? [color] : [];
+  });
+}
+
 export default function ScoreboardTable({
   rows,
   udict,
@@ -31,6 +71,7 @@ export default function ScoreboardTable({
 }: Props) {
   const headerRow = rows[0];
   const dataRows = rows.slice(1);
+  const problemColors = getProblemBalloonColors(headerRow);
 
   return (
     <Table>
@@ -52,6 +93,7 @@ export default function ScoreboardTable({
       <TableBody>
         {dataRows.map((row, i) => {
           const userNode = row.find((n) => n.type === 'user');
+          const ownedBalloonColors = getOwnedBalloonColors(row, problemColors);
           const isCurrentUser =
             currentUid != null && userNode?.raw === currentUid;
           return (
@@ -64,6 +106,10 @@ export default function ScoreboardTable({
                     pdict={pdict}
                     tid={tid}
                     pageType={pageType}
+                    balloonColor={problemColors.get(j)}
+                    ownedBalloonColors={
+                      node.type === 'user' ? ownedBalloonColors : undefined
+                    }
                   />
                 </TableCell>
               ))}

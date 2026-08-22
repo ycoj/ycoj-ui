@@ -127,7 +127,7 @@ export default function TrainingSidebar({ tid, data, owner }: Props) {
         />
       </div>
 
-      <div className="md:sticky md:top-4 space-y-3">
+      <div className="md:sticky md:top-0 md:z-10 space-y-3 md:bg-background md:py-3">
         <h2 className="text-sm font-medium" data-llm-text={t('directory')}>
           {t('directory')}
         </h2>
