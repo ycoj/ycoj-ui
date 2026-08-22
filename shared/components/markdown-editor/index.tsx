@@ -6,7 +6,13 @@ import { MdEditor } from 'md-editor-rt';
 import 'md-editor-rt/lib/style.css';
 import { useLocale } from 'next-intl';
 import type { ChangeEvent, FocusEvent } from 'react';
-import { forwardRef, useCallback, useRef, useState } from 'react';
+import {
+  forwardRef,
+  useCallback,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import type { ChangeHandler } from 'react-hook-form';
 
 type MarkdownEditorProps = {
@@ -43,12 +49,11 @@ const MarkdownEditor = forwardRef<HTMLTextAreaElement, MarkdownEditorProps>(
       () => defaultValue ?? ''
     );
     const lastValueRef = useRef(controlledValue ?? defaultValue ?? '');
-    // Synchronously sync controlled value to avoid stale dedup after language switch.
-    // Using useEffect would be async (after paint) and could drop the first edit
-    // if it matches the previous language's value.
-    if (controlledValue !== undefined) {
-      lastValueRef.current = controlledValue;
-    }
+    useLayoutEffect(() => {
+      if (controlledValue !== undefined) {
+        lastValueRef.current = controlledValue;
+      }
+    }, [controlledValue]);
     const value = controlledValue ?? internalValue;
 
     const handleValueChange = useCallback(
