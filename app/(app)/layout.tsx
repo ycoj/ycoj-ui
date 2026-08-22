@@ -15,7 +15,7 @@ export default async function AppLayout({
   return (
     <SidebarProvider>
       <AppSidebar />
-      <SidebarInset className="overflow-auto p-4">
+      <SidebarInset className="overflow-auto p-4 md:overflow-visible">
         <CollapsedTrigger />
         <div className="container mx-auto">
           <div className="mb-2 flex md:hidden px-2">
