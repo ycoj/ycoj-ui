@@ -1,9 +1,10 @@
-import MarkdownPdf from './components/markdown-pdf';
-import MarkdownUserSpan from './components/markdown-user-span';
-import ProblemSample from './components/problem-sample';
-import KatexClientRender from './katex-client-render';
-import './markdown.css';
+import MarkdownPdf from '@/shared/components/markdown/components/markdown-pdf';
+import MarkdownUserSpan from '@/shared/components/markdown/components/markdown-user-span';
+import ProblemSample from '@/shared/components/markdown/components/problem-sample';
+import KatexClientRender from '@/shared/components/markdown/katex-client-render';
+import '@/shared/components/markdown/markdown.css';
 import '@/shared/components/code/style/both.css';
+import { preserveLatexLineBreaks } from '@/shared/components/markdown/latex-line-breaks';
 import rehypeUserSpan from '@/shared/components/markdown/plugins/rehype-user-span';
 import remarkPdf from '@/shared/components/markdown/plugins/remark-pdf';
 import remarkProblemSamples from '@/shared/components/markdown/plugins/remark-problem-samples';
@@ -60,6 +61,8 @@ const markdownSanitizeSchema = {
 } as const;
 
 export default function Markdown({ children }: { children: string }) {
+  const markdownSource = preserveLatexLineBreaks(children);
+
   return (
     <div className="markdown">
       <MarkdownAsync
@@ -77,7 +80,7 @@ export default function Markdown({ children }: { children: string }) {
           'user-span': MarkdownUserSpan,
         }}
       >
-        {children}
+        {markdownSource}
       </MarkdownAsync>
       <KatexClientRender source={children} />
     </div>
