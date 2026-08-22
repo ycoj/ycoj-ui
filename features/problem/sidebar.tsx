@@ -18,6 +18,7 @@ import {
   MessageCircle,
   File,
   Navigation,
+  Pencil,
   Settings2,
   type LucideIcon,
 } from 'lucide-react';
@@ -174,11 +175,18 @@ export default function ProblemSidebar({
           href={withTid(`/problem/${problem.pid ?? problem.docId}/files`, tid)}
         />
         {!isContestMode && allowConfigure && (
-          <SidebarButton
-            icon={Settings2}
-            text={t('configuration')}
-            href={`/problem/${problem.pid ?? problem.docId}/config`}
-          />
+          <div className="space-y-1 pt-2">
+            <SidebarButton
+              icon={Pencil}
+              text={t('edit')}
+              href={`/problem/${problem.pid ?? problem.docId}/edit`}
+            />
+            <SidebarButton
+              icon={Settings2}
+              text={t('configuration')}
+              href={`/problem/${problem.pid ?? problem.docId}/config`}
+            />
+          </div>
         )}
       </div>
 

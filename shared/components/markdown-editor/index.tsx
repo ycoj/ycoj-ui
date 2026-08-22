@@ -13,6 +13,7 @@ type MarkdownEditorProps = {
   id?: string;
   name?: string;
   defaultValue?: string;
+  value?: string;
   disabled?: boolean;
   required?: boolean;
   className?: string;
@@ -27,6 +28,7 @@ const MarkdownEditor = forwardRef<HTMLTextAreaElement, MarkdownEditorProps>(
       id,
       name,
       defaultValue,
+      value: controlledValue,
       disabled,
       required,
       className,
@@ -37,15 +39,18 @@ const MarkdownEditor = forwardRef<HTMLTextAreaElement, MarkdownEditorProps>(
     ref
   ) => {
     const locale = useLocale();
-    const [value, setValue] = useState(() => defaultValue ?? '');
+    const [internalValue, setInternalValue] = useState(
+      () => defaultValue ?? ''
+    );
     const lastValueRef = useRef(defaultValue ?? '');
+    const value = controlledValue ?? internalValue;
 
     const handleValueChange = useCallback(
       (nextValue: string) => {
         if (nextValue === lastValueRef.current) return;
 
         lastValueRef.current = nextValue;
-        setValue(nextValue);
+        setInternalValue(nextValue);
 
         if (onChange) {
           const event = {
