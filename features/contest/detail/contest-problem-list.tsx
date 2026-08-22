@@ -36,6 +36,7 @@ export default function ContestProblemList({ tid, data }: Props) {
   const t = useTranslations('problem');
   const common = useTranslations('common');
   const orderedPids = data.tdoc.pids ?? [];
+  const isContestMode = Boolean(data.tsdoc?.attend);
 
   if (!orderedPids.length) {
     return (
@@ -77,7 +78,10 @@ export default function ContestProblemList({ tid, data }: Props) {
               </TableCell>
               <TableCell>
                 {problem ? (
-                  <ProblemLink problem={problem} tid={tid} />
+                  <ProblemLink
+                    problem={problem}
+                    tid={isContestMode ? tid : undefined}
+                  />
                 ) : (
                   <span className="text-muted-foreground">-</span>
                 )}

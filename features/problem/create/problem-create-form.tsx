@@ -2,7 +2,9 @@
 
 import { DEFAULT_PROBLEM_CONTENT } from './default-problem-content';
 import ClientApis from '@/api/client/method';
-import ProblemForm from '@/features/problem/form/problem-form';
+import ProblemForm, {
+  normalizeProblemPayload,
+} from '@/features/problem/form/problem-form';
 import { useTranslations } from 'next-intl';
 
 type Props = {
@@ -26,12 +28,9 @@ export default function ProblemCreateForm({ tags }: Props) {
         content: DEFAULT_PROBLEM_CONTENT,
       }}
       onSubmit={async (values) => {
-        const response = await ClientApis.Problem.createProblem({
-          ...values,
-          pid: values.pid.trim() || undefined,
-          title: values.title.trim(),
-          tag: values.tag.trim(),
-        }).send();
+        const response = await ClientApis.Problem.createProblem(
+          normalizeProblemPayload(values)
+        ).send();
 
         if (response?.pid !== undefined) return `/problem/${response.pid}`;
         throw new Error(t('submitFailed'));

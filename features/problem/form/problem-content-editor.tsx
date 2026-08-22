@@ -8,12 +8,17 @@ import {
   type SupportedProblemLanguage,
 } from '@/features/problem/parse-problem-content';
 import MarkdownEditor from '@/shared/components/markdown-editor';
-import { Tabs, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '@/shared/components/ui/tabs';
 import { useLocale } from 'next-intl';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 type Props = {
-  defaultValue: string;
+  value: string;
   disabled?: boolean;
   onChange: (serialized: string) => void;
   onBlur?: () => void;
@@ -23,8 +28,18 @@ type Props = {
 
 type ContentMap = Partial<Record<SupportedProblemLanguage, string>>;
 
+function getDefaultLanguage(
+  contents: ContentMap,
+  uiLocale: string
+): SupportedProblemLanguage {
+  const withContent = PROBLEM_CONTENT_LANGUAGES.find((language) =>
+    contents[language]?.trim()
+  );
+  return withContent ?? (uiLocale.startsWith('en') ? 'en' : 'zh');
+}
+
 export default function ProblemContentEditor({
-  defaultValue,
+  value,
   disabled,
   onChange,
   onBlur,
@@ -32,32 +47,47 @@ export default function ProblemContentEditor({
   className,
 }: Props) {
   const uiLocale = useLocale();
-  const [contents, setContents] = useState<ContentMap>(() => {
-    const record: ContentMap = {};
-    for (const { language, content } of parseProblemContent(defaultValue))
-      record[language] = content;
-    return record;
-  });
-  const [activeLanguage, setActiveLanguage] =
-    useState<SupportedProblemLanguage>(() => {
-      const withContent = PROBLEM_CONTENT_LANGUAGES.find((language) =>
-        contents[language]?.trim()
-      );
-      return withContent ?? (uiLocale.startsWith('en') ? 'en' : 'zh');
-    });
+  const contents: ContentMap = useMemo(() => {
+    const map: ContentMap = {};
+    for (const { language, content } of parseProblemContent(value)) {
+      map[language] = content;
+    }
+    return map;
+  }, [value]);
 
-  const handleEditorChange = (value: string) => {
-    const next = { ...contents, [activeLanguage]: value };
-    setContents(next);
+  const [selectedLanguage, setSelectedLanguage] =
+    useState<SupportedProblemLanguage | null>(null);
+  const [prevValue, setPrevValue] = useState(value);
+  const [isInternalChange, setIsInternalChange] = useState(false);
+
+  if (prevValue !== value) {
+    setPrevValue(value);
+    if (!isInternalChange && selectedLanguage !== null) {
+      setSelectedLanguage(null);
+    }
+    if (isInternalChange) {
+      setIsInternalChange(false);
+    }
+  }
+
+  const effectiveActiveLanguage =
+    selectedLanguage ?? getDefaultLanguage(contents, uiLocale);
+
+  const handleEditorChange = (
+    language: SupportedProblemLanguage,
+    nextValue: string
+  ) => {
+    setIsInternalChange(true);
+    const next = { ...contents, [language]: nextValue };
     onChange(serializeProblemContent(next));
   };
 
   return (
     <div className="space-y-2">
       <Tabs
-        value={activeLanguage}
-        onValueChange={(value) =>
-          setActiveLanguage(value as SupportedProblemLanguage)
+        value={effectiveActiveLanguage}
+        onValueChange={(val) =>
+          setSelectedLanguage(val as SupportedProblemLanguage)
         }
       >
         <TabsList>
@@ -70,15 +100,21 @@ export default function ProblemContentEditor({
             </TabsTrigger>
           ))}
         </TabsList>
+        {PROBLEM_CONTENT_LANGUAGES.map((language) => (
+          <TabsContent key={language} value={language}>
+            <MarkdownEditor
+              value={contents[language] ?? ''}
+              onChange={async (event) =>
+                handleEditorChange(language, event.target.value)
+              }
+              onBlur={async () => onBlur?.()}
+              disabled={disabled}
+              aria-invalid={ariaInvalid}
+              className={className}
+            />
+          </TabsContent>
+        ))}
       </Tabs>
-      <MarkdownEditor
-        value={contents[activeLanguage] ?? ''}
-        onChange={async (event) => handleEditorChange(event.target.value)}
-        onBlur={async () => onBlur?.()}
-        disabled={disabled}
-        aria-invalid={ariaInvalid}
-        className={className}
-      />
     </div>
   );
 }

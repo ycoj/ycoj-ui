@@ -1,7 +1,9 @@
 'use client';
 
 import ClientApis from '@/api/client/method';
-import ProblemForm from '@/features/problem/form/problem-form';
+import ProblemForm, {
+  normalizeProblemPayload,
+} from '@/features/problem/form/problem-form';
 import type { PublicProjectionProblem } from '@/shared/types/problem';
 
 type Props = {
@@ -26,12 +28,10 @@ export default function ProblemEditForm({ problem, tags }: Props) {
         content: problem.content,
       }}
       onSubmit={async (values) => {
-        const response = await ClientApis.Problem.editProblem(pid, {
-          ...values,
-          pid: values.pid.trim() || undefined,
-          title: values.title.trim(),
-          tag: values.tag.trim(),
-        }).send();
+        const response = await ClientApis.Problem.editProblem(
+          pid,
+          normalizeProblemPayload(values)
+        ).send();
 
         if (response?.url?.startsWith('/p/'))
           return `/problem/${response.url.slice(3)}`;

@@ -25,13 +25,13 @@ vi.mock('@/shared/components/markdown-editor', () => ({
 }));
 
 function renderEditor(
-  defaultValue: string,
+  value: string,
   onChange: (serialized: string) => void = vi.fn(),
   locale = 'zh'
 ) {
   render(
     <NextIntlClientProvider locale={locale} messages={{}}>
-      <ProblemContentEditor defaultValue={defaultValue} onChange={onChange} />
+      <ProblemContentEditor value={value} onChange={onChange} />
     </NextIntlClientProvider>
   );
   return onChange;

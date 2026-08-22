@@ -40,6 +40,15 @@ export type ProblemFormValues = {
   content: string;
 };
 
+export function normalizeProblemPayload(values: ProblemFormValues) {
+  return {
+    ...values,
+    pid: values.pid.trim() || undefined,
+    title: values.title.trim(),
+    tag: values.tag.trim(),
+  };
+}
+
 type Props = {
   mode: 'create' | 'edit';
   tags: Record<string, string[]>;
@@ -203,7 +212,7 @@ export default function ProblemForm({
                 name="content"
                 render={({ field }) => (
                   <ProblemContentEditor
-                    defaultValue={defaultValues.content}
+                    value={field.value}
                     disabled={isSubmitting}
                     onChange={field.onChange}
                     onBlur={field.onBlur}

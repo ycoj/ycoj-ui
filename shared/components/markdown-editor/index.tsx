@@ -42,7 +42,13 @@ const MarkdownEditor = forwardRef<HTMLTextAreaElement, MarkdownEditorProps>(
     const [internalValue, setInternalValue] = useState(
       () => defaultValue ?? ''
     );
-    const lastValueRef = useRef(defaultValue ?? '');
+    const lastValueRef = useRef(controlledValue ?? defaultValue ?? '');
+    // Synchronously sync controlled value to avoid stale dedup after language switch.
+    // Using useEffect would be async (after paint) and could drop the first edit
+    // if it matches the previous language's value.
+    if (controlledValue !== undefined) {
+      lastValueRef.current = controlledValue;
+    }
     const value = controlledValue ?? internalValue;
 
     const handleValueChange = useCallback(
@@ -50,7 +56,9 @@ const MarkdownEditor = forwardRef<HTMLTextAreaElement, MarkdownEditorProps>(
         if (nextValue === lastValueRef.current) return;
 
         lastValueRef.current = nextValue;
-        setInternalValue(nextValue);
+        if (controlledValue === undefined) {
+          setInternalValue(nextValue);
+        }
 
         if (onChange) {
           const event = {
@@ -59,7 +67,7 @@ const MarkdownEditor = forwardRef<HTMLTextAreaElement, MarkdownEditorProps>(
           onChange(event as Parameters<ChangeHandler>[0]);
         }
       },
-      [name, onChange]
+      [name, onChange, controlledValue]
     );
 
     const handleBlur = useCallback(() => {
