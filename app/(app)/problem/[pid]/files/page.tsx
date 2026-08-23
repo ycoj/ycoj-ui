@@ -54,10 +54,14 @@ export default async function ProblemFilesPage({
     return <Errored title={t('unavailable')} error={data.error} />;
   }
 
-  const canManage = canEditProblem(user, {
-    owner: data.pdoc.owner,
-    reference: data.reference ?? data.pdoc.reference,
-  });
+  const canManage = canEditProblem(
+    user,
+    {
+      owner: data.pdoc.owner,
+      reference: data.reference ?? data.pdoc.reference,
+    },
+    { tid: searchParams.tid }
+  );
   const canDownloadTestdata =
     user._id === data.pdoc.owner ||
     hasPriv(user, PRIV.PRIV_READ_PROBLEM_DATA) ||
