@@ -1,5 +1,8 @@
 import { isFileIoProblem } from '@/features/problem/detail/problem-type';
-import { parseProblemContent } from '@/features/problem/parse-problem-content';
+import {
+  parseProblemContent,
+  PROBLEM_LANGUAGE_LABELS,
+} from '@/features/problem/parse-problem-content';
 import Markdown from '@/shared/components/markdown';
 import {
   Alert,
@@ -16,14 +19,6 @@ import { resolveFileUrls } from '@/shared/lib/resolve-file-urls';
 import type { ContestDetailProjectionProblem } from '@/shared/types/problem';
 import { Info } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-
-const LANGUAGE_LABELS = {
-  zh: '简体中文',
-  zh_TW: '繁體中文',
-  en: 'English',
-  kr: '한국어',
-  jp: '日本語',
-} as const;
 
 export default function ProblemContent({
   problem,
@@ -97,7 +92,7 @@ export default function ProblemContent({
         <TabsList>
           {contents.map(({ language }) => (
             <TabsTrigger key={language} value={language}>
-              {LANGUAGE_LABELS[language] ?? language}
+              {PROBLEM_LANGUAGE_LABELS[language]}
             </TabsTrigger>
           ))}
         </TabsList>

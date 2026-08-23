@@ -6,13 +6,20 @@ import { MdEditor } from 'md-editor-rt';
 import 'md-editor-rt/lib/style.css';
 import { useLocale } from 'next-intl';
 import type { ChangeEvent, FocusEvent } from 'react';
-import { forwardRef, useCallback, useRef, useState } from 'react';
+import {
+  forwardRef,
+  useCallback,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import type { ChangeHandler } from 'react-hook-form';
 
 type MarkdownEditorProps = {
   id?: string;
   name?: string;
   defaultValue?: string;
+  value?: string;
   disabled?: boolean;
   required?: boolean;
   className?: string;
@@ -27,6 +34,7 @@ const MarkdownEditor = forwardRef<HTMLTextAreaElement, MarkdownEditorProps>(
       id,
       name,
       defaultValue,
+      value: controlledValue,
       disabled,
       required,
       className,
@@ -37,15 +45,25 @@ const MarkdownEditor = forwardRef<HTMLTextAreaElement, MarkdownEditorProps>(
     ref
   ) => {
     const locale = useLocale();
-    const [value, setValue] = useState(() => defaultValue ?? '');
-    const lastValueRef = useRef(defaultValue ?? '');
+    const [internalValue, setInternalValue] = useState(
+      () => defaultValue ?? ''
+    );
+    const lastValueRef = useRef(controlledValue ?? defaultValue ?? '');
+    useLayoutEffect(() => {
+      if (controlledValue !== undefined) {
+        lastValueRef.current = controlledValue;
+      }
+    }, [controlledValue]);
+    const value = controlledValue ?? internalValue;
 
     const handleValueChange = useCallback(
       (nextValue: string) => {
         if (nextValue === lastValueRef.current) return;
 
         lastValueRef.current = nextValue;
-        setValue(nextValue);
+        if (controlledValue === undefined) {
+          setInternalValue(nextValue);
+        }
 
         if (onChange) {
           const event = {
@@ -54,7 +72,7 @@ const MarkdownEditor = forwardRef<HTMLTextAreaElement, MarkdownEditorProps>(
           onChange(event as Parameters<ChangeHandler>[0]);
         }
       },
-      [name, onChange]
+      [name, onChange, controlledValue]
     );
 
     const handleBlur = useCallback(() => {

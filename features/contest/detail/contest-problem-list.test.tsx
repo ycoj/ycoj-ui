@@ -1,5 +1,5 @@
+import ContestProblemList from './contest-problem-list';
 import type { ContestProblemsData } from '@/api/server/method/contests/problems';
-import ContestProblemList from '@/features/contest/detail/contest-problem-list';
 import messages from '@/messages/en.json';
 import type { Contest } from '@/shared/types/contest';
 import type { ProblemDoc } from '@/shared/types/problem';
