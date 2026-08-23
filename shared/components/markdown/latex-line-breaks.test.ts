@@ -17,6 +17,12 @@ describe('preserveLatexLineBreaks', () => {
     expect(preserveLatexLineBreaks(source)).toBe(source);
   });
 
+  it('processes math after an escaped backtick', () => {
+    const source = String.raw`\`$a \\ b$\``;
+
+    expect(preserveLatexLineBreaks(source)).toBe(String.raw`\`$a \\\\ b$\``);
+  });
+
   it('does not change prose, fenced code, or existing longer runs', () => {
     const source = [
       String.raw`text \\ text`,

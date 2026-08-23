@@ -133,7 +133,7 @@ export function preserveLatexLineBreaks(source: string) {
       }
     }
 
-    if (source[index] === '`') {
+    if (source[index] === '`' && !isEscaped(source, index)) {
       const codeSpanEnd = getCodeSpanEnd(source, index);
       if (codeSpanEnd !== null) {
         result += source.slice(index, codeSpanEnd);
