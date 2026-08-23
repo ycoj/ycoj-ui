@@ -25,6 +25,37 @@ describe('preserveLatexLineBreaks', () => {
     expect(preserveLatexLineBreaks(source)).toBe(source);
   });
 
+  it('does not change inline or indented code', () => {
+    const inlineCode = [
+      '`',
+      String.raw`$a \\ b$`,
+      '` and ``',
+      String.raw`$c \\ d$`,
+      '``',
+    ].join('');
+    const source = [inlineCode, '', `    ${String.raw`$e \\ f$`}`].join('\n');
+
+    expect(preserveLatexLineBreaks(source)).toBe(source);
+  });
+
+  it('requires a matching fence marker', () => {
+    const source = ['```text', '~~~', String.raw`$a \\ b$`, '```'].join('\n');
+
+    expect(preserveLatexLineBreaks(source)).toBe(source);
+  });
+
+  it('allows backtick runs inside a longer backtick fence', () => {
+    const source = [
+      '````markdown',
+      '```latex',
+      String.raw`$a \\ b$`,
+      '```',
+      '````',
+    ].join('\n');
+
+    expect(preserveLatexLineBreaks(source)).toBe(source);
+  });
+
   it('leaves ordinary LaTeX commands unchanged', () => {
     expect(preserveLatexLineBreaks(String.raw`$\frac{a}{b}$`)).toBe(
       String.raw`$\frac{a}{b}$`
