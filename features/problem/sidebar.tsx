@@ -20,6 +20,7 @@ import {
   Navigation,
   Pencil,
   Settings2,
+  Sparkles,
   type LucideIcon,
 } from 'lucide-react';
 import { useFormatter, useTranslations } from 'next-intl';
@@ -185,6 +186,11 @@ export default function ProblemSidebar({
               icon={Settings2}
               text={t('configuration')}
               href={`/problem/${problem.pid ?? problem.docId}/config`}
+            />
+            <SidebarButton
+              icon={Sparkles}
+              text={t('aiGeneration')}
+              href={`/problem/${problem.pid ?? problem.docId}/generate`}
             />
           </div>
         )}

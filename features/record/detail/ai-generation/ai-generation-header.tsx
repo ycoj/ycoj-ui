@@ -71,11 +71,53 @@ export function AiGenerationHeader({
         />
       </div>
 
-      <dl className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-5">
+      <dl className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <dt className="text-muted-foreground">{t('aiGeneration.model')}</dt>
           <dd className="font-mono" data-llm-text={meta?.model ?? '-'}>
             {meta?.model ?? '-'}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-muted-foreground">
+            {t('aiGeneration.testcaseTarget')}
+          </dt>
+          <dd data-llm-text={String(meta?.testcaseTarget ?? '-')}>
+            {meta?.testcaseTarget ?? '-'}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-muted-foreground">
+            {t('aiGeneration.testcaseCount')}
+          </dt>
+          <dd data-llm-text={String(meta?.testcaseCount ?? '-')}>
+            {meta?.testcaseCount ?? '-'}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-muted-foreground">
+            {t('aiGeneration.judgeLimits')}
+          </dt>
+          <dd
+            data-llm-text={
+              meta?.timeLimitMs && meta?.memoryLimitMb
+                ? `${meta.timeLimitMs} ms / ${meta.memoryLimitMb} MiB`
+                : '-'
+            }
+          >
+            {meta?.timeLimitMs && meta?.memoryLimitMb
+              ? `${meta.timeLimitMs} ms / ${meta.memoryLimitMb} MiB`
+              : '-'}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-muted-foreground">{t('aiGeneration.checker')}</dt>
+          <dd
+            data-llm-text={t(
+              `aiGeneration.checkerModes.${meta?.checkerMode ?? 'default'}`
+            )}
+          >
+            {t(`aiGeneration.checkerModes.${meta?.checkerMode ?? 'default'}`)}
           </dd>
         </div>
         <div>

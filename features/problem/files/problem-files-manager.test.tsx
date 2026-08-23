@@ -103,7 +103,6 @@ function renderManager() {
     <NextIntlClientProvider locale="en" messages={messages}>
       <ProblemFilesManager
         pid="1000"
-        domainId="system"
         tid="contest-id"
         testdata={[]}
         additionalFiles={[]}
@@ -236,5 +235,40 @@ describe('ProblemFilesManager uploads', () => {
 
     expect(screen.getByRole('dialog')).toHaveTextContent('Uploading 1 file');
     expect(screen.getByText('0%')).toBeInTheDocument();
+  });
+});
+
+describe('ProblemFilesManager AI generation entry', () => {
+  it('shows a link to the generation page when allowed', () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <ProblemFilesManager
+          pid="1000"
+          testdata={[]}
+          additionalFiles={[]}
+          canManage
+          canGenerate
+        />
+      </NextIntlClientProvider>
+    );
+    expect(
+      screen.getByRole('link', { name: 'Open the generation page' })
+    ).toHaveAttribute('href', '/problem/1000/generate');
+  });
+
+  it('hides the generation entry when not allowed', () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <ProblemFilesManager
+          pid="1000"
+          testdata={[]}
+          additionalFiles={[]}
+          canManage
+        />
+      </NextIntlClientProvider>
+    );
+    expect(
+      screen.queryByRole('link', { name: 'Open the generation page' })
+    ).toBeNull();
   });
 });
