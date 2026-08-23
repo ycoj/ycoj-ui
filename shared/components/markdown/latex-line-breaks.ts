@@ -142,15 +142,22 @@ export function preserveLatexLineBreaks(source: string) {
       }
     }
 
-    const delimiter = source.startsWith(MATH_DELIMITERS[0], index)
-      ? MATH_DELIMITERS[0]
-      : source[index] === '$' && !isEscaped(source, index)
-        ? MATH_DELIMITERS[1]
-        : null;
+    const hasDisplayDelimiter = source.startsWith(MATH_DELIMITERS[0], index);
+    const displayDelimiterIsEscaped =
+      hasDisplayDelimiter && isEscaped(source, index);
+    const delimiter =
+      hasDisplayDelimiter && !displayDelimiterIsEscaped
+        ? MATH_DELIMITERS[0]
+        : source[index] === '$' && !isEscaped(source, index)
+          ? MATH_DELIMITERS[1]
+          : null;
 
     if (!delimiter) {
-      result += source[index];
-      index += 1;
+      const literalLength = displayDelimiterIsEscaped
+        ? MATH_DELIMITERS[0].length
+        : 1;
+      result += source.slice(index, index + literalLength);
+      index += literalLength;
       continue;
     }
 

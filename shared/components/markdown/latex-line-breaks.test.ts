@@ -11,6 +11,12 @@ describe('preserveLatexLineBreaks', () => {
     );
   });
 
+  it('preserves line breaks between escaped display math delimiters', () => {
+    const source = String.raw`\$$a \\ b\$$`;
+
+    expect(preserveLatexLineBreaks(source)).toBe(source);
+  });
+
   it('does not change prose, fenced code, or existing longer runs', () => {
     const source = [
       String.raw`text \\ text`,
