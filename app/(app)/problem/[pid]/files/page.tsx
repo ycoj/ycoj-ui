@@ -1,6 +1,7 @@
 import { getProblemFiles } from '@/api/server/method/problems/files';
 import ProblemTitle from '@/features/problem/detail/problem-title';
 import ProblemFilesManager from '@/features/problem/files/problem-files-manager';
+import { canEditProblem } from '@/features/problem/lib/can-edit-problem';
 import ProblemSidebar from '@/features/problem/sidebar';
 import { getUser } from '@/features/user/lib/get-user';
 import { hasPerm, hasPriv, PERM, PRIV } from '@/features/user/lib/priv';
@@ -53,11 +54,10 @@ export default async function ProblemFilesPage({
     return <Errored title={t('unavailable')} error={data.error} />;
   }
 
-  const canManage =
-    !data.reference &&
-    ((user._id === data.pdoc.owner &&
-      hasPerm(user, PERM.PERM_EDIT_PROBLEM_SELF)) ||
-      hasPerm(user, PERM.PERM_EDIT_PROBLEM));
+  const canManage = canEditProblem(user, {
+    owner: data.pdoc.owner,
+    reference: data.reference ?? data.pdoc.reference,
+  });
   const canDownloadTestdata =
     user._id === data.pdoc.owner ||
     hasPriv(user, PRIV.PRIV_READ_PROBLEM_DATA) ||

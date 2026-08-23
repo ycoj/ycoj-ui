@@ -1,8 +1,8 @@
 import ServerApis from '@/api/server/method';
 import { getProblemDetail } from '@/features/problem/detail/get-problem-detail';
 import ProblemEditForm from '@/features/problem/edit/problem-edit-form';
+import { canEditProblem } from '@/features/problem/lib/can-edit-problem';
 import { getUser } from '@/features/user/lib/get-user';
-import { hasPerm, PERM } from '@/features/user/lib/priv';
 import { Errored } from '@/shared/components/errored';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
@@ -36,12 +36,7 @@ export default async function ProblemEditPage({
   if ('error' in data)
     return <Errored title={t('unavailable')} error={data.error} />;
 
-  const canEdit =
-    Boolean(user._id) &&
-    !data.pdoc.reference &&
-    ((user._id === data.pdoc.owner &&
-      hasPerm(user, PERM.PERM_EDIT_PROBLEM_SELF)) ||
-      hasPerm(user, PERM.PERM_EDIT_PROBLEM));
+  const canEdit = canEditProblem(user, data.pdoc);
   if (!canEdit)
     return <Errored title={t('unavailable')} error={t('unavailable')} />;
 

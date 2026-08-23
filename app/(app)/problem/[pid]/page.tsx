@@ -5,9 +5,9 @@ import {
 } from '@/features/problem/detail/get-problem-detail';
 import ProblemContent from '@/features/problem/detail/problem-content';
 import ProblemTitle from '@/features/problem/detail/problem-title';
+import { canEditProblem } from '@/features/problem/lib/can-edit-problem';
 import ProblemSidebar from '@/features/problem/sidebar';
 import { getUser } from '@/features/user/lib/get-user';
-import { hasPerm, PERM } from '@/features/user/lib/priv';
 import { Errored } from '@/shared/components/errored';
 import TwoColumnLayout from '@/shared/layout/two-column';
 import type { Metadata } from 'next';
@@ -63,13 +63,9 @@ export default async function ProblemDetailPage({
     return <Errored title={t('unavailable')} error={data.error} />;
   }
 
-  const canConfigure =
-    Boolean(user._id) &&
-    !searchParams.tid &&
-    !data.pdoc.reference &&
-    ((user._id === data.pdoc.owner &&
-      hasPerm(user, PERM.PERM_EDIT_PROBLEM_SELF)) ||
-      hasPerm(user, PERM.PERM_EDIT_PROBLEM));
+  const canConfigure = canEditProblem(user, data.pdoc, {
+    tid: searchParams.tid,
+  });
 
   return (
     <ProblemDetailContent
