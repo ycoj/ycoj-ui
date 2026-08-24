@@ -5,8 +5,10 @@ import { getProblemsList } from './list';
 import { getProblemSolution } from './solution';
 import { submitProblem } from './submit';
 import { getProblemTags } from './tags';
+import { getAiGenerationOptions } from '@/api/server/method/problems/ai-generation';
 
 const Problems = {
+  getAiGenerationOptions,
   getProblemsList,
   getProblemConfig,
   getProblemDetail,

@@ -1,6 +1,5 @@
 'use client';
 
-import AiGenerationSection from './ai-generation-dialog';
 import CreateFileDialog from './create-file-dialog';
 import FileSection from './file-section';
 import RenameFileDialog from './rename-file-dialog';
@@ -10,14 +9,15 @@ import { Progress } from '@/shared/components/ui/progress';
 import type { FileInfo } from '@/shared/types/file';
 import type { ProblemFileType } from '@/shared/types/problem-file';
 import { useUploader } from 'alova/client';
+import { Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AlertDialog, Dialog } from 'radix-ui';
 import { useRef, useState } from 'react';
 
 type Props = {
   pid: string;
-  domainId: string;
   tid?: string;
   testdata: FileInfo[];
   additionalFiles: FileInfo[];
@@ -38,7 +38,6 @@ type ActiveUpload = {
 
 export default function ProblemFilesManager({
   pid,
-  domainId,
   tid,
   testdata,
   additionalFiles,
@@ -206,7 +205,24 @@ export default function ProblemFilesManager({
             onDelete={deleteFiles}
             onDownload={downloadFiles}
           />
-          {canGenerate && <AiGenerationSection domainId={domainId} pid={pid} />}
+          {canGenerate && (
+            <section className="space-y-4" data-llm-visible="true">
+              <h2
+                className="text-xl text-primary"
+                data-llm-text={t('generateWithAi')}
+              >
+                {t('generateWithAi')}
+              </h2>
+              <Button asChild type="button">
+                <Link href={`/problem/${pid}/generate`}>
+                  <Sparkles />
+                  <span data-llm-text={t('openGenerationPage')}>
+                    {t('openGenerationPage')}
+                  </span>
+                </Link>
+              </Button>
+            </section>
+          )}
         </div>
         <FileSection
           key={`additional-${additionalFiles.map((file) => file.name).join(':')}`}

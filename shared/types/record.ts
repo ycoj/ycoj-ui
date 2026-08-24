@@ -34,6 +34,13 @@ export type AiGenerationMeta = {
   active: boolean;
   stage: AiGenerationStage;
   model: string;
+  profileId?: string;
+  testcaseTarget?: number;
+  testcaseCount?: number;
+  timeLimitMs?: number;
+  memoryLimitMb?: number;
+  standardSolutionProvided?: boolean;
+  checkerMode?: 'default' | 'provided' | 'generated';
   sessionId?: string;
   startedAt?: string;
   finishedAt?: string;
