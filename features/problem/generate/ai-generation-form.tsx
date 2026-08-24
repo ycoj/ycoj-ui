@@ -94,7 +94,11 @@ export default function AiGenerationForm({ pid, options }: Props) {
       !checkerRequirements.trim()
     )
       return setError(t('checkerRequirementsRequired'));
-    if (includeChecker && checkerSource.length > MAX_SOURCE_LENGTH)
+    if (
+      includeChecker &&
+      checkerMode === 'provided' &&
+      checkerSource.length > MAX_SOURCE_LENGTH
+    )
       return setError(t('sourceTooLong'));
     if (
       instructions.length > MAX_TEXT_LENGTH ||

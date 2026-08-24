@@ -1,7 +1,7 @@
 import AiGenerationForm from './ai-generation-form';
 import messages from '@/messages/en.json';
 import type { AiGenerationOptions } from '@/shared/types/ai-generation';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -18,6 +18,8 @@ class ResizeObserverMock {
 }
 
 vi.stubGlobal('ResizeObserver', ResizeObserverMock);
+Element.prototype.scrollIntoView = vi.fn();
+HTMLElement.prototype.hasPointerCapture = vi.fn();
 
 vi.mock('@/api/client/method', () => ({
   default: { Problem: { generateAiTestdata: mocks.generate } },
@@ -113,6 +115,58 @@ describe('AiGenerationForm', () => {
       'Accept any valid witness.'
     );
     await user.click(screen.getByRole('button', { name: 'Start generation' }));
+    expect(mocks.generate).toHaveBeenCalledWith(
+      'P1000',
+      expect.objectContaining({
+        checker: {
+          mode: 'generated',
+          requirements: 'Accept any valid witness.',
+        },
+      })
+    );
+  });
+
+  it('ignores stale oversized checker source after switching to generated mode', async () => {
+    const user = userEvent.setup();
+    const send = vi.fn().mockResolvedValue({ rid: 'record-id' });
+    mocks.generate.mockReturnValue({ send });
+    renderForm();
+
+    await user.click(
+      screen.getByLabelText('Use a custom Testlib C++17 checker')
+    );
+    fireEvent.keyDown(
+      screen.getByRole('combobox', { name: 'Checker source' }),
+      {
+        key: 'ArrowDown',
+      }
+    );
+    await user.click(
+      screen.getByRole('option', { name: 'Provide source code' })
+    );
+    fireEvent.change(
+      screen.getByRole('textbox', { name: 'Testlib checker source' }),
+      {
+        target: { value: 'x'.repeat(100_001) },
+      }
+    );
+
+    fireEvent.keyDown(
+      screen.getByRole('combobox', { name: 'Checker source' }),
+      {
+        key: 'ArrowDown',
+      }
+    );
+    await user.click(screen.getByRole('option', { name: 'Generate with AI' }));
+    await user.type(
+      screen.getByLabelText('Checker requirements'),
+      'Accept any valid witness.'
+    );
+    await user.click(screen.getByRole('button', { name: 'Start generation' }));
+
+    expect(
+      screen.queryByText('Source code must be 100,000 characters or fewer.')
+    ).not.toBeInTheDocument();
     expect(mocks.generate).toHaveBeenCalledWith(
       'P1000',
       expect.objectContaining({
