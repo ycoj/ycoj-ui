@@ -84,7 +84,7 @@ export default function AiGenerationForm({ pid, options }: Props) {
       return setError(t('invalidMemory'));
     if (includeStandardSolution && !standardSolution.trim())
       return setError(t('standardSolutionRequired'));
-    if (standardSolution.length > MAX_SOURCE_LENGTH)
+    if (includeStandardSolution && standardSolution.length > MAX_SOURCE_LENGTH)
       return setError(t('sourceTooLong'));
     if (includeChecker && checkerMode === 'provided' && !checkerSource.trim())
       return setError(t('checkerSourceRequired'));
@@ -94,7 +94,7 @@ export default function AiGenerationForm({ pid, options }: Props) {
       !checkerRequirements.trim()
     )
       return setError(t('checkerRequirementsRequired'));
-    if (checkerSource.length > MAX_SOURCE_LENGTH)
+    if (includeChecker && checkerSource.length > MAX_SOURCE_LENGTH)
       return setError(t('sourceTooLong'));
     if (
       instructions.length > MAX_TEXT_LENGTH ||
