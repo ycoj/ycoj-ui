@@ -435,6 +435,28 @@
       "submitting": "提交中...",
       "submit": "提交",
       "openInProblemSet": "在题库中打开"
+    },
+    "objectiveForm": {
+      "answer": "答案",
+      "answerFor": "题目 {id} 的答案",
+      "question": "题目 {id}",
+      "selectPlaceholder": "请选择选项",
+      "navigation": "题目导航",
+      "clearAnswers": "清空作答",
+      "clearConfirm": "所有更改将会丢失，确定要清空所有作答吗？",
+      "draftError": "草稿存储不可用，答案将不会被持久化",
+      "configWarning": "未发现有效的客观题，请检查题目配置。",
+      "loginToSubmit": "登录后提交",
+      "noPermission": "没有提交权限",
+      "submitting": "提交中...",
+      "submit": "提交",
+      "openInProblemSet": "在题库中打开",
+      "answered": "已作答",
+      "unanswered": "未作答",
+      "submitFailed": "提交失败",
+      "submitRetry": "提交失败，请稍后重试",
+      "contestEnded": "比赛已结束",
+      "contestEndedDescription": "比赛已结束，你可以选择在题库中打开本题。"
     }
   },
   "problemCreate": {

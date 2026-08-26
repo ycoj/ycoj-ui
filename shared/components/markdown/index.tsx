@@ -10,12 +10,15 @@ import remarkPdf from '@/shared/components/markdown/plugins/remark-pdf';
 import remarkProblemSamples from '@/shared/components/markdown/plugins/remark-problem-samples';
 import 'katex/dist/katex.min.css';
 import { MarkdownAsync } from 'react-markdown';
+import type { Components } from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
+import type { Options as Schema } from 'rehype-sanitize';
 import rehypeStarryNight from 'rehype-starry-night';
 import remarkGfm from 'remark-gfm';
+import type { PluggableList } from 'unified';
 
-const markdownSanitizeSchema = {
+export const markdownSanitizeSchema: Schema = {
   ...defaultSchema,
   tagNames: [
     ...(defaultSchema.tagNames ?? []),
@@ -58,26 +61,41 @@ const markdownSanitizeSchema = {
       'data-avatar',
     ],
   },
-} as const;
+};
 
-export default function Markdown({ children }: { children: string }) {
+type Props = {
+  children: string;
+  rehypePlugins?: PluggableList;
+  sanitizeSchema?: Schema;
+  components?: Components;
+};
+
+export default function Markdown({
+  children,
+  rehypePlugins = [],
+  sanitizeSchema = markdownSanitizeSchema,
+  components = {},
+}: Props) {
   const markdownSource = preserveLatexLineBreaks(children);
+  const rehypePluginsWithSanitize: PluggableList = [
+    rehypeRaw,
+    ...rehypePlugins,
+    [rehypeSanitize, sanitizeSchema],
+    rehypeUserSpan,
+    rehypeStarryNight,
+  ];
 
   return (
     <div className="markdown">
       <MarkdownAsync
         remarkPlugins={[remarkGfm, remarkPdf, remarkProblemSamples]}
-        rehypePlugins={[
-          rehypeRaw,
-          [rehypeSanitize, markdownSanitizeSchema],
-          rehypeUserSpan,
-          rehypeStarryNight,
-        ]}
+        rehypePlugins={rehypePluginsWithSanitize}
         components={{
           // @ts-expect-error pdf-embed is a custom element
           'pdf-embed': MarkdownPdf,
           samples: ProblemSample,
           'user-span': MarkdownUserSpan,
+          ...components,
         }}
       >
         {markdownSource}

@@ -1,4 +1,5 @@
 import type { TrainingDetailResponse } from '@/api/server/method/training/detail';
+import { formatProblemPid } from '@/features/problem/lib/format-problem-pid';
 import ProblemDifficulty from '@/features/problem/problem-difficulty';
 import ProblemLink from '@/features/problem/problem-link';
 import ProblemStatus from '@/features/problem/problem-status';
@@ -108,11 +109,9 @@ export default function TrainingContent({ data }: Props) {
 
                             <TableCell
                               className="tabular-nums"
-                              data-llm-text={String(
-                                problem.pid ?? problem.docId
-                              )}
+                              data-llm-text={formatProblemPid(problem)}
                             >
-                              {problem.pid ?? problem.docId}
+                              {formatProblemPid(problem)}
                             </TableCell>
 
                             <TableCell>

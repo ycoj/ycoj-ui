@@ -8,12 +8,14 @@ import { Card, CardContent } from '@/shared/components/ui/card';
 import type { HomepageCheckin } from '@/shared/types/checkin';
 import { CalendarCheck2 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 type Props = {
   checkin: HomepageCheckin;
   username: string;
 };
+
+type CheckinResult = Pick<HomepageCheckin, 'date' | 'record' | 'streak'>;
 
 function isHitokotoError(error: unknown): boolean {
   if (
@@ -33,21 +35,14 @@ function isHitokotoError(error: unknown): boolean {
 export default function DailyCheckin({ checkin, username }: Props) {
   const t = useTranslations('checkin');
   const locale = useLocale();
-  const [record, setRecord] = useState(checkin.record);
-  const [streak, setStreak] = useState(checkin.streak);
-  const previousCheckinDate = useRef(checkin.date);
+  const [result, setResult] = useState<CheckinResult | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [errorKey, setErrorKey] = useState<'error' | 'hitokotoError' | null>(
     null
   );
   const requestInFlight = useRef(false);
-
-  useEffect(() => {
-    if (previousCheckinDate.current === checkin.date) return;
-    previousCheckinDate.current = checkin.date;
-    setRecord(checkin.record);
-    setStreak(checkin.streak);
-  }, [checkin.date, checkin.record, checkin.streak]);
+  const current = result?.date === checkin.date ? result : checkin;
+  const { record, streak } = current;
 
   const date = parseCheckinDate(checkin.date);
   const day = checkin.date.slice(-2);
@@ -71,8 +66,11 @@ export default function DailyCheckin({ checkin, username }: Props) {
     setErrorKey(null);
     try {
       const response = await ClientApis.Checkin.checkin().send();
-      setRecord(response.record);
-      setStreak(response.streak);
+      setResult({
+        date: checkin.date,
+        record: response.record,
+        streak: response.streak,
+      });
     } catch (error) {
       setErrorKey(isHitokotoError(error) ? 'hitokotoError' : 'error');
     } finally {

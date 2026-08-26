@@ -5,11 +5,14 @@ import {
 } from '@/features/problem/detail/get-problem-detail';
 import ProblemContent from '@/features/problem/detail/problem-content';
 import ProblemTitle from '@/features/problem/detail/problem-title';
+import { isObjectiveProblem } from '@/features/problem/detail/problem-type';
 import { canEditProblem } from '@/features/problem/lib/can-edit-problem';
+import ObjectiveProblemPage from '@/features/problem/objective/objective-page';
 import ProblemSidebar from '@/features/problem/sidebar';
 import { getUser } from '@/features/user/lib/get-user';
 import { Errored } from '@/shared/components/errored';
 import TwoColumnLayout from '@/shared/layout/two-column';
+import type { User } from '@/shared/types/user';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
@@ -72,6 +75,7 @@ export default async function ProblemDetailPage({
       data={data}
       searchParams={searchParams}
       canConfigure={canConfigure}
+      user={user}
     />
   );
 }
@@ -80,11 +84,23 @@ function ProblemDetailContent({
   data,
   searchParams,
   canConfigure,
+  user,
 }: {
   data: ProblemDetailData;
   searchParams: SearchParams;
   canConfigure: boolean;
+  user: User | null;
 }) {
+  if (isObjectiveProblem(data.pdoc)) {
+    return (
+      <ObjectiveProblemPage
+        data={data}
+        tid={searchParams.tid}
+        canConfigure={canConfigure}
+        user={user}
+      />
+    );
+  }
   return (
     <div className="space-y-6">
       {data.tdoc && <ContestTimer contest={data.tdoc} status={data.tsdoc} />}

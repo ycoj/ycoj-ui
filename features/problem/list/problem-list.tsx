@@ -1,5 +1,6 @@
 import { type ProblemListResponse } from '@/api/server/method/problems/list';
 import type { SearchParams } from '@/app/(app)/problem/(list)/page';
+import { formatProblemPid } from '@/features/problem/lib/format-problem-pid';
 import ProblemDifficulty from '@/features/problem/problem-difficulty';
 import ProblemLink from '@/features/problem/problem-link';
 import ProblemStatus from '@/features/problem/problem-status';
@@ -66,8 +67,8 @@ export default function ProblemList({ data, showTags, searchParams }: Props) {
                 <ProblemStatus status={data.psdict[problem.docId]} />
               )}
             </TableCell>
-            <TableCell data-llm-text={String(problem.pid)}>
-              {problem.pid}
+            <TableCell data-llm-text={formatProblemPid(problem)}>
+              {formatProblemPid(problem)}
             </TableCell>
             <TableCell>
               <ProblemLink problem={problem} />

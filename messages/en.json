@@ -435,6 +435,28 @@
       "submitting": "Submitting...",
       "submit": "Submit",
       "openInProblemSet": "Open in problem set"
+    },
+    "objectiveForm": {
+      "answer": "Answer",
+      "answerFor": "Answer for question {id}",
+      "question": "Question {id}",
+      "selectPlaceholder": "Select an option",
+      "navigation": "Questions",
+      "clearAnswers": "Clear answers",
+      "clearConfirm": "All changes will be lost. Are you sure you want to clear all answers?",
+      "draftError": "Draft storage unavailable, answers will not be persisted",
+      "configWarning": "No valid objective questions found. Please check problem configuration.",
+      "loginToSubmit": "Login to Submit",
+      "noPermission": "No Permission to Submit",
+      "submitting": "Submitting...",
+      "submit": "Submit",
+      "openInProblemSet": "Open in problem set",
+      "answered": "Answered",
+      "unanswered": "Unanswered",
+      "submitFailed": "Submission failed",
+      "submitRetry": "Submission failed. Please try again later.",
+      "contestEnded": "Contest ended",
+      "contestEndedDescription": "This contest has ended. You can open this problem in the problem set."
     }
   },
   "problemCreate": {

@@ -23,7 +23,7 @@ export type ContestListProjectionProblem = {
   domainId: string;
   docType: 10;
   docId: number;
-  pid: string;
+  pid?: string;
   owner: number;
   title: string;
   blacklist?: number[];
