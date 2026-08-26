@@ -248,7 +248,6 @@ export function ObjectiveOption(
           onChange={(e) => handleChange(e.target.checked)}
           disabled={!isReady || isReadOnly}
           className="size-4 shrink-0 accent-primary"
-          aria-label={`${value}`}
         />
         <span className="flex-1 text-sm">
           <span className="mr-2 font-medium">{value}.</span>
@@ -273,7 +272,6 @@ export function ObjectiveOption(
         checked={isChecked}
         onCheckedChange={(c) => handleChange(c === true)}
         disabled={!isReady || isReadOnly}
-        aria-label={`${value}`}
         className="shrink-0"
       />
       <span className="flex-1 text-sm">

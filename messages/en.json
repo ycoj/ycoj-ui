@@ -443,7 +443,7 @@
       "selectPlaceholder": "Select an option",
       "navigation": "Questions",
       "clearAnswers": "Clear answers",
-      "clearConfirm": "All changes will be lost. Are you sure to clear all answers?",
+      "clearConfirm": "All changes will be lost. Are you sure you want to clear all answers?",
       "draftError": "Draft storage unavailable, answers will not be persisted",
       "configWarning": "No valid objective questions found. Please check problem configuration.",
       "loginToSubmit": "Login to Submit",

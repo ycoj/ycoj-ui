@@ -50,9 +50,9 @@ export async function getDraft(id: string): Promise<ObjectiveAnswers | null> {
   });
 }
 
-export async function saveDraft(
+function enqueueWrite(
   id: string,
-  answers: ObjectiveAnswers
+  makeRequest: (store: IDBObjectStore) => IDBRequest
 ): Promise<void> {
   const prev = writeChains.get(id) ?? Promise.resolve();
   let resolveChain!: () => void;
@@ -69,12 +69,7 @@ export async function saveDraft(
         await new Promise<void>((resolve, reject) => {
           const tx = db.transaction(STORE_NAME, 'readwrite');
           const store = tx.objectStore(STORE_NAME);
-          const record: DraftRecord = {
-            id,
-            answers,
-            updatedAt: Date.now(),
-          };
-          const req = store.put(record);
+          const req = makeRequest(store);
           req.onsuccess = () => resolve();
           req.onerror = () => reject(req.error);
         });
@@ -89,34 +84,20 @@ export async function saveDraft(
   return next;
 }
 
-export async function clearDraft(id: string): Promise<void> {
-  const prev = writeChains.get(id) ?? Promise.resolve();
-  let resolveChain!: () => void;
-  let rejectChain!: (reason: unknown) => void;
-  const next = new Promise<void>((resolve, reject) => {
-    resolveChain = resolve;
-    rejectChain = reject;
-  });
-  const chained = prev
-    .catch(() => {})
-    .then(async () => {
-      try {
-        const db = await openDB();
-        await new Promise<void>((resolve, reject) => {
-          const tx = db.transaction(STORE_NAME, 'readwrite');
-          const store = tx.objectStore(STORE_NAME);
-          const req = store.delete(id);
-          req.onsuccess = () => resolve();
-          req.onerror = () => reject(req.error);
-        });
-        resolveChain();
-      } catch (e) {
-        rejectChain(e);
-      }
-    });
-  writeChains.set(id, next);
-  chained.catch(() => {});
-  return next;
+export function saveDraft(
+  id: string,
+  answers: ObjectiveAnswers
+): Promise<void> {
+  const record: DraftRecord = {
+    id,
+    answers,
+    updatedAt: Date.now(),
+  };
+  return enqueueWrite(id, (store) => store.put(record));
+}
+
+export function clearDraft(id: string): Promise<void> {
+  return enqueueWrite(id, (store) => store.delete(id));
 }
 
 export function __resetWriteChains() {

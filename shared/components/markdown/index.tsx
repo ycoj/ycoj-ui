@@ -23,6 +23,7 @@ import rehypeRaw from 'rehype-raw';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import rehypeStarryNight from 'rehype-starry-night';
 import remarkGfm from 'remark-gfm';
+import type { PluggableList } from 'unified';
 
 const markdownSanitizeSchema = {
   ...defaultSchema,
@@ -127,8 +128,7 @@ export default function Markdown({
     ? objectiveSanitizeSchema
     : markdownSanitizeSchema;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rehypePlugins: any[] = objective
+  const rehypePlugins: PluggableList = objective
     ? [
         rehypeRaw,
         rehypeObjective,

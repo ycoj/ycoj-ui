@@ -59,9 +59,7 @@ describe('ProblemList pid display', () => {
     const problem = makeProblem({
       docId: 1001,
       pid: undefined,
-    } as unknown as Record<string, unknown>);
-    // Ensure pid is truly missing
-    delete (problem as unknown as Record<string, unknown>).pid;
+    });
     renderList(makeData([problem]));
     expect(screen.getByText('P1001')).toBeInTheDocument();
     expect(screen.getByText('P1001').closest('td')).toHaveAttribute(
