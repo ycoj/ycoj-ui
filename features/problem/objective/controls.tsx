@@ -4,6 +4,7 @@ import QuestionContext, {
   useQuestionContext,
 } from './objective-question-context';
 import { useObjective } from './provider';
+import type { ObjectiveControlType } from './question-schema';
 import { Checkbox } from '@/shared/components/ui/checkbox';
 import { Input } from '@/shared/components/ui/input';
 import {
@@ -16,39 +17,71 @@ import {
 import { Textarea } from '@/shared/components/ui/textarea';
 import { cn } from '@/shared/lib/utils';
 import { useTranslations } from 'next-intl';
-import { useEffect, useId } from 'react';
+import { Children, isValidElement, useEffect, useId } from 'react';
 
 function getId(props: Record<string, unknown>): string {
   return (props['data-id'] as string) ?? (props['dataId'] as string) ?? '';
 }
 
-function getOptions(props: Record<string, unknown>): string[] {
+function getOptionsKey(props: Record<string, unknown>): string {
   const raw =
     (props['data-options'] as string) ?? (props['dataOptions'] as string);
-  if (typeof raw === 'string') {
-    try {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) return parsed as string[];
-    } catch {
-      return [];
+  return typeof raw === 'string' ? raw : '';
+}
+
+function parseOptionsKey(optionsKey: string): string[] {
+  if (!optionsKey) return [];
+  try {
+    const parsed = JSON.parse(optionsKey);
+    if (Array.isArray(parsed)) {
+      return parsed.filter((v): v is string => typeof v === 'string');
     }
+  } catch {
+    return [];
   }
   return [];
 }
 
-function useRegisterQuestion(id: string) {
-  const { registerQuestion } = useObjective();
-  useEffect(() => {
-    if (id) return registerQuestion(id);
-  }, [id, registerQuestion]);
+function getChildOptionsKey(children: React.ReactNode): string {
+  const values = Children.toArray(children)
+    .map((child) => {
+      if (!isValidElement(child)) return null;
+      const childProps = child.props as Record<string, unknown>;
+      const value =
+        (childProps['data-value'] as string) ??
+        (childProps['dataValue'] as string);
+      return typeof value === 'string' && value ? value : null;
+    })
+    .filter((v): v is string => v !== null);
+  return values.length > 0 ? JSON.stringify(values) : '';
 }
 
-function useObjectiveTextField(props: Record<string, unknown>) {
+function useRegisterQuestion(
+  id: string,
+  type: ObjectiveControlType,
+  optionsKey: string
+) {
+  const { registerQuestion } = useObjective();
+  useEffect(() => {
+    if (!id) return;
+    const options = parseOptionsKey(optionsKey);
+    return registerQuestion({
+      id,
+      type,
+      ...(options.length > 0 ? { options } : {}),
+    });
+  }, [id, type, optionsKey, registerQuestion]);
+}
+
+function useObjectiveTextField(
+  props: Record<string, unknown>,
+  type: 'input' | 'textarea'
+) {
   const id = getId(props);
   const { answers, setAnswer, isReady, isReadOnly } = useObjective();
   const uid = useId();
   const t = useTranslations('problem.objectiveForm');
-  useRegisterQuestion(id);
+  useRegisterQuestion(id, type, '');
   const value = typeof answers[id] === 'string' ? (answers[id] as string) : '';
   return { id, value, setAnswer, isReady, isReadOnly, uid, t };
 }
@@ -57,7 +90,7 @@ export function ObjectiveInput(
   props: Record<string, unknown> & { children?: React.ReactNode }
 ) {
   const { id, value, setAnswer, isReady, isReadOnly, uid, t } =
-    useObjectiveTextField(props);
+    useObjectiveTextField(props, 'input');
   if (!id) return null;
   return (
     <span
@@ -83,7 +116,7 @@ export function ObjectiveTextarea(
   props: Record<string, unknown> & { children?: React.ReactNode }
 ) {
   const { id, value, setAnswer, isReady, isReadOnly, uid, t } =
-    useObjectiveTextField(props);
+    useObjectiveTextField(props, 'textarea');
   if (!id) return null;
   return (
     <span
@@ -111,9 +144,10 @@ export function ObjectiveDropdown(
   const id = getId(props);
   const t = useTranslations('problem.objectiveForm');
   const { answers, setAnswer, isReady, isReadOnly } = useObjective();
-  useRegisterQuestion(id);
+  const optionsKey = getOptionsKey(props);
+  useRegisterQuestion(id, 'dropdown', optionsKey);
   if (!id) return null;
-  const options = getOptions(props);
+  const options = parseOptionsKey(optionsKey);
   const value = typeof answers[id] === 'string' ? (answers[id] as string) : '';
 
   return (
@@ -155,7 +189,7 @@ function ObjectiveChoiceGroup(
   const t = useTranslations('problem.objectiveForm');
   const { isReady, isReadOnly } = useObjective();
   const { type } = props;
-  useRegisterQuestion(id);
+  useRegisterQuestion(id, type, getChildOptionsKey(props.children));
   if (!id) return null;
   return (
     <QuestionContext.Provider value={{ id, type }}>

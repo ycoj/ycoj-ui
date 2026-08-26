@@ -2,6 +2,7 @@
 
 import { serializeAnswersForSubmit } from './draft-utils';
 import { useObjective } from './provider';
+import { sanitizeAnswers } from './question-schema';
 import ClientApis from '@/api/client/method';
 import parseErrorMessage from '@/shared/components/errored/parse-message';
 import { Alert, AlertDescription } from '@/shared/components/ui/alert';
@@ -32,7 +33,7 @@ export default function ObjectiveSubmitButton({
   const t = useTranslations('problem.objectiveForm');
   const tSubmit = useTranslations('problem.submitForm');
   const router = useRouter();
-  const { answers, isReady } = useObjective();
+  const { answers, questions, isReady } = useObjective();
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -81,7 +82,9 @@ export default function ObjectiveSubmitButton({
     setPending(true);
     setError(null);
     try {
-      const filtered = serializeAnswersForSubmit(answers);
+      const filtered = serializeAnswersForSubmit(
+        sanitizeAnswers(answers, questions)
+      );
       const yamlCode = dump(filtered);
       const res = await ClientApis.Problem.submitProblem(
         pid,

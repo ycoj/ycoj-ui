@@ -230,3 +230,80 @@ describe('rehype-objective passthrough and skipping', () => {
     expect((para.children[1] as Element).tagName).toBe('objective-input');
   });
 });
+
+describe('rehype-objective AST boundaries', () => {
+  it('ignores select token inside inline code and keeps the sibling ul', () => {
+    const code = el('code', [t('{{ select(1) }}')]);
+    const para = p([t('see '), code]);
+    const list = ul(['a', 'b']);
+    const tree = root([para, list]);
+    apply(tree);
+    expect((code.children[0] as Text).value).toBe('{{ select(1) }}');
+    expect(tree.children).toHaveLength(2);
+    expect((tree.children[1] as Element).tagName).toBe('ul');
+  });
+
+  it('ignores select token inside fenced code (pre) and keeps the ul', () => {
+    const pre = el('pre', [el('code', [t('{{ select(1) }}')])]);
+    const list = ul(['a', 'b']);
+    const tree = root([pre, list]);
+    apply(tree);
+    expect(tree.children).toHaveLength(2);
+    expect((tree.children[0] as Element).tagName).toBe('pre');
+    expect((tree.children[1] as Element).tagName).toBe('ul');
+  });
+
+  it('does not let a blockquote directive capture an outer list', () => {
+    const quote = el('blockquote', [p([t('{{ select(1) }}')])]);
+    const list = ul(['a', 'b']);
+    const tree = root([quote, list]);
+    apply(tree);
+    expect(tree.children).toHaveLength(2);
+    expect((tree.children[0] as Element).tagName).toBe('blockquote');
+    expect((tree.children[1] as Element).tagName).toBe('ul');
+  });
+
+  it('converts a blockquote directive with its own nested list', () => {
+    const quote = el('blockquote', [p([t('{{ select(1) }}')]), ul(['a', 'b'])]);
+    const tree = root([quote]);
+    apply(tree);
+    expect(quote.children).toHaveLength(1);
+    const sel = quote.children[0] as Element;
+    expect(sel.tagName).toBe('objective-select');
+    expect(sel.properties).toEqual({ 'data-id': '1' });
+  });
+
+  it('does not let a deeply nested directive capture an outer list', () => {
+    const quote = el('blockquote', [
+      el('blockquote', [p([t('{{ select(2) }}')])]),
+    ]);
+    const list = ul(['a']);
+    const tree = root([quote, list]);
+    apply(tree);
+    expect((tree.children[1] as Element).tagName).toBe('ul');
+  });
+
+  it('does not consume an unrelated list separated by other content', () => {
+    const list = ul(['a', 'b']);
+    const tree = root([
+      p([t('{{ select(1) }}')]),
+      p([t('unrelated paragraph')]),
+      list,
+    ]);
+    apply(tree);
+    expect(tree.children).toHaveLength(3);
+    expect((tree.children[2] as Element).tagName).toBe('ul');
+  });
+
+  it('still processes inline tokens around an ineligible select token', () => {
+    const code = el('code', [t('{{ select(1) }}')]);
+    const para = p([t('a '), code, t(' {{ input(2) }} b')]);
+    const tree = root([para, ul(['x'])]);
+    apply(tree);
+    expect((code.children[0] as Text).value).toBe('{{ select(1) }}');
+    const tags = para.children.map((c) =>
+      c.type === 'element' ? c.tagName : 'text'
+    );
+    expect(tags).toContain('objective-input');
+  });
+});

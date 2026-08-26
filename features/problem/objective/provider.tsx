@@ -2,6 +2,7 @@
 
 import { clearDraft, getDraft, saveDraft } from './draft-storage';
 import { isAnswerCompleted } from './draft-utils';
+import { sanitizeAnswers, type ObjectiveQuestion } from './question-schema';
 import type { ObjectiveAnswers } from './types';
 import {
   createContext,
@@ -20,8 +21,9 @@ type ObjectiveContextValue = {
   isReady: boolean;
   isReadOnly: boolean;
   draftError: boolean;
+  questions: ObjectiveQuestion[];
   questionIds: string[];
-  registerQuestion: (id: string) => () => void;
+  registerQuestion: (question: ObjectiveQuestion) => () => void;
   clearAnswers: () => Promise<void>;
   isCompleted: (id: string) => boolean;
 };
@@ -46,11 +48,18 @@ export default function ObjectiveProvider({
   draftId,
   isReadOnly,
 }: ProviderProps) {
-  const [answers, setAnswers] = useState<ObjectiveAnswers>({});
+  const [storedAnswers, setStoredAnswers] = useState<ObjectiveAnswers>({});
   const [isReady, setIsReady] = useState(false);
   const [draftError, setDraftError] = useState(false);
-  const [questionIds, setQuestionIds] = useState<string[]>([]);
-  const skipInitialSaveRef = useRef(true);
+  const [questions, setQuestions] = useState<ObjectiveQuestion[]>([]);
+  const lastSavedRef = useRef<ObjectiveAnswers>({});
+
+  // Answers exposed to consumers always match the questions parsed from the
+  // current statement; removed, re-typed, or stale-option entries are dropped.
+  const answers = useMemo(
+    () => sanitizeAnswers(storedAnswers, questions),
+    [storedAnswers, questions]
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -60,7 +69,8 @@ export default function ObjectiveProvider({
           throw new Error('no idb');
         const stored = await getDraft(draftId);
         if (!cancelled && stored && typeof stored === 'object') {
-          setAnswers(stored);
+          lastSavedRef.current = stored;
+          setStoredAnswers(stored);
         }
       } catch {
         if (!cancelled) setDraftError(true);
@@ -75,39 +85,40 @@ export default function ObjectiveProvider({
 
   useEffect(() => {
     if (!isReady) return;
-    if (skipInitialSaveRef.current) {
-      skipInitialSaveRef.current = false;
-      return;
-    }
+    if (answers === lastSavedRef.current) return;
+    lastSavedRef.current = answers;
     saveDraft(draftId, answers).catch(() => setDraftError(true));
   }, [answers, draftId, isReady]);
 
-  const registerQuestion = useCallback((id: string) => {
-    setQuestionIds((prev) => {
-      if (prev.includes(id)) return prev;
-      return [...prev, id];
+  const registerQuestion = useCallback((question: ObjectiveQuestion) => {
+    setQuestions((prev) => {
+      if (prev.some((q) => q.id === question.id)) return prev;
+      return [...prev, question];
     });
     return () => {
-      setQuestionIds((prev) => prev.filter((questionId) => questionId !== id));
+      setQuestions((prev) => prev.filter((q) => q.id !== question.id));
     };
   }, []);
 
   const setAnswer = useCallback(
     (id: string, value: string | string[]) => {
       if (isReadOnly) return;
-      setAnswers((prev) => ({ ...prev, [id]: value }));
+      setStoredAnswers((prev) => ({ ...prev, [id]: value }));
     },
     [isReadOnly]
   );
 
   const clearAnswers = useCallback(async () => {
-    setAnswers({});
+    if (isReadOnly) return;
+    setStoredAnswers({});
     try {
       await clearDraft(draftId);
     } catch {
       setDraftError(true);
     }
-  }, [draftId]);
+  }, [draftId, isReadOnly]);
+
+  const questionIds = useMemo(() => questions.map((q) => q.id), [questions]);
 
   const isCompleted = useCallback(
     (id: string) => isAnswerCompleted(answers[id]),
@@ -121,6 +132,7 @@ export default function ObjectiveProvider({
       isReady,
       isReadOnly,
       draftError,
+      questions,
       questionIds,
       registerQuestion,
       clearAnswers,
@@ -132,6 +144,7 @@ export default function ObjectiveProvider({
       isReady,
       isReadOnly,
       draftError,
+      questions,
       questionIds,
       registerQuestion,
       clearAnswers,

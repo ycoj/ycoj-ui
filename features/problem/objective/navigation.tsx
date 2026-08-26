@@ -36,8 +36,14 @@ function scrollToQuestion(id: string) {
 
 export default function ObjectiveNavigation() {
   const t = useTranslations('problem.objectiveForm');
-  const { questionIds, isCompleted, clearAnswers, isReady, draftError } =
-    useObjective();
+  const {
+    questionIds,
+    isCompleted,
+    clearAnswers,
+    isReady,
+    isReadOnly,
+    draftError,
+  } = useObjective();
 
   const handleClear = useCallback(async () => {
     const confirmed = window.confirm(t('clearConfirm'));
@@ -89,14 +95,16 @@ export default function ObjectiveNavigation() {
           );
         })}
       </div>
-      <Button
-        variant="ghost"
-        className="h-10 w-full justify-start gap-3 px-4"
-        onClick={handleClear}
-      >
-        <Trash2 strokeWidth={2} />
-        {t('clearAnswers')}
-      </Button>
+      {!isReadOnly && (
+        <Button
+          variant="ghost"
+          className="h-10 w-full justify-start gap-3 px-4"
+          onClick={handleClear}
+        >
+          <Trash2 strokeWidth={2} />
+          {t('clearAnswers')}
+        </Button>
+      )}
     </div>
   );
 }

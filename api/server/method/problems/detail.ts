@@ -29,6 +29,10 @@ export type ProblemDetailData = {
   ctdocs?: Array<Contest>;
   htdocs?: Array<Homework>;
 
+  /**
+   * Absence is legitimate: when omitted, consumers must fail safe and treat
+   * the problem as read-only (see `isObjectiveReadOnly`).
+   */
   mode?: ProblemDetailMode;
 };
 

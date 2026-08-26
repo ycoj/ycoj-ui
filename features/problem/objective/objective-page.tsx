@@ -7,6 +7,7 @@ import {
   getEventKind,
 } from '@/features/problem/objective/draft-utils';
 import ObjectiveNavigation from '@/features/problem/objective/navigation';
+import { isObjectiveReadOnly } from '@/features/problem/objective/objective-mode';
 import ObjectiveProvider from '@/features/problem/objective/provider';
 import { ObjectiveStatementFooter } from '@/features/problem/objective/workspace';
 import ProblemSidebar from '@/features/problem/sidebar';
@@ -22,7 +23,7 @@ type Props = {
 };
 
 export function ObjectiveProblemPage({ data, tid, canConfigure, user }: Props) {
-  const isReadOnly = data.mode !== 'normal' && data.mode !== 'contest';
+  const isReadOnly = isObjectiveReadOnly(data.mode);
   const isGuest = !user?._id;
   const canSubmit = !!user && hasPerm(user, PERM.PERM_SUBMIT_PROBLEM);
   const eventKind = getEventKind(data.tdoc);

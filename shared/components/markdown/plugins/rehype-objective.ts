@@ -125,92 +125,85 @@ function splitInline(node: Text): Array<Text | Element> {
   return out;
 }
 
+function buildChoice(
+  kind: 'select' | 'multiselect',
+  id: string,
+  ul: Element
+): Element {
+  const items = (ul.children ?? []).filter(
+    (c): c is Element => isElement(c) && c.tagName === 'li'
+  );
+  const targetTag =
+    kind === 'select' ? 'objective-select' : 'objective-multiselect';
+  return elem(
+    targetTag,
+    { 'data-id': id },
+    items.map((li, idx) =>
+      elem(
+        'objective-option',
+        { 'data-value': String.fromCharCode(65 + idx) },
+        li.children ? [...li.children] : []
+      )
+    )
+  );
+}
+
 function walk(parent: HastParent): void {
   for (let i = 0; i < parent.children.length; i += 1) {
     const child = parent.children[i];
     if (!child) continue;
-    if (
-      isElement(child) &&
-      (child.tagName === 'code' || child.tagName === 'pre')
-    ) {
-      continue;
+    // Skip comments, doctypes and raw nodes; only text and elements qualify.
+    if (!isText(child) && !isElement(child)) continue;
+    if (isElement(child)) {
+      if (child.tagName === 'code' || child.tagName === 'pre') continue;
+      if (child.tagName.startsWith('objective-')) continue;
+      // Directives are only recognized in direct text or paragraph children.
+      // Other containers (blockquote, lists, …) are recursed into so their
+      // children are matched only against siblings under the same parent.
+      if (child.tagName !== 'p') {
+        walk(child);
+        continue;
+      }
     }
+
     const txt = isText(child) ? child.value : textOf(child);
     const sel = txt.match(SELECT_RE);
     if (sel) {
       const next = findNextUl(parent, i + 1);
-      if (next !== null) {
-        const token = sel[0];
-        const kind = sel[1] as 'select' | 'multiselect';
-        const id = sel[2] as string;
+      // stripFirstOccurrence fails when the token only appears inside
+      // code/pre descendants — then the directive is not eligible.
+      if (next !== null && stripFirstOccurrence(child, sel[0])) {
         const ulNode = parent.children[next];
-        if (!ulNode || !isElement(ulNode)) continue;
-        const ul: Element = ulNode;
-        const items = (ul.children ?? []).filter(
-          (c): c is Element => isElement(c) && c.tagName === 'li'
-        );
-        const targetTag =
-          kind === 'select' ? 'objective-select' : 'objective-multiselect';
-        const target = elem(
-          targetTag,
-          { 'data-id': id },
-          items.map((li, idx) =>
-            elem(
-              'objective-option',
-              { 'data-value': String.fromCharCode(65 + idx) },
-              li.children ? [...li.children] : []
-            )
-          )
-        );
-        if (isText(child) || isElement(child)) {
-          stripFirstOccurrence(child, token);
-        }
-        const empty = isText(child)
-          ? !child.value.trim()
-          : isElement(child) && child.tagName === 'p' && !textOf(child).trim();
-        if (empty) {
-          if (parent.type === 'root') {
+        if (ulNode && isElement(ulNode)) {
+          const target = buildChoice(
+            sel[1] as 'select' | 'multiselect',
+            sel[2] as string,
+            ulNode
+          );
+          const empty = isText(child)
+            ? !child.value.trim()
+            : !textOf(child).trim();
+          if (empty) {
             parent.children.splice(i, 1);
             const s = findNextUl(parent, i);
-            if (s !== null) {
-              parent.children[s] = target;
-            }
-          } else {
-            parent.children.splice(i, 1);
-            const s = findNextUl(parent, i);
-            if (s !== null) {
-              parent.children[s] = target;
-            }
+            if (s !== null) parent.children[s] = target;
+            i -= 1;
+            continue;
           }
-          i -= 1;
-        } else {
-          if (parent.type === 'root') {
-            parent.children[next] = target;
-          } else {
-            parent.children[next] = target;
-          }
-          if (isElement(child) && !child.tagName.startsWith('objective-')) {
-            walk(child);
-          }
+          parent.children[next] = target;
         }
-        continue;
       }
     }
+
     if (isText(child)) {
       const parts = splitInline(child);
       if (parts.length !== 1 || parts[0] !== child) {
-        if (parent.type === 'root') {
-          parent.children.splice(i, 1, ...parts);
-        } else {
-          parent.children.splice(i, 1, ...parts);
-        }
+        parent.children.splice(i, 1, ...parts);
         i += parts.length - 1;
       }
       continue;
     }
-    if (isElement(child) && !child.tagName.startsWith('objective-')) {
-      walk(child);
-    }
+    walk(child);
   }
 }
 
