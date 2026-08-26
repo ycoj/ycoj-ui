@@ -1,9 +1,16 @@
 'use client';
 
-import { clearDraft, getDraft, saveDraft } from './draft-storage';
-import { isAnswerCompleted } from './draft-utils';
-import { sanitizeAnswers, type ObjectiveQuestion } from './question-schema';
-import type { ObjectiveAnswers } from './types';
+import {
+  clearDraft,
+  getDraft,
+  saveDraft,
+} from '@/features/problem/objective/draft-storage';
+import { isAnswerCompleted } from '@/features/problem/objective/draft-utils';
+import {
+  sanitizeAnswers,
+  type ObjectiveQuestion,
+} from '@/features/problem/objective/question-schema';
+import type { ObjectiveAnswers } from '@/features/problem/objective/types';
 import {
   createContext,
   useCallback,

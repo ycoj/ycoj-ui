@@ -1,6 +1,6 @@
 'use client';
 
-import { useObjective } from './provider';
+import { useObjective } from '@/features/problem/objective/provider';
 import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/utils';
 import { Trash2 } from 'lucide-react';
@@ -22,7 +22,7 @@ function scrollToQuestion(id: string) {
   if (!target) return;
   target.scrollIntoView({ behavior: 'smooth', block: 'center' });
   const focusable = target.querySelector<HTMLElement>(
-    'input, textarea, select, button, [tabindex]:not([tabindex="-1"])'
+    'input:not(:disabled), textarea:not(:disabled), select:not(:disabled), button:not(:disabled), [tabindex]:not([tabindex="-1"]):not(:disabled)'
   );
   if (focusable) {
     // Wait for the smooth scroll to settle before moving focus

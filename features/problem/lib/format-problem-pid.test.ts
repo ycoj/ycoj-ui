@@ -1,4 +1,4 @@
-import { formatProblemPid } from './format-problem-pid';
+import { formatProblemPid } from '@/features/problem/lib/format-problem-pid';
 import { describe, expect, it } from 'vitest';
 
 describe('formatProblemPid', () => {

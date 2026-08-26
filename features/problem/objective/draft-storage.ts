@@ -1,4 +1,4 @@
-import type { ObjectiveAnswers } from './types';
+import type { ObjectiveAnswers } from '@/features/problem/objective/types';
 
 const DB_NAME = 'ycoj-ui';
 const STORE_NAME = 'objective-drafts';

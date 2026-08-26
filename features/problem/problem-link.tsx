@@ -21,7 +21,7 @@ export default function ProblemLink({
   showId,
 }: Props) {
   const t = useTranslations('misc');
-  const hrefPid = problem.pid ?? problem.docId;
+  const hrefPid = problem.pid || problem.docId;
   const displayPid = formatProblemPid(problem);
   const href = tid ? `/problem/${hrefPid}?tid=${tid}` : `/problem/${hrefPid}`;
 

@@ -1,4 +1,7 @@
-import type { ObjectiveAnswers, ObjectiveEventKind } from './types';
+import type {
+  ObjectiveAnswers,
+  ObjectiveEventKind,
+} from '@/features/problem/objective/types';
 
 export function isAnswerCompleted(
   value: string | string[] | undefined

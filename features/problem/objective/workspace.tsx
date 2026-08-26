@@ -1,7 +1,7 @@
 'use client';
 
-import { useObjective } from './provider';
-import ObjectiveSubmitButton from './submit-button';
+import { useObjective } from '@/features/problem/objective/provider';
+import ObjectiveSubmitButton from '@/features/problem/objective/submit-button';
 
 export function ObjectiveStatementFooter({
   pid,

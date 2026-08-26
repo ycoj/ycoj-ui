@@ -63,7 +63,7 @@ describe('ObjectiveNavigation', () => {
   });
 
   it('keeps the draft warning visible for read-only users', async () => {
-    mockedGetDraft.mockRejectedValue(new Error('idb unavailable'));
+    mockedGetDraft.mockRejectedValueOnce(new Error('idb unavailable'));
     renderNavigation(true);
     await screen.findByText(
       'Draft storage unavailable, answers will not be persisted'

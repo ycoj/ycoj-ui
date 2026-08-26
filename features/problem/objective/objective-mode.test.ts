@@ -1,4 +1,4 @@
-import { isObjectiveReadOnly } from './objective-mode';
+import { isObjectiveReadOnly } from '@/features/problem/objective/objective-mode';
 import { describe, expect, it } from 'vitest';
 
 describe('isObjectiveReadOnly', () => {

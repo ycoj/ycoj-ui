@@ -1,4 +1,4 @@
-import type { ObjectiveAnswers } from './types';
+import type { ObjectiveAnswers } from '@/features/problem/objective/types';
 
 export type ObjectiveControlType =
   'input' | 'textarea' | 'dropdown' | 'select' | 'multiselect';

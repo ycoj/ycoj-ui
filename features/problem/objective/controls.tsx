@@ -2,9 +2,9 @@
 
 import QuestionContext, {
   useQuestionContext,
-} from './objective-question-context';
-import { useObjective } from './provider';
-import type { ObjectiveControlType } from './question-schema';
+} from '@/features/problem/objective/objective-question-context';
+import { useObjective } from '@/features/problem/objective/provider';
+import type { ObjectiveControlType } from '@/features/problem/objective/question-schema';
 import { Checkbox } from '@/shared/components/ui/checkbox';
 import { Input } from '@/shared/components/ui/input';
 import {

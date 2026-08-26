@@ -1,9 +1,9 @@
 'use client';
 
-import { serializeAnswersForSubmit } from './draft-utils';
-import { useObjective } from './provider';
-import { sanitizeAnswers } from './question-schema';
 import ClientApis from '@/api/client/method';
+import { serializeAnswersForSubmit } from '@/features/problem/objective/draft-utils';
+import { useObjective } from '@/features/problem/objective/provider';
+import { sanitizeAnswers } from '@/features/problem/objective/question-schema';
 import parseErrorMessage from '@/shared/components/errored/parse-message';
 import { Alert, AlertDescription } from '@/shared/components/ui/alert';
 import { Button } from '@/shared/components/ui/button';
