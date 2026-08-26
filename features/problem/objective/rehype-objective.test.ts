@@ -26,6 +26,14 @@ function root(children: RootContent[]): Root {
   return { type: 'root', children };
 }
 
+function textOfTest(node: RootContent | ElementContent): string {
+  if (node.type === 'text') return node.value;
+  if (node.type === 'element') {
+    return node.children.map(textOfTest).join('');
+  }
+  return '';
+}
+
 function apply(tree: Root): Root {
   rehypeObjective()(tree);
   return tree;
@@ -186,6 +194,35 @@ describe('rehype-objective block select + ul conversion', () => {
       'data-id': '3',
     });
   });
+
+  it('converts a select at the end of a numbered question before an outer ul', () => {
+    const numberedQuestion = el('ol', [
+      el('li', [p([t('Question {{ select(1) }}')])]),
+    ]);
+    const tree = root([numberedQuestion, ul(['one', 'two'])]);
+
+    apply(tree);
+
+    expect(textOfTest(numberedQuestion)).toBe('Question ');
+    const select = tree.children[1] as Element;
+    expect(select.tagName).toBe('objective-select');
+    expect(select.properties).toEqual({ 'data-id': '1' });
+    expect(select.children).toHaveLength(2);
+  });
+
+  it('converts a multiselect after a numbered question', () => {
+    const numberedQuestion = el('ol', [
+      el('li', [p([t('Question {{ multiselect(3) }}')])]),
+    ]);
+    const tree = root([numberedQuestion, ul(['one', 'two', 'three'])]);
+
+    apply(tree);
+
+    const multiselect = tree.children[1] as Element;
+    expect(multiselect.tagName).toBe('objective-multiselect');
+    expect(multiselect.properties).toEqual({ 'data-id': '3' });
+    expect(multiselect.children).toHaveLength(3);
+  });
 });
 
 describe('rehype-objective passthrough and skipping', () => {
@@ -253,14 +290,14 @@ describe('rehype-objective AST boundaries', () => {
     expect((tree.children[1] as Element).tagName).toBe('ul');
   });
 
-  it('does not let a blockquote directive capture an outer list', () => {
+  it('lets a blockquote directive use an immediately following outer list', () => {
     const quote = el('blockquote', [p([t('{{ select(1) }}')])]);
     const list = ul(['a', 'b']);
     const tree = root([quote, list]);
     apply(tree);
     expect(tree.children).toHaveLength(2);
     expect((tree.children[0] as Element).tagName).toBe('blockquote');
-    expect((tree.children[1] as Element).tagName).toBe('ul');
+    expect((tree.children[1] as Element).tagName).toBe('objective-select');
   });
 
   it('converts a blockquote directive with its own nested list', () => {
@@ -273,14 +310,16 @@ describe('rehype-objective AST boundaries', () => {
     expect(sel.properties).toEqual({ 'data-id': '1' });
   });
 
-  it('does not let a deeply nested directive capture an outer list', () => {
+  it('lets a deeply nested directive use an immediately following outer list', () => {
     const quote = el('blockquote', [
       el('blockquote', [p([t('{{ select(2) }}')])]),
     ]);
     const list = ul(['a']);
     const tree = root([quote, list]);
     apply(tree);
-    expect((tree.children[1] as Element).tagName).toBe('ul');
+    const select = tree.children[1] as Element;
+    expect(select.tagName).toBe('objective-select');
+    expect(select.properties).toEqual({ 'data-id': '2' });
   });
 
   it('does not consume an unrelated list separated by other content', () => {

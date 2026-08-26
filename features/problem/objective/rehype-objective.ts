@@ -148,6 +148,53 @@ function buildChoice(
   );
 }
 
+function trailingChoiceSource(node: Element): Text | Element | null {
+  if (
+    node.tagName === 'code' ||
+    node.tagName === 'pre' ||
+    node.tagName.startsWith('objective-')
+  ) {
+    return null;
+  }
+  if (node.tagName === 'p') return node;
+
+  const lastContent = [...node.children]
+    .reverse()
+    .find(
+      (child): child is Text | Element =>
+        isElement(child) || (isText(child) && Boolean(child.value.trim()))
+    );
+  if (!lastContent) return null;
+  if (isText(lastContent)) return lastContent;
+  return trailingChoiceSource(lastContent);
+}
+
+function convertCrossBoundaryChoice(
+  parent: HastParent,
+  index: number
+): boolean {
+  const child = parent.children[index];
+  if (!child || !isElement(child) || child.tagName === 'p') return false;
+
+  const source = trailingChoiceSource(child);
+  if (!source) return false;
+
+  const match = textOf(source).match(SELECT_RE);
+  if (!match) return false;
+
+  const next = findNextUl(parent, index + 1);
+  if (next === null || !stripFirstOccurrence(source, match[0])) return false;
+
+  const list = parent.children[next];
+  if (!list || !isElement(list)) return false;
+  parent.children[next] = buildChoice(
+    match[1] as 'select' | 'multiselect',
+    match[2] as string,
+    list
+  );
+  return true;
+}
+
 function walk(parent: HastParent): void {
   for (let i = 0; i < parent.children.length; i += 1) {
     const child = parent.children[i];
@@ -157,6 +204,10 @@ function walk(parent: HastParent): void {
     if (isElement(child)) {
       if (child.tagName === 'code' || child.tagName === 'pre') continue;
       if (child.tagName.startsWith('objective-')) continue;
+      // Markdown can place a directive and its following option list under
+      // different HAST parents. Pair trailing directives with the immediately
+      // following list even when closing container boundaries separate them.
+      convertCrossBoundaryChoice(parent, i);
       // Directives are only recognized in direct text or paragraph children.
       // Other containers (blockquote, lists, …) are recursed into so their
       // children are matched only against siblings under the same parent.
