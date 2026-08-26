@@ -3,12 +3,12 @@ import {
   makeObjectiveSchema,
   objectiveComponents,
 } from '@/features/problem/objective/markdown-config';
+import rehypeObjective from '@/features/problem/objective/rehype-objective';
 import {
   parseProblemContent,
   PROBLEM_LANGUAGE_LABELS,
 } from '@/features/problem/parse-problem-content';
 import Markdown, { markdownSanitizeSchema } from '@/shared/components/markdown';
-import rehypeObjective from '@/shared/components/markdown/plugins/rehype-objective';
 import {
   Alert,
   AlertDescription,
