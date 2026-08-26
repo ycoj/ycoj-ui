@@ -108,11 +108,9 @@ export default function TrainingContent({ data }: Props) {
 
                             <TableCell
                               className="tabular-nums"
-                              data-llm-text={String(
-                                problem.pid ?? problem.docId
-                              )}
+                              data-llm-text={problem.pid || `P${problem.docId}`}
                             >
-                              {problem.pid ?? problem.docId}
+                              {problem.pid || `P${problem.docId}`}
                             </TableCell>
 
                             <TableCell>

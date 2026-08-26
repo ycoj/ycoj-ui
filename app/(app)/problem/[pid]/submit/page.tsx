@@ -3,12 +3,14 @@ import {
   type ProblemDetailData,
 } from '@/features/problem/detail/get-problem-detail';
 import ProblemTitle from '@/features/problem/detail/problem-title';
+import { isObjectiveProblem } from '@/features/problem/detail/problem-type';
 import ProblemSidebar from '@/features/problem/sidebar';
 import ProblemSubmitForm from '@/features/problem/submit/problem-submit-form';
 import { Errored } from '@/shared/components/errored';
 import TwoColumnLayout from '@/shared/layout/two-column';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
+import { redirect } from 'next/navigation';
 
 type Params = {
   pid: string;
@@ -55,6 +57,11 @@ export default async function ProblemSubmitPage({
 
   if ('error' in data) {
     return <Errored title={t('unavailable')} error={data.error} />;
+  }
+
+  if (isObjectiveProblem(data.pdoc)) {
+    const qs = searchParams.tid ? `?tid=${searchParams.tid}` : '';
+    redirect(`/problem/${pid}${qs}`);
   }
 
   return <ProblemSubmitContent data={data} searchParams={searchParams} />;

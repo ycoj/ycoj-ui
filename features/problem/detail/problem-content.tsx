@@ -23,9 +23,11 @@ import { useTranslations } from 'next-intl';
 export default function ProblemContent({
   problem,
   tid,
+  objective,
 }: {
   problem: ContestDetailProjectionProblem;
   tid?: string;
+  objective?: boolean;
 }) {
   const t = useTranslations('problem');
   const additionalFilenames =
@@ -78,7 +80,7 @@ export default function ProblemContent({
     return (
       <div className="space-y-4">
         {fileIoAlert}
-        <Markdown>{text}</Markdown>
+        <Markdown objective={objective}>{text}</Markdown>
       </div>
     );
   }
@@ -99,7 +101,7 @@ export default function ProblemContent({
 
         {contents.map(({ language, content }) => (
           <TabsContent key={language} value={language}>
-            <Markdown>{content}</Markdown>
+            <Markdown objective={objective}>{content}</Markdown>
           </TabsContent>
         ))}
       </Tabs>

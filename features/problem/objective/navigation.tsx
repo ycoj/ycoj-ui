@@ -1,0 +1,123 @@
+'use client';
+
+import { useObjective } from './provider';
+import { Button } from '@/shared/components/ui/button';
+import { cn } from '@/shared/lib/utils';
+import { Trash2 } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { useCallback } from 'react';
+
+function escapeId(id: string) {
+  if (typeof CSS !== 'undefined' && CSS.escape) return CSS.escape(id);
+  return id.replace(/[^a-zA-Z0-9_-]/g, '\\$&');
+}
+
+function scrollToQuestion(id: string) {
+  const nodes = Array.from(
+    document.querySelectorAll<HTMLElement>(
+      `[data-objective-id="${escapeId(id)}"]`
+    )
+  );
+  const visible = nodes.find((el) => {
+    if (el.offsetParent === null) {
+      const style = window.getComputedStyle(el);
+      if (style.display === 'none' || style.visibility === 'hidden')
+        return false;
+      let parent: HTMLElement | null = el.parentElement;
+      while (parent) {
+        const ps = window.getComputedStyle(parent);
+        if (ps.display === 'none') return false;
+        parent = parent.parentElement;
+      }
+      return el.getClientRects().length > 0;
+    }
+    return true;
+  });
+  const target = visible ?? nodes[0];
+  if (!target) return;
+  target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  const focusable = target.querySelector<HTMLElement>(
+    'input, textarea, select, button, [tabindex]:not([tabindex="-1"])'
+  );
+  if (focusable) {
+    setTimeout(() => focusable.focus(), 300);
+  } else {
+    if ((target as HTMLElement).tabIndex >= 0) {
+      (target as HTMLElement).focus();
+    } else {
+      const prevTab = target.tabIndex;
+      (target as HTMLElement).tabIndex = -1;
+      (target as HTMLElement).focus();
+      setTimeout(() => {
+        (target as HTMLElement).tabIndex = prevTab;
+      }, 1000);
+    }
+  }
+}
+
+export default function ObjectiveNavigation() {
+  const t = useTranslations('problem.objectiveForm');
+  const { questionIds, isCompleted, clearAnswers, isReady, draftError } =
+    useObjective();
+
+  const handleClear = useCallback(async () => {
+    const confirmed = window.confirm(t('clearConfirm'));
+    if (!confirmed) return;
+    await clearAnswers();
+  }, [t, clearAnswers]);
+
+  if (!isReady) return null;
+  if (questionIds.length === 0) {
+    return (
+      <div className="space-y-4" data-llm-visible="true">
+        {draftError && (
+          <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+            {t('draftError')}
+          </div>
+        )}
+        <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive">
+          {t('configWarning')}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4" data-llm-visible="true">
+      {draftError && (
+        <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+          {t('draftError')}
+        </div>
+      )}
+      <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
+        {questionIds.map((id) => {
+          const completed = isCompleted(id);
+          return (
+            <Button
+              key={id}
+              variant={completed ? 'default' : 'outline'}
+              size="sm"
+              className={cn(
+                'h-8 px-2 text-xs',
+                completed && 'bg-green-600 hover:bg-green-700'
+              )}
+              onClick={() => scrollToQuestion(id)}
+              aria-label={t('question', { id })}
+              title={completed ? t('answered') : t('unanswered')}
+            >
+              {id}
+            </Button>
+          );
+        })}
+      </div>
+      <Button
+        variant="ghost"
+        className="h-10 w-full justify-start gap-3 px-4"
+        onClick={handleClear}
+      >
+        <Trash2 strokeWidth={2} />
+        {t('clearAnswers')}
+      </Button>
+    </div>
+  );
+}

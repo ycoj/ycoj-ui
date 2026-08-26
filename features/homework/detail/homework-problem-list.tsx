@@ -126,9 +126,9 @@ export default function HomeworkProblemList({
             <TableRow key={pid}>
               <TableCell
                 className="tabular-nums"
-                data-llm-text={String(problem?.pid ?? pid)}
+                data-llm-text={String(problem?.pid || `P${pid}`)}
               >
-                {problem?.pid ?? pid}
+                {problem?.pid || `P${pid}`}
               </TableCell>
               <TableCell>
                 {problem ? (

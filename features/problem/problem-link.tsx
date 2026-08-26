@@ -20,10 +20,9 @@ export default function ProblemLink({
   showId,
 }: Props) {
   const t = useTranslations('misc');
-  const problemId = problem.pid ?? problem.docId;
-  const href = tid
-    ? `/problem/${problemId}?tid=${tid}`
-    : `/problem/${problemId}`;
+  const hrefPid = problem.pid ?? problem.docId;
+  const displayPid = problem.pid || `P${problem.docId}`;
+  const href = tid ? `/problem/${hrefPid}?tid=${tid}` : `/problem/${hrefPid}`;
 
   return (
     <Button className="h-6 px-0" variant="link" asChild>
@@ -37,10 +36,10 @@ export default function ProblemLink({
         <span className="space-x-1">
           <span
             data-llm-text={
-              showId ? `${problemId}. ${problem.title}` : problem.title
+              showId ? `${displayPid}. ${problem.title}` : problem.title
             }
           >
-            {showId && `${problemId}. `}
+            {showId && `${displayPid}. `}
             {problem.title}
           </span>
           {(problem as PublicProjectionProblem).hidden && (
