@@ -21,10 +21,9 @@ type ObjectiveContextValue = {
   isReadOnly: boolean;
   draftError: boolean;
   questionIds: string[];
-  registerQuestion: (id: string) => void;
+  registerQuestion: (id: string) => () => void;
   clearAnswers: () => Promise<void>;
   isCompleted: (id: string) => boolean;
-  hasAnyQuestion: boolean;
 };
 
 const ObjectiveContext = createContext<ObjectiveContextValue | null>(null);
@@ -63,24 +62,10 @@ export default function ObjectiveProvider({
   const [isReady, setIsReady] = useState(false);
   const [draftError, setDraftError] = useState(false);
   const [questionIds, setQuestionIds] = useState<string[]>([]);
-  const questionSetRef = useRef<Set<string>>(new Set());
-  const draftId = useMemo(
-    () => getDraftId(userId, domainId, problemDocId, eventKind, tid),
-    [userId, domainId, problemDocId, eventKind, tid]
-  );
-
-  const firstReadyRef = useRef(false);
-  const readyDraftIdRef = useRef<string | null>(null);
+  const skipInitialSaveRef = useRef(true);
+  const draftId = getDraftId(userId, domainId, problemDocId, eventKind, tid);
 
   useEffect(() => {
-    setAnswers({});
-    setQuestionIds([]);
-    questionSetRef.current = new Set<string>();
-    setDraftError(false);
-    setIsReady(false);
-    firstReadyRef.current = false;
-    readyDraftIdRef.current = null;
-
     let cancelled = false;
     (async () => {
       try {
@@ -93,10 +78,7 @@ export default function ObjectiveProvider({
       } catch {
         if (!cancelled) setDraftError(true);
       } finally {
-        if (!cancelled) {
-          readyDraftIdRef.current = draftId;
-          setIsReady(true);
-        }
+        if (!cancelled) setIsReady(true);
       }
     })();
     return () => {
@@ -106,21 +88,21 @@ export default function ObjectiveProvider({
 
   useEffect(() => {
     if (!isReady) return;
-    if (readyDraftIdRef.current !== draftId) return;
-    if (!firstReadyRef.current) {
-      firstReadyRef.current = true;
+    if (skipInitialSaveRef.current) {
+      skipInitialSaveRef.current = false;
       return;
     }
     saveDraft(draftId, answers).catch(() => setDraftError(true));
   }, [answers, draftId, isReady]);
 
   const registerQuestion = useCallback((id: string) => {
-    if (questionSetRef.current.has(id)) return;
-    questionSetRef.current.add(id);
     setQuestionIds((prev) => {
       if (prev.includes(id)) return prev;
       return [...prev, id];
     });
+    return () => {
+      setQuestionIds((prev) => prev.filter((questionId) => questionId !== id));
+    };
   }, []);
 
   const setAnswer = useCallback(
@@ -156,7 +138,6 @@ export default function ObjectiveProvider({
       registerQuestion,
       clearAnswers,
       isCompleted,
-      hasAnyQuestion: questionIds.length > 0,
     }),
     [
       answers,

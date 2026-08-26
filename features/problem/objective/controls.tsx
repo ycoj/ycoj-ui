@@ -36,17 +36,21 @@ function getOptions(props: Record<string, unknown>): string[] {
   return [];
 }
 
+function useRegisterQuestion(id: string) {
+  const { registerQuestion } = useObjective();
+  useEffect(() => {
+    if (id) return registerQuestion(id);
+  }, [id, registerQuestion]);
+}
+
 export function ObjectiveInput(
   props: Record<string, unknown> & { children?: React.ReactNode }
 ) {
   const id = getId(props);
   const t = useTranslations('problem.objectiveForm');
-  const { answers, setAnswer, isReady, isReadOnly, registerQuestion } =
-    useObjective();
+  const { answers, setAnswer, isReady, isReadOnly } = useObjective();
   const uid = useId();
-  useEffect(() => {
-    if (id) registerQuestion(id);
-  }, [id, registerQuestion]);
+  useRegisterQuestion(id);
   if (!id) return null;
   const value = typeof answers[id] === 'string' ? (answers[id] as string) : '';
   return (
@@ -74,12 +78,9 @@ export function ObjectiveTextarea(
 ) {
   const id = getId(props);
   const t = useTranslations('problem.objectiveForm');
-  const { answers, setAnswer, isReady, isReadOnly, registerQuestion } =
-    useObjective();
+  const { answers, setAnswer, isReady, isReadOnly } = useObjective();
   const uid = useId();
-  useEffect(() => {
-    if (id) registerQuestion(id);
-  }, [id, registerQuestion]);
+  useRegisterQuestion(id);
   if (!id) return null;
   const value = typeof answers[id] === 'string' ? (answers[id] as string) : '';
   return (
@@ -107,11 +108,8 @@ export function ObjectiveDropdown(
 ) {
   const id = getId(props);
   const t = useTranslations('problem.objectiveForm');
-  const { answers, setAnswer, isReady, isReadOnly, registerQuestion } =
-    useObjective();
-  useEffect(() => {
-    if (id) registerQuestion(id);
-  }, [id, registerQuestion]);
+  const { answers, setAnswer, isReady, isReadOnly } = useObjective();
+  useRegisterQuestion(id);
   if (!id) return null;
   const options = getOptions(props);
   const value = typeof answers[id] === 'string' ? (answers[id] as string) : '';
@@ -148,10 +146,8 @@ export function ObjectiveSelect(
 ) {
   const id = getId(props);
   const t = useTranslations('problem.objectiveForm');
-  const { isReady, isReadOnly, registerQuestion } = useObjective();
-  useEffect(() => {
-    if (id) registerQuestion(id);
-  }, [id, registerQuestion]);
+  const { isReady, isReadOnly } = useObjective();
+  useRegisterQuestion(id);
   if (!id) return null;
   return (
     <QuestionContext.Provider value={{ id, type: 'select' }}>
@@ -174,10 +170,8 @@ export function ObjectiveMultiselect(
 ) {
   const id = getId(props);
   const t = useTranslations('problem.objectiveForm');
-  const { isReady, isReadOnly, registerQuestion } = useObjective();
-  useEffect(() => {
-    if (id) registerQuestion(id);
-  }, [id, registerQuestion]);
+  const { isReady, isReadOnly } = useObjective();
+  useRegisterQuestion(id);
   if (!id) return null;
   return (
     <QuestionContext.Provider value={{ id, type: 'multiselect' }}>
