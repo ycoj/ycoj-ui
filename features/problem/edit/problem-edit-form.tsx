@@ -17,6 +17,7 @@ export default function ProblemEditForm({ problem, tags }: Props) {
   return (
     <ProblemForm
       mode="edit"
+      pid={pid}
       tags={tags}
       cancelHref={`/problem/${pid}`}
       defaultValues={{

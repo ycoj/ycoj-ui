@@ -1,5 +1,6 @@
 'use client';
 
+import HtmlToMarkdownSection from '@/features/problem/form/html-to-markdown-section';
 import ProblemContentEditor from '@/features/problem/form/problem-content-editor';
 import { Button } from '@/shared/components/ui/button';
 import { Checkbox } from '@/shared/components/ui/checkbox';
@@ -51,6 +52,7 @@ export function normalizeProblemPayload(values: ProblemFormValues) {
 
 type Props = {
   mode: 'create' | 'edit';
+  pid?: string;
   tags: Record<string, string[]>;
   defaultValues: ProblemFormValues;
   cancelHref: string;
@@ -59,6 +61,7 @@ type Props = {
 
 export default function ProblemForm({
   mode,
+  pid,
   tags,
   defaultValues,
   cancelHref,
@@ -329,6 +332,14 @@ export default function ProblemForm({
             );
           })}
         </div>
+        {mode === 'edit' && pid && (
+          <HtmlToMarkdownSection
+            pid={pid}
+            control={control}
+            setValue={setValue}
+            disabled={isSubmitting}
+          />
+        )}
       </aside>
     </form>
   );

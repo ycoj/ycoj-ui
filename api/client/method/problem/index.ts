@@ -12,6 +12,7 @@ import {
   uploadProblemConfig,
   uploadProblemFile,
 } from './files';
+import { htmlToMarkdown } from './html-to-markdown';
 import { importProblems } from './import';
 import { deleteProblemSolution } from './solution-delete';
 import { editProblemSolution } from './solution-edit';
@@ -24,6 +25,7 @@ const Problem = {
   searchProblems,
   createProblem,
   editProblem,
+  htmlToMarkdown,
   generateAiTestdata,
   getProblemFileLinks,
   getProblemFileDownloadUrl,
