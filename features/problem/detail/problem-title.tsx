@@ -1,5 +1,6 @@
 import { ProblemTags } from '@/features/problem/detail/problem-tags';
 import { isFileIoProblem } from '@/features/problem/detail/problem-type';
+import { formatProblemPid } from '@/features/problem/lib/format-problem-pid';
 import ProblemDifficulty from '@/features/problem/problem-difficulty';
 import { Badge } from '@/shared/components/ui/badge';
 import { formatMemory, formatTime } from '@/shared/lib/format-units';
@@ -58,7 +59,7 @@ export default function ProblemTitle({ problem, contest }: Props) {
       <div className="min-w-0 flex-1">
         <div className="min-w-0 text-2xl leading-snug">
           <span className="mr-2 whitespace-nowrap text-muted-foreground">
-            #{problem.pid || `P${problem.docId}`}.
+            #{formatProblemPid(problem)}.
           </span>
           <span className="wrap-break-word" data-llm-text={problem.title}>
             {problem.title}

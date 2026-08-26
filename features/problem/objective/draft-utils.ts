@@ -1,4 +1,4 @@
-import type { ObjectiveAnswers } from './types';
+import type { ObjectiveAnswers, ObjectiveEventKind } from './types';
 
 export function isAnswerCompleted(
   value: string | string[] | undefined
@@ -12,7 +12,7 @@ export function getDraftId(
   userId: string | number | null,
   domainId: string,
   problemDocId: number,
-  kind: 'standalone' | 'contest' | 'homework',
+  kind: ObjectiveEventKind,
   tid: string | null | undefined
 ): string {
   return JSON.stringify([userId, domainId, problemDocId, kind, tid]);
@@ -36,7 +36,7 @@ export function serializeAnswersForSubmit(
 
 export function getEventKind(
   tdoc: { rule?: string } | null | undefined
-): 'standalone' | 'contest' | 'homework' {
+): ObjectiveEventKind {
   if (!tdoc) return 'standalone';
   if (tdoc.rule === 'homework') return 'homework';
   return 'contest';

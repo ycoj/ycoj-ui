@@ -10,10 +10,11 @@ type DraftRecord = {
   updatedAt: number;
 };
 
-const writeChains = new Map<string, Promise<void>>();
+let dbPromise: Promise<IDBDatabase> | null = null;
 
 function openDB(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
+  if (dbPromise) return dbPromise;
+  dbPromise = new Promise((resolve, reject) => {
     if (typeof indexedDB === 'undefined' || !indexedDB) {
       reject(new Error('IndexedDB not available'));
       return;
@@ -34,6 +35,10 @@ function openDB(): Promise<IDBDatabase> {
       reject(e);
     }
   });
+  dbPromise.catch(() => {
+    dbPromise = null;
+  });
+  return dbPromise;
 }
 
 export async function getDraft(id: string): Promise<ObjectiveAnswers | null> {
@@ -50,56 +55,32 @@ export async function getDraft(id: string): Promise<ObjectiveAnswers | null> {
   });
 }
 
-function enqueueWrite(
-  id: string,
-  makeRequest: (store: IDBObjectStore) => IDBRequest
-): Promise<void> {
-  const prev = writeChains.get(id) ?? Promise.resolve();
-  let resolveChain!: () => void;
-  let rejectChain!: (reason: unknown) => void;
-  const next = new Promise<void>((resolve, reject) => {
-    resolveChain = resolve;
-    rejectChain = reject;
-  });
-  const chained = prev
-    .catch(() => {})
-    .then(async () => {
-      try {
-        const db = await openDB();
-        await new Promise<void>((resolve, reject) => {
-          const tx = db.transaction(STORE_NAME, 'readwrite');
-          const store = tx.objectStore(STORE_NAME);
-          const req = makeRequest(store);
-          req.onsuccess = () => resolve();
-          req.onerror = () => reject(req.error);
-        });
-        resolveChain();
-      } catch (e) {
-        rejectChain(e);
-      }
-    });
-
-  writeChains.set(id, next);
-  chained.catch(() => {});
-  return next;
-}
-
-export function saveDraft(
+export async function saveDraft(
   id: string,
   answers: ObjectiveAnswers
 ): Promise<void> {
+  const db = await openDB();
   const record: DraftRecord = {
     id,
     answers,
     updatedAt: Date.now(),
   };
-  return enqueueWrite(id, (store) => store.put(record));
+  await new Promise<void>((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    const req = store.put(record);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
 }
 
-export function clearDraft(id: string): Promise<void> {
-  return enqueueWrite(id, (store) => store.delete(id));
-}
-
-export function __resetWriteChains() {
-  writeChains.clear();
+export async function clearDraft(id: string): Promise<void> {
+  const db = await openDB();
+  await new Promise<void>((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    const req = store.delete(id);
+    req.onsuccess = () => resolve();
+    req.onerror = () => reject(req.error);
+  });
 }

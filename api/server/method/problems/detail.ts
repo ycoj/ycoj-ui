@@ -29,7 +29,7 @@ export type ProblemDetailData = {
   ctdocs?: Array<Contest>;
   htdocs?: Array<Homework>;
 
-  mode: ProblemDetailMode;
+  mode?: ProblemDetailMode;
 };
 
 export type ProblemDetailResponse = Errorable<ProblemDetailData>;

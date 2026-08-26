@@ -54,11 +54,6 @@ export default function ObjectiveSubmitButton({
   if (isGuest) {
     return (
       <div className="space-y-3">
-        {error && (
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
         <Button asChild className="gap-2">
           <Link href={`/login?next=/problem/${pid}${tid ? `?tid=${tid}` : ''}`}>
             {t('loginToSubmit')}

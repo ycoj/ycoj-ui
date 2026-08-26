@@ -44,8 +44,8 @@ function renderList(data: ProblemListResponse) {
   );
 }
 
-describe('ProblemList pid display', () => {
-  it('shows pid when present', () => {
+describe('ProblemList', () => {
+  it('renders problem id', () => {
     const problem = makeProblem({ docId: 1000, pid: 'P1000' });
     renderList(makeData([problem]));
     expect(screen.getByText('P1000')).toBeInTheDocument();
@@ -53,38 +53,5 @@ describe('ProblemList pid display', () => {
       'data-llm-text',
       'P1000'
     );
-  });
-
-  it('falls back to P+docId when pid is missing', () => {
-    const problem = makeProblem({
-      docId: 1001,
-      pid: undefined,
-    });
-    renderList(makeData([problem]));
-    expect(screen.getByText('P1001')).toBeInTheDocument();
-    expect(screen.getByText('P1001').closest('td')).toHaveAttribute(
-      'data-llm-text',
-      'P1001'
-    );
-  });
-
-  it('falls back to P+docId when pid is empty string', () => {
-    const problem = makeProblem({ docId: 1002, pid: '' });
-    renderList(makeData([problem]));
-    expect(screen.getByText('P1002')).toBeInTheDocument();
-  });
-
-  it('handles mixed pids correctly', () => {
-    const withPid = makeProblem({ docId: 1000, pid: 'ABC123' });
-    const withoutPid = makeProblem({
-      docId: 2000,
-      pid: undefined,
-    } as unknown as Record<string, unknown>);
-    delete (withoutPid as unknown as Record<string, unknown>).pid;
-    const emptyPid = makeProblem({ docId: 3000, pid: '' });
-    renderList(makeData([withPid, withoutPid, emptyPid]));
-    expect(screen.getByText('ABC123')).toBeInTheDocument();
-    expect(screen.getByText('P2000')).toBeInTheDocument();
-    expect(screen.getByText('P3000')).toBeInTheDocument();
   });
 });

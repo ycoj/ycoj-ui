@@ -43,16 +43,22 @@ function useRegisterQuestion(id: string) {
   }, [id, registerQuestion]);
 }
 
+function useObjectiveTextField(props: Record<string, unknown>) {
+  const id = getId(props);
+  const { answers, setAnswer, isReady, isReadOnly } = useObjective();
+  const uid = useId();
+  const t = useTranslations('problem.objectiveForm');
+  useRegisterQuestion(id);
+  const value = typeof answers[id] === 'string' ? (answers[id] as string) : '';
+  return { id, value, setAnswer, isReady, isReadOnly, uid, t };
+}
+
 export function ObjectiveInput(
   props: Record<string, unknown> & { children?: React.ReactNode }
 ) {
-  const id = getId(props);
-  const t = useTranslations('problem.objectiveForm');
-  const { answers, setAnswer, isReady, isReadOnly } = useObjective();
-  const uid = useId();
-  useRegisterQuestion(id);
+  const { id, value, setAnswer, isReady, isReadOnly, uid, t } =
+    useObjectiveTextField(props);
   if (!id) return null;
-  const value = typeof answers[id] === 'string' ? (answers[id] as string) : '';
   return (
     <span
       data-objective-id={id}
@@ -76,13 +82,9 @@ export function ObjectiveInput(
 export function ObjectiveTextarea(
   props: Record<string, unknown> & { children?: React.ReactNode }
 ) {
-  const id = getId(props);
-  const t = useTranslations('problem.objectiveForm');
-  const { answers, setAnswer, isReady, isReadOnly } = useObjective();
-  const uid = useId();
-  useRegisterQuestion(id);
+  const { id, value, setAnswer, isReady, isReadOnly, uid, t } =
+    useObjectiveTextField(props);
   if (!id) return null;
-  const value = typeof answers[id] === 'string' ? (answers[id] as string) : '';
   return (
     <span
       data-objective-id={id}
@@ -141,19 +143,25 @@ export function ObjectiveDropdown(
   );
 }
 
-export function ObjectiveSelect(
-  props: Record<string, unknown> & { children?: React.ReactNode }
+type ChoiceType = 'select' | 'multiselect';
+
+function ObjectiveChoiceGroup(
+  props: Record<string, unknown> & {
+    children?: React.ReactNode;
+    type: ChoiceType;
+  }
 ) {
   const id = getId(props);
   const t = useTranslations('problem.objectiveForm');
   const { isReady, isReadOnly } = useObjective();
+  const { type } = props;
   useRegisterQuestion(id);
   if (!id) return null;
   return (
-    <QuestionContext.Provider value={{ id, type: 'select' }}>
+    <QuestionContext.Provider value={{ id, type }}>
       <fieldset
         data-objective-id={id}
-        data-objective-type="select"
+        data-objective-type={type}
         id={`objective-${id}`}
         disabled={!isReady || isReadOnly}
         className="my-2 space-y-2"
@@ -165,28 +173,16 @@ export function ObjectiveSelect(
   );
 }
 
+export function ObjectiveSelect(
+  props: Record<string, unknown> & { children?: React.ReactNode }
+) {
+  return <ObjectiveChoiceGroup {...props} type="select" />;
+}
+
 export function ObjectiveMultiselect(
   props: Record<string, unknown> & { children?: React.ReactNode }
 ) {
-  const id = getId(props);
-  const t = useTranslations('problem.objectiveForm');
-  const { isReady, isReadOnly } = useObjective();
-  useRegisterQuestion(id);
-  if (!id) return null;
-  return (
-    <QuestionContext.Provider value={{ id, type: 'multiselect' }}>
-      <fieldset
-        data-objective-id={id}
-        data-objective-type="multiselect"
-        id={`objective-${id}`}
-        disabled={!isReady || isReadOnly}
-        className="my-2 space-y-2"
-        aria-label={t('answerFor', { id })}
-      >
-        <div className="space-y-2">{props.children}</div>
-      </fieldset>
-    </QuestionContext.Provider>
-  );
+  return <ObjectiveChoiceGroup {...props} type="multiselect" />;
 }
 
 export function ObjectiveOption(
@@ -218,7 +214,7 @@ export function ObjectiveOption(
       if (checked) {
         if (!arr.includes(value)) {
           arr.push(value);
-          arr.sort((a, b) => a.charCodeAt(0) - b.charCodeAt(0));
+          arr.sort((a, b) => a.localeCompare(b));
         }
       } else {
         const idx = arr.indexOf(value);
@@ -227,35 +223,6 @@ export function ObjectiveOption(
       setAnswer(id, arr);
     }
   };
-
-  if (type === 'select') {
-    return (
-      <label
-        htmlFor={`${uid}-${id}-${value}`}
-        data-objective-id={id}
-        data-objective-value={value}
-        className={cn(
-          'flex items-center gap-3 rounded-md border p-3 hover:bg-accent/50 has-[input:checked]:border-primary has-[input:checked]:bg-accent cursor-pointer',
-          (!isReady || isReadOnly) && 'opacity-60 cursor-not-allowed'
-        )}
-      >
-        <input
-          id={`${uid}-${id}-${value}`}
-          type="radio"
-          name={`objective-${id}`}
-          value={value}
-          checked={isChecked}
-          onChange={(e) => handleChange(e.target.checked)}
-          disabled={!isReady || isReadOnly}
-          className="size-4 shrink-0 accent-primary"
-        />
-        <span className="flex-1 text-sm">
-          <span className="mr-2 font-medium">{value}.</span>
-          <span>{props.children}</span>
-        </span>
-      </label>
-    );
-  }
 
   return (
     <label
@@ -267,13 +234,26 @@ export function ObjectiveOption(
         (!isReady || isReadOnly) && 'opacity-60 cursor-not-allowed'
       )}
     >
-      <Checkbox
-        id={`${uid}-${id}-${value}`}
-        checked={isChecked}
-        onCheckedChange={(c) => handleChange(c === true)}
-        disabled={!isReady || isReadOnly}
-        className="shrink-0"
-      />
+      {type === 'select' ? (
+        <input
+          id={`${uid}-${id}-${value}`}
+          type="radio"
+          name={`objective-${id}`}
+          value={value}
+          checked={isChecked}
+          onChange={(e) => handleChange(e.target.checked)}
+          disabled={!isReady || isReadOnly}
+          className="size-4 shrink-0 accent-primary"
+        />
+      ) : (
+        <Checkbox
+          id={`${uid}-${id}-${value}`}
+          checked={isChecked}
+          onCheckedChange={(c) => handleChange(c === true)}
+          disabled={!isReady || isReadOnly}
+          className="shrink-0"
+        />
+      )}
       <span className="flex-1 text-sm">
         <span className="mr-2 font-medium">{value}.</span>
         <span>{props.children}</span>

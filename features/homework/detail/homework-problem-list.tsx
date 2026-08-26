@@ -1,4 +1,5 @@
 import type { HomeworkDetailTdoc } from '@/api/server/method/homework/detail';
+import { formatProblemPid } from '@/features/problem/lib/format-problem-pid';
 import ProblemLink from '@/features/problem/problem-link';
 import ProblemStatus from '@/features/problem/problem-status';
 import { Empty, EmptyHeader, EmptyTitle } from '@/shared/components/ui/empty';
@@ -126,9 +127,12 @@ export default function HomeworkProblemList({
             <TableRow key={pid}>
               <TableCell
                 className="tabular-nums"
-                data-llm-text={String(problem?.pid || `P${pid}`)}
+                data-llm-text={formatProblemPid({
+                  pid: problem?.pid,
+                  docId: pid,
+                })}
               >
-                {problem?.pid || `P${pid}`}
+                {formatProblemPid({ pid: problem?.pid, docId: pid })}
               </TableCell>
               <TableCell>
                 {problem ? (

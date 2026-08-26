@@ -1,3 +1,4 @@
+import { formatProblemPid } from '@/features/problem/lib/format-problem-pid';
 import { Button } from '@/shared/components/ui/button';
 import {
   ContestListProjectionProblem,
@@ -21,7 +22,7 @@ export default function ProblemLink({
 }: Props) {
   const t = useTranslations('misc');
   const hrefPid = problem.pid ?? problem.docId;
-  const displayPid = problem.pid || `P${problem.docId}`;
+  const displayPid = formatProblemPid(problem);
   const href = tid ? `/problem/${hrefPid}?tid=${tid}` : `/problem/${hrefPid}`;
 
   return (

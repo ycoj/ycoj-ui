@@ -7,16 +7,9 @@ import ProblemContent from '@/features/problem/detail/problem-content';
 import ProblemTitle from '@/features/problem/detail/problem-title';
 import { isObjectiveProblem } from '@/features/problem/detail/problem-type';
 import { canEditProblem } from '@/features/problem/lib/can-edit-problem';
-import {
-  getDraftId,
-  getEventKind,
-} from '@/features/problem/objective/draft-utils';
-import ObjectiveNavigation from '@/features/problem/objective/navigation';
-import ObjectiveProvider from '@/features/problem/objective/provider';
-import { ObjectiveStatementFooter } from '@/features/problem/objective/workspace';
+import ObjectiveProblemPage from '@/features/problem/objective/objective-page';
 import ProblemSidebar from '@/features/problem/sidebar';
 import { getUser } from '@/features/user/lib/get-user';
-import { hasPerm, PERM } from '@/features/user/lib/priv';
 import { Errored } from '@/shared/components/errored';
 import TwoColumnLayout from '@/shared/layout/two-column';
 import type { User } from '@/shared/types/user';
@@ -98,71 +91,14 @@ function ProblemDetailContent({
   canConfigure: boolean;
   user: User | null;
 }) {
-  const isObjective = isObjectiveProblem(data.pdoc);
-  const mode = data.mode;
-  const isReadOnly =
-    mode === 'view' || mode === 'correction' || mode === 'none';
-  if (isObjective) {
-    const isGuest = !user?._id;
-    const canSubmit = !!user && hasPerm(user, PERM.PERM_SUBMIT_PROBLEM);
-    const eventKind = getEventKind(data.tdoc);
-    const pid = data.pdoc.pid ?? String(data.pdoc.docId);
+  if (isObjectiveProblem(data.pdoc)) {
     return (
-      <ObjectiveProvider
-        key={getDraftId(
-          user?._id ?? null,
-          data.pdoc.domainId,
-          data.pdoc.docId,
-          eventKind,
-          searchParams.tid ?? null
-        )}
-        userId={user?._id ?? null}
-        domainId={data.pdoc.domainId}
-        problemDocId={data.pdoc.docId}
-        tid={searchParams.tid ?? null}
-        eventKind={eventKind}
-        isReadOnly={isReadOnly}
-      >
-        <div className="space-y-6">
-          {data.tdoc && (
-            <ContestTimer contest={data.tdoc} status={data.tsdoc} />
-          )}
-          <ProblemTitle problem={data.pdoc} contest={data.tdoc} />
-          <TwoColumnLayout
-            ratio="8-2"
-            left={
-              <div className="space-y-4">
-                <ProblemContent
-                  problem={data.pdoc}
-                  tid={searchParams.tid}
-                  objective
-                />
-                <ObjectiveStatementFooter
-                  pid={pid}
-                  tid={searchParams.tid ?? null}
-                  isGuest={isGuest}
-                  canSubmit={canSubmit}
-                  isReadOnly={isReadOnly}
-                  eventRule={data.tdoc?.rule}
-                />
-              </div>
-            }
-            right={
-              <ProblemSidebar
-                allowSubmit={false}
-                discussionCount={data.discussionCount}
-                solutionCount={data.solutionCount}
-                problem={data.pdoc}
-                tid={searchParams.tid}
-                contest={data.tdoc}
-                contestStatus={data.tsdoc}
-                allowConfigure={canConfigure}
-                objectiveSlot={<ObjectiveNavigation />}
-              />
-            }
-          />
-        </div>
-      </ObjectiveProvider>
+      <ObjectiveProblemPage
+        data={data}
+        tid={searchParams.tid}
+        canConfigure={canConfigure}
+        user={user}
+      />
     );
   }
   return (

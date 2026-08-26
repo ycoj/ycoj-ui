@@ -18,40 +18,19 @@ function scrollToQuestion(id: string) {
       `[data-objective-id="${escapeId(id)}"]`
     )
   );
-  const visible = nodes.find((el) => {
-    if (el.offsetParent === null) {
-      const style = window.getComputedStyle(el);
-      if (style.display === 'none' || style.visibility === 'hidden')
-        return false;
-      let parent: HTMLElement | null = el.parentElement;
-      while (parent) {
-        const ps = window.getComputedStyle(parent);
-        if (ps.display === 'none') return false;
-        parent = parent.parentElement;
-      }
-      return el.getClientRects().length > 0;
-    }
-    return true;
-  });
-  const target = visible ?? nodes[0];
+  const target = nodes.find((el) => el.offsetParent !== null) ?? nodes[0];
   if (!target) return;
   target.scrollIntoView({ behavior: 'smooth', block: 'center' });
   const focusable = target.querySelector<HTMLElement>(
     'input, textarea, select, button, [tabindex]:not([tabindex="-1"])'
   );
   if (focusable) {
-    setTimeout(() => focusable.focus(), 300);
+    // Wait for the smooth scroll to settle before moving focus
+    const FOCUS_DELAY_MS = 300;
+    setTimeout(() => focusable.focus(), FOCUS_DELAY_MS);
   } else {
-    if ((target as HTMLElement).tabIndex >= 0) {
-      (target as HTMLElement).focus();
-    } else {
-      const prevTab = target.tabIndex;
-      (target as HTMLElement).tabIndex = -1;
-      (target as HTMLElement).focus();
-      setTimeout(() => {
-        (target as HTMLElement).tabIndex = prevTab;
-      }, 1000);
-    }
+    if (target.tabIndex < 0) target.tabIndex = -1;
+    target.focus({ preventScroll: true });
   }
 }
 

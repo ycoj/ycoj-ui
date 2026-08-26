@@ -122,7 +122,7 @@ export default function ProblemSidebar({
     <div className="w-full space-y-4" data-llm-visible="true">
       {objectiveSlot && <div className="space-y-4">{objectiveSlot}</div>}
       <div className="space-y-1">
-        {allowSubmit && !objectiveSlot && (
+        {allowSubmit && (
           <Button asChild className="h-10 w-full justify-start gap-3 px-4">
             <Link
               href={withTid(

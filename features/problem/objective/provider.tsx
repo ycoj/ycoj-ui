@@ -1,7 +1,7 @@
 'use client';
 
 import { clearDraft, getDraft, saveDraft } from './draft-storage';
-import { getDraftId, isAnswerCompleted } from './draft-utils';
+import { isAnswerCompleted } from './draft-utils';
 import type { ObjectiveAnswers } from './types';
 import {
   createContext,
@@ -35,27 +35,15 @@ export function useObjective() {
   return ctx;
 }
 
-export function useOptionalObjective() {
-  return useContext(ObjectiveContext);
-}
-
 type ProviderProps = {
   children: ReactNode;
-  userId: number | string | null;
-  domainId: string;
-  problemDocId: number;
-  tid?: string | null;
-  eventKind: 'standalone' | 'contest' | 'homework';
+  draftId: string;
   isReadOnly: boolean;
 };
 
 export default function ObjectiveProvider({
   children,
-  userId,
-  domainId,
-  problemDocId,
-  tid,
-  eventKind,
+  draftId,
   isReadOnly,
 }: ProviderProps) {
   const [answers, setAnswers] = useState<ObjectiveAnswers>({});
@@ -63,7 +51,6 @@ export default function ObjectiveProvider({
   const [draftError, setDraftError] = useState(false);
   const [questionIds, setQuestionIds] = useState<string[]>([]);
   const skipInitialSaveRef = useRef(true);
-  const draftId = getDraftId(userId, domainId, problemDocId, eventKind, tid);
 
   useEffect(() => {
     let cancelled = false;

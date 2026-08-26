@@ -1,9 +1,14 @@
 import { isFileIoProblem } from '@/features/problem/detail/problem-type';
 import {
+  makeObjectiveSchema,
+  objectiveComponents,
+} from '@/features/problem/objective/markdown-config';
+import {
   parseProblemContent,
   PROBLEM_LANGUAGE_LABELS,
 } from '@/features/problem/parse-problem-content';
-import Markdown from '@/shared/components/markdown';
+import Markdown, { markdownSanitizeSchema } from '@/shared/components/markdown';
+import rehypeObjective from '@/shared/components/markdown/plugins/rehype-objective';
 import {
   Alert,
   AlertDescription,
@@ -19,6 +24,7 @@ import { resolveFileUrls } from '@/shared/lib/resolve-file-urls';
 import type { ContestDetailProjectionProblem } from '@/shared/types/problem';
 import { Info } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import type { Components } from 'react-markdown';
 
 export default function ProblemContent({
   problem,
@@ -75,12 +81,19 @@ export default function ProblemContent({
       </AlertDescription>
     </Alert>
   ) : null;
+  const markdownConfig = {
+    rehypePlugins: objective ? [rehypeObjective] : [],
+    sanitizeSchema: objective
+      ? makeObjectiveSchema(markdownSanitizeSchema)
+      : markdownSanitizeSchema,
+    components: objective ? objectiveComponents : ({} as Components),
+  };
   if (contents.length === 1) {
     const text = contents[0]?.content ?? '';
     return (
       <div className="space-y-4">
         {fileIoAlert}
-        <Markdown objective={objective}>{text}</Markdown>
+        <Markdown {...markdownConfig}>{text}</Markdown>
       </div>
     );
   }
@@ -101,7 +114,7 @@ export default function ProblemContent({
 
         {contents.map(({ language, content }) => (
           <TabsContent key={language} value={language}>
-            <Markdown objective={objective}>{content}</Markdown>
+            <Markdown {...markdownConfig}>{content}</Markdown>
           </TabsContent>
         ))}
       </Tabs>
