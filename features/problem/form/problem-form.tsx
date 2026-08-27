@@ -89,6 +89,7 @@ export default function ProblemForm({
   });
   const {
     control,
+    getValues,
     handleSubmit,
     register,
     setError,
@@ -335,7 +336,9 @@ export default function ProblemForm({
         {mode === 'edit' && pid && (
           <HtmlToMarkdownSection
             pid={pid}
+            originalContent={defaultValues.content}
             control={control}
+            getValues={getValues}
             setValue={setValue}
             disabled={isSubmitting}
           />

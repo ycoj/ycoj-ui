@@ -1,70 +1,84 @@
 'use client';
 
+import {
+  hasUnsavedStatementChange,
+  shouldApplyHtmlToMarkdownResult,
+  shouldPromptHtmlToMarkdown,
+} from './html-to-markdown-guard';
 import type { ProblemFormValues } from './problem-form';
 import ClientApis from '@/api/client/method';
 import { isHtmlContent } from '@/features/problem/lib/detect-html-content';
+import parseErrorMessage from '@/shared/components/errored/parse-message';
 import { Button } from '@/shared/components/ui/button';
 import { Separator } from '@/shared/components/ui/separator';
 import { FileText, Loader2, Wand2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { AlertDialog } from 'radix-ui';
-import { useEffect, useRef, useState } from 'react';
-import type { Control, UseFormSetValue } from 'react-hook-form';
+import { useState } from 'react';
+import type {
+  Control,
+  UseFormGetValues,
+  UseFormSetValue,
+} from 'react-hook-form';
 import { useWatch } from 'react-hook-form';
 
 type Props = {
   pid: string;
+  originalContent: string;
   control: Control<ProblemFormValues>;
+  getValues: UseFormGetValues<ProblemFormValues>;
   setValue: UseFormSetValue<ProblemFormValues>;
   disabled?: boolean;
 };
 
 export default function HtmlToMarkdownSection({
   pid,
+  originalContent,
   control,
+  getValues,
   setValue,
   disabled,
 }: Props) {
   const t = useTranslations('problemEdit.htmlToMarkdown');
   const content = useWatch({ control, name: 'content' }) ?? '';
-  const defaultContentRef = useRef<string | null>(null);
-  const hasPrompted = useRef(false);
-  const [autoOpen, setAutoOpen] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(() =>
+    isHtmlContent(originalContent)
+  );
   const [isConverting, setIsConverting] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (hasPrompted.current) return;
-    if (defaultContentRef.current === null) {
-      defaultContentRef.current = content;
-    }
-    const initial = defaultContentRef.current;
-    if (!initial) return;
-    if (isHtmlContent(initial)) {
-      hasPrompted.current = true;
-      setAutoOpen(true);
-    } else {
-      hasPrompted.current = true;
-    }
-  }, [content]);
+  const htmlDetected = isHtmlContent(content);
+  const hasUnsavedContent = hasUnsavedStatementChange(content, originalContent);
 
   const handleConvert = async () => {
+    const contentWhenStarted = getValues('content') ?? '';
     setIsConverting(true);
     setError('');
     try {
       const response = await ClientApis.Problem.htmlToMarkdown(pid).send();
-      if (
-        !response ||
-        typeof (response as { markdown?: unknown }).markdown !== 'string'
-      ) {
-        throw new Error((response as { error?: string })?.error || t('failed'));
+      if (response && 'error' in response) {
+        setError(parseErrorMessage(response.error));
+        return;
       }
-      const markdown = (response as { markdown: string }).markdown;
+      if (!response || typeof response.markdown !== 'string') {
+        setError(t('failed'));
+        return;
+      }
+      if (
+        !shouldApplyHtmlToMarkdownResult(
+          getValues('content') ?? '',
+          contentWhenStarted
+        )
+      ) {
+        setError(t('contentChangedDuringConversion'));
+        return;
+      }
+      const markdown = response.markdown;
       setValue('content', markdown, {
         shouldDirty: true,
         shouldValidate: true,
       });
-      setAutoOpen(false);
+      setDialogOpen(false);
     } catch (err) {
       const message =
         err instanceof Error && err.message ? err.message : t('failed');
@@ -75,12 +89,17 @@ export default function HtmlToMarkdownSection({
   };
 
   const handleManualClick = () => {
-    if (isHtmlContent(content)) {
-      setAutoOpen(true);
+    if (shouldPromptHtmlToMarkdown(content, originalContent)) {
+      setDialogOpen(true);
     } else {
       void handleConvert();
     }
   };
+
+  const dialogTitle = htmlDetected ? t('detectedTitle') : t('unsavedTitle');
+  const dialogDescription = htmlDetected
+    ? t('detectedDescription')
+    : t('unsavedWarning');
 
   return (
     <>
@@ -118,7 +137,7 @@ export default function HtmlToMarkdownSection({
         )}
       </div>
 
-      <AlertDialog.Root open={autoOpen} onOpenChange={setAutoOpen}>
+      <AlertDialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
         <AlertDialog.Portal>
           <AlertDialog.Overlay className="fixed inset-0 z-50 bg-black/30 backdrop-blur-xs" />
           <AlertDialog.Content
@@ -127,13 +146,22 @@ export default function HtmlToMarkdownSection({
           >
             <AlertDialog.Title
               className="text-lg font-semibold"
-              data-llm-text={t('detectedTitle')}
+              data-llm-text={dialogTitle}
             >
-              {t('detectedTitle')}
+              {dialogTitle}
             </AlertDialog.Title>
             <AlertDialog.Description className="text-muted-foreground mt-2 text-sm">
-              {t('detectedDescription')}
+              {dialogDescription}
             </AlertDialog.Description>
+            {htmlDetected && hasUnsavedContent && (
+              <p
+                className="text-muted-foreground mt-2 text-sm font-medium"
+                data-llm-text={t('unsavedWarning')}
+                role="status"
+              >
+                {t('unsavedWarning')}
+              </p>
+            )}
             {error && (
               <p className="text-destructive mt-3 text-sm" role="alert">
                 {error}
