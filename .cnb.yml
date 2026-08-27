@@ -1,14 +1,29 @@
+.node-env: &node-env
+  docker:
+    image: node:22
+    volumes:
+      - node_modules
+
+.ci-stages: &ci-stages
+  - name: install pnpm
+    script: npm install -g pnpm
+  - name: install dependencies
+    script: pnpm install --frozen-lockfile
+  - name: lint
+    script: pnpm lint
+  - name: format check
+    script: pnpm format:check
+  - name: type check
+    script: pnpm lint:type
+  - name: test
+    script: pnpm test
+
 '**':
   push:
-    - name: lint
-      docker:
-        image: node:22
-      stages:
-        - name: install pnpm
-          script: npm install -g pnpm
-        - name: install dependencies
-          script: pnpm install --frozen-lockfile
-        - name: type check
-          script: pnpm lint:type
-        - name: lint
-          script: pnpm lint
+    - name: ci
+      <<: *node-env
+      stages: *ci-stages
+  pull_request:
+    - name: ci
+      <<: *node-env
+      stages: *ci-stages
