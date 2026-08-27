@@ -1,11 +1,12 @@
-import HtmlToMarkdownSection from './html-to-markdown-section';
-import type { ProblemFormValues } from './problem-form';
+import HtmlToMarkdownSection from '@/features/problem/form/html-to-markdown-section';
+import type { ProblemFormValues } from '@/features/problem/form/problem-form';
 import messages from '@/messages/en.json';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import { useForm, useWatch } from 'react-hook-form';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { toast } from 'sonner';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
   htmlToMarkdown: vi.fn(),
@@ -42,9 +43,14 @@ function Harness({ originalContent }: { originalContent: string }) {
       <HtmlToMarkdownSection
         pid="P1000"
         originalContent={originalContent}
-        control={control}
-        getValues={getValues}
-        setValue={setValue}
+        content={content}
+        getContent={() => getValues('content') ?? ''}
+        onApply={(markdown) =>
+          setValue('content', markdown, {
+            shouldDirty: true,
+            shouldValidate: true,
+          })
+        }
       />
     </NextIntlClientProvider>
   );
@@ -53,6 +59,12 @@ function Harness({ originalContent }: { originalContent: string }) {
 describe('HtmlToMarkdownSection', () => {
   beforeEach(() => {
     mocks.htmlToMarkdown.mockReset();
+    vi.spyOn(toast, 'error').mockImplementation(() => '');
+    vi.spyOn(toast, 'success').mockImplementation(() => '');
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it('warns when conversion is launched after the statement has changed', async () => {
@@ -76,6 +88,9 @@ describe('HtmlToMarkdownSection', () => {
     await waitFor(() => expect(send).toHaveBeenCalled());
     await waitFor(() =>
       expect(screen.getByLabelText('statement')).toHaveValue('# converted')
+    );
+    expect(toast.success).toHaveBeenCalledWith(
+      'Converted to Markdown. Review and save.'
     );
   });
 
@@ -107,15 +122,14 @@ describe('HtmlToMarkdownSection', () => {
     });
 
     await waitFor(() =>
-      expect(
-        screen.getByText(
-          'The statement changed while conversion was running, so the result was not applied.'
-        )
-      ).toBeInTheDocument()
+      expect(toast.error).toHaveBeenCalledWith(
+        'The statement changed while conversion was running, so the result was not applied.'
+      )
     );
     expect(screen.getByLabelText('statement')).toHaveValue(
       '# typed while pending'
     );
+    expect(toast.success).not.toHaveBeenCalled();
   });
 
   it('shows an extra warning when HTML conversion would replace unsaved edits', async () => {
@@ -161,10 +175,11 @@ describe('HtmlToMarkdownSection', () => {
       screen.getByRole('button', { name: 'Convert HTML to Markdown' })
     );
 
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Field email must be unique'
+    await waitFor(() =>
+      expect(toast.error).toHaveBeenCalledWith('Field email must be unique')
     );
-    expect(screen.queryByText('[object Object]')).not.toBeInTheDocument();
+    expect(toast.error).not.toHaveBeenCalledWith('[object Object]');
     expect(screen.getByLabelText('statement')).toHaveValue('# saved statement');
+    expect(toast.success).not.toHaveBeenCalled();
   });
 });

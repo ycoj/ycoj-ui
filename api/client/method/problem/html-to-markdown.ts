@@ -5,10 +5,7 @@ export type HtmlToMarkdownResponse = Errorable<{
   markdown: string;
 }>;
 
-export const htmlToMarkdown = (pid: string, profileId?: string) =>
-  clientRequest.Post<HtmlToMarkdownResponse>(
-    `/p/${pid}`,
-    profileId
-      ? { operation: 'html_to_markdown', profileId }
-      : { operation: 'html_to_markdown' }
-  );
+export const htmlToMarkdown = (pid: string) =>
+  clientRequest.Post<HtmlToMarkdownResponse>(`/p/${pid}`, {
+    operation: 'html_to_markdown',
+  });

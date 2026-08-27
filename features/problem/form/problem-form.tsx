@@ -1,6 +1,5 @@
 'use client';
 
-import HtmlToMarkdownSection from '@/features/problem/form/html-to-markdown-section';
 import ProblemContentEditor from '@/features/problem/form/problem-content-editor';
 import { Button } from '@/shared/components/ui/button';
 import { Checkbox } from '@/shared/components/ui/checkbox';
@@ -27,6 +26,7 @@ import {
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import type { ReactNode } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -50,22 +50,29 @@ export function normalizeProblemPayload(values: ProblemFormValues) {
   };
 }
 
+type AsideExtraApi = {
+  content: string;
+  getContent: () => string;
+  setContent: (markdown: string) => void;
+  disabled: boolean;
+};
+
 type Props = {
   mode: 'create' | 'edit';
-  pid?: string;
   tags: Record<string, string[]>;
   defaultValues: ProblemFormValues;
   cancelHref: string;
   onSubmit: (values: ProblemFormValues) => Promise<string>;
+  renderAsideExtra?: (api: AsideExtraApi) => ReactNode;
 };
 
 export default function ProblemForm({
   mode,
-  pid,
   tags,
   defaultValues,
   cancelHref,
   onSubmit,
+  renderAsideExtra,
 }: Props) {
   const t = useTranslations(
     mode === 'create' ? 'problemCreate' : 'problemEdit'
@@ -103,6 +110,7 @@ export default function ProblemForm({
     .split(/[,，]/)
     .map((tag) => tag.trim())
     .filter(Boolean);
+  const content = useWatch({ control, name: 'content' }) ?? '';
 
   const updateTags = (nextTags: string[]) => {
     setValue('tag', nextTags.join(', '), { shouldDirty: true });
@@ -333,16 +341,16 @@ export default function ProblemForm({
             );
           })}
         </div>
-        {mode === 'edit' && pid && (
-          <HtmlToMarkdownSection
-            pid={pid}
-            originalContent={defaultValues.content}
-            control={control}
-            getValues={getValues}
-            setValue={setValue}
-            disabled={isSubmitting}
-          />
-        )}
+        {renderAsideExtra?.({
+          content,
+          getContent: () => getValues('content') ?? '',
+          setContent: (markdown) =>
+            setValue('content', markdown, {
+              shouldDirty: true,
+              shouldValidate: true,
+            }),
+          disabled: isSubmitting,
+        })}
       </aside>
     </form>
   );
