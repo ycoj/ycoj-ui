@@ -1,6 +1,7 @@
 'use client';
 
 import ClientApis from '@/api/client/method';
+import HtmlToMarkdownSection from '@/features/problem/form/html-to-markdown-section';
 import ProblemForm, {
   normalizeProblemPayload,
 } from '@/features/problem/form/problem-form';
@@ -27,6 +28,16 @@ export default function ProblemEditForm({ problem, tags }: Props) {
         hidden: problem.hidden ?? false,
         content: problem.content,
       }}
+      renderAsideExtra={({ content, getContent, setContent, disabled }) => (
+        <HtmlToMarkdownSection
+          pid={pid}
+          originalContent={problem.content}
+          content={content}
+          getContent={getContent}
+          onApply={setContent}
+          disabled={disabled}
+        />
+      )}
       onSubmit={async (values) => {
         const response = await ClientApis.Problem.editProblem(
           pid,

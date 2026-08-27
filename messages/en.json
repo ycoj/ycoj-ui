@@ -119,7 +119,11 @@
     "userProfile": "User profile"
   },
   "contest": {
-    "status": { "running": "Running", "pending": "Upcoming", "ended": "Ended" },
+    "status": {
+      "running": "Running",
+      "pending": "Upcoming",
+      "ended": "Ended"
+    },
     "rule": {
       "acm": "ACM/ICPC",
       "oi": "OI",
@@ -300,7 +304,10 @@
       "whitespace": "Whitespace",
       "ignoreWhitespace": "Ignore trailing spaces and line breaks",
       "checkerSource": "Checker source",
-      "checkerSources": { "preset": "Preset", "custom": "Custom" },
+      "checkerSources": {
+        "preset": "Preset",
+        "custom": "Custom"
+      },
       "preset": "Preset checker",
       "checkerFile": "Checker file",
       "checkerFormat": "Checker format",
@@ -312,9 +319,16 @@
       "processes": "Processes",
       "submitAnswer": "Submit-answer settings",
       "answerMode": "Answer mode",
-      "answerModes": { "single": "Single file", "multi": "Multiple files" },
+      "answerModes": {
+        "single": "Single file",
+        "multi": "Multiple files"
+      },
       "resultDetail": "Result detail",
-      "details": { "full": "Full", "case": "Per case", "none": "None" },
+      "details": {
+        "full": "Full",
+        "case": "Per case",
+        "none": "None"
+      },
       "fileIo": "File I/O",
       "filenamePlaceholder": "For example: answer",
       "multiPass": "Multi-pass judging",
@@ -331,7 +345,11 @@
       "memoryLimit": "Memory limit",
       "score": "Score",
       "scoringMethod": "Scoring method",
-      "scoring": { "min": "Minimum", "max": "Maximum", "sum": "Sum" },
+      "scoring": {
+        "min": "Minimum",
+        "max": "Maximum",
+        "sum": "Sum"
+      },
       "dependencies": "Dependencies",
       "subtask": "Subtask {id}",
       "subtaskSettings": "Subtask settings",
@@ -501,7 +519,22 @@
     "submitFailed": "Failed to save the problem. Please try again later.",
     "submitting": "Saving...",
     "submit": "Save changes",
-    "cancel": "Back to problem"
+    "cancel": "Back to problem",
+    "htmlToMarkdown": {
+      "title": "HTML to Markdown",
+      "description": "HTML content detected. Convert to Markdown with AI.",
+      "button": "Convert HTML to Markdown",
+      "converting": "Converting...",
+      "detectedTitle": "Convert HTML to Markdown?",
+      "detectedDescription": "This problem statement contains HTML. Convert it to Markdown with AI? You can review before saving.",
+      "unsavedTitle": "Convert the saved statement?",
+      "unsavedWarning": "You have unsaved edits. Conversion uses the last saved statement and will replace what you see now.",
+      "contentChangedDuringConversion": "The statement changed while conversion was running, so the result was not applied.",
+      "confirm": "Convert",
+      "cancel": "Cancel",
+      "success": "Converted to Markdown. Review and save.",
+      "failed": "Conversion failed. Please try again."
+    }
   },
   "problemImport": {
     "title": "Import from {format}",
@@ -760,7 +793,10 @@
       "replying": "Replying..."
     }
   },
-  "misc": { "hidden": "(hidden)", "logoAlt": "{siteName} logo" },
+  "misc": {
+    "hidden": "(hidden)",
+    "logoAlt": "{siteName} logo"
+  },
   "pdf": {
     "loading": "Loading PDF",
     "mixedContent": "This PDF uses HTTP and cannot be displayed on this HTTPS page.",
@@ -782,7 +818,10 @@
   "ranking": {
     "noUsers": "No users",
     "bio": "Bio",
-    "category": { "problem": "Problems", "contest": "Contests" }
+    "category": {
+      "problem": "Problems",
+      "contest": "Contests"
+    }
   },
   "scoreboard": {
     "noData": "No scoreboard data",

@@ -26,6 +26,7 @@ import {
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import type { ReactNode } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -49,12 +50,20 @@ export function normalizeProblemPayload(values: ProblemFormValues) {
   };
 }
 
+type AsideExtraApi = {
+  content: string;
+  getContent: () => string;
+  setContent: (markdown: string) => void;
+  disabled: boolean;
+};
+
 type Props = {
   mode: 'create' | 'edit';
   tags: Record<string, string[]>;
   defaultValues: ProblemFormValues;
   cancelHref: string;
   onSubmit: (values: ProblemFormValues) => Promise<string>;
+  renderAsideExtra?: (api: AsideExtraApi) => ReactNode;
 };
 
 export default function ProblemForm({
@@ -63,6 +72,7 @@ export default function ProblemForm({
   defaultValues,
   cancelHref,
   onSubmit,
+  renderAsideExtra,
 }: Props) {
   const t = useTranslations(
     mode === 'create' ? 'problemCreate' : 'problemEdit'
@@ -86,6 +96,7 @@ export default function ProblemForm({
   });
   const {
     control,
+    getValues,
     handleSubmit,
     register,
     setError,
@@ -99,6 +110,7 @@ export default function ProblemForm({
     .split(/[,，]/)
     .map((tag) => tag.trim())
     .filter(Boolean);
+  const content = useWatch({ control, name: 'content' }) ?? '';
 
   const updateTags = (nextTags: string[]) => {
     setValue('tag', nextTags.join(', '), { shouldDirty: true });
@@ -329,6 +341,16 @@ export default function ProblemForm({
             );
           })}
         </div>
+        {renderAsideExtra?.({
+          content,
+          getContent: () => getValues('content') ?? '',
+          setContent: (markdown) =>
+            setValue('content', markdown, {
+              shouldDirty: true,
+              shouldValidate: true,
+            }),
+          disabled: isSubmitting,
+        })}
       </aside>
     </form>
   );
