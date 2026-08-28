@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Dialog } from 'radix-ui';
 
-const importFormats = ['hydro', 'fps', 'hoj', 'qduoj'] as const;
+const importFormats = ['hydro', 'fps', 'hoj', 'qduoj', 'lvj'] as const;
 
 export default function ProblemCreateOrImportDialog() {
   const t = useTranslations('problem');
