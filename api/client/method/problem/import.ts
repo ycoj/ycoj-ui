@@ -22,10 +22,16 @@ export type LvjImportOptions = {
   pid: string;
 };
 
-export const importProblems = (
-  format: ProblemImportFormat,
-  options: ImportProblemOptions | LvjImportOptions
-) => {
+type ImportProblemsArgs =
+  | [format: 'lvj', options: LvjImportOptions]
+  | [
+      format: Exclude<ProblemImportFormat, 'lvj'>,
+      options: ImportProblemOptions,
+    ];
+
+export const importProblems = (...args: ImportProblemsArgs) => {
+  const [format, options] = args;
+
   if (format === 'lvj') {
     return clientRequest.Post('/problem/import/zshfoj', options);
   }
