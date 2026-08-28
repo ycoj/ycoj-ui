@@ -82,6 +82,7 @@ export default function LanguageAutoComplete({
       family: itemId,
       familyDisplay: itemId,
       display: itemId,
+      invalid: true,
     }));
   }, [options, status, value]);
 
