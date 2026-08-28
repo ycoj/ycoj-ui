@@ -12,7 +12,7 @@ import { cn } from '@/shared/lib/utils';
 import { Combobox } from '@base-ui/react/combobox';
 import { Check, LoaderCircle, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 type LoadStatus = 'loading' | 'success' | 'failed';
 
@@ -51,6 +51,7 @@ export default function LanguageAutoComplete({
   const [status, setStatus] = useState<LoadStatus>('loading');
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
+  const chipsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -114,7 +115,7 @@ export default function LanguageAutoComplete({
       onInputValueChange={(nextQuery, details) => {
         if (details.reason === 'item-press') return;
         setQuery(nextQuery);
-        setOpen(true);
+        if (details.reason === 'input-change') setOpen(true);
       }}
       onOpenChange={setOpen}
       open={open}
@@ -123,10 +124,12 @@ export default function LanguageAutoComplete({
       isItemEqualToValue={(item, selected) => item.id === selected.id}
       filter={null}
       autoHighlight
+      highlightItemOnHover={false}
       multiple
       disabled={disabled}
     >
       <Combobox.Chips
+        ref={chipsRef}
         className={cn(
           'border-input dark:bg-input/30 focus-within:border-ring focus-within:ring-ring/50 flex min-h-8 w-full flex-wrap items-center gap-0.5 rounded-lg border bg-transparent px-1.5 py-0.5 text-sm transition-colors focus-within:ring-3',
           disabled && 'cursor-not-allowed opacity-50',
@@ -142,7 +145,7 @@ export default function LanguageAutoComplete({
                 return (
                   <Combobox.Chip
                     key={item.id}
-                    className="bg-secondary text-secondary-foreground inline-flex max-w-full items-center gap-0.5 rounded-md px-1.5 py-0 text-xs font-medium"
+                    className="bg-muted inline-flex max-w-full items-center gap-0.5 rounded-md px-1.5 py-0 text-xs font-medium"
                     aria-label={label}
                     data-llm-text={label}
                   >
@@ -151,7 +154,7 @@ export default function LanguageAutoComplete({
                       {item.invalid ? ` (${t('invalid')})` : ''}
                     </span>
                     <Combobox.ChipRemove
-                      className="hover:bg-muted inline-flex size-4 shrink-0 items-center justify-center rounded-sm outline-none"
+                      className="hover:bg-background inline-flex size-4 shrink-0 items-center justify-center rounded-sm outline-none"
                       aria-label={t('remove', { name: label })}
                     >
                       <X className="size-3" />
@@ -181,12 +184,13 @@ export default function LanguageAutoComplete({
 
       <Combobox.Portal>
         <Combobox.Positioner
+          anchor={chipsRef}
           align="start"
           sideOffset={4}
           className="z-50 outline-none"
         >
           <Combobox.Popup
-            className="bg-popover text-popover-foreground ring-foreground/10 w-[var(--anchor-width)] max-w-[var(--available-width)] origin-[var(--transform-origin)] rounded-lg shadow-md ring-1 transition-[transform,opacity] duration-100 data-starting-style:scale-95 data-starting-style:opacity-0 data-ending-style:scale-95 data-ending-style:opacity-0"
+            className="bg-popover text-popover-foreground ring-foreground/10 w-[var(--anchor-width)] min-w-[var(--anchor-width)] max-w-[var(--available-width)] origin-[var(--transform-origin)] rounded-lg shadow-md ring-1 transition-[transform,opacity] duration-100 data-starting-style:scale-95 data-starting-style:opacity-0 data-ending-style:scale-95 data-ending-style:opacity-0"
             aria-busy={loading || undefined}
             data-llm-visible="true"
           >
@@ -212,32 +216,44 @@ export default function LanguageAutoComplete({
               </Combobox.Status>
             )}
             <Combobox.List className="max-h-[min(20rem,var(--available-height))] overflow-y-auto overscroll-contain p-1 outline-none data-empty:p-0">
-              {(item: LanguageOption, index: number) => (
-                <Combobox.Item
-                  key={item.id}
-                  value={item}
-                  index={index}
-                  className="data-highlighted:bg-accent data-highlighted:text-accent-foreground data-selected:bg-muted data-highlighted:data-selected:bg-muted flex cursor-default items-center gap-2.5 rounded-md px-2 py-2 text-sm outline-none select-none"
-                >
-                  <div className="min-w-0 flex-1">
-                    <div
-                      className="truncate font-medium"
-                      data-llm-text={optionLabel(item)}
-                    >
-                      {optionLabel(item)}
+              {(item: LanguageOption, index: number) => {
+                const isSelected = selectedItems.some(
+                  (selectedItem) => selectedItem.id === item.id
+                );
+                return (
+                  <Combobox.Item
+                    key={item.id}
+                    value={item}
+                    index={index}
+                    className={cn(
+                      'flex cursor-default items-center gap-2.5 rounded-md px-2 py-2 text-sm outline-none select-none',
+                      isSelected && 'bg-muted',
+                      'hover:bg-accent hover:text-accent-foreground',
+                      'data-highlighted:bg-accent data-highlighted:text-accent-foreground',
+                      isSelected &&
+                        'data-highlighted:bg-muted data-highlighted:hover:bg-accent'
+                    )}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div
+                        className="truncate font-medium"
+                        data-llm-text={optionLabel(item)}
+                      >
+                        {optionLabel(item)}
+                      </div>
+                      <div
+                        className="text-muted-foreground text-xs"
+                        data-llm-text={item.invalid ? t('invalid') : item.id}
+                      >
+                        {item.invalid ? t('invalid') : item.id}
+                      </div>
                     </div>
-                    <div
-                      className="text-muted-foreground text-xs"
-                      data-llm-text={item.invalid ? t('invalid') : item.id}
-                    >
-                      {item.invalid ? t('invalid') : item.id}
-                    </div>
-                  </div>
-                  <Combobox.ItemIndicator className="ml-auto shrink-0">
-                    <Check className="size-4" />
-                  </Combobox.ItemIndicator>
-                </Combobox.Item>
-              )}
+                    <Combobox.ItemIndicator className="ml-auto shrink-0">
+                      <Check className="size-4" />
+                    </Combobox.ItemIndicator>
+                  </Combobox.Item>
+                );
+              }}
             </Combobox.List>
           </Combobox.Popup>
         </Combobox.Positioner>

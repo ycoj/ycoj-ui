@@ -1,6 +1,7 @@
 import LanguageAutoComplete from './language-auto-complete';
 import messages from '@/messages/en.json';
 import { act, fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import { useState } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -49,6 +50,9 @@ function Harness({ initialValue = [] }: { initialValue?: string[] }) {
         placeholder="Search languages"
         ariaLabel="Languages"
       />
+      <button type="button" data-testid="next-field">
+        Next field
+      </button>
       <output data-testid="value">{JSON.stringify(value)}</output>
     </NextIntlClientProvider>
   );
@@ -93,14 +97,41 @@ describe('LanguageAutoComplete', () => {
         .map((button) => button.getAttribute('aria-label'))
     ).toEqual(['Remove C++ - C++17', 'Remove Python - Python 3']);
     expect(screen.getByRole('option', { name: /C\+\+ - C\+\+17/ })).toHaveClass(
-      'data-selected:bg-muted'
+      'bg-muted',
+      'hover:bg-accent'
     );
     expect(
       screen.getByRole('option', { name: /Python - Python 3/ })
-    ).toHaveClass('data-selected:bg-muted');
+    ).toHaveClass('bg-muted', 'hover:bg-accent');
+    expect(screen.getByRole('option', { name: 'C++ - C++ cc' })).toHaveClass(
+      'hover:bg-accent'
+    );
+    expect(
+      screen.getByRole('option', { name: 'C++ - C++ cc' })
+    ).not.toHaveClass('bg-muted');
+    expect(screen.getByRole('listbox').parentElement).toHaveClass(
+      'min-w-[var(--anchor-width)]'
+    );
+
+    expect(screen.getByLabelText('C++ - C++17')).toHaveClass('bg-muted');
+    expect(screen.getByLabelText('Python - Python 3')).toHaveClass('bg-muted');
 
     fireEvent.click(screen.getByRole('button', { name: 'Remove C++ - C++17' }));
     expect(screen.getByTestId('value')).toHaveTextContent('["python.py3"]');
+  });
+
+  it('closes the dropdown when the input loses focus', async () => {
+    const user = userEvent.setup();
+    render(<Harness />);
+    await flushFetch();
+
+    const input = screen.getByRole('combobox', { name: 'Languages' });
+    await user.click(input);
+    await user.type(input, 'py');
+    expect(screen.getByRole('listbox')).toBeInTheDocument();
+
+    await user.click(screen.getByTestId('next-field'));
+    expect(input).toHaveAttribute('aria-expanded', 'false');
   });
 
   it('filters loaded languages as the user types', async () => {
