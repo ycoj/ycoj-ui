@@ -818,6 +818,7 @@
   "ranking": {
     "noUsers": "No users",
     "bio": "Bio",
+    "accepted": "Accepted",
     "category": {
       "problem": "Problems",
       "contest": "Contests"

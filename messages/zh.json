@@ -818,6 +818,7 @@
   "ranking": {
     "noUsers": "暂无用户",
     "bio": "自我介绍",
+    "accepted": "通过",
     "category": {
       "problem": "做题",
       "contest": "比赛"
