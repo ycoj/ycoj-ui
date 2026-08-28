@@ -54,7 +54,7 @@ describe('MarkdownEditor', () => {
       preview: true,
       noUploadImg: true,
       toolbarsExclude: ['save', 'github'],
-      style: { height: '75vh', minHeight: '40rem' },
+      style: { height: '40vh', minHeight: '20rem' },
     });
   });
 

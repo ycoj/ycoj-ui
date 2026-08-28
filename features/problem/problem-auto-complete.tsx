@@ -15,7 +15,9 @@ type Props = {
   disabled?: boolean;
   className?: string;
   inputClassName?: string;
+  id?: string;
   onBlur?: () => void;
+  onItemSelect?: (item: ProblemAutoCompleteItem) => void;
 };
 
 const problemKey = (problem: ProblemAutoCompleteItem) => String(problem.docId);

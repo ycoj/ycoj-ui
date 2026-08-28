@@ -1,6 +1,7 @@
-import { searchUsers } from './auto-complete';
+import { getUsersByIds, searchUsers } from './auto-complete';
 
 const User = {
+  getUsersByIds,
   searchUsers,
 };
 
