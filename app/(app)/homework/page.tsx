@@ -1,6 +1,8 @@
 import ServerApis from '@/api/server/method';
 import HomeworkFilter from '@/features/homework/list/homework-filter';
 import HomeworkList from '@/features/homework/list/homework-list';
+import { getUser } from '@/features/user/lib/get-user';
+import { hasPerm, PERM } from '@/features/user/lib/priv';
 import Pagination from '@/shared/components/pagination';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
@@ -36,7 +38,10 @@ export default async function HomeworkListPage({
   const group = normalizeParam(searchParams.group);
   const page = parsePage(searchParams.page);
 
-  const data = await ServerApis.Homework.getHomeworkList(group, page, q);
+  const [data, user] = await Promise.all([
+    ServerApis.Homework.getHomeworkList(group, page, q),
+    getUser(),
+  ]);
 
   const filterKey = new URLSearchParams(
     Object.entries({ q, group }).reduce<Record<string, string>>(
@@ -51,7 +56,11 @@ export default async function HomeworkListPage({
 
   return (
     <div className="space-y-4">
-      <HomeworkFilter key={filterKey} groups={data.groups} />
+      <HomeworkFilter
+        key={filterKey}
+        groups={data.groups}
+        canCreate={hasPerm(user, PERM.PERM_CREATE_HOMEWORK)}
+      />
       <HomeworkList data={data} />
       <div className="pt-1">
         <Pagination page={data.page} totalPages={data.tpcount} />

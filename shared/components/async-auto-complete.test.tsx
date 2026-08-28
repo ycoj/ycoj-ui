@@ -23,6 +23,7 @@ type HarnessProps = {
   resolveItem?: (value: string) => Promise<Item | null>;
   allowEmptyQuery?: boolean;
   initialValue?: string;
+  onItemSelect?: (item: Item) => void;
 };
 
 function Harness({
@@ -30,6 +31,7 @@ function Harness({
   resolveItem,
   allowEmptyQuery,
   initialValue = '',
+  onItemSelect,
 }: HarnessProps) {
   const [value, setValue] = useState(initialValue);
 
@@ -47,6 +49,7 @@ function Harness({
         messages={messages}
         allowEmptyQuery={allowEmptyQuery}
         placeholder="Search items"
+        onItemSelect={onItemSelect}
       />
       <output data-testid="value">{value}</output>
     </>
@@ -160,6 +163,23 @@ describe('AsyncAutoComplete', () => {
 
     expect(screen.getByTestId('value')).toHaveTextContent('1');
     expect(input).toHaveValue('Alice');
+  });
+
+  it('clears the input after onItemSelect instead of keeping the selected value', async () => {
+    const searchItems = vi
+      .fn<(query: string) => Promise<Item[]>>()
+      .mockResolvedValue([{ id: '1', label: 'Alice' }]);
+    const onItemSelect = vi.fn();
+    render(<Harness searchItems={searchItems} onItemSelect={onItemSelect} />);
+
+    const input = screen.getByRole('combobox', { name: 'Search items' });
+    fireEvent.change(input, { target: { value: 'ali' } });
+    await advanceDebounce();
+    fireEvent.click(screen.getByText('Alice'));
+
+    expect(onItemSelect).toHaveBeenCalledWith({ id: '1', label: 'Alice' });
+    expect(screen.getByTestId('value')).toBeEmptyDOMElement();
+    expect(input).toHaveValue('');
   });
 
   it('ignores an older response that resolves after a newer query', async () => {

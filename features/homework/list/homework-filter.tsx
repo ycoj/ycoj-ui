@@ -9,16 +9,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/components/ui/select';
-import { Search, Tag } from 'lucide-react';
+import { Plus, Search, Tag } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useMemo, useState, type FormEvent } from 'react';
 
 type Props = {
   groups: string[];
+  canCreate: boolean;
 };
 
-export default function HomeworkFilter({ groups }: Props) {
+export default function HomeworkFilter({ groups, canCreate }: Props) {
   const t = useTranslations('homework');
   const common = useTranslations('common');
   const pathname = usePathname();
@@ -82,10 +84,22 @@ export default function HomeworkFilter({ groups }: Props) {
           </SelectContent>
         </Select>
 
-        <Button type="submit" variant="secondary" className="ml-auto gap-2">
+        <Button
+          type="submit"
+          variant="secondary"
+          className="ml-auto cursor-pointer gap-2 hover:bg-foreground/15"
+        >
           <Search strokeWidth={2} />
           {common('filter')}
         </Button>
+        {canCreate && (
+          <Button asChild>
+            <Link href="/homework/create">
+              <Plus />
+              {t('create')}
+            </Link>
+          </Button>
+        )}
       </div>
     </form>
   );

@@ -31,7 +31,9 @@ export type AsyncAutoCompleteProps<Item> = {
   disabled?: boolean;
   className?: string;
   inputClassName?: string;
+  id?: string;
   onBlur?: () => void;
+  onItemSelect?: (item: Item) => void;
 };
 
 type SearchState<Item> = {
@@ -57,7 +59,9 @@ export default function AsyncAutoComplete<Item>({
   disabled,
   className,
   inputClassName,
+  id,
   onBlur,
+  onItemSelect,
 }: AsyncAutoCompleteProps<Item>) {
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [searchState, setSearchState] = useState<SearchState<Item> | null>(
@@ -166,6 +170,16 @@ export default function AsyncAutoComplete<Item>({
       return;
     }
 
+    if (onItemSelect) {
+      onItemSelect(nextItem);
+      setSelectedItem(null);
+      setEditingSelection(false);
+      setSearchState(null);
+      onValueChange('');
+      setOpen(false);
+      return;
+    }
+
     setSelectedItem(nextItem);
     setEditingSelection(false);
     onValueChange(itemKey(nextItem));
@@ -205,6 +219,7 @@ export default function AsyncAutoComplete<Item>({
       <div className={cn('relative', className)}>
         <Combobox.Input
           render={<Input />}
+          id={id}
           placeholder={placeholder}
           aria-label={ariaLabel ?? placeholder}
           autoComplete="off"

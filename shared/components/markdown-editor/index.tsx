@@ -100,7 +100,7 @@ const MarkdownEditor = forwardRef<HTMLTextAreaElement, MarkdownEditorProps>(
             ariaInvalid && 'markdown-editor-invalid',
             className
           )}
-          style={{ height: '75vh', minHeight: '40rem' }}
+          style={{ height: '40vh', minHeight: '20rem' }}
         />
         <textarea
           ref={ref}

@@ -42,6 +42,7 @@ export type User = BaseUser & {
   authn: boolean;
   ccfLevel?: number;
   modType?: 'su' | 'mod' | null;
+  timeZone?: string;
   backgroundImage?: string;
   bio?: string;
   rank?: number;

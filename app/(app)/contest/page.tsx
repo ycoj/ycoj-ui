@@ -1,6 +1,8 @@
 import ServerApis from '@/api/server/method';
 import ContestFilter from '@/features/contest/list/contest-filter';
 import ContestList from '@/features/contest/list/contest-list';
+import { getUser } from '@/features/user/lib/get-user';
+import { hasPerm, PERM } from '@/features/user/lib/priv';
 import Pagination from '@/shared/components/pagination';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
@@ -38,7 +40,10 @@ export default async function ContestListPage({
   const group = normalizeParam(searchParams.group);
   const page = parsePage(searchParams.page);
 
-  const data = await ServerApis.Contests.getContestList(rule, group, page, q);
+  const [data, user] = await Promise.all([
+    ServerApis.Contests.getContestList(rule, group, page, q),
+    getUser(),
+  ]);
 
   const filterKey = new URLSearchParams(
     Object.entries({ q, rule, group }).reduce<Record<string, string>>(
@@ -53,7 +58,11 @@ export default async function ContestListPage({
 
   return (
     <div className="space-y-4">
-      <ContestFilter key={filterKey} groups={data.groups} />
+      <ContestFilter
+        key={filterKey}
+        groups={data.groups}
+        canCreate={hasPerm(user, PERM.PERM_CREATE_CONTEST)}
+      />
       <ContestList data={data} />
       <div className="pt-1">
         <Pagination page={data.page} totalPages={data.tpcount} />
