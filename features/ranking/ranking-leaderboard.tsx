@@ -56,6 +56,7 @@ export default function RankingLeaderboard({ udocs, page, pageSize }: Props) {
         {RP_CATEGORIES.map((key) => (
           <col key={key} className="w-16 hidden lg:table-column" />
         ))}
+        <col className="w-16" />
         <col />
       </colgroup>
       <TableHeader>
@@ -71,6 +72,9 @@ export default function RankingLeaderboard({ udocs, page, pageSize }: Props) {
               {t(`category.${key}`)}
             </TableCell>
           ))}
+          <TableCell className="text-center font-medium">
+            {t('accepted')}
+          </TableCell>
           <TableCell className="font-medium">{t('bio')}</TableCell>
         </TableRow>
       </TableHeader>
@@ -98,6 +102,12 @@ export default function RankingLeaderboard({ udocs, page, pageSize }: Props) {
                   {formatRp(user.rpInfo?.[key])}
                 </TableCell>
               ))}
+              <TableCell
+                className="text-center tabular-nums"
+                data-llm-text={String(user.nAccept ?? 0)}
+              >
+                {user.nAccept ?? 0}
+              </TableCell>
               <TableCell className="max-w-48 truncate text-muted-foreground text-sm">
                 {user.bio ?? ''}
               </TableCell>
