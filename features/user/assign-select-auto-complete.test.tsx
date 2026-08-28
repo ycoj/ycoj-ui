@@ -29,12 +29,19 @@ function methodResult<T>(value: T) {
   return { send: vi.fn().mockResolvedValue(value) };
 }
 
-function Harness({ initialValue = [] }: { initialValue?: string[] }) {
+function Harness({
+  initialValue = [],
+  id,
+}: {
+  initialValue?: string[];
+  id?: string;
+}) {
   const [value, setValue] = useState(initialValue);
 
   return (
     <NextIntlClientProvider locale="en" messages={messages}>
       <AssignSelectAutoComplete
+        id={id}
         domainId="system"
         value={value}
         onValueChange={setValue}
@@ -82,9 +89,10 @@ describe('AssignSelectAutoComplete', () => {
         },
       ])
     );
-    render(<Harness />);
+    render(<Harness id="assign" />);
 
     const input = screen.getByRole('combobox', { name: 'Assignments' });
+    expect(input).toHaveAttribute('id', 'assign');
     fireEvent.change(input, { target: { value: 'a' } });
     await advanceSearch();
 

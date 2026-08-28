@@ -96,13 +96,12 @@ describe('LanguageAutoComplete', () => {
         .getAllByRole('button', { name: /^Remove / })
         .map((button) => button.getAttribute('aria-label'))
     ).toEqual(['Remove C++ - C++17', 'Remove Python - Python 3']);
-    expect(screen.getByRole('option', { name: /C\+\+ - C\+\+17/ })).toHaveClass(
-      'bg-muted',
-      'hover:bg-accent'
-    );
+    expect(
+      screen.getByRole('option', { name: /C\+\+ - C\+\+17/ })
+    ).toHaveAttribute('data-selected');
     expect(
       screen.getByRole('option', { name: /Python - Python 3/ })
-    ).toHaveClass('bg-muted', 'hover:bg-accent');
+    ).toHaveAttribute('data-selected');
     expect(screen.getByRole('option', { name: 'C++ - C++ cc' })).toHaveClass(
       'hover:bg-accent'
     );

@@ -14,7 +14,14 @@ import {
 import { Button } from '@/shared/components/ui/button';
 import { Label } from '@/shared/components/ui/label';
 import { cn } from '@/shared/lib/utils';
-import { ClipboardPaste, Copy, GripVertical, X } from 'lucide-react';
+import {
+  ChevronDown,
+  ChevronUp,
+  ClipboardPaste,
+  Copy,
+  GripVertical,
+  X,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useState } from 'react';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
@@ -38,12 +45,14 @@ type DragItem = { index: number };
 function ProblemListRow({
   problem,
   index,
+  itemCount,
   disabled,
   onMove,
   onRemove,
 }: {
   problem: ProblemAutoCompleteItem;
   index: number;
+  itemCount: number;
   disabled?: boolean;
   onMove: (from: number, to: number) => void;
   onRemove: (docId: number) => void;
@@ -90,6 +99,30 @@ function ProblemListRow({
       <span className="min-w-0 flex-1 truncate" data-llm-text={label}>
         {label}
       </span>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-xs"
+        className="cursor-pointer"
+        aria-label={t('moveUp', { label })}
+        title={t('moveUp', { label })}
+        disabled={disabled || index === 0}
+        onClick={() => onMove(index, index - 1)}
+      >
+        <ChevronUp />
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon-xs"
+        className="cursor-pointer"
+        aria-label={t('moveDown', { label })}
+        title={t('moveDown', { label })}
+        disabled={disabled || index === itemCount - 1}
+        onClick={() => onMove(index, index + 1)}
+      >
+        <ChevronDown />
+      </Button>
       <Button
         type="button"
         variant="ghost"
@@ -243,6 +276,7 @@ export default function ProblemListEditor({
                 key={problem.docId}
                 problem={problem}
                 index={index}
+                itemCount={value.length}
                 disabled={disabled || busy}
                 onMove={moveItem}
                 onRemove={removeProblem}

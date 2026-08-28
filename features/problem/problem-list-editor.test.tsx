@@ -99,4 +99,37 @@ describe('ProblemListEditor', () => {
     expect(screen.getByText('P1001. Graph')).toBeInTheDocument();
     expect(screen.getByText('A')).toBeInTheDocument();
   });
+
+  it('reorders problems with keyboard-accessible move controls', () => {
+    render(<Harness initialValue={[tree, graph]} />);
+
+    expect(
+      screen.getByRole('button', { name: 'Move P1000. Binary Tree up' })
+    ).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: 'Move P1001. Graph down' })
+    ).toBeDisabled();
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Move P1000. Binary Tree down' })
+    );
+
+    expect(screen.getByText('A').parentElement).toHaveTextContent(
+      'P1001. Graph'
+    );
+    expect(screen.getByText('B').parentElement).toHaveTextContent(
+      'P1000. Binary Tree'
+    );
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Move P1000. Binary Tree up' })
+    );
+
+    expect(screen.getByText('A').parentElement).toHaveTextContent(
+      'P1000. Binary Tree'
+    );
+    expect(screen.getByText('B').parentElement).toHaveTextContent(
+      'P1001. Graph'
+    );
+  });
 });

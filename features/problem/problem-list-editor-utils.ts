@@ -12,6 +12,7 @@ export const parseProblemIdList = (value: string) => {
   for (const part of value.split(LIST_SEPARATOR)) {
     if (!/^\d+$/.test(part)) continue;
     const docId = Number(part);
+    if (!Number.isSafeInteger(docId)) continue;
     if (seen.has(docId)) continue;
     seen.add(docId);
     ids.push(docId);

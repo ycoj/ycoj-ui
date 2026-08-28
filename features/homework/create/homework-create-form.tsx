@@ -208,6 +208,7 @@ export default function HomeworkCreateForm({ defaultValues, domainId }: Props) {
               name="assign"
               render={({ field }) => (
                 <AssignSelectAutoComplete
+                  id="assign"
                   domainId={domainId}
                   value={field.value}
                   onValueChange={field.onChange}

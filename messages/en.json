@@ -83,6 +83,8 @@
     "pasteFailed": "Could not read the clipboard.",
     "pasteMissing": "Could not find: {ids}",
     "remove": "Remove {label}",
+    "moveUp": "Move {label} up",
+    "moveDown": "Move {label} down",
     "empty": "No problems yet. Search to add one."
   },
   "landing": {

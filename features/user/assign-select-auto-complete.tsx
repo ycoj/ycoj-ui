@@ -32,6 +32,7 @@ type Props = {
   ariaLabel?: string;
   disabled?: boolean;
   onBlur?: () => void;
+  id?: string;
 };
 
 type SearchState = {
@@ -74,6 +75,7 @@ export default function AssignSelectAutoComplete({
   ariaLabel,
   disabled,
   onBlur,
+  id,
 }: Props) {
   const t = useTranslations('autoComplete');
   const [selectedItems, setSelectedItems] = useState<AssignItem[]>([]);
@@ -297,7 +299,7 @@ export default function AssignSelectAutoComplete({
                 );
               })}
               <Combobox.Input
-                id="assign"
+                id={id}
                 placeholder={nextSelectedItems.length ? undefined : placeholder}
                 aria-label={ariaLabel ?? placeholder}
                 autoComplete="off"

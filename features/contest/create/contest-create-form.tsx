@@ -313,6 +313,7 @@ export default function ContestCreateForm({
               name="assign"
               render={({ field }) => (
                 <AssignSelectAutoComplete
+                  id="assign"
                   domainId={domainId}
                   value={field.value}
                   onValueChange={field.onChange}

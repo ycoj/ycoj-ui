@@ -22,6 +22,9 @@ describe('problem list editor utilities', () => {
       1000, 1001, 1002,
     ]);
     expect(parseProblemIdList('abc, 12a, ,')).toEqual([]);
+    expect(parseProblemIdList('1,9007199254740991,9007199254740993,2')).toEqual(
+      [1, 9007199254740991, 2]
+    );
   });
 
   it('appends incoming problems that are not already present', () => {

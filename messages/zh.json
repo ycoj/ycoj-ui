@@ -63,7 +63,7 @@
     "noResults": "没有匹配结果",
     "loadFailed": "无法加载建议",
     "clear": "清除选择",
-    "remove": "移除{name}",
+    "remove": "移除 {name}",
     "group": "用户组",
     "user": "用户",
     "groupUsers": "{count} 位用户",
@@ -83,6 +83,8 @@
     "pasteFailed": "无法读取剪贴板。",
     "pasteMissing": "未找到：{ids}",
     "remove": "移除 {label}",
+    "moveUp": "上移 {label}",
+    "moveDown": "下移 {label}",
     "empty": "还没有题目，请搜索添加。"
   },
   "landing": {
