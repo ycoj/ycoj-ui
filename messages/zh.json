@@ -392,7 +392,8 @@
       "hydro": "Hydro",
       "fps": "FPS",
       "hoj": "HOJ",
-      "qduoj": "QDUOJ"
+      "qduoj": "QDUOJ",
+      "lvj": "LVJ"
     },
     "showTags": "展示标签",
     "hideTags": "隐藏标签",
@@ -509,15 +510,22 @@
       "hydro": "Hydro 题目包",
       "fps": "FPS 文件",
       "hoj": "HOJ 导出包",
-      "qduoj": "QDUOJ 导出包"
+      "qduoj": "QDUOJ 导出包",
+      "lvj": "LVJ 题目"
     },
     "descriptions": {
       "hydro": "从 Hydro 题目包中恢复一道或多道题目。",
       "fps": "从 Free Problem Set XML 文件或 ZIP 压缩包导入题目。",
       "hoj": "导入由 HOJ 导出的题目包 ZIP 文件。",
-      "qduoj": "导入由 QDUOJ 或兼容 OnlineJudge 系统导出的题目包 ZIP 文件。"
+      "qduoj": "导入由 QDUOJ 或兼容 OnlineJudge 系统导出的题目包 ZIP 文件。",
+      "lvj": "从支持的远程 OJ 导入一道题目，请输入对应题号。"
     },
     "file": "题目包文件",
+    "oj": "远端 OJ",
+    "pid": "题号",
+    "pidPlaceholder": "请输入题号（数字或字母）",
+    "pidHelp": "请输入所选 OJ 使用的题号，例如 1712A 或 1001。",
+    "pidRequired": "请输入题号。",
     "fileRequired": "请选择题目包文件。",
     "fileHelp": {
       "hydro": "请选择 Hydro 导出的 .zip 题目包。",

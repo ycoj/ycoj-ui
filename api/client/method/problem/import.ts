@@ -1,6 +1,12 @@
 import { clientRequest } from '@/api/client';
 
-export const PROBLEM_IMPORT_FORMATS = ['hydro', 'fps', 'hoj', 'qduoj'] as const;
+export const PROBLEM_IMPORT_FORMATS = [
+  'hydro',
+  'fps',
+  'hoj',
+  'qduoj',
+  'lvj',
+] as const;
 
 export type ProblemImportFormat = (typeof PROBLEM_IMPORT_FORMATS)[number];
 
@@ -11,10 +17,22 @@ export type ImportProblemOptions = {
   keepUser?: boolean;
 };
 
+export type LvjImportOptions = {
+  oj: string;
+  pid: string;
+};
+
 export const importProblems = (
   format: ProblemImportFormat,
-  options: ImportProblemOptions
+  options: ImportProblemOptions | LvjImportOptions
 ) => {
+  if (format === 'lvj') {
+    return clientRequest.Post('/problem/import/zshfoj', options);
+  }
+
+  if (!('file' in options)) {
+    throw new Error('A problem-set file is required for this import format.');
+  }
   const formData = new FormData();
   formData.append('file', options.file);
 

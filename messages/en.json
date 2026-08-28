@@ -392,7 +392,8 @@
       "hydro": "Hydro",
       "fps": "FPS",
       "hoj": "HOJ",
-      "qduoj": "QDUOJ"
+      "qduoj": "QDUOJ",
+      "lvj": "LVJ"
     },
     "showTags": "Show tags",
     "hideTags": "Hide tags",
@@ -509,15 +510,22 @@
       "hydro": "Hydro archive",
       "fps": "FPS file",
       "hoj": "HOJ export",
-      "qduoj": "QDUOJ export"
+      "qduoj": "QDUOJ export",
+      "lvj": "LVJ problem"
     },
     "descriptions": {
       "hydro": "Restore one or more problems from a Hydro problem-set archive.",
       "fps": "Import problems from a Free Problem Set XML file or ZIP archive.",
       "hoj": "Import a problem-set ZIP archive exported by HOJ.",
-      "qduoj": "Import a problem-set ZIP archive exported by QDUOJ or compatible OnlineJudge systems."
+      "qduoj": "Import a problem-set ZIP archive exported by QDUOJ or compatible OnlineJudge systems.",
+      "lvj": "Import a problem from a supported remote online judge using its problem ID."
     },
     "file": "Problem-set file",
+    "oj": "Remote OJ",
+    "pid": "Problem ID",
+    "pidPlaceholder": "Enter the problem ID",
+    "pidHelp": "The ID used by the selected online judge, such as 1712A or 1001.",
+    "pidRequired": "Enter a problem ID.",
     "fileRequired": "Choose a problem-set file.",
     "fileHelp": {
       "hydro": "Choose a .zip archive exported by Hydro.",

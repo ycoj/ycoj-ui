@@ -25,7 +25,9 @@ type Props = {
 };
 
 type FormValues = {
-  file: FileList;
+  file?: FileList;
+  oj: string;
+  pid: string;
   preferredPrefix: string;
   hidden: boolean;
   keepUser: boolean;
@@ -36,7 +38,21 @@ const acceptByFormat: Record<ProblemImportFormat, string> = {
   fps: '.xml,.zip,application/xml,text/xml,application/zip',
   hoj: '.zip,application/zip',
   qduoj: '.zip,application/zip',
+  lvj: '',
 };
+
+const lvjOjs = [
+  ['CF', 'Codeforces'],
+  ['LG', '洛谷'],
+  ['LGB', '洛谷入门'],
+  ['HDU', 'HDU'],
+  ['LOOJ', 'LOJ'],
+  ['POJ', 'POJ'],
+  ['UOJ', 'UOJ'],
+  ['UVA', 'UVA'],
+  ['YBT', 'YBT'],
+  ['YBTBAS', 'YBT启蒙'],
+] as const;
 
 export default function ProblemImportForm({ format, canKeepUser }: Props) {
   const t = useTranslations('problemImport');
@@ -49,6 +65,8 @@ export default function ProblemImportForm({ format, canKeepUser }: Props) {
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     defaultValues: {
+      oj: 'CF',
+      pid: '',
       preferredPrefix: '',
       hidden: false,
       keepUser: false,
@@ -56,19 +74,33 @@ export default function ProblemImportForm({ format, canKeepUser }: Props) {
   });
 
   const onSubmit = async (values: FormValues) => {
-    const file = values.file?.[0];
-    if (!file) {
-      setError('file', { type: 'required', message: t('fileRequired') });
-      return;
+    if (format === 'lvj') {
+      if (!values.pid.trim()) {
+        setError('pid', { type: 'required', message: t('pidRequired') });
+        return;
+      }
+    } else {
+      const file = values.file?.[0];
+      if (!file) {
+        setError('file', { type: 'required', message: t('fileRequired') });
+        return;
+      }
     }
 
     try {
-      await ClientApis.Problem.importProblems(format, {
-        file,
-        preferredPrefix: values.preferredPrefix.trim() || undefined,
-        hidden: values.hidden,
-        keepUser: canKeepUser && values.keepUser,
-      }).send();
+      if (format === 'lvj') {
+        await ClientApis.Problem.importProblems(format, {
+          oj: values.oj,
+          pid: values.pid.trim(),
+        }).send();
+      } else {
+        await ClientApis.Problem.importProblems(format, {
+          file: values.file![0],
+          preferredPrefix: values.preferredPrefix.trim() || undefined,
+          hidden: values.hidden,
+          keepUser: canKeepUser && values.keepUser,
+        }).send();
+      }
       router.push('/problem');
       router.refresh();
     } catch (error) {
@@ -102,21 +134,57 @@ export default function ProblemImportForm({ format, canKeepUser }: Props) {
           noValidate
           className="space-y-5"
         >
-          <Field>
-            <FieldLabel htmlFor="file">{t('file')}</FieldLabel>
-            <FieldContent>
-              <Input
-                id="file"
-                type="file"
-                accept={acceptByFormat[format]}
-                disabled={isSubmitting}
-                aria-invalid={!!errors.file}
-                {...register('file', { required: t('fileRequired') })}
-              />
-              <FieldDescription>{t(`fileHelp.${format}`)}</FieldDescription>
-              <FieldError errors={[errors.file]} />
-            </FieldContent>
-          </Field>
+          {format === 'lvj' ? (
+            <>
+              <Field>
+                <FieldLabel htmlFor="oj">{t('oj')}</FieldLabel>
+                <FieldContent>
+                  <select
+                    id="oj"
+                    className="border-input bg-background ring-offset-background focus-visible:ring-ring h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
+                    disabled={isSubmitting}
+                    {...register('oj')}
+                  >
+                    {lvjOjs.map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label} ({value})
+                      </option>
+                    ))}
+                  </select>
+                </FieldContent>
+              </Field>
+              <Field>
+                <FieldLabel htmlFor="pid">{t('pid')}</FieldLabel>
+                <FieldContent>
+                  <Input
+                    id="pid"
+                    placeholder={t('pidPlaceholder')}
+                    disabled={isSubmitting}
+                    aria-invalid={!!errors.pid}
+                    {...register('pid')}
+                  />
+                  <FieldDescription>{t('pidHelp')}</FieldDescription>
+                  <FieldError errors={[errors.pid]} />
+                </FieldContent>
+              </Field>
+            </>
+          ) : (
+            <Field>
+              <FieldLabel htmlFor="file">{t('file')}</FieldLabel>
+              <FieldContent>
+                <Input
+                  id="file"
+                  type="file"
+                  accept={acceptByFormat[format]}
+                  disabled={isSubmitting}
+                  aria-invalid={!!errors.file}
+                  {...register('file', { required: t('fileRequired') })}
+                />
+                <FieldDescription>{t(`fileHelp.${format}`)}</FieldDescription>
+                <FieldError errors={[errors.file]} />
+              </FieldContent>
+            </Field>
+          )}
 
           {format === 'hydro' && (
             <Field>
