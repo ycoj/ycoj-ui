@@ -33,7 +33,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/components/ui/select';
-import { Separator } from '@/shared/components/ui/separator';
 import { cn } from '@/shared/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import dayjs from 'dayjs';
@@ -247,16 +246,38 @@ export default function ContestCreateForm({
         </Field>
       </div>
 
-      <Separator />
-
       <div
         className={cn(
           'grid gap-4',
           permission === 'public'
-            ? 'md:grid-cols-[12rem_minmax(0,1fr)]'
-            : 'md:grid-cols-[12rem_minmax(0,1fr)_minmax(0,1fr)]'
+            ? 'md:grid-cols-[24rem_12rem]'
+            : 'md:grid-cols-[24rem_12rem_minmax(0,1fr)]'
         )}
       >
+        <Field className="min-w-0">
+          <FieldLabel htmlFor="maintainer">{t('maintainer')}</FieldLabel>
+          <FieldContent>
+            <Controller
+              control={control}
+              name="maintainer"
+              render={({ field }) => (
+                <UserAutoComplete
+                  multiple
+                  id="maintainer"
+                  domainId={domainId}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  onBlur={field.onBlur}
+                  placeholder={t('maintainerPlaceholder')}
+                  ariaLabel={t('maintainer')}
+                  disabled={isSubmitting}
+                />
+              )}
+            />
+            <FieldDescription>{t('maintainerHelp')}</FieldDescription>
+            <FieldError errors={[errors.maintainer]} />
+          </FieldContent>
+        </Field>
         <Field>
           <FieldLabel htmlFor="permission">{t('permission')}</FieldLabel>
           <FieldContent>
@@ -282,30 +303,6 @@ export default function ContestCreateForm({
                 </Select>
               )}
             />
-          </FieldContent>
-        </Field>
-        <Field className="min-w-0">
-          <FieldLabel htmlFor="maintainer">{t('maintainer')}</FieldLabel>
-          <FieldContent>
-            <Controller
-              control={control}
-              name="maintainer"
-              render={({ field }) => (
-                <UserAutoComplete
-                  multiple
-                  id="maintainer"
-                  domainId={domainId}
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  onBlur={field.onBlur}
-                  placeholder={t('maintainerPlaceholder')}
-                  ariaLabel={t('maintainer')}
-                  disabled={isSubmitting}
-                />
-              )}
-            />
-            <FieldDescription>{t('maintainerHelp')}</FieldDescription>
-            <FieldError errors={[errors.maintainer]} />
           </FieldContent>
         </Field>
         {permission === 'assign' && (
@@ -340,8 +337,6 @@ export default function ContestCreateForm({
           </Field>
         )}
       </div>
-
-      <Separator />
 
       <div className="space-y-4">
         <div

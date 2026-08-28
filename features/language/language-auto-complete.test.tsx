@@ -92,6 +92,12 @@ describe('LanguageAutoComplete', () => {
         .getAllByRole('button', { name: /^Remove / })
         .map((button) => button.getAttribute('aria-label'))
     ).toEqual(['Remove C++ - C++17', 'Remove Python - Python 3']);
+    expect(screen.getByRole('option', { name: /C\+\+ - C\+\+17/ })).toHaveClass(
+      'data-selected:bg-muted'
+    );
+    expect(
+      screen.getByRole('option', { name: /Python - Python 3/ })
+    ).toHaveClass('data-selected:bg-muted');
 
     fireEvent.click(screen.getByRole('button', { name: 'Remove C++ - C++17' }));
     expect(screen.getByTestId('value')).toHaveTextContent('["python.py3"]');

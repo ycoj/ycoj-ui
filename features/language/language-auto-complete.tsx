@@ -217,7 +217,7 @@ export default function LanguageAutoComplete({
                   key={item.id}
                   value={item}
                   index={index}
-                  className="data-highlighted:bg-accent data-highlighted:text-accent-foreground data-selected:bg-accent/60 flex cursor-default items-center gap-2.5 rounded-md px-2 py-2 text-sm outline-none select-none"
+                  className="data-highlighted:bg-accent data-highlighted:text-accent-foreground data-selected:bg-muted data-highlighted:data-selected:bg-muted flex cursor-default items-center gap-2.5 rounded-md px-2 py-2 text-sm outline-none select-none"
                 >
                   <div className="min-w-0 flex-1">
                     <div
