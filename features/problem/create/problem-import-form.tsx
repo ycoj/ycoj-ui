@@ -13,6 +13,13 @@ import {
 } from '@/shared/components/ui/field';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/components/ui/select';
 import { ArrowLeft, FileArchive, Upload } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
@@ -45,6 +52,7 @@ const lvjOjs = [
   ['CF', 'Codeforces'],
   ['LG', '洛谷'],
   ['LGB', '洛谷入门'],
+  ['BZOJ', 'BZOJ'],
   ['HDU', 'HDU'],
   ['LOOJ', 'LOJ'],
   ['POJ', 'POJ'],
@@ -53,6 +61,8 @@ const lvjOjs = [
   ['YBT', 'YBT'],
   ['YBTBAS', 'YBT启蒙'],
 ] as const;
+
+const evaluatableLvjOjs = new Set(['LG', 'BZOJ', 'YBT']);
 
 export default function ProblemImportForm({ format, canKeepUser }: Props) {
   const t = useTranslations('problemImport');
@@ -135,22 +145,34 @@ export default function ProblemImportForm({ format, canKeepUser }: Props) {
           className="space-y-5"
         >
           {format === 'lvj' ? (
-            <>
+            <div className="grid gap-4 sm:grid-cols-3">
               <Field>
                 <FieldLabel htmlFor="oj">{t('oj')}</FieldLabel>
                 <FieldContent>
-                  <select
-                    id="oj"
-                    className="border-input bg-background ring-offset-background focus-visible:ring-ring h-10 w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none"
-                    disabled={isSubmitting}
-                    {...register('oj')}
-                  >
-                    {lvjOjs.map(([value, label]) => (
-                      <option key={value} value={value}>
-                        {label} ({value})
-                      </option>
-                    ))}
-                  </select>
+                  <Controller
+                    control={control}
+                    name="oj"
+                    render={({ field }) => (
+                      <Select
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        disabled={isSubmitting}
+                      >
+                        <SelectTrigger id="oj" className="w-full">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {lvjOjs.map(([value, label]) => (
+                            <SelectItem key={value} value={value}>
+                              {label} ({value})
+                              {!evaluatableLvjOjs.has(value) &&
+                                ` - ${t('statementOnly')}`}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
                 </FieldContent>
               </Field>
               <Field>
@@ -167,7 +189,7 @@ export default function ProblemImportForm({ format, canKeepUser }: Props) {
                   <FieldError errors={[errors.pid]} />
                 </FieldContent>
               </Field>
-            </>
+            </div>
           ) : (
             <Field>
               <FieldLabel htmlFor="file">{t('file')}</FieldLabel>

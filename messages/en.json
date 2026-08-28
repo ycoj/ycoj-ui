@@ -522,6 +522,7 @@
     },
     "file": "Problem-set file",
     "oj": "Remote OJ",
+    "statementOnly": "Statement only; cannot be judged",
     "pid": "Problem ID",
     "pidPlaceholder": "Enter the problem ID",
     "pidHelp": "The ID used by the selected online judge, such as 1712A or 1001.",
@@ -546,7 +547,8 @@
       "hydro": "Hydro archives preserve statements, test data, additional files, and problem configuration.",
       "fps": "FPS is an XML exchange format supported by many online judge systems.",
       "hoj": "The HOJ importer reads the problem metadata, examples, test cases, special judge, and extra files from its export archive.",
-      "qduoj": "The QDUOJ importer reads problem.json, test cases, scores, and supported special judge settings."
+      "qduoj": "The QDUOJ importer reads problem.json, test cases, scores, and supported special judge settings.",
+      "lvj": "Import a problem from a supported remote online judge using its problem ID."
     },
     "fpsMemoryWarning": "Large FPS XML files can use significant memory while being parsed. Split unusually large packages before importing.",
     "importNotice": "Importing may take a while. Do not close this page until the upload completes.",
