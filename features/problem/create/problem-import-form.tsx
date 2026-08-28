@@ -62,7 +62,7 @@ const lvjOjs = [
   ['YBTBAS', 'YBT启蒙'],
 ] as const;
 
-const evaluatableLvjOjs = new Set(['LG', 'BZOJ', 'YBT']);
+const judgableLvjOjs = new Set(['LG', 'LGB', 'BZOJ', 'YBT', 'YBTBAS']);
 
 export default function ProblemImportForm({ format, canKeepUser }: Props) {
   const t = useTranslations('problemImport');
@@ -165,7 +165,7 @@ export default function ProblemImportForm({ format, canKeepUser }: Props) {
                           {lvjOjs.map(([value, label]) => (
                             <SelectItem key={value} value={value}>
                               {label} ({value})
-                              {!evaluatableLvjOjs.has(value) &&
+                              {!judgableLvjOjs.has(value) &&
                                 ` - ${t('statementOnly')}`}
                             </SelectItem>
                           ))}
