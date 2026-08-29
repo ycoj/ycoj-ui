@@ -29,6 +29,7 @@ export type RpInfo = {
 };
 
 export type User = BaseUser & {
+  unreadMsg?: number;
   badge?: string;
   /** Serialized BigInt (e.g. "BigInt::123") */
   perm: string;

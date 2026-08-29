@@ -6,8 +6,16 @@ import {
 } from './shared';
 import UserAvatar from '@/features/user/user-avatar';
 import { Badge } from '@/shared/components/ui/badge';
-import { AtSign, BarChart3, Calendar, Clock3 } from 'lucide-react';
+import { Button } from '@/shared/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/shared/components/ui/tooltip';
+import { AtSign, BarChart3, Calendar, Clock3, Send } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 
 export default function HeaderSection({ data }: UserProfileProps) {
   const t = useTranslations('user');
@@ -45,6 +53,21 @@ export default function HeaderSection({ data }: UserProfileProps) {
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button asChild variant="ghost" size="icon-sm">
+                      <Link
+                        href={`/home/messages?target=${data.udoc._id}`}
+                        aria-label={t('sendMessage')}
+                      >
+                        <Send aria-hidden="true" />
+                      </Link>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>{t('sendMessage')}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
               {data.isSelfProfile && (
                 <Badge variant="secondary" data-llm-text={t('myProfile')}>
                   {t('myProfile')}

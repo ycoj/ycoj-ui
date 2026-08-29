@@ -17,6 +17,7 @@ import {
   Languages,
   LoaderCircle,
   LogOut,
+  MessagesSquare,
   Moon,
   Sun,
   UserRound,
@@ -127,6 +128,12 @@ export default function SidebarUserMenu({ user, roleKey, avatarSrc }: Props) {
             <Link href={`/user/${user._id}`}>
               <UserRound aria-hidden="true" />
               <span data-llm-text={t('profile')}>{t('profile')}</span>
+            </Link>
+          </DropdownMenuPrimitive.Item>
+          <DropdownMenuPrimitive.Item asChild className={menuItemClassName}>
+            <Link href="/home/messages">
+              <MessagesSquare aria-hidden="true" />
+              <span data-llm-text={t('messages')}>{t('messages')}</span>
             </Link>
           </DropdownMenuPrimitive.Item>
           <DropdownMenuPrimitive.Sub>
