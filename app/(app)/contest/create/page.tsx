@@ -1,6 +1,6 @@
 import ServerApis from '@/api/server/method';
 import ContestCreateForm from '@/features/contest/create/contest-create-form';
-import { getContestCreateDefaults } from '@/features/contest/create/contest-create-utils';
+import { getContestCreateDefaults } from '@/features/contest/form/contest-form-utils';
 import { getUser } from '@/features/user/lib/get-user';
 import { hasPerm, PERM } from '@/features/user/lib/priv';
 import type { Metadata } from 'next';

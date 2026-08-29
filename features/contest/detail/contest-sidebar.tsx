@@ -18,6 +18,7 @@ import dayjs from 'dayjs';
 import {
   Award,
   MessageCircle,
+  Pencil,
   PlusSquare,
   Check,
   type LucideIcon,
@@ -33,6 +34,7 @@ type Props = {
   contestStatus?: ContestDetailStatus | null;
   owner?: BaseUser;
   showScoreboard: boolean;
+  canEdit: boolean;
 };
 
 type SidebarButtonProps = {
@@ -62,6 +64,7 @@ export default function ContestSidebar({
   contestStatus,
   owner,
   showScoreboard,
+  canEdit,
 }: Props) {
   const t = useTranslations('contest');
   const common = useTranslations('common');
@@ -145,6 +148,13 @@ export default function ContestSidebar({
           icon={MessageCircle}
           text={common('discussion')}
         />
+        {canEdit && (
+          <SidebarButton
+            href={`/contest/${tid}/edit`}
+            icon={Pencil}
+            text={common('edit')}
+          />
+        )}
       </div>
 
       <Separator />

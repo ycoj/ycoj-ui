@@ -1,6 +1,6 @@
 import ServerApis from '@/api/server/method';
 import HomeworkCreateForm from '@/features/homework/create/homework-create-form';
-import { getHomeworkCreateDefaults } from '@/features/homework/create/homework-create-utils';
+import { getHomeworkCreateDefaults } from '@/features/homework/form/homework-form-utils';
 import { getUser } from '@/features/user/lib/get-user';
 import { hasPerm, PERM } from '@/features/user/lib/priv';
 import type { Metadata } from 'next';

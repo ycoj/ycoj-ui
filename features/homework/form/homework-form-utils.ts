@@ -1,5 +1,6 @@
 import type { CreateHomeworkRequest } from '@/api/client/method/homework/create';
 import type { ProblemAutoCompleteItem } from '@/api/client/method/problem/auto-complete';
+import type { HomeworkEditData } from '@/api/server/method/homework/edit';
 import { serializeProblemIds } from '@/features/problem/problem-list-editor-utils';
 import dayjs, { type Dayjs } from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
@@ -18,7 +19,7 @@ export const DEFAULT_PENALTY_RULES = `# Format:
 12: 0.75
 9999: 0.5`;
 
-export type HomeworkCreateFormValues = {
+export type HomeworkFormValues = {
   title: string;
   beginAtDate: string;
   beginAtTime: string;
@@ -36,7 +37,7 @@ export type HomeworkCreateFormValues = {
 export function getHomeworkCreateDefaults(
   timeZone?: string,
   now: Dayjs = dayjs()
-): HomeworkCreateFormValues {
+): HomeworkFormValues {
   const beginAt = now
     .add(1, 'day')
     .tz(timeZone || DEFAULT_TIME_ZONE)
@@ -68,7 +69,7 @@ export function isPenaltyRuleMapping(value: string) {
 }
 
 export function buildCreateHomeworkPayload(
-  values: HomeworkCreateFormValues
+  values: HomeworkFormValues
 ): CreateHomeworkRequest {
   return {
     operation: 'update',
@@ -85,6 +86,53 @@ export function buildCreateHomeworkPayload(
     maintainer: values.maintainer.map(Number),
     assign: values.assign,
     langs: values.langs,
+  };
+}
+
+export function padDate(value: string): string {
+  const [year, month, day] = value.split('-');
+  if (!year || !month || !day) return value;
+  return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+}
+
+export function padTime(value: string): string {
+  const [hour, minute] = value.split(':');
+  if (!hour || !minute) return value;
+  return `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`;
+}
+
+type HomeworkEditSource = Pick<
+  HomeworkEditData,
+  | 'tdoc'
+  | 'dateBeginText'
+  | 'timeBeginText'
+  | 'datePenaltyText'
+  | 'timePenaltyText'
+  | 'extensionDays'
+  | 'penaltyRules'
+>;
+
+export function mapHomeworkEditToFormValues(
+  data: HomeworkEditSource,
+  pids: ProblemAutoCompleteItem[]
+): HomeworkFormValues {
+  const tdoc = data.tdoc;
+
+  return {
+    title: tdoc.title,
+    beginAtDate: padDate(data.dateBeginText),
+    beginAtTime: padTime(data.timeBeginText),
+    penaltySinceDate: padDate(data.datePenaltyText),
+    penaltySinceTime: padTime(data.timePenaltyText),
+    extensionDays: String(data.extensionDays),
+    assign: tdoc.assign ?? [],
+    maintainer: (tdoc.maintainer ?? []).map(String),
+    penaltyRules: data.penaltyRules?.trim()
+      ? data.penaltyRules
+      : DEFAULT_PENALTY_RULES,
+    pids,
+    content: tdoc.content ?? '',
+    langs: tdoc.langs ?? [],
   };
 }
 
