@@ -99,7 +99,11 @@ export default function ProblemStatus({ status, progress }: Props) {
     (statusCategory !== 'progress' && statusCategory !== 'pending')
   ) {
     return (
-      <Badge style={{ backgroundColor: color }} asChild>
+      <Badge
+        className="dark:text-white"
+        style={{ backgroundColor: color }}
+        asChild
+      >
         <Link href={href} data-llm-visible="true">
           {content}
         </Link>
@@ -118,7 +122,7 @@ export default function ProblemStatus({ status, progress }: Props) {
         {content}
         <span
           aria-hidden
-          className="absolute inset-0 inline-flex items-center justify-center gap-1 px-2 py-0.5 text-xs font-medium whitespace-nowrap text-primary-foreground transition-[clip-path] [&>svg]:size-3!"
+          className="absolute inset-0 inline-flex items-center justify-center gap-1 px-2 py-0.5 text-xs font-medium whitespace-nowrap text-primary-foreground transition-[clip-path] dark:text-white [&>svg]:size-3!"
           style={{
             backgroundColor: color,
             clipPath: `inset(0 ${100 - progressPercent}% 0 0)`,

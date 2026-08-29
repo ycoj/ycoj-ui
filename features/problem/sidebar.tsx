@@ -126,7 +126,11 @@ export default function ProblemSidebar({
       <div className="space-y-1">
         {scratchpadSlot}
         {allowSubmit && (
-          <Button asChild className="h-10 w-full justify-start gap-3 px-4">
+          <Button
+            asChild
+            variant="ghost"
+            className="h-10 w-full justify-start gap-3 px-4"
+          >
             <Link
               href={withTid(
                 `/problem/${problem.pid ?? problem.docId}/submit`,

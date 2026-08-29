@@ -2,6 +2,7 @@
 
 import { useScratchpad } from '@/features/problem/scratchpad/scratchpad-provider';
 import { Button } from '@/shared/components/ui/button';
+import { Kbd } from '@/shared/components/ui/kbd';
 import { Maximize2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
@@ -17,7 +18,9 @@ export default function ScratchpadOpenButton() {
     >
       <Maximize2 strokeWidth={2} />
       <span data-llm-text={t('open')}>{t('open')}</span>
-      <kbd className="ml-auto text-xs opacity-70">Alt+E</kbd>
+      <Kbd className="ml-auto bg-primary-foreground/15 text-primary-foreground dark:text-white">
+        Alt+E
+      </Kbd>
     </Button>
   );
 }

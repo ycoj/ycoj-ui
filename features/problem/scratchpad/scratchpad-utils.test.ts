@@ -28,6 +28,12 @@ describe('scratchpad utilities', () => {
     );
   });
 
+  it('uses C++ 14 as the default language for a new scratchpad', () => {
+    expect(resolveScratchpadLanguage(languages, undefined, 'py.py3')).toBe(
+      'cc.cc14o2'
+    );
+  });
+
   it('falls back to the preferred language family and then the first option', () => {
     expect(resolveScratchpadLanguage(languages, 'missing', 'cc.old')).toBe(
       'cc.cc14o2'

@@ -6,6 +6,8 @@ import type {
 import { PRETEST_CONTEST_ID } from '@/features/problem/scratchpad/scratchpad-types';
 import { formatTestcaseMessage } from '@/features/record/detail/format-testcase-message';
 
+const DEFAULT_SCRATCHPAD_LANGUAGE = 'cc.cc14o2';
+
 export function flattenScratchpadLanguages(
   languages: ScratchpadLanguages
 ): ScratchpadLanguageOption[] {
@@ -45,6 +47,9 @@ export function resolveScratchpadLanguage(
 
   const stored = exact(storedLanguage);
   if (stored) return stored;
+
+  const defaultLanguage = exact(DEFAULT_SCRATCHPAD_LANGUAGE);
+  if (defaultLanguage) return defaultLanguage;
 
   const preferred = exact(preferredLanguage);
   if (preferred) return preferred;

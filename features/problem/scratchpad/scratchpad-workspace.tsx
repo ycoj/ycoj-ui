@@ -27,6 +27,7 @@ import {
 import CodeEditor from '@/shared/components/code/code-editor';
 import parseErrorMessage from '@/shared/components/errored/parse-message';
 import { Button } from '@/shared/components/ui/button';
+import { Kbd } from '@/shared/components/ui/kbd';
 import {
   Select,
   SelectContent,
@@ -585,7 +586,9 @@ export default function ScratchpadWorkspace({
               {posting === 'pretest' ? t('running') : t('run')}
             </span>
             {pretestCooldown > 0 && <span>({pretestCooldown}s)</span>}
-            <kbd className="hidden text-xs opacity-60 lg:inline">F9</kbd>
+            <Kbd className="hidden self-center bg-muted text-foreground lg:inline-flex">
+              F9
+            </Kbd>
           </Button>
         )}
 
@@ -600,7 +603,9 @@ export default function ScratchpadWorkspace({
             {posting === 'submit' ? t('submitting') : t('submit')}
           </span>
           {submitCooldown > 0 && <span>({submitCooldown}s)</span>}
-          <kbd className="hidden text-xs opacity-60 lg:inline">F10</kbd>
+          <Kbd className="hidden self-center bg-primary-foreground/15 text-inherit lg:inline-flex">
+            F10
+          </Kbd>
         </Button>
 
         <Select
@@ -658,7 +663,9 @@ export default function ScratchpadWorkspace({
         >
           <LogOut />
           <span className="hidden sm:inline">{t('exit')}</span>
-          <kbd className="hidden text-xs opacity-60 lg:inline">Alt+Q</kbd>
+          <Kbd className="hidden self-center bg-muted text-foreground lg:inline-flex">
+            Alt+Q
+          </Kbd>
         </Button>
       </header>
 

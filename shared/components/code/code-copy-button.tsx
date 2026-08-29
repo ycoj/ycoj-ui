@@ -8,7 +8,7 @@ import { Check, Copy } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 
 const codeCopyButtonVariants = cva(
-  'not-prose absolute z-10 h-auto cursor-pointer gap-1.5 px-3 py-1.5 leading-none',
+  'not-prose absolute z-10 h-auto gap-1.5 px-3 py-1.5 leading-none',
   {
     variants: {
       variant: {
