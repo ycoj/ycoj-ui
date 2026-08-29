@@ -1,3 +1,5 @@
+'server-only';
+
 import '@/shared/components/code/style/both.css';
 import MarkdownCodeBlock from '@/shared/components/markdown/components/markdown-code-block';
 import MarkdownPdf from '@/shared/components/markdown/components/markdown-pdf';

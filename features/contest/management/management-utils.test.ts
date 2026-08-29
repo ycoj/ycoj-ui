@@ -1,7 +1,9 @@
 import {
+  buildBulkSubmitZipTree,
   canRemoveContestUser,
   canResumeContestUser,
   getClarificationSubject,
+  getObjectIdDate,
   normalizeBulkResult,
   normalizeZipMode,
   serializeBalloonConfig,
@@ -43,6 +45,12 @@ describe('contest management helpers', () => {
       title: '#100',
     });
   });
+  it('extracts dates from object ids', () => {
+    expect(getObjectIdDate('677485800000000000000000')?.toISOString()).toBe(
+      '2025-01-01T00:00:00.000Z'
+    );
+    expect(getObjectIdDate('invalid')).toBeNull();
+  });
   it('serializes balloon YAML payloads', () => {
     expect(
       serializeBalloonConfig({ 1: { color: '#fff', name: 'One' } })
@@ -54,5 +62,21 @@ describe('contest management helpers', () => {
     expect(
       normalizeBulkResult({ submitted: [{ pid: 1 } as never] }).submitted
     ).toHaveLength(1);
+  });
+  it('builds zip layout examples', () => {
+    const nested = buildBulkSubmitZipTree('nested', [1], { 1: 'A' });
+    expect(nested.children?.[0].children?.[0]).toMatchObject({
+      name: 'A',
+      type: 'folder',
+    });
+    expect(nested.children?.[0].children?.[0].children?.[0]).toMatchObject({
+      name: 'A.cpp',
+      type: 'file',
+    });
+    const flat = buildBulkSubmitZipTree('flat', [1], { 1: 'A' });
+    expect(flat.children?.[0].children?.[0]).toMatchObject({
+      name: 'A.cpp',
+      type: 'file',
+    });
   });
 });

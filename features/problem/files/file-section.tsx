@@ -11,26 +11,34 @@ import { Download, FilePlus2, FileUp, Pencil, Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRef, useState } from 'react';
 
-type Props = {
-  type: ProblemFileType;
+type Props<TType extends string> = {
+  type: TType;
+  title?: string;
   files: FileInfo[];
   canManage: boolean;
   canDownload?: boolean;
+  canCreate?: boolean;
+  canRename?: boolean;
+  canEdit?: boolean;
   uploading: boolean;
   deleting: boolean;
-  onCreate: (type: ProblemFileType) => void;
-  onUpload: (type: ProblemFileType, files: File[]) => Promise<void>;
-  onRename: (type: ProblemFileType, file: FileInfo) => void;
-  onEdit: (type: ProblemFileType, file: FileInfo) => void;
-  onDelete: (type: ProblemFileType, names: string[]) => void;
-  onDownload: (type: ProblemFileType, names: string[]) => void;
+  onCreate?: (type: TType) => void;
+  onUpload: (type: TType, files: File[]) => Promise<void>;
+  onRename?: (type: TType, file: FileInfo) => void;
+  onEdit?: (type: TType, file: FileInfo) => void;
+  onDelete: (type: TType, names: string[]) => void;
+  onDownload: (type: TType, names: string[]) => void;
 };
 
-export default function FileSection({
+export default function FileSection<TType extends string = ProblemFileType>({
   type,
+  title: titleProp,
   files,
   canManage,
   canDownload = true,
+  canCreate = canManage,
+  canRename = canManage,
+  canEdit = canManage,
   uploading,
   deleting,
   onCreate,
@@ -39,11 +47,12 @@ export default function FileSection({
   onEdit,
   onDelete,
   onDownload,
-}: Props) {
+}: Props<TType>) {
   const t = useTranslations('problem.fileManager');
   const inputRef = useRef<HTMLInputElement>(null);
   const [selected, setSelected] = useState<string[]>([]);
-  const title = type === 'testdata' ? t('testdata') : t('additionalFiles');
+  const title =
+    titleProp ?? (type === 'testdata' ? t('testdata') : t('additionalFiles'));
 
   const toggle = (name: string, checked: boolean) => {
     setSelected((current) =>
@@ -70,12 +79,16 @@ export default function FileSection({
           {title}
         </h2>
         <div className="flex flex-wrap gap-2">
-          {canManage && (
+          {canCreate && onCreate && (
             <>
               <Button type="button" size="sm" onClick={() => onCreate(type)}>
                 <FilePlus2 />
                 <span data-llm-text={t('createFile')}>{t('createFile')}</span>
               </Button>
+            </>
+          )}
+          {canManage && (
+            <>
               <Button
                 type="button"
                 size="sm"
@@ -119,7 +132,8 @@ export default function FileSection({
           <ul>
             {files.map((file) => {
               const checked = selected.includes(file.name);
-              const editable = canManage && isEditableFile(file.name);
+              const editable =
+                canEdit && Boolean(onEdit) && isEditableFile(file.name);
               return (
                 <li
                   key={file.name}
@@ -138,7 +152,7 @@ export default function FileSection({
                       className="min-w-0 cursor-pointer truncate text-left font-mono hover:text-primary hover:underline"
                       title={t('editFile')}
                       data-llm-text={file.name}
-                      onClick={() => onEdit(type, file)}
+                      onClick={() => onEdit?.(type, file)}
                     >
                       {file.name}
                     </button>
@@ -167,30 +181,34 @@ export default function FileSection({
                         <Download />
                       </Button>
                     )}
-                    {canManage && (
+                    {(canRename || canManage) && (
                       <>
-                        <Button
-                          type="button"
-                          size="icon-xs"
-                          variant="ghost"
-                          title={t('rename')}
-                          aria-label={t('rename')}
-                          onClick={() => onRename(type, file)}
-                        >
-                          <Pencil />
-                        </Button>
-                        <Button
-                          type="button"
-                          size="icon-xs"
-                          variant="ghost"
-                          className="text-destructive hover:text-destructive"
-                          title={t('delete')}
-                          aria-label={t('delete')}
-                          disabled={deleting}
-                          onClick={() => onDelete(type, [file.name])}
-                        >
-                          <Trash2 />
-                        </Button>
+                        {canRename && onRename && (
+                          <Button
+                            type="button"
+                            size="icon-xs"
+                            variant="ghost"
+                            title={t('rename')}
+                            aria-label={t('rename')}
+                            onClick={() => onRename(type, file)}
+                          >
+                            <Pencil />
+                          </Button>
+                        )}
+                        {canManage && (
+                          <Button
+                            type="button"
+                            size="icon-xs"
+                            variant="ghost"
+                            className="text-destructive hover:text-destructive"
+                            title={t('delete')}
+                            aria-label={t('delete')}
+                            disabled={deleting}
+                            onClick={() => onDelete(type, [file.name])}
+                          >
+                            <Trash2 />
+                          </Button>
+                        )}
                       </>
                     )}
                   </div>

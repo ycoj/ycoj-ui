@@ -24,7 +24,7 @@ export default async function Page({ params }: { params: Promise<Params> }) {
       mode="user"
       tid={tid}
       data={data}
-      owner={undefined}
+      owner={data.udict[data.tdoc.owner]}
     />
   );
 }

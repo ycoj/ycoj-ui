@@ -1,6 +1,7 @@
 import { canEditContest } from '@/features/contest/lib/can-edit-contest';
 import ContestManagementPage from '@/features/contest/management/contest-management-page';
 import { getContestClarifications } from '@/features/contest/management/get-contest-management';
+import { renderClarificationDocs } from '@/features/contest/management/render-clarifications';
 import { getUser } from '@/features/user/lib/get-user';
 import { Errored } from '@/shared/components/errored';
 import type { Metadata } from 'next';
@@ -27,6 +28,7 @@ export default async function Page({ params }: { params: Promise<Params> }) {
       mode="clarification"
       tid={tid}
       data={data}
+      renderedDocs={renderClarificationDocs(data)}
       owner={data.owner_udoc}
     />
   );
