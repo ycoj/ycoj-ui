@@ -22,8 +22,7 @@ export const CONTEST_PERMISSIONS = ['public', 'invite', 'assign'] as const;
 
 export type ContestCreateRule = (typeof CONTEST_CREATE_RULES)[number];
 export type ContestPermission = (typeof CONTEST_PERMISSIONS)[number];
-
-export type ContestCreateFormValues = {
+export type ContestFormValues = {
   rule: ContestCreateRule;
   title: string;
   beginAtDate: string;
@@ -57,7 +56,7 @@ export const contestRuleSupportsHiddenScoreboard = (rule: ContestCreateRule) =>
 export function getContestCreateDefaults(
   timeZone?: string,
   now: Dayjs = dayjs()
-): ContestCreateFormValues {
+): ContestFormValues {
   const nextQuarterTimestamp =
     Math.floor(now.valueOf() / (15 * 60 * 1000)) * (15 * 60 * 1000) +
     15 * 60 * 1000;
@@ -87,7 +86,7 @@ export function getContestCreateDefaults(
 }
 
 export function buildCreateContestPayload(
-  values: ContestCreateFormValues
+  values: ContestFormValues
 ): CreateContestRequest {
   return {
     operation: 'update',
@@ -118,5 +117,86 @@ export function buildCreateContestPayload(
       contestRuleSupportsHiddenScoreboard(values.rule) &&
       values.keepScoreboardHidden,
     langs: values.langs,
+  };
+}
+
+export function formatHours(value: number): string {
+  const rounded = Math.round(value * 100) / 100;
+  return String(rounded);
+}
+
+export function contestPermissionFromTdoc(tdoc: {
+  assign?: string[];
+  _code?: string;
+}): ContestPermission {
+  if (tdoc.assign?.length) return 'assign';
+  if (tdoc._code) return 'invite';
+  return 'public';
+}
+
+export function isContestCreateRule(rule: string): rule is ContestCreateRule {
+  return (CONTEST_CREATE_RULES as readonly string[]).includes(rule);
+}
+
+type ContestEditSource = {
+  tdoc: {
+    title: string;
+    content?: string;
+    rule: string;
+    beginAt: Date;
+    endAt: Date;
+    maintainer?: number[];
+    assign?: string[];
+    _code?: string;
+    langs?: string[];
+    rated?: boolean;
+    autoHide?: boolean;
+    allowViewCode?: boolean;
+    allowPrint?: boolean;
+    keepScoreboardHidden?: boolean;
+    lockAt?: Date;
+    duration?: number;
+  };
+  duration: number;
+};
+
+export function mapContestEditToFormValues(
+  data: ContestEditSource,
+  pids: ProblemAutoCompleteItem[],
+  timeZone?: string
+): ContestFormValues {
+  const tdoc = data.tdoc;
+  const rule = isContestCreateRule(tdoc.rule) ? tdoc.rule : 'acm';
+  const beginAt = dayjs(tdoc.beginAt).tz(timeZone || DEFAULT_TIME_ZONE);
+  const lockAt = tdoc.lockAt ? dayjs(tdoc.lockAt) : null;
+  const endAt = dayjs(tdoc.endAt);
+  const lockMinutes =
+    lockAt?.isValid() && endAt.isValid()
+      ? endAt.diff(lockAt, 'minute', true)
+      : 0;
+
+  return {
+    rule,
+    title: tdoc.title,
+    beginAtDate: beginAt.format('YYYY-MM-DD'),
+    beginAtTime: beginAt.format('HH:mm'),
+    duration: formatHours(data.duration),
+    pids,
+    content: tdoc.content ?? '',
+    maintainer: (tdoc.maintainer ?? []).map(String),
+    permission: contestPermissionFromTdoc(tdoc),
+    assign: tdoc.assign ?? [],
+    code: tdoc._code ?? '',
+    langs: tdoc.langs ?? [],
+    rated: Boolean(tdoc.rated),
+    autoHide: Boolean(tdoc.autoHide),
+    allowViewCode: Boolean(tdoc.allowViewCode),
+    allowPrint: Boolean(tdoc.allowPrint),
+    keepScoreboardHidden: Boolean(tdoc.keepScoreboardHidden),
+    lock: lockMinutes > 0 ? String(Math.round(lockMinutes)) : '',
+    contestDuration:
+      typeof tdoc.duration === 'number' && tdoc.duration > 0
+        ? formatHours(tdoc.duration)
+        : '',
   };
 }

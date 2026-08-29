@@ -19,6 +19,7 @@ import dayjs from 'dayjs';
 import {
   Award,
   MessageCircle,
+  Pencil,
   PlusSquare,
   Check,
   type LucideIcon,
@@ -33,6 +34,7 @@ type Props = {
   homework: HomeworkDetailTdoc;
   homeworkStatus?: HomeworkStatus | null;
   owner?: BaseUser;
+  canEdit: boolean;
 };
 
 type SidebarButtonProps = {
@@ -61,6 +63,7 @@ export default function HomeworkSidebar({
   homework,
   homeworkStatus,
   owner,
+  canEdit,
 }: Props) {
   const t = useTranslations('homework');
   const contestT = useTranslations('contest');
@@ -143,6 +146,13 @@ export default function HomeworkSidebar({
           icon={MessageCircle}
           text={common('discussion')}
         />
+        {canEdit && (
+          <SidebarButton
+            href={`/homework/${tid}/edit`}
+            icon={Pencil}
+            text={common('edit')}
+          />
+        )}
       </div>
 
       <Separator />

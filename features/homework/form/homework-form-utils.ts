@@ -18,7 +18,7 @@ export const DEFAULT_PENALTY_RULES = `# Format:
 12: 0.75
 9999: 0.5`;
 
-export type HomeworkCreateFormValues = {
+export type HomeworkFormValues = {
   title: string;
   beginAtDate: string;
   beginAtTime: string;
@@ -36,7 +36,7 @@ export type HomeworkCreateFormValues = {
 export function getHomeworkCreateDefaults(
   timeZone?: string,
   now: Dayjs = dayjs()
-): HomeworkCreateFormValues {
+): HomeworkFormValues {
   const beginAt = now
     .add(1, 'day')
     .tz(timeZone || DEFAULT_TIME_ZONE)
@@ -68,7 +68,7 @@ export function isPenaltyRuleMapping(value: string) {
 }
 
 export function buildCreateHomeworkPayload(
-  values: HomeworkCreateFormValues
+  values: HomeworkFormValues
 ): CreateHomeworkRequest {
   return {
     operation: 'update',
@@ -85,6 +85,58 @@ export function buildCreateHomeworkPayload(
     maintainer: values.maintainer.map(Number),
     assign: values.assign,
     langs: values.langs,
+  };
+}
+
+export function padDate(value: string): string {
+  const [year, month, day] = value.split('-');
+  if (!year || !month || !day) return value;
+  return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+}
+
+export function padTime(value: string): string {
+  const [hour, minute] = value.split(':');
+  if (!hour || !minute) return value;
+  return `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`;
+}
+
+type HomeworkEditSource = {
+  tdoc: {
+    title: string;
+    content?: string;
+    maintainer?: number[];
+    assign?: string[];
+    langs?: string[];
+  };
+  dateBeginText: string;
+  timeBeginText: string;
+  datePenaltyText: string;
+  timePenaltyText: string;
+  extensionDays: number;
+  penaltyRules: string | null;
+};
+
+export function mapHomeworkEditToFormValues(
+  data: HomeworkEditSource,
+  pids: ProblemAutoCompleteItem[]
+): HomeworkFormValues {
+  const tdoc = data.tdoc;
+
+  return {
+    title: tdoc.title,
+    beginAtDate: padDate(data.dateBeginText),
+    beginAtTime: padTime(data.timeBeginText),
+    penaltySinceDate: padDate(data.datePenaltyText),
+    penaltySinceTime: padTime(data.timePenaltyText),
+    extensionDays: String(data.extensionDays),
+    assign: tdoc.assign ?? [],
+    maintainer: (tdoc.maintainer ?? []).map(String),
+    penaltyRules: data.penaltyRules?.trim()
+      ? data.penaltyRules
+      : DEFAULT_PENALTY_RULES,
+    pids,
+    content: tdoc.content ?? '',
+    langs: tdoc.langs ?? [],
   };
 }
 

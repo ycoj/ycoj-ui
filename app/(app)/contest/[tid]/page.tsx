@@ -4,6 +4,7 @@ import ContestContent from '@/features/contest/detail/contest-content';
 import ContestSidebar from '@/features/contest/detail/contest-sidebar';
 import { canShowContestScoreboard } from '@/features/contest/detail/contest-utils';
 import { getContestDetail } from '@/features/contest/detail/get-contest-detail';
+import { canEditContest } from '@/features/contest/lib/can-edit-contest';
 import { getUser } from '@/features/user/lib/get-user';
 import TwoColumnLayout from '@/shared/layout/two-column';
 import type { Metadata } from 'next';
@@ -57,6 +58,7 @@ export default async function ContestDetailPage({
             contestStatus={data.tsdoc}
             owner={owner}
             showScoreboard={showScoreboard}
+            canEdit={canEditContest(user, data.tdoc)}
           />
         }
       />

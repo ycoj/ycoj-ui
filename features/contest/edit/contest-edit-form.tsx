@@ -9,27 +9,30 @@ import {
 import { useTranslations } from 'next-intl';
 
 type Props = {
+  tid: string;
   defaultValues: ContestFormValues;
   canAutoHide: boolean;
   domainId: string;
 };
 
-export default function ContestCreateForm({
+export default function ContestEditForm({
+  tid,
   defaultValues,
   canAutoHide,
   domainId,
 }: Props) {
-  const t = useTranslations('contestCreate');
+  const t = useTranslations('contestEdit');
 
   return (
     <ContestForm
-      mode="create"
+      mode="edit"
       defaultValues={defaultValues}
       canAutoHide={canAutoHide}
       domainId={domainId}
-      cancelHref="/contest"
+      cancelHref={`/contest/${tid}`}
       onSubmit={async (values) => {
-        const response = await ClientApis.Contest.createContest(
+        const response = await ClientApis.Contest.editContest(
+          tid,
           buildCreateContestPayload(values)
         ).send();
         if (!response?.tid) throw new Error(t('submitFailed'));
