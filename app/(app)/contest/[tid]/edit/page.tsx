@@ -1,7 +1,10 @@
 import ServerApis from '@/api/server/method';
 import ContestEditForm from '@/features/contest/edit/contest-edit-form';
 import { getContestEdit } from '@/features/contest/edit/get-contest-edit';
-import { mapContestEditToFormValues } from '@/features/contest/form/contest-form-utils';
+import {
+  mapContestEditToFormValues,
+  resolveContestAutoHide,
+} from '@/features/contest/form/contest-form-utils';
 import { canEditContest } from '@/features/contest/lib/can-edit-contest';
 import { resolveProblemListItems } from '@/features/problem/resolve-problem-list-items';
 import { getUser } from '@/features/user/lib/get-user';
@@ -44,11 +47,15 @@ export default async function ContestEditPage({
 
   const pids = await resolveProblemListItems(data.pids);
   const canAutoHide = hasPerm(user, PERM.PERM_EDIT_PROBLEM);
+  const mapped = mapContestEditToFormValues(data, pids, user.timeZone);
 
   return (
     <ContestEditForm
       tid={tid}
-      defaultValues={mapContestEditToFormValues(data, pids, user.timeZone)}
+      defaultValues={{
+        ...mapped,
+        autoHide: resolveContestAutoHide(canAutoHide, mapped.autoHide),
+      }}
       canAutoHide={canAutoHide}
       domainId={homepage.domain._id}
     />

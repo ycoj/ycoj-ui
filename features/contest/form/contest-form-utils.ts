@@ -127,10 +127,9 @@ export function formatHours(value: number): string {
 
 export function resolveContestAutoHide(
   canAutoHide: boolean,
-  submitted: boolean,
-  existing: boolean
+  submitted: boolean
 ): boolean {
-  return canAutoHide ? submitted : existing;
+  return canAutoHide && submitted;
 }
 
 export function contestPermissionFromTdoc(tdoc: {

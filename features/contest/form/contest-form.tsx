@@ -142,11 +142,7 @@ export default function ContestForm({
     try {
       const path = await onSubmit({
         ...values,
-        autoHide: resolveContestAutoHide(
-          canAutoHide,
-          values.autoHide,
-          defaultValues.autoHide
-        ),
+        autoHide: resolveContestAutoHide(canAutoHide, values.autoHide),
       });
       router.push(path);
       router.refresh();
@@ -376,6 +372,7 @@ export default function ContestForm({
             description={t(
               canAutoHide ? 'autoHideHelp' : 'autoHideUnavailable'
             )}
+            checked={canAutoHide ? undefined : false}
             disabled={isSubmitting || !canAutoHide}
           />
           <BooleanField
@@ -587,6 +584,7 @@ type BooleanFieldProps = {
   id: string;
   label: string;
   description: string;
+  checked?: boolean;
   disabled?: boolean;
 };
 
@@ -596,6 +594,7 @@ function BooleanField({
   id,
   label,
   description,
+  checked,
   disabled,
 }: BooleanFieldProps) {
   return (
@@ -606,7 +605,7 @@ function BooleanField({
         <div className="flex min-w-0 items-start gap-2">
           <Checkbox
             id={id}
-            checked={field.value}
+            checked={checked ?? field.value}
             onCheckedChange={(value) => field.onChange(value === true)}
             disabled={disabled}
             className="mt-0.5"

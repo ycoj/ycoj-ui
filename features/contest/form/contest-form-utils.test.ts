@@ -132,11 +132,11 @@ describe('contest form utilities', () => {
     expect(formatHours(1.999)).toBe('2');
   });
 
-  it('keeps the stored auto-hide flag when the editor cannot change it', () => {
-    expect(resolveContestAutoHide(true, true, false)).toBe(true);
-    expect(resolveContestAutoHide(true, false, true)).toBe(false);
-    expect(resolveContestAutoHide(false, false, true)).toBe(true);
-    expect(resolveContestAutoHide(false, true, false)).toBe(false);
+  it('turns auto-hide off when the editor cannot hide problems', () => {
+    expect(resolveContestAutoHide(true, true)).toBe(true);
+    expect(resolveContestAutoHide(true, false)).toBe(false);
+    expect(resolveContestAutoHide(false, true)).toBe(false);
+    expect(resolveContestAutoHide(false, false)).toBe(false);
   });
 
   it('derives participation access from assign and invitation code', () => {
