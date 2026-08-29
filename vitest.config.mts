@@ -5,6 +5,9 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   plugins: [react(), codspeedPlugin()],
   resolve: {
+    alias: {
+      'server-only': 'next/dist/compiled/server-only/empty.js',
+    },
     tsconfigPaths: true,
   },
   test: {
