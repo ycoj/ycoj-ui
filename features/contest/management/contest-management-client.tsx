@@ -4,17 +4,19 @@ import {
   serializeBalloonConfig,
   validateContestScore,
   canRemoveContestUser,
+  canResumeContestUser,
   getClarificationSubject,
   normalizeBulkResult,
   normalizeZipMode,
 } from './management-utils';
 import ClientApis from '@/api/client/method';
 import type { ContestBulkSubmitResult } from '@/api/client/method/contest/bulk-submit';
+import type { ContestBulkSubmitResponse } from '@/api/server/method/contests/bulk-submit';
 import type {
-  ContestManagementResponse,
-  ContestUserStatus,
-  ContestBalloon,
+  ContestBalloonsResponse,
   ContestClarificationResponse,
+  ContestManagementResponse,
+  ContestUsersResponse,
 } from '@/api/server/method/contests/management';
 import UserAutoComplete from '@/features/user/user-auto-complete';
 import Markdown from '@/shared/components/markdown';
@@ -38,37 +40,21 @@ import {
   TableRow,
 } from '@/shared/components/ui/table';
 import { Textarea } from '@/shared/components/ui/textarea';
-import type { BaseUserDict } from '@/shared/types/user';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-type Props = {
-  mode: 'management' | 'user' | 'clarification' | 'balloon' | 'bulk-submit';
-  tid: string;
-  data:
-    | ContestManagementResponse
-    | ContestClarificationResponse
-    | {
-        tdoc: ContestManagementResponse['tdoc'];
-        tsdocs: ContestUserStatus[];
-        udict: BaseUserDict;
-      }
-    | {
-        tdoc: ContestManagementResponse['tdoc'];
-        bdocs: ContestBalloon[];
-        pdict: ContestManagementResponse['pdict'];
-        udict: BaseUserDict;
-      }
-    | {
-        tdoc: ContestManagementResponse['tdoc'];
-        langRange: Record<string, string>;
-        defaultLang: string;
-        mappingDefaults: Record<number, string>;
-        pdict: ContestManagementResponse['pdict'];
-      };
-};
+export type ContestManagementClientProps =
+  | { mode: 'management'; tid: string; data: ContestManagementResponse }
+  | { mode: 'user'; tid: string; data: ContestUsersResponse }
+  | {
+      mode: 'clarification';
+      tid: string;
+      data: ContestClarificationResponse;
+    }
+  | { mode: 'balloon'; tid: string; data: ContestBalloonsResponse }
+  | { mode: 'bulk-submit'; tid: string; data: ContestBulkSubmitResponse };
 
 function FileList({
   tid,
@@ -157,7 +143,7 @@ function FileList({
               />
               <a
                 className="flex-1 underline"
-                href={`/file/${encodeURIComponent(file._id)}`}
+                href={`/api/contest/${encodeURIComponent(tid)}/file/${type}/${encodeURIComponent(file.name)}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -228,7 +214,8 @@ function Management({
                 <TableCell>
                   <Input
                     type="number"
-                    min={0.01}
+                    min={1}
+                    step={1}
                     value={scores[pid]}
                     onChange={(e) =>
                       setScores((s) => ({ ...s, [pid]: e.target.value }))
@@ -266,23 +253,35 @@ function Management({
   );
 }
 
-function Users({
-  tid,
-  data,
-}: {
-  tid: string;
-  data: Extract<Props['data'], { tsdocs: ContestUserStatus[] }>;
-}) {
+function Users({ tid, data }: { tid: string; data: ContestUsersResponse }) {
   const t = useTranslations('contestManagement');
   const router = useRouter();
   const [uids, setUids] = useState<string[]>([]);
   const [unrank, setUnrank] = useState(false);
   const [busy, setBusy] = useState<number | null>(null);
   const [now] = useState(() => Date.now());
+  const nowRef = useRef(now);
+  useEffect(() => {
+    const updateNow = () => {
+      nowRef.current = Date.now();
+    };
+    const timer = window.setInterval(updateNow, 1000);
+    return () => window.clearInterval(timer);
+  }, []);
   const act = async (
     uid: number,
     operation: 'rank' | 'resume' | 'remove_user'
   ) => {
+    if (
+      operation === 'resume' &&
+      !canResumeContestUser(
+        data.tsdocs.find((status) => status.uid === uid) ?? {},
+        nowRef.current,
+        data.tdoc.endAt
+      )
+    ) {
+      return;
+    }
     if (!window.confirm(t('confirmAction'))) return;
     setBusy(uid);
     try {
@@ -349,7 +348,10 @@ function Users({
         <TableBody>
           {data.tsdocs.map((s) => {
             const u = data.udict[s.uid];
-            const ended = Boolean(s.endAt && new Date(s.endAt).getTime() < now);
+            const userEnded = Boolean(
+              s.endAt && new Date(s.endAt).getTime() < now
+            );
+            const canResume = canResumeContestUser(s, now, data.tdoc.endAt);
             return (
               <TableRow key={s.uid}>
                 <TableCell>{s.uid}</TableCell>
@@ -368,7 +370,7 @@ function Users({
                   )}
                 </TableCell>
                 <TableCell className="flex gap-1">
-                  {!ended && (
+                  {!userEnded && (
                     <Button
                       size="sm"
                       variant="outline"
@@ -378,7 +380,7 @@ function Users({
                       {t('toggleRank')}
                     </Button>
                   )}
-                  {ended && (
+                  {canResume && (
                     <Button
                       size="sm"
                       variant="outline"
@@ -504,7 +506,7 @@ function Balloons({
   data,
 }: {
   tid: string;
-  data: Extract<Props['data'], { bdocs: ContestBalloon[] }>;
+  data: ContestBalloonsResponse;
 }) {
   const t = useTranslations('contestManagement');
   const router = useRouter();
@@ -623,7 +625,7 @@ function BulkSubmit({
   data,
 }: {
   tid: string;
-  data: Extract<Props['data'], { langRange: Record<string, string> }>;
+  data: ContestBulkSubmitResponse;
 }) {
   const t = useTranslations('contestManagement');
   const [file, setFile] = useState<File | null>(null);
@@ -774,33 +776,19 @@ function BulkSubmit({
   );
 }
 
-export default function ContestManagementClient({ mode, tid, data }: Props) {
-  if (mode === 'management')
-    return <Management tid={tid} data={data as ContestManagementResponse} />;
-  if (mode === 'user')
-    return (
-      <Users
-        tid={tid}
-        data={data as Extract<Props['data'], { tsdocs: ContestUserStatus[] }>}
-      />
-    );
-  if (mode === 'clarification')
-    return (
-      <Clarifications tid={tid} data={data as ContestClarificationResponse} />
-    );
-  if (mode === 'balloon')
-    return (
-      <Balloons
-        tid={tid}
-        data={data as Extract<Props['data'], { bdocs: ContestBalloon[] }>}
-      />
-    );
-  return (
-    <BulkSubmit
-      tid={tid}
-      data={
-        data as Extract<Props['data'], { langRange: Record<string, string> }>
-      }
-    />
-  );
+export default function ContestManagementClient(
+  props: ContestManagementClientProps
+) {
+  switch (props.mode) {
+    case 'management':
+      return <Management tid={props.tid} data={props.data} />;
+    case 'user':
+      return <Users tid={props.tid} data={props.data} />;
+    case 'clarification':
+      return <Clarifications tid={props.tid} data={props.data} />;
+    case 'balloon':
+      return <Balloons tid={props.tid} data={props.data} />;
+    case 'bulk-submit':
+      return <BulkSubmit tid={props.tid} data={props.data} />;
+  }
 }

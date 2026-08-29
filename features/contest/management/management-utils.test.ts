@@ -13,12 +13,22 @@ describe('contest management helpers', () => {
   it('validates positive scores', () => {
     expect(validateContestScore(1)).toBe(true);
     expect(validateContestScore(0)).toBe(false);
+    expect(validateContestScore(1.5)).toBe(false);
     expect(validateContestScore(Number.NaN)).toBe(false);
   });
   it('checks attendee action eligibility', () => {
     const now = Date.parse('2025-01-01T00:00:00Z');
     expect(canResumeContestUser({ endAt: new Date(now - 1) }, now)).toBe(true);
     expect(canResumeContestUser({ endAt: new Date(now + 1) }, now)).toBe(false);
+    expect(
+      canResumeContestUser({ endAt: new Date(now - 1) }, now, new Date(now - 1))
+    ).toBe(false);
+    expect(
+      canResumeContestUser({ endAt: new Date(now - 1) }, now, new Date(now))
+    ).toBe(false);
+    expect(
+      canResumeContestUser({ endAt: new Date(now - 1) }, now, new Date(now + 1))
+    ).toBe(true);
     expect(canRemoveContestUser(new Date(now + 1), now)).toBe(true);
   });
   it('renders clarification subjects', () => {
