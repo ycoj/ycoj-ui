@@ -2,12 +2,7 @@
 
 import CodeRenderer from '@/shared/components/code/code-renderer';
 import { Button } from '@/shared/components/ui/button';
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardHeader,
-} from '@/shared/components/ui/card';
+import { Card, CardContent } from '@/shared/components/ui/card';
 import { getSyntaxLanguage } from '@/shared/lib/code-language';
 import type { RecordDoc } from '@/shared/types/record';
 import { Check, Copy } from 'lucide-react';
@@ -36,21 +31,18 @@ export default function RecordCode({ rdoc }: Props) {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardAction>
-          <Button
-            variant="ghost"
-            size="sm"
-            type="button"
-            className="cursor-pointer"
-            onClick={() => void onCopy()}
-          >
-            {copied ? <Check /> : <Copy />}
-            {copied ? t('copied') : t('copy')}
-          </Button>
-        </CardAction>
-      </CardHeader>
+    <Card className="relative">
+      <Button
+        variant="ghost"
+        type="button"
+        className="bg-card border-border absolute top-0 right-0 z-10 h-auto cursor-pointer gap-1.5 rounded-none rounded-tr-xl rounded-bl-md border-t-0 border-r-0 border-b border-l px-3 py-1.5 leading-none"
+        onClick={() => void onCopy()}
+      >
+        {copied ? <Check /> : <Copy />}
+        <span className="inline-flex h-3.5 items-center leading-none">
+          {copied ? t('copied') : t('copy')}
+        </span>
+      </Button>
       <CardContent className="text-base">
         <CodeRenderer code={code} language={getSyntaxLanguage(rdoc.lang)} />
       </CardContent>
