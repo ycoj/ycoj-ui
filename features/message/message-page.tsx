@@ -315,7 +315,7 @@ export default function MessagePage({
                 disabled={sending}
                 placeholder={t('composePlaceholder')}
                 aria-label={t('composePlaceholder')}
-                className="min-h-0 flex-1 resize-none border-0 bg-transparent p-0 shadow-none focus-visible:border-0 focus-visible:ring-0"
+                className="min-h-0 flex-1 resize-none rounded-none border-0 bg-transparent p-0 shadow-none focus-visible:border-0 focus-visible:ring-0 disabled:bg-transparent disabled:opacity-100 dark:disabled:bg-transparent"
               />
               <div className="mt-2 flex items-center justify-between gap-2">
                 <p
