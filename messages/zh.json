@@ -2,6 +2,7 @@
   "common": {
     "profile": "个人主页",
     "language": "语言",
+    "darkMode": "深色模式",
     "chinese": "中文",
     "english": "English",
     "poweredBy": "由 {name} 提供支持",

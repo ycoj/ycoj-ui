@@ -1,9 +1,9 @@
 import { getUser } from '@/features/user/lib/get-user';
 import SiteFooter from '@/shared/components/site-footer';
+import ThemeLogo from '@/shared/components/theme-logo';
 import { Button } from '@/shared/components/ui/button';
 import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
-import Image from 'next/image';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 
@@ -27,12 +27,10 @@ export default async function IndexPage() {
         id="landing-container"
       >
         <header className="flex items-center justify-between -ml-4">
-          <Image
-            src="/nav-logo-small_light.png"
+          <ThemeLogo
             alt={t('misc.logoAlt', { siteName })}
             width={290}
             height={87}
-            priority
             sizes="160px"
             className="h-auto w-[140px] sm:w-[160px]"
           />

@@ -1,6 +1,7 @@
 import { SidebarUser } from './sidebar-user';
 import { type NavItem } from '@/api/server/method/ui/nav';
 import { getNavInfos } from '@/features/user/lib/get-user';
+import ThemeLogo from '@/shared/components/theme-logo';
 import {
   Sidebar,
   SidebarContent,
@@ -29,7 +30,6 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
-import Image from 'next/image';
 import Link from 'next/link';
 
 const NAV_ROUTE_MAP: Record<string, string> = {
@@ -94,10 +94,9 @@ export default async function AppSidebar() {
     <Sidebar variant="inset" id="sidebar">
       <SidebarHeader className="mt-1">
         <div className="flex items-center justify-between">
-          <Image
+          <ThemeLogo
             width={290}
             height={87}
-            src="/nav-logo-small_light.png"
             alt={misc('logoAlt', { siteName })}
             className="h-auto w-[100px]"
           />

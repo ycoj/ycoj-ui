@@ -179,14 +179,17 @@ export default function CheckinHeatmap({ history }: Props) {
                         onFocus={() => setFocusedCellIndex(index)}
                         onKeyDown={(event) => handleCellKeyDown(event, index)}
                         className={cn(
-                          'size-6 rounded-[3px] border border-black/5 transition-shadow hover:ring-2 hover:ring-inset hover:ring-ring/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring',
+                          'size-6 rounded-[3px] border border-black/5 transition-shadow hover:ring-2 hover:ring-inset hover:ring-ring/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring dark:border-white/10',
                           cell.record
                             ? CHECKIN_FORTUNE_STYLES[cell.record.fortune].cell
-                            : 'bg-muted dark:bg-muted/70'
+                            : 'bg-muted'
                         )}
                       />
                     </TooltipTrigger>
-                    <TooltipContent className="p-3" sideOffset={6}>
+                    <TooltipContent
+                      className="bg-popover text-popover-foreground p-3 shadow-md [&_svg]:bg-popover [&_svg]:fill-popover"
+                      sideOffset={6}
+                    >
                       <DayDetails date={cell.date} record={cell.record} />
                     </TooltipContent>
                   </Tooltip>
@@ -201,7 +204,7 @@ export default function CheckinHeatmap({ history }: Props) {
           aria-label={t('legend')}
         >
           <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-            <span className="size-3 rounded-[3px] border bg-muted" />
+            <span className="size-3 rounded-[3px] border border-black/5 bg-muted dark:border-white/10" />
             {t('noRecord')}
           </span>
           {CHECKIN_FORTUNES.map((fortune) => (
@@ -211,7 +214,7 @@ export default function CheckinHeatmap({ history }: Props) {
             >
               <span
                 className={cn(
-                  'size-3 rounded-[3px] border border-black/5',
+                  'size-3 rounded-[3px] border border-black/5 dark:border-white/10',
                   CHECKIN_FORTUNE_STYLES[fortune].cell
                 )}
               />

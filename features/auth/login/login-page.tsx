@@ -2,6 +2,7 @@
 
 import ClientApis from '@/api/client/method';
 import SiteFooter from '@/shared/components/site-footer';
+import ThemeLogo from '@/shared/components/theme-logo';
 import { Button } from '@/shared/components/ui/button';
 import {
   Card,
@@ -20,7 +21,6 @@ import {
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import { useTranslations } from 'next-intl';
-import Image from 'next/image';
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -110,12 +110,10 @@ export function LoginPage() {
       className="flex items-start justify-center overflow-y-auto px-4 pt-10 pb-[calc(env(safe-area-inset-bottom)+2.5rem)] sm:items-center sm:py-0"
     >
       <div className="flex w-full max-w-md flex-col items-center gap-6">
-        <Image
-          src="/nav-logo-small_light.png"
+        <ThemeLogo
           alt={t('misc.logoAlt', { siteName })}
           width={290}
           height={87}
-          priority
           sizes="160px"
           className="h-auto w-[160px]"
         />

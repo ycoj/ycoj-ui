@@ -8,6 +8,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const editorProps = vi.hoisted(() => ({
   current: null as EditorProps | null,
 }));
+const theme = vi.hoisted(() => ({
+  resolvedTheme: 'light',
+}));
+
+vi.mock('next-themes', () => ({
+  useTheme: () => theme,
+}));
 
 vi.mock('md-editor-rt', () => ({
   MdEditor: (props: EditorProps) => {
@@ -43,6 +50,7 @@ function renderEditor(
 describe('MarkdownEditor', () => {
   beforeEach(() => {
     editorProps.current = null;
+    theme.resolvedTheme = 'light';
   });
 
   it('configures md-editor-rt with the initial value and expected features', () => {
@@ -51,11 +59,20 @@ describe('MarkdownEditor', () => {
     expect(editorProps.current).toMatchObject({
       value: '# Initial',
       language: 'en-US',
+      theme: 'light',
       preview: true,
       noUploadImg: true,
       toolbarsExclude: ['save', 'github'],
       style: { height: '40vh', minHeight: '20rem' },
     });
+  });
+
+  it('uses the dark editor theme when the application theme is dark', () => {
+    theme.resolvedTheme = 'dark';
+
+    renderEditor();
+
+    expect(editorProps.current?.theme).toBe('dark');
   });
 
   it('maps non-English locales to the built-in Chinese language', () => {

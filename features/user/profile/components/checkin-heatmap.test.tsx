@@ -32,9 +32,11 @@ describe('CheckinHeatmap', () => {
     });
 
     expect(screen.getAllByRole('gridcell')).toHaveLength(365);
-    expect(
-      screen.getByRole('gridcell', { name: '2026-08-01: not checked in' })
-    ).toBeInTheDocument();
+    const emptyCell = screen.getByRole('gridcell', {
+      name: '2026-08-01: not checked in',
+    });
+    expect(emptyCell).toBeInTheDocument();
+    expect(emptyCell).toHaveClass('bg-muted');
     expect(
       screen.queryByText('No check-in records in the past year')
     ).not.toBeInTheDocument();
@@ -79,6 +81,41 @@ describe('CheckinHeatmap', () => {
         name: '2026-08-01: Great Misfortune. Quote: Quote 4',
       })
     ).toBeInTheDocument();
+  });
+
+  it('shows day details in a theme-aware tooltip', async () => {
+    renderHeatmap({
+      timezone: 'UTC+08:00',
+      from: '2026-08-01',
+      to: '2026-08-01',
+      total: 1,
+      records: [
+        {
+          date: '2026-08-01',
+          fortune: 'ji',
+          hitokoto: {
+            id: 1,
+            uuid: 'quote-1',
+            text: 'A lake formed behind the dam.',
+            type: 'a',
+            from: 'A Poem',
+            fromWho: 'Author',
+          },
+        },
+      ],
+    });
+
+    screen
+      .getByRole('gridcell', {
+        name: '2026-08-01: Fortune. Quote: A lake formed behind the dam.',
+      })
+      .focus();
+
+    const quote = await screen.findByText('A lake formed behind the dam.');
+    expect(quote.closest('[data-slot="tooltip-content"]')).toHaveClass(
+      'bg-popover',
+      'text-popover-foreground'
+    );
   });
 
   it('uses roving tabindex and moves focus with arrow keys', () => {

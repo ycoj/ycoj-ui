@@ -2,6 +2,7 @@
   "common": {
     "profile": "Profile",
     "language": "Language",
+    "darkMode": "Dark mode",
     "chinese": "中文",
     "english": "English",
     "poweredBy": "Powered by {name}",

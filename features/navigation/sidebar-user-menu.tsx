@@ -17,13 +17,16 @@ import {
   Languages,
   LoaderCircle,
   LogOut,
+  Moon,
+  Sun,
   UserRound,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
+import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { DropdownMenu as DropdownMenuPrimitive } from 'radix-ui';
-import { useState } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 
 export type SidebarRoleKey = 'user' | 'superAdmin' | 'coach';
 
@@ -45,12 +48,23 @@ const menuContentClassName =
 const menuItemClassName =
   'focus:bg-accent focus:text-accent-foreground relative flex cursor-default items-center gap-2 rounded-md px-2 py-1.5 text-sm outline-hidden select-none data-disabled:pointer-events-none data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0';
 
+const subscribeToHydration = () => () => {};
+const getClientHydrationSnapshot = () => true;
+const getServerHydrationSnapshot = () => false;
+
 export default function SidebarUserMenu({ user, roleKey, avatarSrc }: Props) {
   const locale = useLocale() as Locale;
   const t = useTranslations('common');
+  const { resolvedTheme, setTheme } = useTheme();
   const router = useRouter();
   const roleLabel = t(roleMessageKeys[roleKey]);
+  const mounted = useSyncExternalStore(
+    subscribeToHydration,
+    getClientHydrationSnapshot,
+    getServerHydrationSnapshot
+  );
   const [loggingOut, setLoggingOut] = useState(false);
+  const isDark = mounted && resolvedTheme === 'dark';
 
   const changeLocale = (value: string) => {
     if (!locales.includes(value as Locale)) return;
@@ -136,6 +150,29 @@ export default function SidebarUserMenu({ user, roleKey, avatarSrc }: Props) {
               </DropdownMenuPrimitive.SubContent>
             </DropdownMenuPrimitive.Portal>
           </DropdownMenuPrimitive.Sub>
+          <DropdownMenuPrimitive.CheckboxItem
+            checked={isDark}
+            disabled={!mounted}
+            className={menuItemClassName}
+            onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+          >
+            {isDark ? <Moon aria-hidden="true" /> : <Sun aria-hidden="true" />}
+            <span data-llm-text={t('darkMode')}>{t('darkMode')}</span>
+            <span
+              className={cn(
+                'bg-input pointer-events-none ml-auto flex h-5 w-9 shrink-0 items-center rounded-full p-0.5 transition-colors',
+                isDark && 'bg-primary'
+              )}
+              aria-hidden="true"
+            >
+              <span
+                className={cn(
+                  'bg-background block size-4 rounded-full shadow-sm transition-transform',
+                  isDark && 'translate-x-4'
+                )}
+              />
+            </span>
+          </DropdownMenuPrimitive.CheckboxItem>
           <DropdownMenuPrimitive.Separator className="bg-foreground/10 -mx-1 my-1 h-px" />
           <DropdownMenuPrimitive.Item
             className={menuItemClassName}
