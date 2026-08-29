@@ -1,18 +1,38 @@
+'use client';
+
 import '@/shared/components/code/style/both.css';
 import { highlightCodeToHtml } from '@/shared/lib/code-highlighter';
+import {
+  isSelectAllHotkey,
+  selectElementContents,
+} from '@/shared/lib/confine-select-all';
+import type { KeyboardEvent } from 'react';
 
 type Props = {
   code: string;
   language: string;
 };
 
+function handleCodeKeyDown(event: KeyboardEvent<HTMLPreElement>) {
+  if (!isSelectAllHotkey(event)) return;
+  event.preventDefault();
+  selectElementContents(event.currentTarget);
+}
+
 /**
- * **注意：这个组件使用 dangerouslySetInnerHTML，确保代码是可信的再使用**
+ * Renders highlighted source with dangerouslySetInnerHTML. Only pass trusted code.
  *
- * @param code 要渲染的代码
- * @param language 代码的语言，会被转换为 starry-night 的 scope
+ * @param code Source to render
+ * @param language Language id, mapped to a starry-night scope
  */
 export default function CodeRenderer({ code, language }: Props) {
   const html = highlightCodeToHtml(code, language);
-  return <pre dangerouslySetInnerHTML={{ __html: html }}></pre>;
+  return (
+    <pre
+      tabIndex={0}
+      className="outline-none"
+      onKeyDown={handleCodeKeyDown}
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  );
 }

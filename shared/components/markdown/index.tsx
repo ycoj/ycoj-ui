@@ -1,4 +1,5 @@
 import '@/shared/components/code/style/both.css';
+import MarkdownCodeBlock from '@/shared/components/markdown/components/markdown-code-block';
 import MarkdownPdf from '@/shared/components/markdown/components/markdown-pdf';
 import MarkdownUserSpan from '@/shared/components/markdown/components/markdown-user-span';
 import ProblemSample from '@/shared/components/markdown/components/problem-sample';
@@ -95,6 +96,7 @@ export default function Markdown({
           'pdf-embed': MarkdownPdf,
           samples: ProblemSample,
           'user-span': MarkdownUserSpan,
+          pre: MarkdownCodeBlock,
           ...components,
         }}
       >

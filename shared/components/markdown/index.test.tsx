@@ -59,6 +59,22 @@ describe('Markdown PDF rendering', () => {
   });
 });
 
+describe('Markdown code blocks', () => {
+  it('renders a copy button on fenced code blocks', async () => {
+    await renderMarkdown('```cpp\nint main() {}\n```');
+
+    expect(screen.getByRole('button', { name: 'Copy' })).toBeInTheDocument();
+  });
+
+  it('does not add a copy button to inline code', async () => {
+    await renderMarkdown('Use `printf` here.');
+
+    expect(
+      screen.queryByRole('button', { name: 'Copy' })
+    ).not.toBeInTheDocument();
+  });
+});
+
 describe('Markdown resolved file URLs', () => {
   it('renders resolved attachment links and images through the sanitized pipeline', async () => {
     const source = resolveFileUrls(
