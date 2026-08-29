@@ -125,6 +125,13 @@ describe('ProblemStatus progress', () => {
 
     expect(getProgressFill(container)).toBeNull();
     expect(getBadge(container).style.backgroundColor).toBe(JUDGING_COLOR);
+    expect(getBadge(container)).toHaveClass('dark:text-white');
+  });
+
+  it('uses white text for the filled progress area in dark mode', () => {
+    const { container } = renderStatusWithProgress(STATUS.STATUS_JUDGING, 40);
+
+    expect(getProgressFill(container)).toHaveClass('dark:text-white');
   });
 
   it('ignores progress for finished statuses', () => {

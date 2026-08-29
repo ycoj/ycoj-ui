@@ -262,7 +262,6 @@ export default function DiscussionRepliesClient({
                             size="xs"
                             variant="ghost"
                             onClick={() => handleReplyClick(floorId)}
-                            className="cursor-pointer"
                           >
                             <span
                               data-llm-text={

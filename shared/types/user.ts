@@ -45,6 +45,8 @@ export type User = BaseUser & {
   timeZone?: string;
   backgroundImage?: string;
   bio?: string;
+  codeLang?: string;
+  codeTemplate?: string;
   rank?: number;
   rp?: number;
   rpInfo?: RpInfo;

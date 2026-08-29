@@ -133,6 +133,9 @@ describe('getContestDurationParts', () => {
 });
 
 describe('canShowContestScoreboard', () => {
+  const beginAt = new Date('2024-01-01T10:00:00.000Z');
+  const endAt = new Date('2024-01-01T12:00:00.000Z');
+
   function makeUser(overrides: Partial<User> = {}): User {
     return {
       _id: 1,
@@ -152,53 +155,105 @@ describe('canShowContestScoreboard', () => {
 
   function makeContestWithRule(
     rule: ContestDetailTdoc['rule'],
-    owner = 100
+    overrides: Partial<ContestDetailTdoc> = {}
   ): ContestDetailTdoc {
     return {
       rule,
-      owner,
-      beginAt: new Date('2024-01-01T10:00:00.000Z'),
-      endAt: new Date('2024-01-01T12:00:00.000Z'),
+      owner: 100,
+      beginAt,
+      endAt,
+      ...overrides,
     } as ContestDetailTdoc;
   }
 
-  it('shows the scoreboard for non-OI rules without extra permissions', () => {
+  it.each(['acm', 'ioi', 'ledo'] as const)(
+    'shows a %s scoreboard only after the contest begins',
+    (rule) => {
+      const contest = makeContestWithRule(rule);
+      const user = makeUser();
+
+      expect(canShowContestScoreboard(contest, user, dayjs(beginAt))).toBe(
+        false
+      );
+      expect(
+        canShowContestScoreboard(
+          contest,
+          user,
+          dayjs('2024-01-01T10:00:00.001Z')
+        )
+      ).toBe(true);
+    }
+  );
+
+  it('always shows homework scoreboards', () => {
     expect(
-      canShowContestScoreboard(makeContestWithRule('acm'), makeUser())
+      canShowContestScoreboard(
+        makeContestWithRule('homework'),
+        makeUser(),
+        dayjs('2024-01-01T09:00:00.000Z')
+      )
     ).toBe(true);
+  });
+
+  it.each(['oi', 'strictioi'] as const)(
+    'shows a %s scoreboard only after the contest ends',
+    (rule) => {
+      const contest = makeContestWithRule(rule);
+      const user = makeUser();
+
+      expect(canShowContestScoreboard(contest, user, dayjs(endAt))).toBe(false);
+      expect(
+        canShowContestScoreboard(
+          contest,
+          user,
+          dayjs('2024-01-01T12:00:00.001Z')
+        )
+      ).toBe(true);
+    }
+  );
+
+  it.each(['oi', 'strictioi'] as const)(
+    'keeps a %s scoreboard hidden after the contest when configured',
+    (rule) => {
+      expect(
+        canShowContestScoreboard(
+          makeContestWithRule(rule, { keepScoreboardHidden: true }),
+          makeUser(),
+          dayjs('2024-01-01T13:00:00.000Z')
+        )
+      ).toBe(false);
+    }
+  );
+
+  it.each([
+    ['owner', makeUser({ _id: 100 })],
+    ['maintainer', makeUser({ _id: 200 })],
+    [
+      'user with the hidden-scoreboard permission',
+      makeUser({
+        perm: `BigInt::${PERM.PERM_VIEW_CONTEST_HIDDEN_SCOREBOARD.toString()}`,
+      }),
+    ],
+  ])('shows a hidden scoreboard to the %s', (_, user) => {
     expect(
-      canShowContestScoreboard(makeContestWithRule('ioi'), makeUser())
+      canShowContestScoreboard(
+        makeContestWithRule('oi', { maintainer: [200] }),
+        user,
+        dayjs('2024-01-01T11:00:00.000Z')
+      )
     ).toBe(true);
-  });
-
-  it('hides the scoreboard for OI contests without the hidden-scoreboard permission', () => {
-    expect(
-      canShowContestScoreboard(makeContestWithRule('oi'), makeUser())
-    ).toBe(false);
-  });
-
-  it('shows the scoreboard for OI contests with the hidden-scoreboard permission', () => {
-    const user = makeUser({
-      perm: `BigInt::${PERM.PERM_VIEW_CONTEST_HIDDEN_SCOREBOARD.toString()}`,
-    });
-    expect(canShowContestScoreboard(makeContestWithRule('oi'), user)).toBe(
-      true
-    );
-  });
-
-  it('shows the scoreboard to the contest owner for OI contests', () => {
-    const user = makeUser({ _id: 100 });
-    expect(canShowContestScoreboard(makeContestWithRule('oi', 100), user)).toBe(
-      true
-    );
   });
 
   it('does not treat the regular scoreboard permission as the hidden one', () => {
     const user = makeUser({
       perm: `BigInt::${PERM.PERM_VIEW_CONTEST_SCOREBOARD.toString()}`,
     });
-    expect(canShowContestScoreboard(makeContestWithRule('oi'), user)).toBe(
-      false
-    );
+    expect(
+      canShowContestScoreboard(
+        makeContestWithRule('oi'),
+        user,
+        dayjs('2024-01-01T11:00:00.000Z')
+      )
+    ).toBe(false);
   });
 });

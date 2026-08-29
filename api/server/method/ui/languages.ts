@@ -3,6 +3,9 @@ import { alova } from '@/api/server';
 export type SubmitLanguage = {
   name: string;
   display: string;
+  pretest?: string | false;
+  validAs?: string;
+  hidden?: boolean;
 };
 
 export type LanguageFamily = {

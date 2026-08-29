@@ -44,7 +44,7 @@ function RecordTestcaseList({
           const content = (
             <div
               key={`testcase-${testcase.id}`}
-              className="h-28 w-28 rounded-md border"
+              className="h-28 w-28 rounded-md border dark:brightness-150"
               style={{
                 borderColor: STATUS_BACKGROUND_COLOR[testcase.status],
               }}

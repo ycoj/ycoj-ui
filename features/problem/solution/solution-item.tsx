@@ -67,7 +67,7 @@ export default function SolutionItem({
               asChild
               variant="ghost"
               size="icon-xs"
-              className="text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground"
               aria-label={t('edit')}
               title={t('edit')}
             >

@@ -53,6 +53,7 @@
     "react-hook-form": "^7.68.0",
     "react-markdown": "^10.1.0",
     "react-pdf": "^10.4.1",
+    "react-resizable-panels": "^4.12.3",
     "reconnecting-websocket": "^4.4.0",
     "rehype-katex": "^7.0.1",
     "rehype-raw": "^7.0.0",

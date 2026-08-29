@@ -62,7 +62,7 @@ export default async function ProblemConfigPage({
   );
 
   return (
-    <div className="space-y-6 [&_[data-slot=button]:not(:disabled)]:cursor-pointer">
+    <div className="space-y-6">
       <ProblemTitle problem={data.pdoc} contest={data.tdoc} />
       <ProblemConfigWorkspace
         pid={pid}

@@ -103,7 +103,6 @@ function ProblemListRow({
         type="button"
         variant="ghost"
         size="icon-xs"
-        className="cursor-pointer"
         aria-label={t('moveUp', { label })}
         title={t('moveUp', { label })}
         disabled={disabled || index === 0}
@@ -115,7 +114,6 @@ function ProblemListRow({
         type="button"
         variant="ghost"
         size="icon-xs"
-        className="cursor-pointer"
         aria-label={t('moveDown', { label })}
         title={t('moveDown', { label })}
         disabled={disabled || index === itemCount - 1}
@@ -127,7 +125,7 @@ function ProblemListRow({
         type="button"
         variant="ghost"
         size="icon-xs"
-        className="cursor-pointer opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
+        className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
         aria-label={t('remove', { label })}
         title={t('remove', { label })}
         disabled={disabled}
@@ -231,7 +229,6 @@ export default function ProblemListEditor({
               type="button"
               variant="ghost"
               size="sm"
-              className="cursor-pointer"
               disabled={disabled || busy}
               onClick={() => void copyList()}
             >
@@ -242,7 +239,6 @@ export default function ProblemListEditor({
               type="button"
               variant="ghost"
               size="sm"
-              className="cursor-pointer"
               disabled={disabled || busy}
               onClick={() => void pasteList()}
             >

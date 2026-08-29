@@ -14,11 +14,7 @@ export default function ProblemCreateOrImportDialog() {
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>
-        <Button
-          type="button"
-          variant="secondary"
-          className="shrink-0 cursor-pointer"
-        >
+        <Button type="button" variant="secondary" className="shrink-0">
           <Plus />
           <span data-llm-text={t('createOrImport')}>{t('createOrImport')}</span>
         </Button>

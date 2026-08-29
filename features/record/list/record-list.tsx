@@ -100,6 +100,7 @@ export default function RecordList({ data, languages }: Props) {
                   data-llm-visible="true"
                 >
                   <span
+                    className="dark:brightness-150"
                     style={{ color: scoreColor }}
                     data-llm-text={String(record.score)}
                   >

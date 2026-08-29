@@ -1,4 +1,7 @@
+import ServerApis from '@/api/server/method';
+import type { LanguageFamily } from '@/api/server/method/ui/languages';
 import ContestTimer from '@/features/contest/contest-timer';
+import { getContestStatus } from '@/features/contest/detail/contest-utils';
 import {
   getProblemDetail,
   type ProblemDetailData,
@@ -8,6 +11,10 @@ import ProblemTitle from '@/features/problem/detail/problem-title';
 import { isObjectiveProblem } from '@/features/problem/detail/problem-type';
 import { canEditProblem } from '@/features/problem/lib/can-edit-problem';
 import ObjectiveProblemPage from '@/features/problem/objective/objective-page';
+import { canEnterScratchpad } from '@/features/problem/scratchpad/scratchpad-eligibility';
+import ScratchpadOpenButton from '@/features/problem/scratchpad/scratchpad-open-button';
+import ScratchpadProvider from '@/features/problem/scratchpad/scratchpad-provider';
+import { flattenScratchpadLanguages } from '@/features/problem/scratchpad/scratchpad-utils';
 import ProblemSidebar from '@/features/problem/sidebar';
 import { getUser } from '@/features/user/lib/get-user';
 import { Errored } from '@/shared/components/errored';
@@ -69,6 +76,23 @@ export default async function ProblemDetailPage({
   const canConfigure = canEditProblem(user, data.pdoc, {
     tid: searchParams.tid,
   });
+  const scratchpadEligible = canEnterScratchpad(
+    user,
+    data.mode,
+    isObjectiveProblem(data.pdoc),
+    !data.tdoc || getContestStatus(data.tdoc) === 'running'
+  );
+  let scratchpadLanguages: Record<string, LanguageFamily> = {};
+  if (scratchpadEligible) {
+    try {
+      const response = await ServerApis.UI.getAvailableLanguages(
+        data.pdoc.docId
+      );
+      scratchpadLanguages = response.languages;
+    } catch {
+      scratchpadLanguages = {};
+    }
+  }
 
   return (
     <ProblemDetailContent
@@ -76,6 +100,7 @@ export default async function ProblemDetailPage({
       searchParams={searchParams}
       canConfigure={canConfigure}
       user={user}
+      scratchpadLanguages={scratchpadLanguages}
     />
   );
 }
@@ -85,11 +110,13 @@ function ProblemDetailContent({
   searchParams,
   canConfigure,
   user,
+  scratchpadLanguages,
 }: {
   data: ProblemDetailData;
   searchParams: SearchParams;
   canConfigure: boolean;
   user: User | null;
+  scratchpadLanguages: Record<string, LanguageFamily>;
 }) {
   if (isObjectiveProblem(data.pdoc)) {
     return (
@@ -101,7 +128,7 @@ function ProblemDetailContent({
       />
     );
   }
-  return (
+  const content = (
     <div className="space-y-6">
       {data.tdoc && <ContestTimer contest={data.tdoc} status={data.tsdoc} />}
       <ProblemTitle problem={data.pdoc} contest={data.tdoc} />
@@ -118,9 +145,44 @@ function ProblemDetailContent({
             contest={data.tdoc}
             contestStatus={data.tsdoc}
             allowConfigure={canConfigure}
+            scratchpadSlot={
+              flattenScratchpadLanguages(scratchpadLanguages).length ? (
+                <ScratchpadOpenButton />
+              ) : undefined
+            }
           />
         }
       />
     </div>
+  );
+
+  if (!user?._id || !flattenScratchpadLanguages(scratchpadLanguages).length) {
+    return content;
+  }
+
+  const pid = data.pdoc.pid ?? String(data.pdoc.docId);
+  return (
+    <ScratchpadProvider
+      config={{
+        pid,
+        problemDocId: data.pdoc.docId,
+        domainId: data.pdoc.domainId,
+        problemType: data.pdoc.config.type,
+        title: data.pdoc.title,
+        eventKind: !data.tdoc
+          ? 'standalone'
+          : data.tdoc.rule === 'homework'
+            ? 'homework'
+            : 'contest',
+        tid: searchParams.tid,
+        userId: user._id,
+        preferredLanguage: user.codeLang,
+        codeTemplate: user.codeTemplate,
+        languages: scratchpadLanguages,
+      }}
+      statement={<ProblemContent problem={data.pdoc} tid={searchParams.tid} />}
+    >
+      {content}
+    </ScratchpadProvider>
   );
 }

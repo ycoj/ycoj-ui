@@ -87,7 +87,7 @@ export default function HomeworkFilter({ groups, canCreate }: Props) {
         <Button
           type="submit"
           variant="secondary"
-          className="ml-auto cursor-pointer gap-2 hover:bg-foreground/15"
+          className="ml-auto gap-2 hover:bg-foreground/15"
         >
           <Search strokeWidth={2} />
           {common('filter')}
