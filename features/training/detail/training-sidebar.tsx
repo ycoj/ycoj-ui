@@ -8,9 +8,11 @@ import {
 } from '@/features/training/detail/training-detail-utils';
 import UserSpan from '@/features/user/user-span';
 import { Button } from '@/shared/components/ui/button';
+import { Separator } from '@/shared/components/ui/separator';
 import type { BaseUser } from '@/shared/types/user';
-import { PlusSquare } from 'lucide-react';
+import { Pencil, PlusSquare, type LucideIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
@@ -18,7 +20,29 @@ type Props = {
   tid: string;
   data: TrainingDetailResponse;
   owner?: BaseUser;
+  canEdit: boolean;
 };
+
+type SidebarButtonProps = {
+  href: string;
+  icon: LucideIcon;
+  text: string;
+};
+
+function SidebarButton({ href, icon: Icon, text }: SidebarButtonProps) {
+  return (
+    <Button
+      asChild
+      className="h-10 w-full justify-start gap-3 px-4"
+      variant="ghost"
+    >
+      <Link href={href}>
+        <Icon strokeWidth={2} />
+        <span data-llm-text={text}>{text}</span>
+      </Link>
+    </Button>
+  );
+}
 
 function InfoRow({
   label,
@@ -39,7 +63,7 @@ function InfoRow({
   );
 }
 
-export default function TrainingSidebar({ tid, data, owner }: Props) {
+export default function TrainingSidebar({ tid, data, owner, canEdit }: Props) {
   const t = useTranslations('training');
   const common = useTranslations('common');
   const router = useRouter();
@@ -55,6 +79,7 @@ export default function TrainingSidebar({ tid, data, owner }: Props) {
   const progressPercent = problemCount
     ? Math.round((doneProblemCount * 100) / problemCount)
     : 0;
+  const hasActions = !isEnrolled || canEdit;
 
   const handleEnroll = async () => {
     if (submitting) return;
@@ -71,23 +96,35 @@ export default function TrainingSidebar({ tid, data, owner }: Props) {
   };
 
   return (
-    <div className="h-full w-full space-y-4" data-llm-visible="true">
-      {!isEnrolled && (
-        <div className="space-y-2 border-b pb-4">
-          <Button
-            className="h-10 w-full justify-start gap-3 px-4"
-            onClick={handleEnroll}
-            disabled={submitting}
-          >
-            <PlusSquare strokeWidth={2} />
-            <span data-llm-text={submitting ? t('joining') : t('join')}>
-              {submitting ? t('joining') : t('join')}
-            </span>
-          </Button>
-        </div>
+    <div className="w-full space-y-4" data-llm-visible="true">
+      {hasActions && (
+        <>
+          <div className="space-y-1">
+            {!isEnrolled && (
+              <Button
+                className="h-10 w-full justify-start gap-3 px-4"
+                onClick={handleEnroll}
+                disabled={submitting}
+              >
+                <PlusSquare strokeWidth={2} />
+                <span data-llm-text={submitting ? t('joining') : t('join')}>
+                  {submitting ? t('joining') : t('join')}
+                </span>
+              </Button>
+            )}
+            {canEdit && (
+              <SidebarButton
+                href={`/training/${tid}/edit`}
+                icon={Pencil}
+                text={common('edit')}
+              />
+            )}
+          </div>
+          <Separator />
+        </>
       )}
 
-      <div className="space-y-3 pb-4 border-b">
+      <div className="space-y-3">
         <h2 className="text-sm font-medium" data-llm-text={t('information')}>
           {t('information')}
         </h2>
@@ -126,6 +163,8 @@ export default function TrainingSidebar({ tid, data, owner }: Props) {
           llmText={owner?.uname}
         />
       </div>
+
+      <Separator />
 
       <div className="md:sticky md:top-0 md:z-10 space-y-3 md:bg-background md:py-3">
         <h2 className="text-sm font-medium" data-llm-text={t('directory')}>

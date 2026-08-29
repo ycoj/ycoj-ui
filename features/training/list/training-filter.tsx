@@ -2,12 +2,17 @@
 
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
-import { Search } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import type { FormEvent } from 'react';
 
-export default function TrainingFilter() {
+type Props = {
+  canCreate: boolean;
+};
+
+export default function TrainingFilter({ canCreate }: Props) {
   const t = useTranslations('training');
   const common = useTranslations('common');
   const pathname = usePathname();
@@ -48,6 +53,14 @@ export default function TrainingFilter() {
           <Search strokeWidth={2} />
           {common('filter')}
         </Button>
+        {canCreate && (
+          <Button asChild>
+            <Link href="/training/create">
+              <Plus />
+              {t('create')}
+            </Link>
+          </Button>
+        )}
       </div>
     </form>
   );
