@@ -83,7 +83,7 @@ export default function RecordSidebar({
           <Button
             type="button"
             variant="outline"
-            className="h-10 w-full cursor-pointer justify-start gap-3 px-4"
+            className="h-10 w-full justify-start gap-3 px-4"
             disabled={pending}
             onClick={() => runAction(onRejudge)}
           >
@@ -93,7 +93,7 @@ export default function RecordSidebar({
           <Button
             type="button"
             variant="outline"
-            className="h-10 w-full cursor-pointer justify-start gap-3 px-4"
+            className="h-10 w-full justify-start gap-3 px-4"
             disabled={pending}
             onClick={() => runAction(onCancel)}
           >

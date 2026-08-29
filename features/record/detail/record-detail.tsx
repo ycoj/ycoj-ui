@@ -102,6 +102,7 @@ export default function RecordDetail({ rdoc, pdoc, udoc, languages }: Props) {
           </TableCell>
           <TableCell className="tabular-nums">
             <span
+              className="dark:brightness-150"
               style={{ color: scoreColor }}
               data-llm-text={String(rdoc.score)}
             >

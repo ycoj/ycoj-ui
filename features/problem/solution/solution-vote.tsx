@@ -50,7 +50,7 @@ export default function SolutionVote({
         variant="ghost"
         size="icon-xs"
         className={cn(
-          'text-muted-foreground hover:text-foreground',
+          'text-muted-foreground',
           userVote === 1 && 'text-emerald-600 dark:text-emerald-400'
         )}
         onClick={handleUpvote}
@@ -67,7 +67,7 @@ export default function SolutionVote({
         variant="ghost"
         size="icon-xs"
         className={cn(
-          'text-muted-foreground hover:text-foreground',
+          'text-muted-foreground',
           userVote === -1 && 'text-rose-600 dark:text-rose-400'
         )}
         onClick={handleDownvote}

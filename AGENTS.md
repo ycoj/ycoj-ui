@@ -89,7 +89,7 @@ If you are Codex, you should run all `pnpm` commands outside of sandbox.
 - Component variants use `class-variance-authority` where applicable.
 - Keep `data-llm-visible` and `data-llm-text` for LLM-ready content.
 - Keep user-facing copy focused on user goals. Do not expose implementation details, protocol fields, or technical explanations that do not help the user complete an action.
-- Under no circumstances should you modify any files under `shared/components/ui/`, as they are reused across multiple pages.
+- Unless user explicitly requested, you should not modify any files under `shared/components/ui/`, as they are reused across multiple pages.
 
 ### Next.js and data flow
 
