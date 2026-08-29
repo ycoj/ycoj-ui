@@ -4,6 +4,7 @@ import Contest from './contest';
 import Discussion from './discussion';
 import Domain from './domain';
 import Homework from './homework';
+import Messages from './messages';
 import Problem from './problem';
 import Record from './record';
 import Training from './training';
@@ -17,6 +18,7 @@ const ClientApis = {
   Discussion,
   Domain,
   Homework,
+  Messages,
   Problem,
   Record,
   Training,
