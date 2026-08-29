@@ -32,9 +32,16 @@ describe('contest management helpers', () => {
     expect(canRemoveContestUser(new Date(now + 1), now)).toBe(true);
   });
   it('renders clarification subjects', () => {
-    expect(getClarificationSubject(0)).toBe('General');
-    expect(getClarificationSubject(-1)).toBe('Technical');
-    expect(getClarificationSubject(100, 'A')).toBe('A');
+    expect(getClarificationSubject(0)).toEqual({ type: 'general' });
+    expect(getClarificationSubject(-1)).toEqual({ type: 'technical' });
+    expect(getClarificationSubject(100, 'A')).toEqual({
+      type: 'problem',
+      title: 'A',
+    });
+    expect(getClarificationSubject(100)).toEqual({
+      type: 'problem',
+      title: '#100',
+    });
   });
   it('serializes balloon YAML payloads', () => {
     expect(

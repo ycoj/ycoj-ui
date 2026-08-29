@@ -471,29 +471,32 @@ function Clarifications({
         )}
       </section>
       {data.tcdocs.length ? (
-        data.tcdocs.map((doc) => (
-          <article key={doc._id} className="space-y-2 border-b pb-4">
-            <div className="text-sm font-medium">
-              {getClarificationSubject(
-                doc.subject,
-                data.pdict[doc.subject]?.title
-              )}
-            </div>
-            <Markdown>{doc.content}</Markdown>
-            {doc.reply?.map((r, i) => (
-              <div key={r._id ?? i} className="ml-5 border-l pl-3">
-                <Markdown>{r.content}</Markdown>
+        data.tcdocs.map((doc) => {
+          const subject = getClarificationSubject(
+            doc.subject,
+            data.pdict[doc.subject]?.title
+          );
+          return (
+            <article key={doc._id} className="space-y-2 border-b pb-4">
+              <div className="text-sm font-medium">
+                {subject.type === 'problem' ? subject.title : t(subject.type)}
               </div>
-            ))}
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setReplyTo(doc.docId)}
-            >
-              {t('reply')}
-            </Button>
-          </article>
-        ))
+              <Markdown>{doc.content}</Markdown>
+              {doc.reply?.map((r, i) => (
+                <div key={r._id ?? i} className="ml-5 border-l pl-3">
+                  <Markdown>{r.content}</Markdown>
+                </div>
+              ))}
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setReplyTo(doc.docId)}
+              >
+                {t('reply')}
+              </Button>
+            </article>
+          );
+        })
       ) : (
         <p className="text-muted-foreground">{t('noClarifications')}</p>
       )}
@@ -524,6 +527,11 @@ function Balloons({
     [data]
   );
   const [config, setConfig] = useState(initial);
+  const [prevInitial, setPrevInitial] = useState(initial);
+  if (prevInitial !== initial) {
+    setPrevInitial(initial);
+    setConfig(initial);
+  }
   const [saving, setSaving] = useState(false);
   const save = async () => {
     setSaving(true);
@@ -553,31 +561,35 @@ function Balloons({
     <div className="space-y-6" data-llm-visible="true">
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">{t('balloonConfig')}</h2>
-        {data.tdoc.pids.map((pid) => (
-          <div key={pid} className="flex items-center gap-3">
-            <span className="w-16">#{pid}</span>
-            <Input
-              type="color"
-              value={config[pid].color}
-              onChange={(e) =>
-                setConfig((c) => ({
-                  ...c,
-                  [pid]: { ...c[pid], color: e.target.value },
-                }))
-              }
-              className="h-8 w-14 p-1"
-            />
-            <Input
-              value={config[pid].name}
-              onChange={(e) =>
-                setConfig((c) => ({
-                  ...c,
-                  [pid]: { ...c[pid], name: e.target.value },
-                }))
-              }
-            />
-          </div>
-        ))}
+        {data.tdoc.pids.map((pid) => {
+          const entry = config[pid] ?? initial[pid];
+          if (!entry) return null;
+          return (
+            <div key={pid} className="flex items-center gap-3">
+              <span className="w-16">#{pid}</span>
+              <Input
+                type="color"
+                value={entry.color}
+                onChange={(e) =>
+                  setConfig((c) => ({
+                    ...c,
+                    [pid]: { ...entry, color: e.target.value },
+                  }))
+                }
+                className="h-8 w-14 p-1"
+              />
+              <Input
+                value={entry.name}
+                onChange={(e) =>
+                  setConfig((c) => ({
+                    ...c,
+                    [pid]: { ...entry, name: e.target.value },
+                  }))
+                }
+              />
+            </div>
+          );
+        })}
         <Button disabled={saving} onClick={save}>
           {t('save')}
         </Button>
@@ -589,7 +601,7 @@ function Balloons({
             <TableHead>{t('submitter')}</TableHead>
             <TableHead>{t('award')}</TableHead>
             <TableHead>{t('status')}</TableHead>
-            <TableHead>{t('submitter')}</TableHead>
+            <TableHead>{t('sentBy')}</TableHead>
             <TableHead />
           </TableRow>
         </TableHeader>

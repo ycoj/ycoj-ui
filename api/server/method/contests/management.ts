@@ -1,5 +1,9 @@
 import { alova } from '@/api/server';
-import type { Contest, ContestStatus } from '@/shared/types/contest';
+import type {
+  Contest,
+  ContestClarificationDoc,
+  ContestStatus,
+} from '@/shared/types/contest';
 import type { FileInfo } from '@/shared/types/file';
 import type { ProblemDict } from '@/shared/types/problem';
 import type { BaseUser, BaseUserDict } from '@/shared/types/user';
@@ -26,7 +30,7 @@ export const getContestManagement = (
   });
 
 export type ContestClarificationResponse = ContestManagementResponse & {
-  tcdocs: import('@/shared/types/contest').ContestClarificationDoc[];
+  tcdocs: ContestClarificationDoc[];
   udict: BaseUserDict;
 };
 

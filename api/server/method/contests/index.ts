@@ -1,16 +1,16 @@
-import { getContestBulkSubmit } from './bulk-submit';
-import { getContestDetail } from './detail';
-import { getContestList } from './list';
+import { getContestBulkSubmit } from '@/api/server/method/contests/bulk-submit';
+import { getContestDetail } from '@/api/server/method/contests/detail';
+import { getContestEdit } from '@/api/server/method/contests/edit';
+import { getContestList } from '@/api/server/method/contests/list';
 import {
   getContestBalloons,
   getContestClarifications,
   getContestManagement,
   getContestUsers,
-} from './management';
-import { getContestProblems } from './problems';
-import { getContestScoreboard } from './scoreboard';
-import { getContestSolution } from './solution';
-import { getContestEdit } from '@/api/server/method/contests/edit';
+} from '@/api/server/method/contests/management';
+import { getContestProblems } from '@/api/server/method/contests/problems';
+import { getContestScoreboard } from '@/api/server/method/contests/scoreboard';
+import { getContestSolution } from '@/api/server/method/contests/solution';
 
 const Contests = {
   getContestList,

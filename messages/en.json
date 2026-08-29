@@ -256,7 +256,9 @@
     "dryRun": "Dry run",
     "submit": "Submit",
     "submitted": "Submitted",
-    "user": "User"
+    "user": "User",
+    "sentBy": "Sent by",
+    "cancel": "Cancel"
   },
   "homework": {
     "participants": "Participants",

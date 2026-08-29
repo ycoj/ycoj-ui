@@ -17,15 +17,20 @@ export const canResumeContestUser = (
 export const canRemoveContestUser = (beginAt: Date, now = Date.now()) =>
   new Date(beginAt).getTime() > now;
 
+export type ClarificationSubject =
+  | { type: 'general' }
+  | { type: 'technical' }
+  | { type: 'problem'; title: string };
+
 export const getClarificationSubject = (
   subject: number,
   problemName?: string
-) =>
+): ClarificationSubject =>
   subject === 0
-    ? 'General'
+    ? { type: 'general' }
     : subject === -1
-      ? 'Technical'
-      : problemName || `Problem ${subject}`;
+      ? { type: 'technical' }
+      : { type: 'problem', title: problemName || `#${subject}` };
 
 export const serializeBalloonConfig = (
   config: Record<number, { color: string; name: string }>

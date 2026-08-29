@@ -1,10 +1,11 @@
-import { submitContestBulk } from './bulk-submit';
-import { createContest } from './create';
+import { submitContestBulk } from '@/api/client/method/contest/bulk-submit';
+import { createContest } from '@/api/client/method/contest/create';
+import { deleteContest, editContest } from '@/api/client/method/contest/edit';
 import {
   deleteContestFiles,
   setContestProblemScore,
   uploadContestFile,
-} from './management';
+} from '@/api/client/method/contest/management';
 import {
   addContestUsers,
   markContestBalloonDone,
@@ -13,12 +14,14 @@ import {
   resumeContestUser,
   setContestBalloonColor,
   toggleContestUserRank,
-} from './management-actions';
-import { getContestProblems } from './problems';
-import { attendContest } from './registration';
-import { unlockScoreboard } from './scoreboard';
-import { deleteContestSolution, saveContestSolution } from './solution';
-import { deleteContest, editContest } from '@/api/client/method/contest/edit';
+} from '@/api/client/method/contest/management-actions';
+import { getContestProblems } from '@/api/client/method/contest/problems';
+import { attendContest } from '@/api/client/method/contest/registration';
+import { unlockScoreboard } from '@/api/client/method/contest/scoreboard';
+import {
+  deleteContestSolution,
+  saveContestSolution,
+} from '@/api/client/method/contest/solution';
 
 const Contest = {
   createContest,

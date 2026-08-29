@@ -256,7 +256,9 @@
     "dryRun": "试运行",
     "submit": "提交",
     "submitted": "已提交",
-    "user": "用户"
+    "user": "用户",
+    "sentBy": "发送者",
+    "cancel": "取消"
   },
   "homework": {
     "participants": "参与人数",
