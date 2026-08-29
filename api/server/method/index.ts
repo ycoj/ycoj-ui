@@ -3,6 +3,7 @@
 import Contests from './contests';
 import Discussion from './discussion';
 import Homework from './homework';
+import Messages from './messages';
 import Problems from './problems';
 import Ranking from './ranking';
 import Record from './record';
@@ -17,6 +18,7 @@ const ServerApis = {
   Discussion,
   Contests,
   Homework,
+  Messages,
   Training,
   Ranking,
   User,
