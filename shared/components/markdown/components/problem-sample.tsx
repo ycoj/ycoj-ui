@@ -4,28 +4,33 @@ import { Button } from '@/shared/components/ui/button';
 import { useClipboardCopy } from '@/shared/hooks/use-clipboard-copy';
 import { cn } from '@/shared/lib/utils';
 import { useTranslations } from 'next-intl';
-import type { HTMLAttributes } from 'react';
+import type { HTMLAttributes, ReactNode } from 'react';
 import { createContext, useContext, useMemo } from 'react';
 
 type Props = HTMLAttributes<HTMLElement> & {
   node?: unknown;
 };
 
-const ProblemSamplePretestContext = createContext<
-  ((input: string) => void) | null
->(null);
+export type ProblemSampleAction = {
+  label: string;
+  onSelect: (input: string) => void;
+};
 
-export function ProblemSamplePretestProvider({
+const ProblemSampleActionContext = createContext<ProblemSampleAction | null>(
+  null
+);
+
+export function ProblemSampleActionProvider({
+  action,
   children,
-  onFill,
 }: {
-  children: React.ReactNode;
-  onFill: (input: string) => void;
+  action: ProblemSampleAction;
+  children: ReactNode;
 }) {
   return (
-    <ProblemSamplePretestContext.Provider value={onFill}>
+    <ProblemSampleActionContext.Provider value={action}>
       {children}
-    </ProblemSamplePretestContext.Provider>
+    </ProblemSampleActionContext.Provider>
   );
 }
 
@@ -49,11 +54,13 @@ function getPropValue(
 function SamplePane({
   label,
   text,
-  onFillPretest,
+  actionLabel,
+  onAction,
 }: {
   label: string;
   text: string;
-  onFillPretest?: () => void;
+  actionLabel?: string;
+  onAction?: () => void;
 }) {
   const t = useTranslations('problem.sample');
   const { copied, onCopy } = useClipboardCopy(text);
@@ -63,15 +70,15 @@ function SamplePane({
       <div className="flex items-center justify-between">
         <h3 className="my-0.5!">{label}</h3>
         <div className="flex items-center gap-2">
-          {onFillPretest && (
+          {actionLabel && onAction && (
             <Button
               variant="secondary"
               type="button"
-              onClick={onFillPretest}
+              onClick={onAction}
               size="sm"
-              data-llm-text={t('fillPretest')}
+              data-llm-text={actionLabel}
             >
-              {t('fillPretest')}
+              {actionLabel}
             </Button>
           )}
           <Button variant="secondary" type="button" onClick={onCopy} size="sm">
@@ -88,7 +95,7 @@ function SamplePane({
 
 export default function ProblemSample({ className, ...props }: Props) {
   const t = useTranslations('problem.sample');
-  const fillPretest = useContext(ProblemSamplePretestContext);
+  const sampleAction = useContext(ProblemSampleActionContext);
   const propsMap = props as Record<string, unknown>;
 
   const index = useMemo(() => {
@@ -114,7 +121,10 @@ export default function ProblemSample({ className, ...props }: Props) {
         <SamplePane
           label={t('input', { index: index || '' })}
           text={input}
-          onFillPretest={fillPretest ? () => fillPretest(input) : undefined}
+          actionLabel={sampleAction?.label}
+          onAction={
+            sampleAction ? () => sampleAction.onSelect(input) : undefined
+          }
         />
         <SamplePane label={t('output', { index: index || '' })} text={output} />
       </div>

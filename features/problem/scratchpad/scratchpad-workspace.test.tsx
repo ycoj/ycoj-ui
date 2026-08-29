@@ -154,6 +154,11 @@ describe('ScratchpadWorkspace', () => {
     mocks.socketMessage?.({
       rdoc: {
         _id: 'pretest-id',
+        domainId: 'system',
+        pid: 1,
+        uid: 2,
+        lang: 'cc.cc17o2',
+        score: 100,
         contest: '000000000000000000000000',
         status: 1,
         time: 5,

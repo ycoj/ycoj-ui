@@ -17,16 +17,18 @@ import {
   flattenScratchpadLanguages,
   formatScratchpadPretestOutput,
   canRunScratchpadPretest,
+  createOptimisticScratchpadRecord,
   getScratchpadDraftId,
   getScratchpadFamilyKey,
   isPretestRecord,
-  isScratchpadRecordMessage,
   mergeScratchpadRecords,
+  parseScratchpadRecordMessage,
+  parseScratchpadRecords,
   resolveScratchpadLanguage,
 } from '@/features/problem/scratchpad/scratchpad-utils';
 import CodeEditor from '@/shared/components/code/code-editor';
 import parseErrorMessage from '@/shared/components/errored/parse-message';
-import { ProblemSamplePretestProvider } from '@/shared/components/markdown/components/problem-sample';
+import { ProblemSampleActionProvider } from '@/shared/components/markdown/components/problem-sample';
 import { Button } from '@/shared/components/ui/button';
 import { Kbd } from '@/shared/components/ui/kbd';
 import {
@@ -44,7 +46,7 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/shared/components/ui/tabs';
-import { STATUS, STATUS_TEXT_KEYS } from '@/shared/configs/status';
+import { STATUS_TEXT_KEYS } from '@/shared/configs/status';
 import { useIsMobile } from '@/shared/hooks/use-mobile';
 import { useRecordSocket } from '@/shared/hooks/use-record-socket';
 import { getSyntaxLanguage } from '@/shared/lib/code-language';
@@ -134,7 +136,8 @@ function ScratchpadSocket({
       tid: config.tid,
     },
     onMessage(message) {
-      if (isScratchpadRecordMessage(message)) onRecord(message.rdoc);
+      const record = parseScratchpadRecordMessage(message);
+      if (record) onRecord(record);
     },
   });
   return null;
@@ -267,6 +270,13 @@ export default function ScratchpadWorkspace({
     },
     [isMobile]
   );
+  const sampleAction = useMemo(
+    () => ({
+      label: t('fillSample'),
+      onSelect: fillPretestFromSample,
+    }),
+    [fillPretestFromSample, t]
+  );
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -353,7 +363,10 @@ export default function ScratchpadWorkspace({
           return;
         }
         setRecords((current) =>
-          mergeScratchpadRecords(current, response.rdocs)
+          mergeScratchpadRecords(
+            current,
+            parseScratchpadRecords(response.rdocs)
+          )
         );
       })
       .catch(() => setRecordsUnavailable(true))
@@ -361,8 +374,8 @@ export default function ScratchpadWorkspace({
   }, [config.problemDocId, config.tid, recordsLoaded, recordsVisible]);
 
   const getStatusText = useCallback(
-    (status?: number) => {
-      const key = status === undefined ? undefined : STATUS_TEXT_KEYS[status];
+    (status: number) => {
+      const key = STATUS_TEXT_KEYS[status];
       return key ? tJudge(key) : t('unknownStatus');
     },
     [t, tJudge]
@@ -449,21 +462,18 @@ export default function ScratchpadWorkspace({
         config.tid
       ).send();
       if (response?.error) throw new Error(parseErrorMessage(response.error));
-      if (response?.rid) {
+      const rid = response?.rid;
+      if (rid) {
         setRecords((current) =>
           mergeScratchpadRecords(current, [
-            {
-              _id: response.rid!,
+            createOptimisticScratchpadRecord({
+              id: rid,
               domainId: config.domainId,
               pid: config.problemDocId,
               uid: config.userId,
               lang: language,
-              status: STATUS.STATUS_WAITING,
-              score: 0,
-              time: 0,
-              memory: 0,
               contest: config.tid,
-            },
+            }),
           ])
         );
         setRecordsVisible(true);
@@ -557,9 +567,9 @@ export default function ScratchpadWorkspace({
     <ScratchpadSettingsPanel settings={settings} onChange={setSettings} />
   );
   const problemStatement = canPretest ? (
-    <ProblemSamplePretestProvider onFill={fillPretestFromSample}>
+    <ProblemSampleActionProvider action={sampleAction}>
       {statement}
-    </ProblemSamplePretestProvider>
+    </ProblemSampleActionProvider>
   ) : (
     statement
   );

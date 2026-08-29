@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from '@/shared/components/ui/select';
 import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 
 type Props = {
   settings: ScratchpadSettings;
@@ -22,6 +23,9 @@ type Props = {
 
 export default function ScratchpadSettingsPanel({ settings, onChange }: Props) {
   const t = useTranslations('problem.scratchpad');
+  const [fontSizeDraft, setFontSizeDraft] = useState<string>(
+    String(settings.fontSize)
+  );
 
   return (
     <div className="space-y-6 p-4" data-llm-visible="true">
@@ -34,16 +38,14 @@ export default function ScratchpadSettingsPanel({ settings, onChange }: Props) {
           type="number"
           min={10}
           max={32}
-          value={settings.fontSize}
-          onChange={(event) =>
-            onChange({
-              ...settings,
-              fontSize: Math.min(
-                32,
-                Math.max(10, Number(event.target.value) || 14)
-              ),
-            })
-          }
+          value={fontSizeDraft}
+          onChange={(event) => setFontSizeDraft(event.target.value)}
+          onBlur={() => {
+            const parsed = Number(fontSizeDraft);
+            const clamped = Math.min(32, Math.max(10, parsed || 14));
+            setFontSizeDraft(String(clamped));
+            onChange({ ...settings, fontSize: clamped });
+          }}
         />
       </div>
 

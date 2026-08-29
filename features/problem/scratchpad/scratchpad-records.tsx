@@ -1,9 +1,10 @@
 'use client';
 
 import ProblemStatus from '@/features/problem/problem-status';
-import type { ScratchpadLanguageOption } from '@/features/problem/scratchpad/scratchpad-types';
-import type { ScratchpadRecord } from '@/features/problem/scratchpad/scratchpad-types';
-import { Badge } from '@/shared/components/ui/badge';
+import type {
+  ScratchpadLanguageOption,
+  ScratchpadRecord,
+} from '@/features/problem/scratchpad/scratchpad-types';
 import {
   Table,
   TableBody,
@@ -57,10 +58,8 @@ export default function ScratchpadRecords({
     );
   }
 
-  const languageName = (name?: string) =>
-    languages.find((language) => language.name === name)?.display ??
-    name ??
-    '-';
+  const languageName = (name: string) =>
+    languages.find((language) => language.name === name)?.display ?? name;
 
   return (
     <div className="h-full overflow-auto">
@@ -81,38 +80,28 @@ export default function ScratchpadRecords({
             return (
               <TableRow key={record._id}>
                 <TableCell>
-                  {record.status === undefined ? (
-                    <Badge variant="secondary">{t('submitted')}</Badge>
-                  ) : (
-                    <ProblemStatus
-                      status={{
-                        _id: record._id,
-                        docId: record.pid ?? 0,
-                        docType: 10,
-                        domainId: record.domainId ?? '',
-                        rid: record._id,
-                        status: record.status,
-                      }}
-                      progress={record.progress}
-                    />
-                  )}
+                  <ProblemStatus
+                    status={{
+                      _id: record._id,
+                      docId: record.pid,
+                      docType: 10,
+                      domainId: record.domainId,
+                      rid: record._id,
+                      status: record.status,
+                    }}
+                    progress={record.progress}
+                  />
                 </TableCell>
                 <TableCell>
                   <Link
                     href={`/record/${record._id}`}
                     className="hover:underline"
                   >
-                    {record.score ?? '-'}
+                    {record.score}
                   </Link>
                 </TableCell>
-                <TableCell>
-                  {record.time === undefined ? '-' : formatTime(record.time)}
-                </TableCell>
-                <TableCell>
-                  {record.memory === undefined
-                    ? '-'
-                    : formatMemory(record.memory)}
-                </TableCell>
+                <TableCell>{formatTime(record.time)}</TableCell>
+                <TableCell>{formatMemory(record.memory)}</TableCell>
                 <TableCell>{languageName(record.lang)}</TableCell>
                 <TableCell className="whitespace-nowrap">
                   {Number.isFinite(submittedAt)

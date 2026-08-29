@@ -1,10 +1,16 @@
+import type { ScratchpadRecord } from './scratchpad-types';
 import {
   canRunScratchpadPretest,
+  createOptimisticScratchpadRecord,
   formatScratchpadPretestOutput,
   getScratchpadDraftId,
   mergeScratchpadRecords,
+  parseScratchpadRecordMessage,
+  parseScratchpadRecords,
   resolveScratchpadLanguage,
+  toScratchpadRecord,
 } from '@/features/problem/scratchpad/scratchpad-utils';
+import { STATUS } from '@/shared/configs/status';
 import { describe, expect, it } from 'vitest';
 
 const languages = {
@@ -20,6 +26,24 @@ const languages = {
     versions: [{ name: 'py.py3', display: 'Python 3' }],
   },
 };
+
+function makeRecord(
+  overrides: Partial<ScratchpadRecord> & Pick<ScratchpadRecord, '_id'>
+): ScratchpadRecord {
+  return {
+    domainId: 'system',
+    pid: 1,
+    uid: 2,
+    lang: 'cc.cc17o2',
+    score: 0,
+    memory: 0,
+    time: 0,
+    status: STATUS.STATUS_WAITING,
+    compilerTexts: [],
+    testCases: [],
+    ...overrides,
+  };
+}
 
 describe('scratchpad utilities', () => {
   it('uses a valid draft language before the user preference', () => {
@@ -55,13 +79,110 @@ describe('scratchpad utilities', () => {
     ).toBe('[2,"system",10,"contest","contest"]');
   });
 
+  it('keeps only records that match the scratchpad projection', () => {
+    expect(toScratchpadRecord({ _id: 'a', status: 1 })).toBeNull();
+    expect(
+      toScratchpadRecord({
+        _id: 'a',
+        domainId: 'system',
+        pid: 1,
+        uid: 2,
+        lang: 'cc.cc17o2',
+        score: 100,
+        memory: 256,
+        time: 12,
+        status: 1,
+        progress: 40,
+        contest: 'contest-id',
+        compilerTexts: ['ok'],
+        testCases: [{ message: 'stdout' }],
+      })
+    ).toEqual({
+      _id: 'a',
+      domainId: 'system',
+      pid: 1,
+      uid: 2,
+      lang: 'cc.cc17o2',
+      score: 100,
+      memory: 256,
+      time: 12,
+      status: 1,
+      progress: 40,
+      contest: 'contest-id',
+      compilerTexts: ['ok'],
+      testCases: [{ message: 'stdout' }],
+    });
+  });
+
+  it('normalizes list, socket, and optimistic records at their boundaries', () => {
+    expect(
+      parseScratchpadRecords([
+        {
+          _id: 'a',
+          domainId: 'system',
+          pid: 1,
+          uid: 2,
+          lang: 'cc.cc17o2',
+          score: 0,
+          memory: 0,
+          time: 0,
+          status: 0,
+        },
+        { _id: 'skipped' },
+      ])
+    ).toEqual([makeRecord({ _id: 'a' })]);
+    expect(
+      parseScratchpadRecordMessage({
+        rdoc: {
+          _id: 'p',
+          domainId: 'system',
+          pid: 1,
+          uid: 2,
+          lang: 'cc.cc17o2',
+          score: 0,
+          memory: 1024,
+          time: 5,
+          status: 1,
+          contest: '000000000000000000000000',
+        },
+      })
+    ).toEqual(
+      makeRecord({
+        _id: 'p',
+        memory: 1024,
+        time: 5,
+        status: 1,
+        contest: '000000000000000000000000',
+      })
+    );
+    expect(
+      createOptimisticScratchpadRecord({
+        id: 'optimistic',
+        domainId: 'system',
+        pid: 1,
+        uid: 2,
+        lang: 'cc.cc17o2',
+        contest: 'contest-id',
+      })
+    ).toEqual(
+      makeRecord({
+        _id: 'optimistic',
+        contest: 'contest-id',
+      })
+    );
+  });
+
   it('merges record updates, prepends new records, and excludes pretests', () => {
     const merged = mergeScratchpadRecords(
-      [{ _id: 'a', status: 0 }],
+      [makeRecord({ _id: 'a', status: 0 })],
       [
-        { _id: 'a', status: 1 },
-        { _id: 'b', status: 2 },
-        { _id: 'p', contest: '000000000000000000000000', status: 1 },
+        makeRecord({ _id: 'a', status: 1 }),
+        makeRecord({ _id: 'b', status: 2 }),
+        makeRecord({
+          _id: 'p',
+          contest: '000000000000000000000000',
+          status: 1,
+        }),
       ]
     );
     expect(merged.map((record) => record._id)).toEqual(['b', 'a']);
@@ -71,23 +192,17 @@ describe('scratchpad utilities', () => {
   it('formats pretest status, resources, compiler output, and testcase output', () => {
     expect(
       formatScratchpadPretestOutput(
-        {
+        makeRecord({
           _id: 'p',
           time: 12,
           memory: 2048,
           compilerTexts: ['compiler'],
           testCases: [
             {
-              id: 1,
-              subtaskId: 1,
-              score: 0,
-              time: 12,
-              memory: 2048,
-              status: 2,
               message: { message: 'Expected {0}', params: ['42'] },
             },
           ],
-        },
+        }),
         'Wrong Answer'
       )
     ).toBe('Wrong Answer 12ms 2048KiB\ncompiler\nExpected 42');

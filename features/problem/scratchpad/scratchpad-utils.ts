@@ -2,9 +2,12 @@ import type {
   ScratchpadLanguageOption,
   ScratchpadLanguages,
   ScratchpadRecord,
+  ScratchpadTestcase,
 } from '@/features/problem/scratchpad/scratchpad-types';
 import { PRETEST_CONTEST_ID } from '@/features/problem/scratchpad/scratchpad-types';
 import { formatTestcaseMessage } from '@/features/record/detail/format-testcase-message';
+import { STATUS } from '@/shared/configs/status';
+import type { JudgeMessageResponse } from '@/shared/types/record';
 
 const DEFAULT_SCRATCHPAD_LANGUAGE = 'cc.cc14o2';
 
@@ -96,6 +99,141 @@ export function getScratchpadDraftId({
   ]);
 }
 
+function asFiniteNumber(value: unknown): number | undefined {
+  return typeof value === 'number' && Number.isFinite(value)
+    ? value
+    : undefined;
+}
+
+function asNonEmptyString(value: unknown): string | undefined {
+  return typeof value === 'string' && value ? value : undefined;
+}
+
+function parseCompilerTexts(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  return value.filter((item): item is string => typeof item === 'string');
+}
+
+function parseTestcaseMessage(
+  value: unknown
+): string | JudgeMessageResponse | undefined {
+  if (typeof value === 'string') return value;
+  if (!value || typeof value !== 'object') return undefined;
+  const message = (value as { message?: unknown }).message;
+  if (typeof message !== 'string') return undefined;
+  const params = (value as { params?: unknown }).params;
+  if (!Array.isArray(params)) return { message };
+  return {
+    message,
+    params: params.filter(
+      (item): item is string | number =>
+        typeof item === 'string' || typeof item === 'number'
+    ),
+  };
+}
+
+function parseTestCases(value: unknown): ScratchpadTestcase[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item) => {
+    if (!item || typeof item !== 'object') return [];
+    const message = parseTestcaseMessage(
+      (item as { message?: unknown }).message
+    );
+    return message === undefined ? [] : [{ message }];
+  });
+}
+
+export function toScratchpadRecord(value: unknown): ScratchpadRecord | null {
+  if (!value || typeof value !== 'object') return null;
+  const record = value as Record<string, unknown>;
+  const _id = asNonEmptyString(record._id);
+  const domainId = asNonEmptyString(record.domainId);
+  const pid = asFiniteNumber(record.pid);
+  const uid = asFiniteNumber(record.uid);
+  const lang = asNonEmptyString(record.lang);
+  const score = asFiniteNumber(record.score);
+  const memory = asFiniteNumber(record.memory);
+  const time = asFiniteNumber(record.time);
+  const status = asFiniteNumber(record.status);
+  if (
+    !_id ||
+    !domainId ||
+    pid === undefined ||
+    uid === undefined ||
+    !lang ||
+    score === undefined ||
+    memory === undefined ||
+    time === undefined ||
+    status === undefined
+  ) {
+    return null;
+  }
+
+  const progress = asFiniteNumber(record.progress);
+  const contest = asNonEmptyString(record.contest);
+  return {
+    _id,
+    domainId,
+    pid,
+    uid,
+    lang,
+    score,
+    memory,
+    time,
+    status,
+    compilerTexts: parseCompilerTexts(record.compilerTexts),
+    testCases: parseTestCases(record.testCases),
+    ...(progress !== undefined ? { progress } : {}),
+    ...(contest ? { contest } : {}),
+  };
+}
+
+export function parseScratchpadRecords(value: unknown): ScratchpadRecord[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item) => {
+    const record = toScratchpadRecord(item);
+    return record ? [record] : [];
+  });
+}
+
+export function parseScratchpadRecordMessage(
+  message: unknown
+): ScratchpadRecord | null {
+  if (!message || typeof message !== 'object') return null;
+  return toScratchpadRecord((message as { rdoc?: unknown }).rdoc);
+}
+
+export function createOptimisticScratchpadRecord({
+  id,
+  domainId,
+  pid,
+  uid,
+  lang,
+  contest,
+}: {
+  id: string;
+  domainId: string;
+  pid: number;
+  uid: number;
+  lang: string;
+  contest?: string;
+}): ScratchpadRecord {
+  return {
+    _id: id,
+    domainId,
+    pid,
+    uid,
+    lang,
+    score: 0,
+    memory: 0,
+    time: 0,
+    status: STATUS.STATUS_WAITING,
+    compilerTexts: [],
+    testCases: [],
+    ...(contest ? { contest } : {}),
+  };
+}
+
 export function isPretestRecord(record: ScratchpadRecord): boolean {
   return record.contest === PRETEST_CONTEST_ID;
 }
@@ -121,29 +259,14 @@ export function formatScratchpadPretestOutput(
   record: ScratchpadRecord,
   statusText: string
 ): string {
-  const summary = [statusText];
-  if (typeof record.time === 'number') summary.push(`${record.time}ms`);
-  if (typeof record.memory === 'number') summary.push(`${record.memory}KiB`);
-
+  const summary = [statusText, `${record.time}ms`, `${record.memory}KiB`];
   const output = [summary.join(' ')];
-  if (record.compilerTexts?.length) {
+  if (record.compilerTexts.length) {
     output.push(record.compilerTexts.join('\n'));
   }
-  const testcase = record.testCases?.[0];
+  const testcase = record.testCases[0];
   if (testcase?.message) {
     output.push(formatTestcaseMessage(testcase.message));
   }
   return output.filter(Boolean).join('\n');
-}
-
-export function isScratchpadRecordMessage(
-  message: unknown
-): message is { rdoc: ScratchpadRecord } {
-  if (!message || typeof message !== 'object') return false;
-  const rdoc = (message as { rdoc?: unknown }).rdoc;
-  return (
-    !!rdoc &&
-    typeof rdoc === 'object' &&
-    typeof (rdoc as { _id?: unknown })._id === 'string'
-  );
 }

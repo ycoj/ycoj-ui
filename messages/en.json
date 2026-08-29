@@ -639,7 +639,6 @@
     "sample": {
       "copy": "Copy",
       "copied": "Copied",
-      "fillPretest": "Fill into pretest",
       "input": "Sample {index} input",
       "output": "Sample {index} output"
     },
@@ -693,6 +692,7 @@
       "pretestQueued": "Pretest submitted. Waiting for the judge...",
       "pretestFailed": "Pretest failed. Please try again.",
       "submitFailed": "Submission failed. Please try again.",
+      "fillSample": "Fill into pretest",
       "submitted": "Submitted",
       "submittedHidden": "Submitted. Results are hidden by the contest rules.",
       "unknownStatus": "Unknown status"

@@ -1,5 +1,5 @@
 import type { LanguageFamily } from '@/api/server/method/ui/languages';
-import type { RecordDoc } from '@/shared/types/record';
+import type { TestCaseResponse } from '@/shared/types/record';
 
 export const PRETEST_CONTEST_ID = '000000000000000000000000';
 
@@ -15,8 +15,23 @@ export type ScratchpadLanguageOption = {
 
 export type ScratchpadLanguages = Record<string, LanguageFamily>;
 
-export type ScratchpadRecord = Pick<RecordDoc, '_id'> &
-  Partial<Omit<RecordDoc, '_id'>>;
+export type ScratchpadTestcase = Pick<TestCaseResponse, 'message'>;
+
+export type ScratchpadRecord = {
+  _id: string;
+  domainId: string;
+  pid: number;
+  uid: number;
+  lang: string;
+  score: number;
+  memory: number;
+  time: number;
+  status: number;
+  compilerTexts: string[];
+  testCases: ScratchpadTestcase[];
+  progress?: number;
+  contest?: string;
+};
 
 export type ScratchpadEditorTheme = 'light' | 'dark' | 'system';
 
