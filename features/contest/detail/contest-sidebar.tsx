@@ -21,6 +21,11 @@ import {
   Pencil,
   PlusSquare,
   Check,
+  ClipboardList,
+  FileArchive,
+  MessageSquare,
+  Send,
+  Users,
   type LucideIcon,
 } from 'lucide-react';
 import { useFormatter, useTranslations } from 'next-intl';
@@ -149,11 +154,38 @@ export default function ContestSidebar({
           text={common('discussion')}
         />
         {canEdit && (
-          <SidebarButton
-            href={`/contest/${tid}/edit`}
-            icon={Pencil}
-            text={common('edit')}
-          />
+          <>
+            <SidebarButton
+              href={`/contest/${tid}/management`}
+              icon={ClipboardList}
+              text={common('management')}
+            />
+            <SidebarButton
+              href={`/contest/${tid}/edit`}
+              icon={Pencil}
+              text={common('edit')}
+            />
+            <SidebarButton
+              href={`/contest/${tid}/user`}
+              icon={Users}
+              text={t('attendees')}
+            />
+            <SidebarButton
+              href={`/contest/${tid}/clarification`}
+              icon={MessageSquare}
+              text={t('clarifications')}
+            />
+            <SidebarButton
+              href={`/contest/${tid}/balloon`}
+              icon={Send}
+              text={t('balloons')}
+            />
+            <SidebarButton
+              href={`/contest/${tid}/bulk-submit`}
+              icon={FileArchive}
+              text={t('bulkSubmit')}
+            />
+          </>
         )}
       </div>
 

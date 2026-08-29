@@ -50,11 +50,13 @@ export type ContestBalloon = {
   _id: string;
   uid: number;
   pid: number;
+  first?: boolean;
   sent?: number;
   sentAt?: Date;
 };
 export type ContestBalloonsResponse = ContestManagementResponse & {
   bdocs: ContestBalloon[];
+  udict: BaseUserDict;
 };
 
 export const getContestBalloons = (tid: string, todo?: boolean) =>
