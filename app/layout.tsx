@@ -3,6 +3,7 @@ import { Toaster } from '@/shared/components/ui/sonner';
 import { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
+import { ThemeProvider } from 'next-themes';
 import { Geist, Geist_Mono, Inter } from 'next/font/google';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
@@ -35,14 +36,21 @@ export default async function RootLayout({
   const locale = await getLocale();
   const messages = await getMessages();
   return (
-    <html lang={locale} className={inter.variable}>
+    <html lang={locale} className={inter.variable} suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          {children}
-          <Toaster richColors position="top-right" />
-        </NextIntlClientProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          enableColorScheme
+        >
+          <NextIntlClientProvider locale={locale} messages={messages}>
+            {children}
+            <Toaster richColors position="top-right" />
+          </NextIntlClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
