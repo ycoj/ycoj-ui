@@ -1,4 +1,8 @@
-import { isSelectAllHotkey, selectElementContents } from './confine-select-all';
+import {
+  confineSelectAllOnKeyDown,
+  isSelectAllHotkey,
+  selectElementContents,
+} from './confine-select-all';
 import { describe, expect, it } from 'vitest';
 
 function hotkey(
@@ -51,5 +55,45 @@ describe('selectElementContents', () => {
 
     expect(window.getSelection()?.toString()).toBe('int main() {}');
     root.remove();
+  });
+});
+
+describe('confineSelectAllOnKeyDown', () => {
+  it('prevents default and selects the current target on Ctrl+A', () => {
+    const root = document.createElement('div');
+    root.innerHTML = '<p>outside</p><pre>int main() {}</pre>';
+    document.body.append(root);
+
+    const pre = root.querySelector('pre');
+    expect(pre).not.toBeNull();
+
+    let prevented = false;
+    confineSelectAllOnKeyDown({
+      ...hotkey({ ctrlKey: true }),
+      preventDefault: () => {
+        prevented = true;
+      },
+      currentTarget: pre!,
+    });
+
+    expect(prevented).toBe(true);
+    expect(window.getSelection()?.toString()).toBe('int main() {}');
+    root.remove();
+  });
+
+  it('does nothing for other keys', () => {
+    const pre = document.createElement('pre');
+    pre.textContent = 'int main() {}';
+
+    let prevented = false;
+    confineSelectAllOnKeyDown({
+      ...hotkey(),
+      preventDefault: () => {
+        prevented = true;
+      },
+      currentTarget: pre,
+    });
+
+    expect(prevented).toBe(false);
   });
 });

@@ -6,6 +6,11 @@ type SelectAllHotkeyEvent = {
   shiftKey: boolean;
 };
 
+type ConfineSelectAllKeyDownEvent = SelectAllHotkeyEvent & {
+  preventDefault: () => void;
+  currentTarget: Element;
+};
+
 export function isSelectAllHotkey(event: SelectAllHotkeyEvent): boolean {
   return (
     event.key.toLowerCase() === 'a' &&
@@ -23,4 +28,12 @@ export function selectElementContents(element: Element): void {
   range.selectNodeContents(element);
   selection.removeAllRanges();
   selection.addRange(range);
+}
+
+export function confineSelectAllOnKeyDown(
+  event: ConfineSelectAllKeyDownEvent
+): void {
+  if (!isSelectAllHotkey(event)) return;
+  event.preventDefault();
+  selectElementContents(event.currentTarget);
 }

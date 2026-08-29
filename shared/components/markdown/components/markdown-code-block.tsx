@@ -1,55 +1,34 @@
 'use client';
 
 import CodeCopyButton from '@/shared/components/code/code-copy-button';
-import {
-  isSelectAllHotkey,
-  selectElementContents,
-} from '@/shared/lib/confine-select-all';
+import { confineSelectAllOnKeyDown } from '@/shared/lib/confine-select-all';
 import { cn } from '@/shared/lib/utils';
-import {
-  isValidElement,
-  type HTMLAttributes,
-  type KeyboardEvent,
-  type ReactNode,
-  useMemo,
-} from 'react';
+import { type HTMLAttributes, useRef } from 'react';
+import type { ExtraProps } from 'react-markdown';
 
-type Props = HTMLAttributes<HTMLPreElement> & {
-  node?: unknown;
-};
-
-export function getReactNodeText(node: ReactNode): string {
-  if (node == null || typeof node === 'boolean') return '';
-  if (typeof node === 'string' || typeof node === 'number') return String(node);
-  if (Array.isArray(node)) return node.map(getReactNodeText).join('');
-  if (isValidElement<{ children?: ReactNode }>(node)) {
-    return getReactNodeText(node.props.children);
-  }
-  return '';
-}
-
-function handleCodeKeyDown(event: KeyboardEvent<HTMLPreElement>) {
-  if (!isSelectAllHotkey(event)) return;
-  event.preventDefault();
-  selectElementContents(event.currentTarget);
-}
+type Props = HTMLAttributes<HTMLPreElement> & ExtraProps;
 
 export default function MarkdownCodeBlock({
   children,
   className,
+  node,
   ...props
 }: Props) {
-  const text = useMemo(() => getReactNodeText(children), [children]);
-  Reflect.deleteProperty(props, 'node');
+  void node;
+  const preRef = useRef<HTMLPreElement>(null);
 
   return (
     <div className="relative">
-      <CodeCopyButton text={text} variant="inline" />
+      <CodeCopyButton
+        text={() => preRef.current?.textContent ?? ''}
+        variant="inline"
+      />
       <pre
         {...props}
+        ref={preRef}
         tabIndex={0}
         className={cn('outline-none', className)}
-        onKeyDown={handleCodeKeyDown}
+        onKeyDown={confineSelectAllOnKeyDown}
       >
         {children}
       </pre>

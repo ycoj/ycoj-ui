@@ -1,10 +1,11 @@
 'use client';
 
 import { Button } from '@/shared/components/ui/button';
+import { useClipboardCopy } from '@/shared/hooks/use-clipboard-copy';
 import { cn } from '@/shared/lib/utils';
 import { useTranslations } from 'next-intl';
 import type { HTMLAttributes } from 'react';
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
 type Props = HTMLAttributes<HTMLElement> & {
   node?: unknown;
@@ -29,13 +30,7 @@ function getPropValue(
 
 function SamplePane({ label, text }: { label: string; text: string }) {
   const t = useTranslations('problem.sample');
-  const [copied, setCopied] = useState(false);
-
-  const onCopy = useCallback(async () => {
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1200);
-  }, [text]);
+  const { copied, onCopy } = useClipboardCopy(text);
 
   return (
     <div>
