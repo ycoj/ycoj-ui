@@ -5,10 +5,12 @@ import { cn } from '@/shared/lib/utils';
 import { MdEditor } from 'md-editor-rt';
 import 'md-editor-rt/lib/style.css';
 import { useLocale } from 'next-intl';
+import { useTheme } from 'next-themes';
 import type { ChangeEvent, FocusEvent } from 'react';
 import {
   forwardRef,
   useCallback,
+  useEffect,
   useLayoutEffect,
   useRef,
   useState,
@@ -28,6 +30,8 @@ type MarkdownEditorProps = {
   'aria-invalid'?: boolean;
 };
 
+const editorStyle = { height: '40vh', minHeight: '20rem' };
+
 const MarkdownEditor = forwardRef<HTMLTextAreaElement, MarkdownEditorProps>(
   (
     {
@@ -45,9 +49,12 @@ const MarkdownEditor = forwardRef<HTMLTextAreaElement, MarkdownEditorProps>(
     ref
   ) => {
     const locale = useLocale();
+    const { resolvedTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
     const [internalValue, setInternalValue] = useState(
       () => defaultValue ?? ''
     );
+    useEffect(() => setMounted(true), []);
     const lastValueRef = useRef(controlledValue ?? defaultValue ?? '');
     useLayoutEffect(() => {
       if (controlledValue !== undefined) {
@@ -86,22 +93,35 @@ const MarkdownEditor = forwardRef<HTMLTextAreaElement, MarkdownEditorProps>(
 
     return (
       <>
-        <MdEditor
-          value={value}
-          onChange={handleValueChange}
-          onBlur={handleBlur}
-          language={locale.startsWith('en') ? 'en-US' : 'zh-CN'}
-          disabled={disabled}
-          preview
-          noUploadImg
-          toolbarsExclude={['save', 'github']}
-          className={cn(
-            'markdown-editor',
-            ariaInvalid && 'markdown-editor-invalid',
-            className
-          )}
-          style={{ height: '40vh', minHeight: '20rem' }}
-        />
+        {mounted ? (
+          <MdEditor
+            value={value}
+            onChange={handleValueChange}
+            onBlur={handleBlur}
+            language={locale.startsWith('en') ? 'en-US' : 'zh-CN'}
+            theme={resolvedTheme === 'dark' ? 'dark' : 'light'}
+            disabled={disabled}
+            preview
+            noUploadImg
+            toolbarsExclude={['save', 'github']}
+            className={cn(
+              'markdown-editor',
+              ariaInvalid && 'markdown-editor-invalid',
+              className
+            )}
+            style={editorStyle}
+          />
+        ) : (
+          <div
+            aria-hidden="true"
+            className={cn(
+              'md-editor markdown-editor',
+              ariaInvalid && 'markdown-editor-invalid',
+              className
+            )}
+            style={editorStyle}
+          />
+        )}
         <textarea
           ref={ref}
           id={id}
