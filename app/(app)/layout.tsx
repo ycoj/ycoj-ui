@@ -1,8 +1,8 @@
 import { CollapsedTrigger } from '@/features/navigation/collapsed-trigger';
 import AppSidebar from '@/features/navigation/sidebar';
+import ThemeLogo from '@/shared/components/theme-logo';
 import { SidebarInset, SidebarProvider } from '@/shared/components/ui/sidebar';
 import { getTranslations } from 'next-intl/server';
-import Image from 'next/image';
 import Link from 'next/link';
 
 export default async function AppLayout({
@@ -20,12 +20,11 @@ export default async function AppLayout({
         <div className="container mx-auto">
           <div className="mb-2 flex md:hidden px-2">
             <Link href="/home" aria-label={siteName}>
-              <Image
+              <ThemeLogo
                 width={290}
                 height={87}
-                src="/nav-logo-small_light.png"
                 alt={t('logoAlt', { siteName })}
-                className="h-auto w-30 dark:invert"
+                className="h-auto w-30"
               />
             </Link>
           </div>
