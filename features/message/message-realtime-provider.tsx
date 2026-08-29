@@ -22,8 +22,6 @@ type Props = {
   userId: number;
 };
 
-const CHANNEL_NAME = 'hydro-messages';
-const LEADER_KEY = 'hydro-messages-leader';
 const LEASE_MS = 8_000;
 const HEARTBEAT_MS = 3_000;
 
@@ -134,13 +132,15 @@ export default function MessageRealtimeProvider({
 
   useEffect(() => {
     if (!('BroadcastChannel' in window)) return;
+    const channelName = `hydro-messages-${userId}`;
+    const leaderKey = `hydro-messages-leader-${userId}`;
     const id =
       tabId.current ||
       (crypto.randomUUID
         ? crypto.randomUUID()
         : `${Date.now()}-${Math.random()}`);
     tabId.current = id;
-    const broadcast = new BroadcastChannel(CHANNEL_NAME);
+    const broadcast = new BroadcastChannel(channelName);
     channel.current = broadcast;
     let leader = false;
     const notificationTimers = pendingNotifications.current;
@@ -152,14 +152,14 @@ export default function MessageRealtimeProvider({
     const acquireLease = () => {
       const now = Date.now();
       try {
-        const raw = localStorage.getItem(LEADER_KEY);
+        const raw = localStorage.getItem(leaderKey);
         const existing = raw
           ? (JSON.parse(raw) as { id?: string; expiresAt?: number })
           : null;
         if (existing?.id !== id && (existing?.expiresAt ?? 0) > now)
           return false;
         localStorage.setItem(
-          LEADER_KEY,
+          leaderKey,
           JSON.stringify({ id, expiresAt: now + LEASE_MS })
         );
         return true;
@@ -282,13 +282,13 @@ export default function MessageRealtimeProvider({
       for (const timer of notificationTimers.values()) clearTimeout(timer);
       notificationTimers.clear();
       if (leader) {
-        const raw = localStorage.getItem(LEADER_KEY);
-        if (raw?.includes(id)) localStorage.removeItem(LEADER_KEY);
+        const raw = localStorage.getItem(leaderKey);
+        if (raw?.includes(id)) localStorage.removeItem(leaderKey);
       }
       broadcast.close();
       if (channel.current === broadcast) channel.current = null;
     };
-  }, [dispatchEvent]);
+  }, [dispatchEvent, userId]);
 
   const contextValue = useMemo(
     () => ({ subscribe, markMessagesRead }),

@@ -380,7 +380,7 @@ function MessageAvatar({
 }) {
   return (
     <Avatar className="size-9 shrink-0">
-      <AvatarImage src={user.avatarUrl} alt="" />
+      <AvatarImage src={user.avatarUrl} alt={user.uname} />
       <AvatarFallback>{user.uname.slice(0, 1).toUpperCase()}</AvatarFallback>
     </Avatar>
   );

@@ -42,9 +42,11 @@ export function objectIdTimestamp(id: string): number {
 }
 
 export function sortMessages(messages: MessageDoc[]): MessageDoc[] {
-  return [...messages].sort(
-    (left, right) => objectIdTimestamp(left._id) - objectIdTimestamp(right._id)
-  );
+  return [...messages].sort((left, right) => {
+    const timeDiff = objectIdTimestamp(left._id) - objectIdTimestamp(right._id);
+    if (timeDiff !== 0) return timeDiff;
+    return left._id.localeCompare(right._id);
+  });
 }
 
 export function sortDialogues(dialogues: MessageDialogue[]): MessageDialogue[] {
