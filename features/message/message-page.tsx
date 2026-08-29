@@ -201,11 +201,11 @@ export default function MessagePage({
 
   return (
     <section
-      className="grid min-h-[min(44rem,calc(100vh-9rem))] overflow-hidden border bg-background lg:grid-cols-[18rem_minmax(0,1fr)]"
+      className="grid h-[calc(100dvh-9.5rem)] min-h-0 overflow-hidden rounded-lg border bg-background md:h-[calc(100dvh-5rem)] lg:grid-cols-[18rem_minmax(0,1fr)]"
       data-llm-visible="true"
     >
-      <aside className="border-b lg:border-r lg:border-b-0">
-        <div className="flex items-center justify-between gap-2 border-b p-3">
+      <aside className="flex min-h-0 flex-col border-b lg:border-r lg:border-b-0">
+        <div className="flex h-14 shrink-0 items-center justify-between gap-2 border-b px-3">
           <h1 className="font-semibold" data-llm-text={t('title')}>
             {t('title')}
           </h1>
@@ -219,7 +219,7 @@ export default function MessagePage({
             {t('new')}
           </Button>
         </div>
-        <div className="max-h-72 overflow-y-auto lg:max-h-none">
+        <div className="min-h-0 max-h-72 flex-1 overflow-y-auto lg:max-h-none">
           {!orderedDialogues.length ? (
             <p
               className="p-4 text-sm text-muted-foreground"
@@ -264,7 +264,7 @@ export default function MessagePage({
       <div className="flex min-h-0 flex-col">
         {activeDialogue ? (
           <>
-            <header className="flex min-h-14 items-center justify-between border-b px-4">
+            <header className="flex h-14 shrink-0 items-center justify-between border-b px-4">
               <Link
                 href={`/user/${activeDialogue.udoc._id}`}
                 className="min-w-0 truncate text-sm font-medium hover:underline"
@@ -299,7 +299,7 @@ export default function MessagePage({
                 />
               ))}
             </div>
-            <div className="border-t p-3">
+            <div className="flex min-h-36 flex-col border-t p-3">
               <Textarea
                 value={draft}
                 onChange={(event) => setDraft(event.target.value)}
@@ -315,7 +315,7 @@ export default function MessagePage({
                 disabled={sending}
                 placeholder={t('composePlaceholder')}
                 aria-label={t('composePlaceholder')}
-                className="min-h-20 resize-none"
+                className="min-h-0 flex-1 resize-none border-0 bg-transparent p-0 shadow-none focus-visible:border-0 focus-visible:ring-0"
               />
               <div className="mt-2 flex items-center justify-between gap-2">
                 <p
@@ -349,6 +349,7 @@ export default function MessagePage({
                 placeholder={t('selectRecipient')}
                 ariaLabel={t('selectRecipient')}
                 disabled={selectingRecipient}
+                inputClassName="border-0 bg-muted/40 shadow-none focus-visible:border-0 focus-visible:ring-0"
               />
               <Button
                 onClick={() => void createDialogue()}
@@ -405,9 +406,9 @@ function MessageBubble({
     : dialogue.udoc;
 
   return (
-    <article className={cn('flex gap-2', own && 'flex-row-reverse')}>
+    <article className={cn('group flex gap-2', own && 'flex-row-reverse')}>
       <MessageAvatar user={user} />
-      <div className={cn('max-w-[80%] min-w-0', own && 'text-right')}>
+      <div className={cn('relative max-w-[80%] min-w-0', own && 'text-right')}>
         <div
           className={cn(
             'inline-block whitespace-pre-wrap break-words rounded-lg px-3 py-2 text-sm text-left',
@@ -418,7 +419,12 @@ function MessageBubble({
           {content}
         </div>
         {time && (
-          <time className="mt-1 block text-xs text-muted-foreground">
+          <time
+            className={cn(
+              'pointer-events-none invisible absolute top-full whitespace-nowrap text-xs text-muted-foreground opacity-0 transition-opacity group-hover:visible group-hover:opacity-100',
+              own ? 'right-0' : 'left-0'
+            )}
+          >
             {time}
           </time>
         )}
