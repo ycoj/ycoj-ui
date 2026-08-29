@@ -48,15 +48,37 @@ export function getContestDurationParts(
   return { days, hours, minutes };
 }
 
-// OI contests keep the scoreboard hidden until they end, so only the owner or
-// users with the hidden-scoreboard permission may open it.
-export function canShowContestScoreboard(
+function isContestScoreboardPublic(
+  contest: ContestDetailTdoc,
+  now: dayjs.Dayjs
+) {
+  if (contest.rule === 'homework') return true;
+
+  if (contest.rule === 'oi' || contest.rule === 'strictioi') {
+    return now.isAfter(contest.endAt) && !contest.keepScoreboardHidden;
+  }
+
+  return now.isAfter(contest.beginAt);
+}
+
+function canViewHiddenContestScoreboard(
   contest: ContestDetailTdoc,
   user: User
 ) {
-  if (contest.rule !== 'oi') return true;
-  return (
+  const ownsContest =
     user._id === contest.owner ||
-    hasPerm(user, PERM.PERM_VIEW_CONTEST_HIDDEN_SCOREBOARD)
+    (contest.maintainer?.includes(user._id) ?? false);
+
+  return ownsContest || hasPerm(user, PERM.PERM_VIEW_CONTEST_HIDDEN_SCOREBOARD);
+}
+
+export function canShowContestScoreboard(
+  contest: ContestDetailTdoc,
+  user: User,
+  now = dayjs()
+) {
+  return (
+    isContestScoreboardPublic(contest, now) ||
+    canViewHiddenContestScoreboard(contest, user)
   );
 }
