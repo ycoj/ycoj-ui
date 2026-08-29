@@ -1,14 +1,14 @@
 'use client';
 
-import BulkSubmitTreeView from './bulk-submit-tree-view';
+import ClientApis from '@/api/client/method';
+import type { ContestBulkSubmitResult } from '@/api/client/method/contest/bulk-submit';
+import type { ContestBulkSubmitResponse } from '@/api/server/method/contests/bulk-submit';
+import BulkSubmitTreeView from '@/features/contest/management/bulk-submit-tree-view';
 import {
   buildBulkSubmitZipTree,
   normalizeBulkResult,
   normalizeZipMode,
-} from './management-utils';
-import ClientApis from '@/api/client/method';
-import type { ContestBulkSubmitResult } from '@/api/client/method/contest/bulk-submit';
-import type { ContestBulkSubmitResponse } from '@/api/server/method/contests/bulk-submit';
+} from '@/features/contest/management/management-utils';
 import ProblemTitle from '@/features/problem/detail/problem-title';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';

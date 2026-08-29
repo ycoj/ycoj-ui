@@ -1,10 +1,13 @@
 'use client';
 
-import { getClarificationSubject, getObjectIdDate } from './management-utils';
-import type { RenderedClarificationDoc } from './render-clarifications';
 import ClientApis from '@/api/client/method';
 import type { ContestClarificationResponse } from '@/api/server/method/contests/management';
 import { getContestProblemLabel } from '@/features/contest/detail/contest-utils';
+import {
+  getClarificationSubject,
+  getObjectIdDate,
+} from '@/features/contest/management/management-utils';
+import type { RenderedClarificationDoc } from '@/features/contest/management/render-clarifications';
 import UserSpan from '@/features/user/user-span';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';

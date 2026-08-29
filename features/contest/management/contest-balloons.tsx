@@ -1,12 +1,12 @@
 'use client';
 
-import { serializeBalloonConfig } from './management-utils';
 import ClientApis from '@/api/client/method';
 import type { ContestBalloonsResponse } from '@/api/server/method/contests/management';
 import {
   getContestProblemLabel,
   getContestStatus,
 } from '@/features/contest/detail/contest-utils';
+import { serializeBalloonConfig } from '@/features/contest/management/management-utils';
 import UserSpan from '@/features/user/user-span';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';

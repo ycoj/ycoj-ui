@@ -8,7 +8,7 @@ import {
   normalizeZipMode,
   serializeBalloonConfig,
   validateContestScore,
-} from './management-utils';
+} from '@/features/contest/management/management-utils';
 import { describe, expect, it } from 'vitest';
 
 describe('contest management helpers', () => {

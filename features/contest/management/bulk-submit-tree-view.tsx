@@ -1,6 +1,6 @@
 'use client';
 
-import type { BulkSubmitTreeNode } from './management-utils';
+import type { BulkSubmitTreeNode } from '@/features/contest/management/management-utils';
 import { cn } from '@/shared/lib/utils';
 import {
   ChevronDown,

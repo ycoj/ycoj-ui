@@ -1,9 +1,9 @@
 'use client';
 
-import ContestFilesManager from './contest-files-manager';
-import { validateContestScore } from './management-utils';
 import ClientApis from '@/api/client/method';
 import type { ContestManagementResponse } from '@/api/server/method/contests/management';
+import ContestFilesManager from '@/features/contest/management/contest-files-manager';
+import { validateContestScore } from '@/features/contest/management/management-utils';
 import ProblemTitle from '@/features/problem/detail/problem-title';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';

@@ -1,7 +1,7 @@
 import ContestManagementClient, {
   type ContestManagementClientProps,
-} from './contest-management-client';
-import ContestManagementSidebar from './contest-management-sidebar';
+} from '@/features/contest/management/contest-management-client';
+import ContestManagementSidebar from '@/features/contest/management/contest-management-sidebar';
 import TwoColumnLayout from '@/shared/layout/two-column';
 import type { BaseUser } from '@/shared/types/user';
 

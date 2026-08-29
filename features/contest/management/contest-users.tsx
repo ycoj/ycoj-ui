@@ -1,8 +1,11 @@
 'use client';
 
-import { canRemoveContestUser, canResumeContestUser } from './management-utils';
 import ClientApis from '@/api/client/method';
 import type { ContestUsersResponse } from '@/api/server/method/contests/management';
+import {
+  canRemoveContestUser,
+  canResumeContestUser,
+} from '@/features/contest/management/management-utils';
 import UserAutoComplete from '@/features/user/user-auto-complete';
 import UserSpan from '@/features/user/user-span';
 import { Badge } from '@/shared/components/ui/badge';

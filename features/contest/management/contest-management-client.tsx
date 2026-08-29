@@ -1,11 +1,5 @@
 'use client';
 
-import ContestBalloons from './contest-balloons';
-import ContestBulkSubmit from './contest-bulk-submit';
-import ContestClarifications from './contest-clarifications';
-import ContestManagementOverview from './contest-management-overview';
-import ContestUsers from './contest-users';
-import type { RenderedClarificationDoc } from './render-clarifications';
 import type { ContestBulkSubmitResponse } from '@/api/server/method/contests/bulk-submit';
 import type {
   ContestBalloonsResponse,
@@ -13,6 +7,12 @@ import type {
   ContestManagementResponse,
   ContestUsersResponse,
 } from '@/api/server/method/contests/management';
+import ContestBalloons from '@/features/contest/management/contest-balloons';
+import ContestBulkSubmit from '@/features/contest/management/contest-bulk-submit';
+import ContestClarifications from '@/features/contest/management/contest-clarifications';
+import ContestManagementOverview from '@/features/contest/management/contest-management-overview';
+import ContestUsers from '@/features/contest/management/contest-users';
+import type { RenderedClarificationDoc } from '@/features/contest/management/render-clarifications';
 
 export type ContestManagementClientProps =
   | { mode: 'management'; tid: string; data: ContestManagementResponse }

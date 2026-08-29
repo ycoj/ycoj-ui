@@ -1,6 +1,5 @@
 'use client';
 
-import ContestManagementNav from './contest-management-nav';
 import ContestInfo from '@/features/contest/contest-info';
 import ContestRuleBadge from '@/features/contest/contest-rule-badge';
 import ContestStatus from '@/features/contest/contest-status';
@@ -8,6 +7,7 @@ import {
   getContestDurationParts,
   getContestStatus,
 } from '@/features/contest/detail/contest-utils';
+import ContestManagementNav from '@/features/contest/management/contest-management-nav';
 import UserSpan from '@/features/user/user-span';
 import { Separator } from '@/shared/components/ui/separator';
 import type { Contest } from '@/shared/types/contest';
