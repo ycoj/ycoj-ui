@@ -5,6 +5,7 @@ import {
   formatHours,
   getContestCreateDefaults,
   mapContestEditToFormValues,
+  resolveContestAutoHide,
 } from '@/features/contest/form/contest-form-utils';
 import type { Contest } from '@/shared/types/contest';
 import dayjs from 'dayjs';
@@ -129,6 +130,13 @@ describe('contest form utilities', () => {
     expect(formatHours(4)).toBe('4');
     expect(formatHours(3.5)).toBe('3.5');
     expect(formatHours(1.999)).toBe('2');
+  });
+
+  it('keeps the stored auto-hide flag when the editor cannot change it', () => {
+    expect(resolveContestAutoHide(true, true, false)).toBe(true);
+    expect(resolveContestAutoHide(true, false, true)).toBe(false);
+    expect(resolveContestAutoHide(false, false, true)).toBe(true);
+    expect(resolveContestAutoHide(false, true, false)).toBe(false);
   });
 
   it('derives participation access from assign and invitation code', () => {

@@ -125,6 +125,14 @@ export function formatHours(value: number): string {
   return String(rounded);
 }
 
+export function resolveContestAutoHide(
+  canAutoHide: boolean,
+  submitted: boolean,
+  existing: boolean
+): boolean {
+  return canAutoHide ? submitted : existing;
+}
+
 export function contestPermissionFromTdoc(tdoc: {
   assign?: string[];
   _code?: string;

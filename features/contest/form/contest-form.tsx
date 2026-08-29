@@ -6,6 +6,7 @@ import {
   contestRuleSupportsFlexibleDuration,
   contestRuleSupportsHiddenScoreboard,
   contestRuleSupportsLock,
+  resolveContestAutoHide,
   type ContestFormValues,
 } from '@/features/contest/form/contest-form-utils';
 import LanguageAutoComplete from '@/features/language/language-auto-complete';
@@ -141,7 +142,11 @@ export default function ContestForm({
     try {
       const path = await onSubmit({
         ...values,
-        autoHide: canAutoHide && values.autoHide,
+        autoHide: resolveContestAutoHide(
+          canAutoHide,
+          values.autoHide,
+          defaultValues.autoHide
+        ),
       });
       router.push(path);
       router.refresh();
@@ -371,7 +376,6 @@ export default function ContestForm({
             description={t(
               canAutoHide ? 'autoHideHelp' : 'autoHideUnavailable'
             )}
-            checked={canAutoHide ? undefined : false}
             disabled={isSubmitting || !canAutoHide}
           />
           <BooleanField
@@ -583,7 +587,6 @@ type BooleanFieldProps = {
   id: string;
   label: string;
   description: string;
-  checked?: boolean;
   disabled?: boolean;
 };
 
@@ -593,7 +596,6 @@ function BooleanField({
   id,
   label,
   description,
-  checked,
   disabled,
 }: BooleanFieldProps) {
   return (
@@ -604,7 +606,7 @@ function BooleanField({
         <div className="flex min-w-0 items-start gap-2">
           <Checkbox
             id={id}
-            checked={checked ?? field.value}
+            checked={field.value}
             onCheckedChange={(value) => field.onChange(value === true)}
             disabled={disabled}
             className="mt-0.5"
