@@ -1,18 +1,35 @@
 import '@/shared/components/code/style/both.css';
 import { highlightCodeToHtml } from '@/shared/lib/code-highlighter';
+import type { HTMLAttributes } from 'react';
 
 type Props = {
   code: string;
   language: string;
-};
+} & Pick<
+  HTMLAttributes<HTMLPreElement>,
+  'tabIndex' | 'onKeyDown' | 'className'
+>;
 
 /**
- * **注意：这个组件使用 dangerouslySetInnerHTML，确保代码是可信的再使用**
+ * Renders highlighted source with dangerouslySetInnerHTML. Only pass trusted code.
  *
- * @param code 要渲染的代码
- * @param language 代码的语言，会被转换为 starry-night 的 scope
+ * @param code Source to render
+ * @param language Language id, mapped to a starry-night scope
  */
-export default function CodeRenderer({ code, language }: Props) {
+export default function CodeRenderer({
+  code,
+  language,
+  className,
+  tabIndex,
+  onKeyDown,
+}: Props) {
   const html = highlightCodeToHtml(code, language);
-  return <pre dangerouslySetInnerHTML={{ __html: html }}></pre>;
+  return (
+    <pre
+      tabIndex={tabIndex}
+      className={className}
+      onKeyDown={onKeyDown}
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  );
 }

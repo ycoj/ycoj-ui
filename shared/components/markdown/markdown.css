@@ -8,6 +8,10 @@
   --tw-prose-pre-code: var(--primary);
   --tw-prose-pre-bg: var(--color-slate-50);
 
+  &:is(.dark *) {
+    --tw-prose-pre-bg: var(--color-slate-900);
+  }
+
   /* Headers */
   & :where(h1, h2, h3, h4, h5, h6) {
     margin-top: 0.75em;
