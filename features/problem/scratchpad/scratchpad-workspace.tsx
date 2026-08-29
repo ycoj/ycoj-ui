@@ -26,6 +26,7 @@ import {
 } from '@/features/problem/scratchpad/scratchpad-utils';
 import CodeEditor from '@/shared/components/code/code-editor';
 import parseErrorMessage from '@/shared/components/errored/parse-message';
+import { ProblemSamplePretestProvider } from '@/shared/components/markdown/components/problem-sample';
 import { Button } from '@/shared/components/ui/button';
 import { Kbd } from '@/shared/components/ui/kbd';
 import {
@@ -257,6 +258,15 @@ export default function ScratchpadWorkspace({
     setRecordsVisible(true);
     if (isMobile) setMobileTab('records');
   }, [isMobile, recordsVisible]);
+  const fillPretestFromSample = useCallback(
+    (input: string) => {
+      setPretestInput(input);
+      setPretestOutput('');
+      setPretestVisible(true);
+      if (isMobile) setMobileTab('pretest');
+    },
+    [isMobile]
+  );
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -546,6 +556,13 @@ export default function ScratchpadWorkspace({
   const settingsPanel = (
     <ScratchpadSettingsPanel settings={settings} onChange={setSettings} />
   );
+  const problemStatement = canPretest ? (
+    <ProblemSamplePretestProvider onFill={fillPretestFromSample}>
+      {statement}
+    </ProblemSamplePretestProvider>
+  ) : (
+    statement
+  );
 
   return (
     <div
@@ -700,7 +717,7 @@ export default function ScratchpadWorkspace({
               value="problem"
               className="min-h-0 flex-1 overflow-auto p-4"
             >
-              {statement}
+              {problemStatement}
             </TabsContent>
             <TabsContent value="editor" className="min-h-0 flex-1">
               {editor}
@@ -759,7 +776,7 @@ export default function ScratchpadWorkspace({
                 </div>
                 <div className="min-h-0 flex-1 overflow-auto">
                   {desktopPage === 'problem' ? (
-                    <div className="p-5">{statement}</div>
+                    <div className="p-5">{problemStatement}</div>
                   ) : (
                     settingsPanel
                   )}

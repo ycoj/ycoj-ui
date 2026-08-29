@@ -1,6 +1,7 @@
 import { getScratchpadDraft } from './draft-storage';
 import ScratchpadWorkspace from './scratchpad-workspace';
 import messages from '@/messages/en.json';
+import ProblemSample from '@/shared/components/markdown/components/problem-sample';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
@@ -94,7 +95,15 @@ function renderWorkspace(onClose = vi.fn()) {
       <NextIntlClientProvider locale="en" messages={messages}>
         <ScratchpadWorkspace
           config={config}
-          statement={<p>Read the statement</p>}
+          statement={
+            <>
+              <p>Read the statement</p>
+              <ProblemSample
+                data-input={encodeURIComponent('1 2\n')}
+                data-output={encodeURIComponent('3\n')}
+              />
+            </>
+          }
           onClose={onClose}
         />
       </NextIntlClientProvider>
@@ -180,5 +189,14 @@ describe('ScratchpadWorkspace', () => {
     expect(onClose).toHaveBeenCalled();
     view.unmount();
     expect(document.body.style.overflow).toBe('');
+  });
+
+  it('fills a sample input into the pretest panel', async () => {
+    const user = userEvent.setup();
+    renderWorkspace();
+
+    await user.click(screen.getByRole('button', { name: 'Fill into pretest' }));
+
+    expect(screen.getByRole('textbox', { name: 'Input' })).toHaveValue('1 2\n');
   });
 });

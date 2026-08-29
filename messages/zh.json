@@ -639,6 +639,7 @@
     "sample": {
       "copy": "复制",
       "copied": "已复制",
+      "fillPretest": "填充到自测",
       "input": "样例 {index} 输入",
       "output": "样例 {index} 输出"
     },

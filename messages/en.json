@@ -639,6 +639,7 @@
     "sample": {
       "copy": "Copy",
       "copied": "Copied",
+      "fillPretest": "Fill into pretest",
       "input": "Sample {index} input",
       "output": "Sample {index} output"
     },
