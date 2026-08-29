@@ -48,13 +48,16 @@ export function getContestDurationParts(
   return { days, hours, minutes };
 }
 
-// OI contests keep the scoreboard hidden until they end, so only the owner or
-// users with the hidden-scoreboard permission may open it.
+// OI contests keep the scoreboard hidden until they end. Afterward, anyone who
+// can view the contest may open it.
 export function canShowContestScoreboard(
   contest: ContestDetailTdoc,
-  user: User
+  user: User,
+  now = dayjs()
 ) {
   if (contest.rule !== 'oi') return true;
+  if (getContestStatus(contest, now) === 'ended') return true;
+
   return (
     user._id === contest.owner ||
     hasPerm(user, PERM.PERM_VIEW_CONTEST_HIDDEN_SCOREBOARD)

@@ -157,8 +157,8 @@ describe('canShowContestScoreboard', () => {
     return {
       rule,
       owner,
-      beginAt: new Date('2024-01-01T10:00:00.000Z'),
-      endAt: new Date('2024-01-01T12:00:00.000Z'),
+      beginAt: new Date('2099-01-01T10:00:00.000Z'),
+      endAt: new Date('2099-01-01T12:00:00.000Z'),
     } as ContestDetailTdoc;
   }
 
@@ -181,24 +181,46 @@ describe('canShowContestScoreboard', () => {
     const user = makeUser({
       perm: `BigInt::${PERM.PERM_VIEW_CONTEST_HIDDEN_SCOREBOARD.toString()}`,
     });
-    expect(canShowContestScoreboard(makeContestWithRule('oi'), user)).toBe(
-      true
-    );
+    expect(
+      canShowContestScoreboard(
+        makeContestWithRule('oi'),
+        user,
+        dayjs('2099-01-01T11:00:00.000Z')
+      )
+    ).toBe(true);
   });
 
   it('shows the scoreboard to the contest owner for OI contests', () => {
     const user = makeUser({ _id: 100 });
-    expect(canShowContestScoreboard(makeContestWithRule('oi', 100), user)).toBe(
-      true
-    );
+    expect(
+      canShowContestScoreboard(
+        makeContestWithRule('oi', 100),
+        user,
+        dayjs('2099-01-01T11:00:00.000Z')
+      )
+    ).toBe(true);
   });
 
   it('does not treat the regular scoreboard permission as the hidden one', () => {
     const user = makeUser({
       perm: `BigInt::${PERM.PERM_VIEW_CONTEST_SCOREBOARD.toString()}`,
     });
-    expect(canShowContestScoreboard(makeContestWithRule('oi'), user)).toBe(
-      false
-    );
+    expect(
+      canShowContestScoreboard(
+        makeContestWithRule('oi'),
+        user,
+        dayjs('2099-01-01T11:00:00.000Z')
+      )
+    ).toBe(false);
+  });
+
+  it('shows the scoreboard to all users after an OI contest ends', () => {
+    expect(
+      canShowContestScoreboard(
+        makeContestWithRule('oi'),
+        makeUser(),
+        dayjs('2099-01-01T12:00:00.000Z')
+      )
+    ).toBe(true);
   });
 });
