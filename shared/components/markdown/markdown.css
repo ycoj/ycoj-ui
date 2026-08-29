@@ -43,6 +43,16 @@
     margin-bottom: 0.75em;
   }
 
+  & > :where(p):first-child {
+    margin-top: 0;
+  }
+
+  /* Code block spacing */
+  & :where(pre) {
+    margin-top: 0.75em;
+    margin-bottom: 0.75em;
+  }
+
   & :where(a) {
     color: var(--primary);
   }
