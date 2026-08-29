@@ -1,6 +1,6 @@
 import CodeCopyButton from './code-copy-button';
 import messages from '@/messages/en.json';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -50,5 +50,25 @@ describe('CodeCopyButton', () => {
     expect(
       await screen.findByRole('button', { name: 'Copied' })
     ).toBeInTheDocument();
+  });
+
+  it('keeps the copy label when clipboard write is rejected', async () => {
+    const writeText = vi.fn().mockRejectedValue(new Error('denied'));
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    });
+
+    renderButton();
+    fireEvent.click(screen.getByRole('button', { name: 'Copy' }));
+
+    await waitFor(() => {
+      expect(writeText).toHaveBeenCalledWith('int main() {}');
+    });
+    await expect(writeText.mock.results[0]?.value).rejects.toThrow('denied');
+    expect(screen.getByRole('button', { name: 'Copy' })).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Copied' })
+    ).not.toBeInTheDocument();
   });
 });

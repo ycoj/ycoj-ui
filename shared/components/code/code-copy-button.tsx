@@ -4,7 +4,7 @@ import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/utils';
 import { Check, Copy } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 type Props = {
   text: string;
@@ -19,14 +19,33 @@ export default function CodeCopyButton({
 }: Props) {
   const t = useTranslations('common');
   const [copied, setCopied] = useState(false);
+  const copiedResetTimeoutRef = useRef<number | null>(null);
 
   const label = copied ? t('copied') : t('copy');
 
+  useEffect(() => {
+    return () => {
+      if (copiedResetTimeoutRef.current !== null) {
+        window.clearTimeout(copiedResetTimeoutRef.current);
+      }
+    };
+  }, []);
+
   const onCopy = useCallback(async () => {
     if (!text) return;
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1200);
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      if (copiedResetTimeoutRef.current !== null) {
+        window.clearTimeout(copiedResetTimeoutRef.current);
+      }
+      copiedResetTimeoutRef.current = window.setTimeout(() => {
+        setCopied(false);
+        copiedResetTimeoutRef.current = null;
+      }, 1200);
+    } catch {
+      setCopied(false);
+    }
   }, [text]);
 
   switch (variant) {
