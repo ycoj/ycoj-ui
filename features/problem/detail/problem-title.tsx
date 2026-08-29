@@ -3,12 +3,14 @@ import { isFileIoProblem } from '@/features/problem/detail/problem-type';
 import { formatProblemPid } from '@/features/problem/lib/format-problem-pid';
 import ProblemDifficulty from '@/features/problem/problem-difficulty';
 import { Badge } from '@/shared/components/ui/badge';
+import { STATUS } from '@/shared/configs/status';
 import { formatMemory, formatTime } from '@/shared/lib/format-units';
 import type { Contest } from '@/shared/types/contest';
 import type { Homework } from '@/shared/types/homework';
 import type { PublicProjectionProblem } from '@/shared/types/problem';
 import { Award, Clock, Code2, FileInput, Server } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
 
 type Props = {
   problem: PublicProjectionProblem;
@@ -30,13 +32,26 @@ const DEFAULT_TIME_MS = 1000;
 const DEFAULT_MEMORY_MB = 256;
 const DEFAULT_PROBLEM_TYPE = 'default';
 
-function StatItem({ value, label }: { value?: number; label: string }) {
+function StatItem({
+  value,
+  label,
+  href,
+}: {
+  value?: number;
+  label: string;
+  href: string;
+}) {
   const display = typeof value === 'number' ? value : 0;
   return (
-    <div className="flex flex-col items-center justify-center">
-      <div className="text-3xl text-primary leading-none">{display}</div>
+    <Link
+      href={href}
+      className="group flex flex-col items-center justify-center rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+    >
+      <div className="text-3xl text-primary leading-none transition-transform group-hover:scale-110 group-focus-visible:scale-110">
+        {display}
+      </div>
       <div className="mt-1 text-sm text-muted-foreground">{label}</div>
-    </div>
+    </Link>
   );
 }
 
@@ -107,8 +122,16 @@ export default function ProblemTitle({ problem, contest }: Props) {
 
       {!contest && (
         <div className="flex shrink-0 items-start gap-8">
-          <StatItem value={problem.nAccept} label={t('accepted')} />
-          <StatItem value={problem.nSubmit} label={t('submissions')} />
+          <StatItem
+            value={problem.nAccept}
+            label={t('accepted')}
+            href={`/record?pid=${problem.docId}&status=${STATUS.STATUS_ACCEPTED}`}
+          />
+          <StatItem
+            value={problem.nSubmit}
+            label={t('submissions')}
+            href={`/record?pid=${problem.docId}`}
+          />
         </div>
       )}
     </div>
