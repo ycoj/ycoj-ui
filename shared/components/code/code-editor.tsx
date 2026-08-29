@@ -18,6 +18,8 @@ type Props = {
   invalid?: boolean;
   ariaLabel?: string;
   tabSize?: number;
+  fontSize?: number;
+  theme?: 'light' | 'dark' | 'system';
   className?: string;
   path?: string;
   onMount?: OnMount;
@@ -32,11 +34,19 @@ export default function CodeEditor({
   invalid = false,
   ariaLabel,
   tabSize = 2,
+  fontSize,
+  theme,
   className,
   path,
   onMount,
 }: Props) {
   const { resolvedTheme } = useTheme();
+  const editorTheme =
+    theme && theme !== 'system'
+      ? theme
+      : resolvedTheme === 'dark'
+        ? 'dark'
+        : 'light';
 
   return (
     <div
@@ -51,7 +61,7 @@ export default function CodeEditor({
       <Editor
         height="100%"
         language={language}
-        theme={resolvedTheme === 'dark' ? 'vs-dark' : 'light'}
+        theme={editorTheme === 'dark' ? 'vs-dark' : 'light'}
         value={value}
         path={path}
         onMount={onMount}
@@ -66,6 +76,7 @@ export default function CodeEditor({
           wordWrap: 'on',
           padding: { top: 12, bottom: 12 },
           tabSize,
+          fontSize,
           ariaLabel,
         }}
       />

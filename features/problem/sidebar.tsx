@@ -39,6 +39,7 @@ type Props = {
   contestStatus?: ContestStatus;
   allowConfigure?: boolean;
   objectiveSlot?: React.ReactNode;
+  scratchpadSlot?: React.ReactNode;
 };
 
 type SidebarButtonProps = {
@@ -85,6 +86,7 @@ export default function ProblemSidebar({
   contest,
   allowConfigure,
   objectiveSlot,
+  scratchpadSlot,
 }: Props) {
   const t = useTranslations('problem');
   const common = useTranslations('common');
@@ -122,6 +124,7 @@ export default function ProblemSidebar({
     <div className="w-full space-y-4" data-llm-visible="true">
       {objectiveSlot && <div className="space-y-4">{objectiveSlot}</div>}
       <div className="space-y-1">
+        {scratchpadSlot}
         {allowSubmit && (
           <Button asChild className="h-10 w-full justify-start gap-3 px-4">
             <Link

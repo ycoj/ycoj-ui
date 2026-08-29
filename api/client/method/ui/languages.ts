@@ -3,6 +3,9 @@ import { clientRequest } from '@/api/client';
 export type SubmitLanguage = {
   name: string;
   display: string;
+  pretest?: string | false;
+  validAs?: string;
+  hidden?: boolean;
 };
 
 export type LanguageFamily = {
