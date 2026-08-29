@@ -1,8 +1,8 @@
 import { createContest } from './create';
-import { editContest } from './edit';
 import { getContestProblems } from './problems';
 import { attendContest } from './registration';
 import { unlockScoreboard } from './scoreboard';
+import { editContest } from '@/api/client/method/contest/edit';
 
 const Contest = {
   createContest,

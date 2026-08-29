@@ -1,6 +1,6 @@
 import { createHomework } from './create';
-import { editHomework } from './edit';
 import { attendHomework } from './registration';
+import { editHomework } from '@/api/client/method/homework/edit';
 
 const Homework = {
   createHomework,

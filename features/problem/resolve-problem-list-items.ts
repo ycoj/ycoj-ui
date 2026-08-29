@@ -1,8 +1,7 @@
-'server-only';
-
 import type { ProblemAutoCompleteItem } from '@/api/client/method/problem/auto-complete';
 import ServerApis from '@/api/server/method';
 import { parseProblemIdList } from '@/features/problem/problem-list-editor-utils';
+import 'server-only';
 
 export async function resolveProblemListItems(
   pids: string

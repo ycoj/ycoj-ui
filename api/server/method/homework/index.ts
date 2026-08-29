@@ -1,7 +1,7 @@
 import { getHomeworkDetail } from './detail';
-import { getHomeworkEdit } from './edit';
 import { getHomeworkList } from './list';
 import { getHomeworkScoreboard } from './scoreboard';
+import { getHomeworkEdit } from '@/api/server/method/homework/edit';
 
 const Homework = {
   getHomeworkList,

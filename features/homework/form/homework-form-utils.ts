@@ -1,5 +1,6 @@
 import type { CreateHomeworkRequest } from '@/api/client/method/homework/create';
 import type { ProblemAutoCompleteItem } from '@/api/client/method/problem/auto-complete';
+import type { HomeworkEditData } from '@/api/server/method/homework/edit';
 import { serializeProblemIds } from '@/features/problem/problem-list-editor-utils';
 import dayjs, { type Dayjs } from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
@@ -100,21 +101,16 @@ export function padTime(value: string): string {
   return `${hour.padStart(2, '0')}:${minute.padStart(2, '0')}`;
 }
 
-type HomeworkEditSource = {
-  tdoc: {
-    title: string;
-    content?: string;
-    maintainer?: number[];
-    assign?: string[];
-    langs?: string[];
-  };
-  dateBeginText: string;
-  timeBeginText: string;
-  datePenaltyText: string;
-  timePenaltyText: string;
-  extensionDays: number;
-  penaltyRules: string | null;
-};
+type HomeworkEditSource = Pick<
+  HomeworkEditData,
+  | 'tdoc'
+  | 'dateBeginText'
+  | 'timeBeginText'
+  | 'datePenaltyText'
+  | 'timePenaltyText'
+  | 'extensionDays'
+  | 'penaltyRules'
+>;
 
 export function mapHomeworkEditToFormValues(
   data: HomeworkEditSource,

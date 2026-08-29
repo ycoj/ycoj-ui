@@ -1,5 +1,6 @@
 import type { CreateContestRequest } from '@/api/client/method/contest/create';
 import type { ProblemAutoCompleteItem } from '@/api/client/method/problem/auto-complete';
+import type { ContestEditData } from '@/api/server/method/contests/edit';
 import { serializeProblemIds } from '@/features/problem/problem-list-editor-utils';
 import dayjs, { type Dayjs } from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
@@ -145,27 +146,7 @@ export function isContestCreateRule(rule: string): rule is ContestCreateRule {
   return (CONTEST_CREATE_RULES as readonly string[]).includes(rule);
 }
 
-type ContestEditSource = {
-  tdoc: {
-    title: string;
-    content?: string;
-    rule: string;
-    beginAt: Date;
-    endAt: Date;
-    maintainer?: number[];
-    assign?: string[];
-    _code?: string;
-    langs?: string[];
-    rated?: boolean;
-    autoHide?: boolean;
-    allowViewCode?: boolean;
-    allowPrint?: boolean;
-    keepScoreboardHidden?: boolean;
-    lockAt?: Date;
-    duration?: number;
-  };
-  duration: number;
-};
+type ContestEditSource = Pick<ContestEditData, 'tdoc' | 'duration'>;
 
 export function mapContestEditToFormValues(
   data: ContestEditSource,
