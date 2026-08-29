@@ -206,8 +206,7 @@ export default function ContestUsers({ tid, data }: Props) {
                           <Button
                             type="button"
                             size="icon-sm"
-                            variant="ghost"
-                            className="text-destructive hover:text-destructive"
+                            variant="destructive"
                             disabled={busy !== null}
                             title={t('remove')}
                             aria-label={t('remove')}

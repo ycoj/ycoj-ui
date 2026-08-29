@@ -199,8 +199,7 @@ export default function FileSection<TType extends string = ProblemFileType>({
                           <Button
                             type="button"
                             size="icon-xs"
-                            variant="ghost"
-                            className="text-destructive hover:text-destructive"
+                            variant="destructive"
                             title={t('delete')}
                             aria-label={t('delete')}
                             disabled={deleting}
