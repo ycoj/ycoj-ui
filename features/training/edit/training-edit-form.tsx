@@ -60,6 +60,18 @@ export default function TrainingEditForm({
         domainId={domainId}
         cancelHref={`/training/${tid}`}
         canPin={canPin}
+        extraActions={
+          <Button
+            type="button"
+            variant="destructive"
+            disabled={deleting}
+            aria-invalid={!!deleteError}
+            onClick={() => void handleDelete()}
+          >
+            <Trash />
+            {deleting ? t('deleting') : t('delete')}
+          </Button>
+        }
         onSubmit={async (values) => {
           const response = await ClientApis.Training.editTraining(
             tid,
@@ -69,19 +81,7 @@ export default function TrainingEditForm({
           return `/training/${response.tid}`;
         }}
       />
-      <div className="border-t pt-5">
-        <Button
-          type="button"
-          variant="destructive"
-          disabled={deleting}
-          aria-invalid={!!deleteError}
-          onClick={() => void handleDelete()}
-        >
-          <Trash />
-          {deleting ? t('deleting') : t('delete')}
-        </Button>
-        <FieldError errors={[{ message: deleteError }]} />
-      </div>
+      <FieldError errors={[{ message: deleteError }]} />
     </div>
   );
 }

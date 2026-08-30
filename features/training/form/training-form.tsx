@@ -23,6 +23,7 @@ import { ArrowLeft, Plus, Save } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import type { ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -34,6 +35,7 @@ type Props = {
   domainId: string;
   cancelHref: string;
   canPin: boolean;
+  extraActions?: ReactNode;
   onSubmit: (values: TrainingFormValues) => Promise<string>;
 };
 
@@ -43,6 +45,7 @@ export default function TrainingForm({
   domainId,
   cancelHref,
   canPin,
+  extraActions,
   onSubmit,
 }: Props) {
   const t = useTranslations('trainingForm');
@@ -217,6 +220,7 @@ export default function TrainingForm({
               ? t('create')
               : t('save')}
         </Button>
+        {extraActions}
         <Button asChild variant="secondary">
           <Link href={cancelHref}>
             <ArrowLeft />
