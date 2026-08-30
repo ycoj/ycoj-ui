@@ -1,4 +1,5 @@
 import './globals.css';
+import SudoRedirectListener from '@/features/auth/sudo/sudo-redirect-listener';
 import { Toaster } from '@/shared/components/ui/sonner';
 import { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
@@ -47,6 +48,7 @@ export default async function RootLayout({
           enableColorScheme
         >
           <NextIntlClientProvider locale={locale} messages={messages}>
+            <SudoRedirectListener />
             {children}
             <Toaster richColors position="top-right" />
           </NextIntlClientProvider>

@@ -42,7 +42,7 @@ const NAV_ROUTE_MAP: Record<string, string> = {
   record_main: '/record',
   ranking: '/ranking',
   domain_dashboard: '/domain',
-  manage_dashboard: '/manage/realname',
+  manage_dashboard: '/manage',
   course_list: '/course',
   live_main: '/live',
 };

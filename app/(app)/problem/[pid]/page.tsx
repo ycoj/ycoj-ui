@@ -22,6 +22,7 @@ import TwoColumnLayout from '@/shared/layout/two-column';
 import type { User } from '@/shared/types/user';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
+import { unstable_rethrow } from 'next/navigation';
 
 type Params = {
   pid: string;
@@ -89,7 +90,8 @@ export default async function ProblemDetailPage({
         data.pdoc.docId
       );
       scratchpadLanguages = response.languages;
-    } catch {
+    } catch (error) {
+      unstable_rethrow(error);
       scratchpadLanguages = {};
     }
   }
