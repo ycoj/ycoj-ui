@@ -138,6 +138,7 @@ export default function SidebarUserMenu({ user, roleKey, avatarSrc }: Props) {
               <span data-llm-text={t('messages')}>{t('messages')}</span>
             </Link>
           </DropdownMenuPrimitive.Item>
+          <DropdownMenuPrimitive.Separator className="bg-foreground/10 -mx-1 my-1 h-px" />
           <DropdownMenuPrimitive.Item asChild className={menuItemClassName}>
             <Link href="/home/realname">
               <BadgeCheck aria-hidden="true" />
