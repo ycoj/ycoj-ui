@@ -6,6 +6,7 @@ import Domain from './domain';
 import Homework from './homework';
 import Messages from './messages';
 import Problem from './problem';
+import Realname from './realname';
 import Record from './record';
 import Training from './training';
 import UI from './ui';
@@ -20,6 +21,7 @@ const ClientApis = {
   Homework,
   Messages,
   Problem,
+  Realname,
   Record,
   Training,
   UI,

@@ -6,6 +6,7 @@ import Homework from './homework';
 import Messages from './messages';
 import Problems from './problems';
 import Ranking from './ranking';
+import Realname from './realname';
 import Record from './record';
 import Training from './training';
 import UI from './ui';
@@ -21,6 +22,7 @@ const ServerApis = {
   Messages,
   Training,
   Ranking,
+  Realname,
   User,
 };
 

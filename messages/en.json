@@ -2,6 +2,7 @@
   "common": {
     "profile": "Profile",
     "messages": "Messages",
+    "realname": "Real-name verification",
     "language": "Language",
     "darkMode": "Dark mode",
     "chinese": "中文",
@@ -144,7 +145,10 @@
     "editSolution": "Edit solution",
     "scoreboard": "Scoreboard",
     "userProfile": "User profile",
-    "messages": "Messages"
+    "messages": "Messages",
+    "realname": "Real-name verification",
+    "realnameResult": "Verification result",
+    "realnameManage": "Real-name review"
   },
   "contest": {
     "status": {
@@ -1140,6 +1144,121 @@
     "back": "Back",
     "upvote": "Upvote",
     "downvote": "Downvote"
+  },
+  "realname": {
+    "title": "Real-name verification",
+    "description": "Enter your legal name and school for administrator review. You can continue using the site for seven days after your first submission.",
+    "resultTitle": "Verification result",
+    "exemptTitle": "Verification not required",
+    "exemptDescription": "Super administrators and judge service accounts do not need to submit real-name verification.",
+    "rejectedTitle": "Verification was rejected",
+    "rejectedDescription": "Review your information and submit it again.",
+    "reasonWithValue": "Reason: {reason}",
+    "viewResult": "View verification result",
+    "submittedAt": "Submitted",
+    "reviewedAt": "Reviewed",
+    "resubmit": "Resubmit",
+    "backHome": "Back to home",
+    "validation": {
+      "realNameMin": "Legal name must be at least 2 characters",
+      "realNameMax": "Legal name cannot exceed 64 characters",
+      "schoolMin": "School name must be at least 2 characters",
+      "schoolMax": "School name cannot exceed 128 characters"
+    },
+    "form": {
+      "title": "Verification information",
+      "description": "Use your legal name and the full official name of your school.",
+      "realName": "Legal name",
+      "realNameHelp": "Enter your legal name, 2–64 characters.",
+      "school": "School",
+      "schoolHelp": "Enter the full official school name, 2–128 characters.",
+      "submit": "Submit verification",
+      "update": "Update verification",
+      "submitting": "Submitting...",
+      "submitFailed": "Submission failed. Please try again later."
+    },
+    "grace": {
+      "title": "Seven-day grace period",
+      "until": "You can continue using the site until {deadline}.",
+      "expiredTitle": "Grace period ended",
+      "pendingExpired": "Other site features are unavailable until an administrator approves your application.",
+      "rejectedExpired": "Resubmit your application. Other site features remain unavailable until it is approved."
+    },
+    "help": {
+      "title": "Review process",
+      "review": "You can continue using the site for seven days after your first submission while an administrator reviews it.",
+      "update": "You can update a pending application, but doing so does not restart the grace period.",
+      "resubmit": "A rejected application can be corrected and submitted again."
+    },
+    "status": {
+      "none": "Not submitted",
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "noneTitle": "Real-name verification has not been submitted",
+      "pendingTitle": "Your verification is awaiting review",
+      "approvedTitle": "Your verification has been approved",
+      "rejectedTitle": "Your verification was rejected",
+      "approvedDescription": "You can now use all site features normally."
+    },
+    "reminder": {
+      "pendingTitle": "Real-name verification is under review",
+      "pendingDescription": "You can continue using the site until {deadline}.",
+      "rejectedTitle": "Real-name verification was rejected",
+      "rejectedDescription": "Resubmit your application before {deadline}.",
+      "viewStatus": "View status",
+      "resubmit": "Resubmit"
+    },
+    "manage": {
+      "title": "Real-name review",
+      "count": "{count, plural, one {# application} other {# applications}}",
+      "filterLabel": "Filter by verification status",
+      "filter": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "all": "All"
+      },
+      "user": "User",
+      "realName": "Legal name",
+      "school": "School",
+      "statusLabel": "Status",
+      "submittedAt": "Submitted",
+      "actions": "Actions",
+      "status": {
+        "pending": "Pending",
+        "approved": "Approved",
+        "rejected": "Rejected"
+      },
+      "approve": "Approve",
+      "reject": "Reject",
+      "revoke": "Revoke",
+      "emptyTitle": "No applications",
+      "emptyDescription": "No real-name applications match the current filter.",
+      "actionFailed": "The review action failed. Please try again later.",
+      "cancel": "Cancel",
+      "submitting": "Processing...",
+      "success": {
+        "approve": "Verification approved",
+        "reject": "Verification rejected",
+        "revoke": "Verification revoked"
+      },
+      "dialog": {
+        "approveTitle": "Approve this application?",
+        "approveDescription": "Approving {name}'s verification grants the user full site access.",
+        "rejectTitle": "Reject this application?",
+        "rejectDescription": "After rejecting {name}'s application, the user can correct and resubmit it.",
+        "revokeTitle": "Revoke this verification?",
+        "revokeDescription": "If the grace period has ended, revoking {name}'s verification immediately removes access to other site features.",
+        "reason": "Reason (optional)",
+        "reasonPlaceholder": "Enter a reason to show the user",
+        "confirm": {
+          "approve": "Approve",
+          "reject": "Reject",
+          "revoke": "Revoke"
+        }
+      }
+    }
   },
   "difficulty": {
     "unrated": "Unrated",

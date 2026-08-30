@@ -2,6 +2,7 @@
   "common": {
     "profile": "个人主页",
     "messages": "消息",
+    "realname": "实名认证",
     "language": "语言",
     "darkMode": "深色模式",
     "chinese": "中文",
@@ -144,7 +145,10 @@
     "editSolution": "编辑题解",
     "scoreboard": "成绩表",
     "userProfile": "用户主页",
-    "messages": "消息"
+    "messages": "消息",
+    "realname": "实名认证",
+    "realnameResult": "认证结果",
+    "realnameManage": "实名认证审核"
   },
   "contest": {
     "status": {
@@ -1140,6 +1144,121 @@
     "back": "返回",
     "upvote": "赞同",
     "downvote": "反对"
+  },
+  "realname": {
+    "title": "实名认证",
+    "description": "请填写真实姓名与学校，提交后由老师审核。首次提交后的七天内可继续使用本站。",
+    "resultTitle": "认证结果",
+    "exemptTitle": "无需实名认证",
+    "exemptDescription": "超级管理员和评测服务账户无需提交实名认证。",
+    "rejectedTitle": "实名认证未通过",
+    "rejectedDescription": "请检查申请信息并重新提交。",
+    "reasonWithValue": "原因：{reason}",
+    "viewResult": "查看认证结果",
+    "submittedAt": "提交时间",
+    "reviewedAt": "审核时间",
+    "resubmit": "重新提交",
+    "backHome": "返回首页",
+    "validation": {
+      "realNameMin": "真实姓名至少需要 2 个字符",
+      "realNameMax": "真实姓名不能超过 64 个字符",
+      "schoolMin": "学校名称至少需要 2 个字符",
+      "schoolMax": "学校名称不能超过 128 个字符"
+    },
+    "form": {
+      "title": "认证信息",
+      "description": "请使用法定姓名和学校的完整正式名称。",
+      "realName": "真实姓名",
+      "realNameHelp": "填写法定姓名，2–64 个字符。",
+      "school": "学校",
+      "schoolHelp": "填写学校完整正式名称，2–128 个字符。",
+      "submit": "提交认证",
+      "update": "更新认证",
+      "submitting": "提交中...",
+      "submitFailed": "提交失败，请稍后重试"
+    },
+    "grace": {
+      "title": "七天宽限期",
+      "until": "在 {deadline} 前，你可以继续使用本站。",
+      "expiredTitle": "宽限期已结束",
+      "pendingExpired": "审核通过前，你暂时无法使用本站其他功能。",
+      "rejectedExpired": "请重新提交认证；审核通过前，你暂时无法使用本站其他功能。"
+    },
+    "help": {
+      "title": "审核说明",
+      "review": "首次提交后七天内，你可以在等待老师审核期间继续使用本站。",
+      "update": "若填写有误，可在审核前更新申请；宽限期不会重新计算。",
+      "resubmit": "未通过的申请可以修改后重新提交。"
+    },
+    "status": {
+      "none": "未提交",
+      "pending": "待审核",
+      "approved": "已通过",
+      "rejected": "未通过",
+      "noneTitle": "尚未提交实名认证",
+      "pendingTitle": "实名认证正在等待审核",
+      "approvedTitle": "实名认证已通过",
+      "rejectedTitle": "实名认证未通过",
+      "approvedDescription": "你现在可以正常使用本站功能。"
+    },
+    "reminder": {
+      "pendingTitle": "实名认证正在审核中",
+      "pendingDescription": "你可以继续使用本站至 {deadline}。",
+      "rejectedTitle": "实名认证未通过",
+      "rejectedDescription": "请在 {deadline} 前重新提交认证。",
+      "viewStatus": "查看状态",
+      "resubmit": "重新提交"
+    },
+    "manage": {
+      "title": "实名认证审核",
+      "count": "共 {count} 份申请",
+      "filterLabel": "按认证状态筛选",
+      "filter": {
+        "pending": "待审核",
+        "approved": "已通过",
+        "rejected": "未通过",
+        "all": "全部"
+      },
+      "user": "用户",
+      "realName": "真实姓名",
+      "school": "学校",
+      "statusLabel": "状态",
+      "submittedAt": "提交时间",
+      "actions": "操作",
+      "status": {
+        "pending": "待审核",
+        "approved": "已通过",
+        "rejected": "未通过"
+      },
+      "approve": "通过",
+      "reject": "驳回",
+      "revoke": "撤销",
+      "emptyTitle": "暂无申请",
+      "emptyDescription": "当前筛选条件下没有实名认证申请。",
+      "actionFailed": "审核操作失败，请稍后重试",
+      "cancel": "取消",
+      "submitting": "处理中...",
+      "success": {
+        "approve": "认证申请已通过",
+        "reject": "认证申请已驳回",
+        "revoke": "认证已撤销"
+      },
+      "dialog": {
+        "approveTitle": "确认通过申请？",
+        "approveDescription": "通过 {name} 的实名认证后，该用户将获得完整访问权限。",
+        "rejectTitle": "确认驳回申请？",
+        "rejectDescription": "驳回 {name} 的实名认证申请后，该用户可以修改并重新提交。",
+        "revokeTitle": "确认撤销认证？",
+        "revokeDescription": "撤销 {name} 的实名认证后，若宽限期已结束，该用户将立即失去其他功能的访问权限。",
+        "reason": "原因（可选）",
+        "reasonPlaceholder": "填写提供给用户的原因",
+        "confirm": {
+          "approve": "确认通过",
+          "reject": "确认驳回",
+          "revoke": "确认撤销"
+        }
+      }
+    }
   },
   "difficulty": {
     "unrated": "暂无评定",
