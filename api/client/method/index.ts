@@ -1,4 +1,5 @@
 import Account from '@/api/client/method/account';
+import AccountExpiration from '@/api/client/method/account-expiration';
 import Auth from '@/api/client/method/auth';
 import * as Checkin from '@/api/client/method/checkin';
 import Contest from '@/api/client/method/contest';
@@ -15,6 +16,7 @@ import User from '@/api/client/method/user';
 
 const ClientApis = {
   Account,
+  AccountExpiration,
   Auth,
   Checkin,
   Contest,

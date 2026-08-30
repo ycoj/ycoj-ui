@@ -1,6 +1,8 @@
 'server-only';
 
 import Account from '@/api/server/method/account';
+import AccountExpiration from '@/api/server/method/account-expiration';
+import Auth from '@/api/server/method/auth';
 import Contests from '@/api/server/method/contests';
 import Discussion from '@/api/server/method/discussion';
 import Homework from '@/api/server/method/homework';
@@ -15,6 +17,8 @@ import User from '@/api/server/method/user';
 
 const ServerApis = {
   Account,
+  AccountExpiration,
+  Auth,
   UI,
   Problems,
   Record,
