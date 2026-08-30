@@ -68,6 +68,13 @@ export function getNextSectionId(sections: { id: number }[]): number {
   return sections.reduce((max, section) => Math.max(max, section.id), 0) + 1;
 }
 
+export function allocateNextSectionId(
+  lastAllocated: number,
+  sections: { id: number }[]
+): number {
+  return Math.max(lastAllocated + 1, getNextSectionId(sections));
+}
+
 export function hasDuplicateSectionIds(sections: { id: number }[]): boolean {
   return (
     new Set(sections.map((section) => section.id)).size !== sections.length

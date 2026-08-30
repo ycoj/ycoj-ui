@@ -1,4 +1,4 @@
-import ProblemListEditor from './problem-list-editor';
+import ProblemListEditor, { problemListDragType } from './problem-list-editor';
 import type { ProblemAutoCompleteItem } from '@/api/client/method/problem/auto-complete';
 import messages from '@/messages/en.json';
 import { act, fireEvent, render, screen } from '@testing-library/react';
@@ -54,6 +54,17 @@ async function advanceDebounce() {
     await Promise.resolve();
   });
 }
+
+describe('problemListDragType', () => {
+  it('is unique per list id so sections cannot accept each other', () => {
+    expect(problemListDragType('sections.0.pids')).not.toBe(
+      problemListDragType('sections.1.pids')
+    );
+    expect(problemListDragType('sections.0.pids')).toBe(
+      'problem-list-item:sections.0.pids'
+    );
+  });
+});
 
 describe('ProblemListEditor', () => {
   beforeEach(() => {

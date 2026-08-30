@@ -422,7 +422,8 @@
     "submitFailed": "提交失败，请稍后重试。",
     "delete": "删除训练",
     "deleting": "删除中...",
-    "deleteConfirm": "确认删除该训练？相关文件和进度记录将一并删除。"
+    "deleteConfirm": "确认删除该训练？相关文件和进度记录将一并删除。",
+    "deleteFailed": "删除失败，请稍后重试。"
   },
   "problem": {
     "none": "暂无题目",

@@ -1,4 +1,5 @@
 import {
+  allocateNextSectionId,
   buildTrainingPayload,
   getNextSectionId,
   getTrainingCreateDefaults,
@@ -101,6 +102,16 @@ describe('getNextSectionId', () => {
   it('returns one more than the current max id', () => {
     expect(getNextSectionId([])).toBe(1);
     expect(getNextSectionId([{ id: 2 }, { id: 5 }])).toBe(6);
+  });
+});
+
+describe('allocateNextSectionId', () => {
+  it('uses lastAllocated when watched sections have not caught up', () => {
+    expect(allocateNextSectionId(2, [{ id: 1 }])).toBe(3);
+  });
+
+  it('uses the watched max when lastAllocated is behind', () => {
+    expect(allocateNextSectionId(1, [{ id: 1 }, { id: 5 }])).toBe(6);
   });
 });
 
