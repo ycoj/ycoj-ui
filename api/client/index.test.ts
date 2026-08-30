@@ -1,4 +1,4 @@
-import { clientRequest, handleClientSudoResponse } from './index';
+import { clientRequest, handleClientSudoResponse } from '@/api/client';
 import { SudoRedirectError } from '@/shared/lib/sudo-navigation';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 

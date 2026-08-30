@@ -1,5 +1,5 @@
-import type { BackendError, BackendRedirect } from './sudo';
-import type { BaseUser } from './user';
+import type { BackendError, BackendRedirect } from '@/shared/types/sudo';
+import type { BaseUser } from '@/shared/types/user';
 
 export type AccountExpirationUser = BaseUser & {
   priv: number;

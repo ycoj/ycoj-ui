@@ -1,4 +1,4 @@
-import SudoRoutePage from './page';
+import SudoRoutePage from '@/app/(public)/user/sudo/page';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({

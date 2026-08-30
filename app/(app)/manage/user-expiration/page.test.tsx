@@ -1,4 +1,4 @@
-import AccountExpirationPage from './page';
+import AccountExpirationPage from '@/app/(app)/manage/user-expiration/page';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({

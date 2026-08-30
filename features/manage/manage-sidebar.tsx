@@ -1,6 +1,6 @@
 'use client';
 
-import { canManageExpiration } from './manage-access';
+import { canManageExpiration } from '@/features/manage/manage-access';
 import { PRIV } from '@/features/user/lib/priv';
 import { cn } from '@/shared/lib/utils';
 import { CalendarClock, UserCheck } from 'lucide-react';

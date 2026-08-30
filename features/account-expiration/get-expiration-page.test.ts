@@ -1,4 +1,4 @@
-import { getExpirationPage } from './get-expiration-page';
+import { getExpirationPage } from '@/features/account-expiration/get-expiration-page';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({ get: vi.fn(), redirect: vi.fn() }));

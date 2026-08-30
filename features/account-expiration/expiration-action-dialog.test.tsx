@@ -1,5 +1,5 @@
-import ExpirationActionDialog from './expiration-action-dialog';
-import { submitExpiration } from './submit-expiration';
+import ExpirationActionDialog from '@/features/account-expiration/expiration-action-dialog';
+import { submitExpiration } from '@/features/account-expiration/submit-expiration';
 import messages from '@/messages/en.json';
 import type { AccountExpirationAction } from '@/shared/types/account-expiration';
 import {
@@ -13,7 +13,9 @@ import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('./submit-expiration', () => ({ submitExpiration: vi.fn() }));
+vi.mock('@/features/account-expiration/submit-expiration', () => ({
+  submitExpiration: vi.fn(),
+}));
 
 function renderDialog(
   operation: AccountExpirationAction['operation'] = 'adjust'

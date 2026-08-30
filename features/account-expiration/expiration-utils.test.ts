@@ -3,7 +3,7 @@ import {
   isExpirationDate,
   parseExpirationPage,
   updateExpirationSelection,
-} from './expiration-utils';
+} from '@/features/account-expiration/expiration-utils';
 import type { AccountExpirationUser } from '@/shared/types/account-expiration';
 import { describe, expect, it } from 'vitest';
 

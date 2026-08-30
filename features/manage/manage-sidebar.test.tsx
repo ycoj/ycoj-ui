@@ -1,5 +1,8 @@
-import { canManageExpiration, manageLanding } from './manage-access';
-import ManageSidebar from './manage-sidebar';
+import {
+  canManageExpiration,
+  manageLanding,
+} from '@/features/manage/manage-access';
+import ManageSidebar from '@/features/manage/manage-sidebar';
 import messages from '@/messages/en.json';
 import { render, screen } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';

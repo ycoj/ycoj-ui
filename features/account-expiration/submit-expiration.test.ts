@@ -1,4 +1,4 @@
-import { submitExpiration } from './submit-expiration';
+import { submitExpiration } from '@/features/account-expiration/submit-expiration';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
