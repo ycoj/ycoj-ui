@@ -2,6 +2,7 @@
 
 import {
   hasDuplicateSectionIds,
+  hasCyclicRequireNids,
   hasInvalidRequireNids,
   type TrainingFormValues,
 } from '@/features/training/form/training-form-utils';
@@ -87,6 +88,12 @@ export default function TrainingForm({
             });
           }
         });
+        if (hasCyclicRequireNids(sections)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: t('requiresInvalid'),
+          });
+        }
       }),
   });
   const {

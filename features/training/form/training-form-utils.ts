@@ -81,3 +81,27 @@ export function hasInvalidRequireNids(
   const ids = new Set(sections.map((item) => item.id));
   return section.requireNids.some((nid) => nid === section.id || !ids.has(nid));
 }
+
+export function hasCyclicRequireNids(
+  sections: { id: number; requireNids: number[] }[]
+): boolean {
+  const graph = new Map(
+    sections.map((section) => [section.id, section.requireNids])
+  );
+  const visiting = new Set<number>();
+  const visited = new Set<number>();
+
+  const visit = (id: number): boolean => {
+    if (visiting.has(id)) return true;
+    if (visited.has(id)) return false;
+    visiting.add(id);
+    for (const prerequisite of graph.get(id) ?? []) {
+      if (graph.has(prerequisite) && visit(prerequisite)) return true;
+    }
+    visiting.delete(id);
+    visited.add(id);
+    return false;
+  };
+
+  return sections.some((section) => visit(section.id));
+}

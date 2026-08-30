@@ -7,22 +7,27 @@ export async function resolveProblemListItems(
   pids: string
 ): Promise<ProblemAutoCompleteItem[]> {
   const docIds = parseProblemIdList(pids);
-  return Promise.all(
-    docIds.map(async (docId) => {
-      try {
-        const data = await ServerApis.Problems.getProblemsList(String(docId));
-        const found = data.pdocs?.find((problem) => problem.docId === docId);
-        if (found) {
-          return {
-            docId: found.docId,
-            pid: found.pid,
-            title: found.title,
-          };
-        }
-      } catch {
-        // Fall back to the numeric id when lookup fails.
-      }
-      return { docId, title: String(docId) };
-    })
+  if (docIds.length === 0) return [];
+  const uniqueDocIds = Array.from(new Set(docIds));
+  let byDocId = new Map<number, ProblemAutoCompleteItem>();
+  try {
+    const data = await ServerApis.Problems.getProblemsList(
+      uniqueDocIds.join(',')
+    );
+    byDocId = new Map(
+      (data.pdocs ?? []).map((problem) => [
+        problem.docId,
+        {
+          docId: problem.docId,
+          pid: problem.pid,
+          title: problem.title,
+        },
+      ])
+    );
+  } catch {
+    // Fall back to numeric ids when lookup fails.
+  }
+  return docIds.map(
+    (docId) => byDocId.get(docId) ?? { docId, title: String(docId) }
   );
 }

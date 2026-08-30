@@ -3,6 +3,7 @@ import {
   getNextSectionId,
   getTrainingCreateDefaults,
   hasDuplicateSectionIds,
+  hasCyclicRequireNids,
   hasInvalidRequireNids,
   mapTrainingEditToFormValues,
   type TrainingSectionValue,
@@ -129,5 +130,33 @@ describe('hasInvalidRequireNids', () => {
     expect(hasInvalidRequireNids({ id: 1, requireNids: [9] }, sections)).toBe(
       true
     );
+  });
+});
+
+describe('hasCyclicRequireNids', () => {
+  it('detects direct and indirect prerequisite cycles', () => {
+    expect(
+      hasCyclicRequireNids([
+        { id: 1, requireNids: [2] },
+        { id: 2, requireNids: [1] },
+      ])
+    ).toBe(true);
+    expect(
+      hasCyclicRequireNids([
+        { id: 1, requireNids: [2] },
+        { id: 2, requireNids: [3] },
+        { id: 3, requireNids: [1] },
+      ])
+    ).toBe(true);
+  });
+
+  it('accepts acyclic prerequisites', () => {
+    expect(
+      hasCyclicRequireNids([
+        { id: 1, requireNids: [] },
+        { id: 2, requireNids: [1] },
+        { id: 3, requireNids: [1, 2] },
+      ])
+    ).toBe(false);
   });
 });

@@ -42,7 +42,7 @@ export default async function TrainingEditPage({
   if (!canEditTraining(user, data.tdoc))
     return <Errored title={t('unavailable')} error={t('unavailable')} />;
 
-  const sections = await resolveTrainingSections(data.tdoc.dag ?? []);
+  const sections = resolveTrainingSections(data.tdoc.dag ?? [], data.pdict);
 
   return (
     <TrainingEditForm
