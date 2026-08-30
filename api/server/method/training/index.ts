@@ -1,5 +1,5 @@
-import { getTrainingDetail } from './detail';
-import { getTrainingList } from './list';
+import { getTrainingDetail } from '@/api/server/method/training/detail';
+import { getTrainingList } from '@/api/server/method/training/list';
 
 const Training = {
   getTrainingDetail,

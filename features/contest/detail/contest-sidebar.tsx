@@ -9,6 +9,7 @@ import type {
 import ContestInfo from '@/features/contest/contest-info';
 import ContestRuleBadge from '@/features/contest/contest-rule-badge';
 import ContestStatus from '@/features/contest/contest-status';
+import ContestManagementNav from '@/features/contest/management/contest-management-nav';
 import UserSpan from '@/features/user/user-span';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
@@ -17,10 +18,9 @@ import type { BaseUser } from '@/shared/types/user';
 import dayjs from 'dayjs';
 import {
   Award,
-  MessageCircle,
-  Pencil,
-  PlusSquare,
   Check,
+  MessageCircle,
+  PlusSquare,
   type LucideIcon,
 } from 'lucide-react';
 import { useFormatter, useTranslations } from 'next-intl';
@@ -148,13 +148,7 @@ export default function ContestSidebar({
           icon={MessageCircle}
           text={common('discussion')}
         />
-        {canEdit && (
-          <SidebarButton
-            href={`/contest/${tid}/edit`}
-            icon={Pencil}
-            text={common('edit')}
-          />
-        )}
+        {canEdit && <ContestManagementNav tid={tid} />}
       </div>
 
       <Separator />

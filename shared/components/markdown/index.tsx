@@ -17,6 +17,7 @@ import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import type { Options as Schema } from 'rehype-sanitize';
 import rehypeStarryNight from 'rehype-starry-night';
 import remarkGfm from 'remark-gfm';
+import 'server-only';
 import type { PluggableList } from 'unified';
 
 export const markdownSanitizeSchema: Schema = {

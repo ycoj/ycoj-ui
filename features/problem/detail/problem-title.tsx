@@ -7,14 +7,18 @@ import { STATUS } from '@/shared/configs/status';
 import { formatMemory, formatTime } from '@/shared/lib/format-units';
 import type { Contest } from '@/shared/types/contest';
 import type { Homework } from '@/shared/types/homework';
-import type { PublicProjectionProblem } from '@/shared/types/problem';
+import type {
+  ContestListProjectionProblem,
+  PublicProjectionProblem,
+} from '@/shared/types/problem';
 import { Award, Clock, Code2, FileInput, Server } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
 type Props = {
-  problem: PublicProjectionProblem;
+  problem: ContestListProjectionProblem | PublicProjectionProblem;
   contest?: Contest | Homework;
+  compact?: boolean;
 };
 
 const PROBLEM_TYPE_KEYS: Record<string, string> = {
@@ -55,16 +59,33 @@ function StatItem({
   );
 }
 
-export default function ProblemTitle({ problem, contest }: Props) {
+export default function ProblemTitle({ problem, contest, compact }: Props) {
   const t = useTranslations('problem');
-  const typeKey =
-    PROBLEM_TYPE_KEYS[problem.config?.type || DEFAULT_PROBLEM_TYPE];
-  const typeLabel = typeKey ? t(typeKey) : problem.config?.type;
-  const tagList = Array.isArray(problem.tag) ? problem.tag : [];
-  const fileIoName = problem.config?.subType;
+  const config = 'config' in problem ? problem.config : undefined;
+  const difficulty = 'difficulty' in problem ? problem.difficulty : undefined;
+  const tags = 'tag' in problem ? problem.tag : undefined;
+  const typeKey = PROBLEM_TYPE_KEYS[config?.type || DEFAULT_PROBLEM_TYPE];
+  const typeLabel = typeKey ? t(typeKey) : config?.type;
+  const tagList = Array.isArray(tags) ? tags : [];
+  const fileIoName = config?.subType;
   const hideTimeMemory =
-    problem.config?.type === 'objective' ||
-    problem.config?.type === 'submit_answer';
+    config?.type === 'objective' || config?.type === 'submit_answer';
+
+  if (compact) {
+    return (
+      <div className="min-w-0 leading-snug" data-llm-visible="true">
+        <span className="mr-2 whitespace-nowrap text-muted-foreground">
+          #{formatProblemPid(problem)}.
+        </span>
+        <span
+          className="wrap-break-word font-medium"
+          data-llm-text={problem.title}
+        >
+          {problem.title}
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -82,12 +103,12 @@ export default function ProblemTitle({ problem, contest }: Props) {
         </div>
 
         <div className="mt-3 flex flex-wrap items-center gap-2">
-          <ProblemDifficulty difficulty={problem.difficulty} />
+          <ProblemDifficulty difficulty={difficulty} />
           <Badge variant="secondary">
             <Code2 strokeWidth={2} data-icon="inline-start" />
             {typeLabel}
           </Badge>
-          {isFileIoProblem(problem) && fileIoName && (
+          {config && isFileIoProblem({ config }) && fileIoName && (
             <Badge variant="secondary">
               <FileInput strokeWidth={2} data-icon="inline-start" />
               {t('fileIoWithName', { name: fileIoName })}
@@ -96,7 +117,7 @@ export default function ProblemTitle({ problem, contest }: Props) {
           {!hideTimeMemory && (
             <Badge variant="secondary">
               <Clock strokeWidth={3} data-icon="inline-start" />
-              {formatTime(problem.config?.timeMax ?? DEFAULT_TIME_MS, 'ms')}
+              {formatTime(config?.timeMax ?? DEFAULT_TIME_MS, 'ms')}
             </Badge>
           )}
 
@@ -104,7 +125,7 @@ export default function ProblemTitle({ problem, contest }: Props) {
             <Badge variant="secondary">
               <Server strokeWidth={2} data-icon="inline-start" />
               {formatMemory(
-                (problem.config?.memoryMax ?? DEFAULT_MEMORY_MB) * 1024 * 1024
+                (config?.memoryMax ?? DEFAULT_MEMORY_MB) * 1024 * 1024
               )}
             </Badge>
           )}
@@ -123,12 +144,12 @@ export default function ProblemTitle({ problem, contest }: Props) {
       {!contest && (
         <div className="flex shrink-0 items-start gap-8">
           <StatItem
-            value={problem.nAccept}
+            value={'nAccept' in problem ? problem.nAccept : undefined}
             label={t('accepted')}
             href={`/record?pid=${problem.docId}&status=${STATUS.STATUS_ACCEPTED}`}
           />
           <StatItem
-            value={problem.nSubmit}
+            value={'nSubmit' in problem ? problem.nSubmit : undefined}
             label={t('submissions')}
             href={`/record?pid=${problem.docId}`}
           />

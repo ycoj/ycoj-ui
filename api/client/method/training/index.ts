@@ -1,4 +1,4 @@
-import { enrollTraining } from './enroll';
+import { enrollTraining } from '@/api/client/method/training/enroll';
 
 const Training = {
   enrollTraining,
