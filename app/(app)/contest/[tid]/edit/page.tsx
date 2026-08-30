@@ -45,7 +45,7 @@ export default async function ContestEditPage({
   if (!canEditContest(user, data.tdoc))
     return <Errored title={t('unavailable')} error={t('unavailable')} />;
 
-  const pids = await resolveProblemListItems(data.pids);
+  const pids = await resolveProblemListItems(homepage.domain._id, data.pids);
   const canAutoHide = hasPerm(user, PERM.PERM_EDIT_PROBLEM);
   const mapped = mapContestEditToFormValues(data, pids, user.timeZone);
 
