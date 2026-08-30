@@ -99,6 +99,14 @@ describe('ProblemTitle submission stats', () => {
     expect(screen.getByText('Submissions')).toBeInTheDocument();
     expect(screen.getByText('1')).toBeInTheDocument();
     expect(screen.getByText('3')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: '1 Accepted' })).toHaveAttribute(
+      'href',
+      '/record?pid=1&status=1'
+    );
+    expect(screen.getByRole('link', { name: '3 Submissions' })).toHaveAttribute(
+      'href',
+      '/record?pid=1'
+    );
   });
 
   it('hides accepted and submission counts in contest mode', () => {
