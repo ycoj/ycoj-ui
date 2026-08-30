@@ -1,3 +1,4 @@
+import Account from './account';
 import Auth from './auth';
 import * as Checkin from './checkin';
 import Contest from './contest';
@@ -12,6 +13,7 @@ import UI from './ui';
 import User from './user';
 
 const ClientApis = {
+  Account,
   Auth,
   Checkin,
   Contest,
