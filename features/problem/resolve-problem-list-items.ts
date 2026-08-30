@@ -19,9 +19,7 @@ export async function resolveProblemListItems(
             title: found.title,
           };
         }
-      } catch {
-        // Fall back to the numeric id when lookup fails.
-      }
+      } catch {}
       return { docId, title: String(docId) };
     })
   );
