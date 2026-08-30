@@ -1,16 +1,17 @@
 'server-only';
 
-import Account from './account';
-import Contests from './contests';
-import Discussion from './discussion';
-import Homework from './homework';
-import Messages from './messages';
-import Problems from './problems';
-import Ranking from './ranking';
-import Record from './record';
-import Training from './training';
-import UI from './ui';
-import User from './user';
+import Account from '@/api/server/method/account';
+import Contests from '@/api/server/method/contests';
+import Discussion from '@/api/server/method/discussion';
+import Homework from '@/api/server/method/homework';
+import Messages from '@/api/server/method/messages';
+import Problems from '@/api/server/method/problems';
+import Ranking from '@/api/server/method/ranking';
+import Realname from '@/api/server/method/realname';
+import Record from '@/api/server/method/record';
+import Training from '@/api/server/method/training';
+import UI from '@/api/server/method/ui';
+import User from '@/api/server/method/user';
 
 const ServerApis = {
   Account,
@@ -23,6 +24,7 @@ const ServerApis = {
   Messages,
   Training,
   Ranking,
+  Realname,
   User,
 };
 

@@ -1,16 +1,17 @@
-import Account from './account';
-import Auth from './auth';
-import * as Checkin from './checkin';
-import Contest from './contest';
-import Discussion from './discussion';
-import Domain from './domain';
-import Homework from './homework';
-import Messages from './messages';
-import Problem from './problem';
-import Record from './record';
-import Training from './training';
-import UI from './ui';
-import User from './user';
+import Account from '@/api/client/method/account';
+import Auth from '@/api/client/method/auth';
+import * as Checkin from '@/api/client/method/checkin';
+import Contest from '@/api/client/method/contest';
+import Discussion from '@/api/client/method/discussion';
+import Domain from '@/api/client/method/domain';
+import Homework from '@/api/client/method/homework';
+import Messages from '@/api/client/method/messages';
+import Problem from '@/api/client/method/problem';
+import Realname from '@/api/client/method/realname';
+import Record from '@/api/client/method/record';
+import Training from '@/api/client/method/training';
+import UI from '@/api/client/method/ui';
+import User from '@/api/client/method/user';
 
 const ClientApis = {
   Account,
@@ -22,6 +23,7 @@ const ClientApis = {
   Homework,
   Messages,
   Problem,
+  Realname,
   Record,
   Training,
   UI,

@@ -48,6 +48,10 @@ export type User = BaseUser & {
   bio?: string;
   codeLang?: string;
   codeTemplate?: string;
+  realnameStatus?: 'none' | 'pending' | 'approved' | 'rejected';
+  realnameSubmittedAt?: string;
+  realName?: string;
+  realnameSchool?: string;
   rank?: number;
   rp?: number;
   rpInfo?: RpInfo;
