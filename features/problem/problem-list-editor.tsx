@@ -23,8 +23,14 @@ import {
   X,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useCallback, useState } from 'react';
-import { DndProvider, useDrag, useDrop } from 'react-dnd';
+import {
+  useCallback,
+  useContext,
+  useId,
+  useState,
+  type ReactNode,
+} from 'react';
+import { DndContext, DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
 import { toast } from 'sonner';
 
@@ -38,15 +44,23 @@ type Props = {
   id?: string;
 };
 
-const ITEM_TYPE = 'problem-list-item';
+export const problemListDragType = (listId: string) =>
+  `problem-list-item:${listId}`;
 
-type DragItem = { index: number };
+function ProblemListDndRoot({ children }: { children: ReactNode }) {
+  const { dragDropManager } = useContext(DndContext);
+  if (dragDropManager) return children;
+  return <DndProvider backend={HTML5Backend}>{children}</DndProvider>;
+}
+
+type DragItem = { index: number; listType: string };
 
 function ProblemListRow({
   problem,
   index,
   itemCount,
   disabled,
+  itemType,
   onMove,
   onRemove,
 }: {
@@ -54,6 +68,7 @@ function ProblemListRow({
   index: number;
   itemCount: number;
   disabled?: boolean;
+  itemType: string;
   onMove: (from: number, to: number) => void;
   onRemove: (docId: number) => void;
 }) {
@@ -62,23 +77,24 @@ function ProblemListRow({
   const letter = getContestProblemLabel(index);
   const [{ isDragging }, drag] = useDrag(
     () => ({
-      type: ITEM_TYPE,
-      item: { index } satisfies DragItem,
+      type: itemType,
+      item: { index, listType: itemType } satisfies DragItem,
       canDrag: !disabled,
       collect: (monitor) => ({ isDragging: monitor.isDragging() }),
     }),
-    [index, disabled]
+    [index, disabled, itemType]
   );
   const [, drop] = useDrop<DragItem>(
     () => ({
-      accept: ITEM_TYPE,
+      accept: itemType,
       hover: (item) => {
+        if (item.listType !== itemType) return;
         if (item.index === index) return;
         onMove(item.index, index);
         item.index = index;
       },
     }),
-    [index, onMove]
+    [index, itemType, onMove]
   );
 
   return (
@@ -147,6 +163,8 @@ export default function ProblemListEditor({
   id,
 }: Props) {
   const t = useTranslations('problemListEditor');
+  const generatedId = useId();
+  const itemType = problemListDragType(id ?? generatedId);
   const [query, setQuery] = useState('');
   const [busy, setBusy] = useState(false);
 
@@ -218,7 +236,7 @@ export default function ProblemListEditor({
   };
 
   return (
-    <DndProvider backend={HTML5Backend}>
+    <ProblemListDndRoot>
       <div className="space-y-2" data-llm-visible="true">
         <div className="flex items-center justify-between gap-2">
           <Label htmlFor={id} data-llm-text={t('title')}>
@@ -274,6 +292,7 @@ export default function ProblemListEditor({
                 index={index}
                 itemCount={value.length}
                 disabled={disabled || busy}
+                itemType={itemType}
                 onMove={moveItem}
                 onRemove={removeProblem}
               />
@@ -281,6 +300,6 @@ export default function ProblemListEditor({
           </div>
         )}
       </div>
-    </DndProvider>
+    </ProblemListDndRoot>
   );
 }

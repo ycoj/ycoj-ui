@@ -1,6 +1,8 @@
 import ServerApis from '@/api/server/method';
 import TrainingFilter from '@/features/training/list/training-filter';
 import TrainingList from '@/features/training/list/training-list';
+import { getUser } from '@/features/user/lib/get-user';
+import { hasPerm, PERM } from '@/features/user/lib/priv';
 import Pagination from '@/shared/components/pagination';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
@@ -34,7 +36,10 @@ export default async function TrainingListPage({
   const q = normalizeParam(searchParams.q);
   const page = parsePage(searchParams.page);
 
-  const data = await ServerApis.Training.getTrainingList(page, q);
+  const [data, user] = await Promise.all([
+    ServerApis.Training.getTrainingList(page, q),
+    getUser(),
+  ]);
 
   const filterKey = new URLSearchParams(
     Object.entries({ q }).reduce<Record<string, string>>(
@@ -49,7 +54,10 @@ export default async function TrainingListPage({
 
   return (
     <div className="space-y-4">
-      <TrainingFilter key={filterKey} />
+      <TrainingFilter
+        key={filterKey}
+        canCreate={hasPerm(user, PERM.PERM_CREATE_TRAINING)}
+      />
       <TrainingList data={data} />
       <div className="pt-1">
         <Pagination page={data.page} totalPages={data.tpcount} />

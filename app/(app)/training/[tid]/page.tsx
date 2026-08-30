@@ -1,7 +1,9 @@
 import { getTrainingDetail } from '@/features/training/detail/get-training-detail';
 import TrainingContent from '@/features/training/detail/training-content';
 import TrainingSidebar from '@/features/training/detail/training-sidebar';
+import { canEditTraining } from '@/features/training/lib/can-edit-training';
 import TrainingTitle from '@/features/training/training-title';
+import { getUser } from '@/features/user/lib/get-user';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
@@ -29,7 +31,7 @@ export default async function TrainingDetailPage({
   params: Promise<Params>;
 }) {
   const { tid } = await params;
-  const data = await getTrainingDetail(tid);
+  const [data, user] = await Promise.all([getTrainingDetail(tid), getUser()]);
   const owner = data.udict[data.tdoc.owner];
   const isEnrolled = Boolean(data.tsdoc?.enroll);
 
@@ -41,7 +43,12 @@ export default async function TrainingDetailPage({
           <TrainingContent data={data} />
         </div>
         <div className="md:col-span-2">
-          <TrainingSidebar tid={tid} data={data} owner={owner} />
+          <TrainingSidebar
+            tid={tid}
+            data={data}
+            owner={owner}
+            canEdit={canEditTraining(user, data.tdoc)}
+          />
         </div>
       </div>
     </div>
