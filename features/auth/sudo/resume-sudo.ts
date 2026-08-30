@@ -1,5 +1,6 @@
 import ClientApis from '@/api/client/method';
 import {
+  isAuthSessionPath,
   isSudoRequired,
   throwBackendError,
 } from '@/shared/lib/backend-response';
@@ -19,6 +20,7 @@ export async function resumeSudo(
   if ('url' in result) return target;
   const method = result.method?.toLowerCase();
   if (method === 'get') return target;
+  if (isAuthSessionPath(target)) throw new Error(failureMessage);
   // The legacy handler clears sudoArgs.method after assigning it to the response body.
   if (method && method !== 'post') throw new Error(failureMessage);
   const response = await ClientApis.Auth.resumeSudoAction(

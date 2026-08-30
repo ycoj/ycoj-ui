@@ -1,3 +1,5 @@
+import { normalizeBackendPathname } from '@/shared/lib/backend-response';
+
 export class SudoRedirectError extends Error {
   constructor() {
     super('Redirecting to identity verification.');
@@ -18,7 +20,7 @@ export function safeSudoPath(value: string, origin: string) {
     const url = new URL(value, origin);
     if (url.origin !== origin || !['http:', 'https:'].includes(url.protocol))
       return null;
-    if (url.pathname === '/user/sudo') return null;
+    if (normalizeBackendPathname(url.pathname) === '/user/sudo') return null;
     return `${url.pathname}${url.search}${url.hash}`;
   } catch {
     return null;

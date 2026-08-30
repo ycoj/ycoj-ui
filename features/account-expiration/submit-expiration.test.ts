@@ -40,12 +40,15 @@ describe('submitExpiration', () => {
     await submitExpiration({ operation: 'clear', uids: [1] }, 'failed');
     expect(mocks.clear).toHaveBeenCalledWith([1]);
   });
-  it('does not treat a sudo redirect as success', async () => {
-    mocks.send.mockResolvedValue({ url: '/user/sudo' });
-    await expect(
-      submitExpiration({ operation: 'clear', uids: [1] }, 'failed')
-    ).resolves.toBe('sudo');
-  });
+  it.each(['/user/sudo', '/d/system/user/sudo'])(
+    'does not treat a sudo redirect as success: %s',
+    async (url) => {
+      mocks.send.mockResolvedValue({ url });
+      await expect(
+        submitExpiration({ operation: 'clear', uids: [1] }, 'failed')
+      ).resolves.toBe('sudo');
+    }
+  );
   it('surfaces JSON backend errors even with a successful HTTP response', async () => {
     mocks.send.mockResolvedValue({ error: { message: 'Protected account' } });
     await expect(
@@ -59,13 +62,26 @@ describe('submitExpiration', () => {
     ).rejects.toThrow('Network error');
     expect(mocks.adjust).toHaveBeenCalledOnce();
   });
-  it.each(['/login', 'https://elsewhere.example/other', '/user/sudo/other'])(
-    'rejects unexpected success redirects: %s',
+  it.each(['/login', '/d/system/login', '/login?redirect=%2Fhome'])(
+    'rejects login redirects: %s',
     async (url) => {
       mocks.send.mockResolvedValue({ url });
       await expect(
         submitExpiration({ operation: 'clear', uids: [1] }, 'failed')
       ).rejects.toThrow('failed');
+    }
+  );
+  it.each([
+    'https://elsewhere.example/other',
+    '/',
+    '/d/system/manage/user-expiration?q=alice',
+  ])(
+    'treats an applied write as success even if the referer is %s',
+    async (url) => {
+      mocks.send.mockResolvedValue({ url });
+      await expect(
+        submitExpiration({ operation: 'clear', uids: [1] }, 'failed')
+      ).resolves.toBe('success');
     }
   );
 });

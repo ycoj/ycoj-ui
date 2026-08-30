@@ -1,5 +1,6 @@
 import ServerApis from '@/api/server/method';
 import {
+  BackendResponseError,
   isSudoRequired,
   throwBackendError,
 } from '@/shared/lib/backend-response';
@@ -30,7 +31,7 @@ export const getExpirationPage = cache(
       return {
         kind: 'error',
         message:
-          error instanceof Error && error.message
+          error instanceof BackendResponseError && error.message
             ? error.message
             : t('loadFailed'),
       };

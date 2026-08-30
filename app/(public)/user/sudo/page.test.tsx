@@ -39,6 +39,17 @@ describe('standalone sudo route', () => {
     expect(page.props.capabilities).toEqual({ authn: true, tfa: true });
     expect(mocks.redirect).not.toHaveBeenCalled();
   });
+  it('prefers TFA and WebAuthn flags from the sudo GET body', async () => {
+    mocks.get.mockResolvedValue({ authn: false, tfa: true });
+    const page = await SudoRoutePage();
+    expect(page.props.available).toBe(true);
+    expect(page.props.capabilities).toEqual({ authn: false, tfa: true });
+  });
+  it('falls back to nav user flags when the sudo body omits them', async () => {
+    mocks.get.mockResolvedValue({});
+    const page = await SudoRoutePage();
+    expect(page.props.capabilities).toEqual({ authn: true, tfa: true });
+  });
   it('requires login', async () => {
     mocks.user.mockResolvedValue({ _id: 0 });
     await expect(SudoRoutePage()).rejects.toThrow('redirect');

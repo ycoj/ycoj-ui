@@ -46,7 +46,7 @@ describe('expiration page loader', () => {
     });
     await expect(getExpirationPage(1, '')).resolves.toEqual({
       kind: 'error',
-      message: 'Offline',
+      message: 'loadFailed',
     });
   });
   it('never renders a redirected login response as list data', async () => {

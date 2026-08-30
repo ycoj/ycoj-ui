@@ -107,6 +107,7 @@ describe('global sudo continuation', () => {
     '/\\evil.example/action',
     'javascript:alert(1)',
     '/user/sudo',
+    '/d/system/user/sudo',
     '',
   ])('rejects unsafe or looping targets: %s', async (redirect) => {
     expect(safeSudoPath(redirect, origin)).toBeNull();
@@ -115,4 +116,27 @@ describe('global sudo continuation', () => {
     ).rejects.toThrow('failed');
     expect(mocks.resume).not.toHaveBeenCalled();
   });
+  it.each([
+    '/login',
+    '/logout',
+    '/register',
+    '/user/webauthn',
+    '/d/system/logout',
+    '/d/foo/user/webauthn',
+  ])('does not replay POST to auth session paths: %s', async (redirect) => {
+    await expect(
+      resumeSudo({ method: 'post', redirect, args: {} }, origin, 'failed')
+    ).rejects.toThrow('failed');
+    expect(mocks.resume).not.toHaveBeenCalled();
+  });
+  it.each(['/login', '/logout', '/d/system/register', '/user/webauthn'])(
+    'still allows GET navigation to %s',
+    async (url) => {
+      await expect(resumeSudo({ url }, origin, 'failed')).resolves.toBe(url);
+      await expect(
+        resumeSudo({ method: 'get', redirect: url, args: {} }, origin, 'failed')
+      ).resolves.toBe(url);
+      expect(mocks.resume).not.toHaveBeenCalled();
+    }
+  );
 });

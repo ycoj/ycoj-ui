@@ -1,5 +1,8 @@
 import ClientApis from '@/api/client/method';
 import {
+  backendPathname,
+  isLoginRedirect,
+  isSudoRequired,
   matchesBackendPath,
   throwBackendError,
 } from '@/shared/lib/backend-response';
@@ -17,7 +20,14 @@ export async function verifySecurityKey(
   });
   const response = await ClientApis.Auth.verifyWebauthn(result).send();
   throwBackendError(response);
-  if (!('url' in response) || !matchesBackendPath(response.url, returnPath))
+  if (!('url' in response) || typeof response.url !== 'string')
     throw new Error(failureMessage);
-  return options.authOptions.challenge;
+  if (isLoginRedirect(response.url)) throw new Error(failureMessage);
+  if (
+    matchesBackendPath(response.url, returnPath) ||
+    isSudoRequired(response) ||
+    backendPathname(response.url) === '/'
+  )
+    return options.authOptions.challenge;
+  throw new Error(failureMessage);
 }

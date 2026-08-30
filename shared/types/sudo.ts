@@ -17,3 +17,8 @@ export type SudoResponse = SudoResult | BackendError;
 export type SudoCredentialType = 'password' | 'tfa' | 'authnChallenge';
 
 export type SudoCapabilities = { authn: boolean; tfa: boolean };
+
+export type SudoPageData = {
+  authn?: boolean;
+  tfa?: boolean;
+};

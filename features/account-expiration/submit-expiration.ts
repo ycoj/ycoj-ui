@@ -1,7 +1,7 @@
 import ClientApis from '@/api/client/method';
 import {
+  isLoginRedirect,
   isSudoRequired,
-  matchesBackendPath,
   throwBackendError,
 } from '@/shared/lib/backend-response';
 import type { AccountExpirationAction } from '@/shared/types/account-expiration';
@@ -21,8 +21,9 @@ export async function submitExpiration(
   throwBackendError(response);
   if (isSudoRequired(response)) return 'sudo';
   if (
-    !('url' in response) ||
-    !matchesBackendPath(response.url, '/manage/user-expiration')
+    'url' in response &&
+    typeof response.url === 'string' &&
+    isLoginRedirect(response.url)
   )
     throw new Error(failureMessage);
   return 'success';
