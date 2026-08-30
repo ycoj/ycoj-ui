@@ -1,5 +1,6 @@
 {
   "common": {
+    "accountSettings": "账户设置",
     "profile": "个人主页",
     "messages": "消息",
     "language": "语言",
@@ -113,6 +114,7 @@
     "retryError": "登录失败，请稍后重试"
   },
   "metadata": {
+    "accountSettings": "账户设置",
     "home": "首页",
     "login": "登录",
     "contestList": "比赛列表",
@@ -1018,6 +1020,7 @@
     "cancel": "返回题目列表"
   },
   "user": {
+    "editProfile": "编辑资料",
     "noSolvedProblems": "暂无通过题目",
     "problemOverview": "做题概览",
     "viewSubmissions": "查看提交记录",
@@ -1047,6 +1050,72 @@
     "averageVotes": "平均投票",
     "problemFallback": "题目 #{id}",
     "sendMessage": "发送私信"
+  },
+  "accountSettings": {
+    "navigation": "设置",
+    "title": "账户设置",
+    "description": "更新你的头像与个人资料。",
+    "profileTitle": "个人资料",
+    "save": "保存修改",
+    "saving": "保存中…",
+    "saved": "账户设置已保存。",
+    "saveFailed": "保存失败，请稍后重试。",
+    "selectPlaceholder": "请选择",
+    "unchanged": "留空则保持不变",
+    "families": {
+      "setting_info": "个人信息",
+      "setting_customize": "主页外观",
+      "setting_basic": "基本设置"
+    },
+    "fields": {
+      "qq": "QQ",
+      "gender": "性别",
+      "bio": "个人简介",
+      "school": "学校",
+      "studentId": "学号",
+      "phone": "手机号",
+      "backgroundImage": "资料页背景图片"
+    },
+    "help": {
+      "qq": "填写你的 QQ 号。",
+      "bio": "介绍一下自己，支持 Markdown。",
+      "phone": "此处暂不支持修改手机号。",
+      "backgroundImage": "填写用于个人资料页背景的图片地址。"
+    },
+    "gender": { "0": "男", "1": "女", "2": "其他" },
+    "avatar": {
+      "title": "头像",
+      "provider": "头像来源",
+      "providers": {
+        "gravatar": "Gravatar",
+        "github": "GitHub",
+        "qq": "QQ",
+        "upload": "上传图片"
+      },
+      "labels": {
+        "gravatar": "邮箱地址",
+        "github": "GitHub 用户名",
+        "qq": "QQ 号"
+      },
+      "placeholders": {
+        "gravatar": "填写 Gravatar 使用的邮箱",
+        "github": "填写 GitHub 用户名",
+        "qq": "填写 QQ 号"
+      },
+      "file": "头像图片",
+      "uploadHelp": "支持 JPG、JPEG、PNG 格式，最大 8 MiB。",
+      "preview": "{name} 的头像",
+      "save": "更新头像",
+      "saving": "更新中…",
+      "saved": "头像已更新。",
+      "saveFailed": "头像更新失败，请稍后重试。",
+      "required": "请填写头像账户信息。",
+      "invalidEmail": "请输入有效的邮箱地址。",
+      "invalidQq": "QQ 号只能包含数字。",
+      "fileRequired": "请选择头像图片。",
+      "fileTooLarge": "图片大小不能超过 8 MiB。",
+      "invalidFileType": "请选择 JPG、JPEG 或 PNG 图片。"
+    }
   },
   "messages": {
     "title": "消息",

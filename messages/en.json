@@ -1,5 +1,6 @@
 {
   "common": {
+    "accountSettings": "Account settings",
     "profile": "Profile",
     "messages": "Messages",
     "language": "Language",
@@ -113,6 +114,7 @@
     "retryError": "Login failed. Please try again later."
   },
   "metadata": {
+    "accountSettings": "Account settings",
     "home": "Home",
     "login": "Log in",
     "contestList": "Contests",
@@ -1018,6 +1020,7 @@
     "cancel": "Back to problems"
   },
   "user": {
+    "editProfile": "Edit profile",
     "noSolvedProblems": "No solved problems",
     "problemOverview": "Problem overview",
     "viewSubmissions": "View submissions",
@@ -1047,6 +1050,72 @@
     "averageVotes": "Average votes",
     "problemFallback": "Problem #{id}",
     "sendMessage": "Send message"
+  },
+  "accountSettings": {
+    "navigation": "Settings",
+    "title": "Account settings",
+    "description": "Update your avatar and personal information.",
+    "profileTitle": "Profile information",
+    "save": "Save changes",
+    "saving": "Saving...",
+    "saved": "Account settings saved.",
+    "saveFailed": "Could not save your changes. Please try again.",
+    "selectPlaceholder": "Select an option",
+    "unchanged": "Leave blank to keep unchanged",
+    "families": {
+      "setting_info": "Personal information",
+      "setting_customize": "Profile appearance",
+      "setting_basic": "General"
+    },
+    "fields": {
+      "qq": "QQ",
+      "gender": "Gender",
+      "bio": "Bio",
+      "school": "School",
+      "studentId": "Student ID",
+      "phone": "Phone",
+      "backgroundImage": "Profile background image"
+    },
+    "help": {
+      "qq": "Your QQ number.",
+      "bio": "Introduce yourself. Markdown is supported.",
+      "phone": "This field cannot be edited here.",
+      "backgroundImage": "Enter the image URL for your profile background."
+    },
+    "gender": { "0": "Male", "1": "Female", "2": "Other" },
+    "avatar": {
+      "title": "Avatar",
+      "provider": "Avatar source",
+      "providers": {
+        "gravatar": "Gravatar",
+        "github": "GitHub",
+        "qq": "QQ",
+        "upload": "Upload"
+      },
+      "labels": {
+        "gravatar": "Email address",
+        "github": "GitHub username",
+        "qq": "QQ number"
+      },
+      "placeholders": {
+        "gravatar": "Email registered with Gravatar",
+        "github": "Enter your GitHub username",
+        "qq": "Enter your QQ number"
+      },
+      "file": "Avatar image",
+      "uploadHelp": "JPG, JPEG or PNG, up to 8 MiB.",
+      "preview": "Avatar for {name}",
+      "save": "Update avatar",
+      "saving": "Updating...",
+      "saved": "Avatar updated.",
+      "saveFailed": "Could not update your avatar. Please try again.",
+      "required": "Enter your avatar account details.",
+      "invalidEmail": "Enter a valid email address.",
+      "invalidQq": "Enter a QQ number using digits only.",
+      "fileRequired": "Choose an avatar image.",
+      "fileTooLarge": "The image must not exceed 8 MiB.",
+      "invalidFileType": "Choose a JPG, JPEG or PNG image."
+    }
   },
   "messages": {
     "title": "Messages",

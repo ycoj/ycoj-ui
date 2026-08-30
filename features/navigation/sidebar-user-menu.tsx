@@ -19,6 +19,7 @@ import {
   LogOut,
   MessagesSquare,
   Moon,
+  Settings,
   Sun,
   UserRound,
 } from 'lucide-react';
@@ -134,6 +135,14 @@ export default function SidebarUserMenu({ user, roleKey, avatarSrc }: Props) {
             <Link href="/home/messages">
               <MessagesSquare aria-hidden="true" />
               <span data-llm-text={t('messages')}>{t('messages')}</span>
+            </Link>
+          </DropdownMenuPrimitive.Item>
+          <DropdownMenuPrimitive.Item asChild className={menuItemClassName}>
+            <Link href="/home/settings/account">
+              <Settings aria-hidden="true" />
+              <span data-llm-text={t('accountSettings')}>
+                {t('accountSettings')}
+              </span>
             </Link>
           </DropdownMenuPrimitive.Item>
           <DropdownMenuPrimitive.Sub>
