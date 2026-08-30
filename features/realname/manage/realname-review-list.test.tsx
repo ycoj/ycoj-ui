@@ -1,4 +1,4 @@
-import RealnameReviewList from './realname-review-list';
+import RealnameReviewList from '@/features/realname/manage/realname-review-list';
 import messages from '@/messages/en.json';
 import type { RealnameManageData } from '@/shared/types/realname';
 import { render, screen, waitFor, within } from '@testing-library/react';

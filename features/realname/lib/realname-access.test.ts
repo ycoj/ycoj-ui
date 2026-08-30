@@ -1,4 +1,7 @@
-import { getRealnameAccess, REALNAME_GRACE_MS } from './realname-access';
+import {
+  getRealnameAccess,
+  REALNAME_GRACE_MS,
+} from '@/features/realname/lib/realname-access';
 import { PRIV } from '@/features/user/lib/priv';
 import { describe, expect, it } from 'vitest';
 

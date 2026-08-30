@@ -1,4 +1,4 @@
-import RealnameResult from './realname-result';
+import RealnameResult from '@/features/realname/user/realname-result';
 import type { RealnameResultData } from '@/shared/types/realname';
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

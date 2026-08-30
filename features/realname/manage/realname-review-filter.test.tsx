@@ -1,4 +1,4 @@
-import RealnameReviewFilter from './realname-review-filter';
+import RealnameReviewFilter from '@/features/realname/manage/realname-review-filter';
 import messages from '@/messages/en.json';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';

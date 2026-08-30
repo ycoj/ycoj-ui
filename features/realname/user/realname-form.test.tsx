@@ -1,4 +1,4 @@
-import RealnameForm from './realname-form';
+import RealnameForm from '@/features/realname/user/realname-form';
 import messages from '@/messages/en.json';
 import type { RealnamePageData } from '@/shared/types/realname';
 import { render, screen, waitFor } from '@testing-library/react';

@@ -1,4 +1,4 @@
-import type { BaseUserDict } from './user';
+import type { BaseUserDict } from '@/shared/types/user';
 
 export const REALNAME_STATUSES = ['pending', 'approved', 'rejected'] as const;
 

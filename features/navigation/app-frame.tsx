@@ -1,5 +1,5 @@
-import { CollapsedTrigger } from './collapsed-trigger';
-import AppSidebar from './sidebar';
+import { CollapsedTrigger } from '@/features/navigation/collapsed-trigger';
+import AppSidebar from '@/features/navigation/sidebar';
 import ThemeLogo from '@/shared/components/theme-logo';
 import { SidebarInset, SidebarProvider } from '@/shared/components/ui/sidebar';
 import { getTranslations } from 'next-intl/server';
