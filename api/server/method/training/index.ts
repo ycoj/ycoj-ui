@@ -1,6 +1,6 @@
-import { getTrainingDetail } from './detail';
-import { getTrainingEdit } from './edit';
-import { getTrainingList } from './list';
+import { getTrainingDetail } from '@/api/server/method/training/detail';
+import { getTrainingEdit } from '@/api/server/method/training/edit';
+import { getTrainingList } from '@/api/server/method/training/list';
 
 const Training = {
   getTrainingDetail,
