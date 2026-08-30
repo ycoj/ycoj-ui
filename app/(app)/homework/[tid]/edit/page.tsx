@@ -41,7 +41,7 @@ export default async function HomeworkEditPage({
   if (!canEditHomework(user, data.tdoc))
     return <Errored title={t('unavailable')} error={t('unavailable')} />;
 
-  const pids = await resolveProblemListItems(data.pids);
+  const pids = await resolveProblemListItems(homepage.domain._id, data.pids);
 
   return (
     <HomeworkEditForm
