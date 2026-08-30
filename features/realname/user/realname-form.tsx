@@ -1,5 +1,6 @@
 'use client';
 
+import { formatGraceUntil } from '../lib/format-grace-until';
 import ClientApis from '@/api/client/method';
 import {
   Alert,
@@ -89,12 +90,7 @@ export default function RealnameForm({ data }: Props) {
     );
   }
 
-  const deadline = data.graceUntil
-    ? new Intl.DateTimeFormat(locale, {
-        dateStyle: 'medium',
-        timeStyle: 'short',
-      }).format(new Date(data.graceUntil))
-    : null;
+  const deadline = formatGraceUntil(locale, data.graceUntil);
   const onSubmit = async (values: FormValues) => {
     try {
       const response = await ClientApis.Realname.submitRealname(values).send();
