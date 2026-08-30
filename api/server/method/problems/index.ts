@@ -1,3 +1,4 @@
+import { getProblemsByIds } from './by-ids';
 import { getProblemConfig } from './config';
 import { getProblemDetail } from './detail';
 import { getProblemFiles } from './files';
@@ -16,6 +17,7 @@ const Problems = {
   submitProblem,
   getProblemSolution,
   getProblemTags,
+  getProblemsByIds,
 };
 
 export default Problems;
