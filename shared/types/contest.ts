@@ -35,7 +35,9 @@ export type Contest = {
   lockAt?: Date;
   unlocked?: boolean;
   /** 气球发放状态记录 */
-  balloon?: Record<number, string>;
+  balloon?: Record<number, { color: string; name: string }>;
+  /** Per-problem score weights used by contest scoring. */
+  score?: Record<number, number>;
 
   /** 自动隐藏或解除隐藏题目 */
   autoHide?: boolean;
@@ -107,6 +109,16 @@ export type ContestClarificationDoc = {
   owner: number;
   important: boolean;
   _cat: number;
+  subject: number;
+  reply?: ContestClarificationReply[];
+};
+
+export type ContestClarificationReply = {
+  _id?: string;
+  docId?: string;
+  content: string;
+  owner: number;
+  important?: boolean;
 };
 
 // Scoreboard types

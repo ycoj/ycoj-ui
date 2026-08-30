@@ -4,25 +4,25 @@ import { parseProblemIdList } from '@/features/problem/problem-list-editor-utils
 import 'server-only';
 
 export async function resolveProblemListItems(
+  domainId: string,
   pids: string
 ): Promise<ProblemAutoCompleteItem[]> {
   const docIds = parseProblemIdList(pids);
-  return Promise.all(
-    docIds.map(async (docId) => {
-      try {
-        const data = await ServerApis.Problems.getProblemsList(String(docId));
-        const found = data.pdocs?.find((problem) => problem.docId === docId);
-        if (found) {
-          return {
-            docId: found.docId,
-            pid: found.pid,
-            title: found.title,
-          };
-        }
-      } catch {
-        // Fall back to the numeric id when lookup fails.
-      }
-      return { docId, title: String(docId) };
-    })
-  );
+  if (!docIds.length) return [];
+
+  try {
+    const problems = await ServerApis.Problems.getProblemsByIds(
+      domainId,
+      docIds
+    );
+    const problemsById = new Map(
+      problems.map((problem) => [problem.docId, problem])
+    );
+
+    return docIds.map(
+      (docId) => problemsById.get(docId) ?? { docId, title: String(docId) }
+    );
+  } catch {
+    return docIds.map((docId) => ({ docId, title: String(docId) }));
+  }
 }

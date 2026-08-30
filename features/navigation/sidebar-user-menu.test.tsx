@@ -58,6 +58,13 @@ async function openMenu() {
 }
 
 describe('SidebarUserMenu theme toggle', () => {
+  it('links to the new account settings page', async () => {
+    renderMenu();
+    await openMenu();
+    expect(
+      screen.getByRole('menuitem', { name: 'Account settings' })
+    ).toHaveAttribute('href', '/home/settings/account');
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.resolvedTheme = 'light';

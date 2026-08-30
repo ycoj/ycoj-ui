@@ -69,9 +69,19 @@ export default function HeaderSection({ data }: UserProfileProps) {
                 </Tooltip>
               </TooltipProvider>
               {data.isSelfProfile && (
-                <Badge variant="secondary" data-llm-text={t('myProfile')}>
-                  {t('myProfile')}
-                </Badge>
+                <>
+                  <Button asChild variant="outline" size="sm">
+                    <Link
+                      href="/home/settings/account"
+                      data-llm-text={t('editProfile')}
+                    >
+                      {t('editProfile')}
+                    </Link>
+                  </Button>
+                  <Badge variant="secondary" data-llm-text={t('myProfile')}>
+                    {t('myProfile')}
+                  </Badge>
+                </>
               )}
               {extras.rp !== undefined && (
                 <Badge
