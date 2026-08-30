@@ -13,7 +13,7 @@ export const getContestClarifications = cache((tid: string) =>
   ServerApis.Contests.getContestClarifications(tid)
 );
 export const getContestBalloons = cache((tid: string) =>
-  ServerApis.Contests.getContestBalloons(tid, true)
+  ServerApis.Contests.getContestBalloons(tid)
 );
 export const getContestBulkSubmit = cache((tid: string) =>
   ServerApis.Contests.getContestBulkSubmit(tid)
