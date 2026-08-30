@@ -15,10 +15,11 @@ export const getRealnameResult = () =>
 
 export const getRealnameApplications = (
   page = 1,
-  status: RealnameFilterStatus = 'pending'
+  status: RealnameFilterStatus = 'pending',
+  uname = ''
 ) =>
   alova.Get<RealnameManageData>('/manage/realname', {
-    params: { page, status },
+    params: { page, status, ...(uname ? { uname } : {}) },
   });
 
 const Realname = {

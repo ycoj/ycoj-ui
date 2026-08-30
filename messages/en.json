@@ -1212,6 +1212,8 @@
     "manage": {
       "title": "Real-name review",
       "count": "{count, plural, one {# application} other {# applications}}",
+      "searchLabel": "Search applications by username",
+      "searchPlaceholder": "Username",
       "filterLabel": "Filter by verification status",
       "filter": {
         "pending": "Pending",

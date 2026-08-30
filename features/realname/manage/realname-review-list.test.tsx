@@ -54,6 +54,7 @@ const data: RealnameManageData = {
   numPages: 1,
   count: 1,
   filterStatus: 'pending',
+  filterUname: '',
 };
 
 function renderList(overrides: Partial<RealnameManageData> = {}) {

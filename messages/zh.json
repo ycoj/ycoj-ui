@@ -1212,6 +1212,8 @@
     "manage": {
       "title": "实名认证审核",
       "count": "共 {count} 份申请",
+      "searchLabel": "按用户名搜索申请",
+      "searchPlaceholder": "用户名",
       "filterLabel": "按认证状态筛选",
       "filter": {
         "pending": "待审核",

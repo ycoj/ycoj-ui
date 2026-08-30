@@ -17,6 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
 type SearchParams = {
   page?: string;
   status?: string;
+  uname?: string;
 };
 
 function parsePage(value?: string) {
@@ -44,7 +45,12 @@ export default async function RealnameManagePage({
   const searchParams = await searchParamsPromise;
   const page = parsePage(searchParams.page);
   const status = parseStatus(searchParams.status);
-  const data = await ServerApis.Realname.getRealnameApplications(page, status);
+  const uname = searchParams.uname?.trim() ?? '';
+  const data = await ServerApis.Realname.getRealnameApplications(
+    page,
+    status,
+    uname
+  );
   const t = await getTranslations('realname.manage');
 
   return (
@@ -61,7 +67,10 @@ export default async function RealnameManagePage({
             {t('count', { count: data.count })}
           </p>
         </div>
-        <RealnameReviewFilter value={data.filterStatus} />
+        <RealnameReviewFilter
+          value={data.filterStatus}
+          username={data.filterUname}
+        />
       </div>
       <RealnameReviewList data={data} />
       <Pagination page={data.page} totalPages={data.numPages} />

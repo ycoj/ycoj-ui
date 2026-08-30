@@ -50,6 +50,7 @@ export type RealnameManageData = {
   numPages: number;
   count: number;
   filterStatus: RealnameFilterStatus;
+  filterUname: string;
 };
 
 export type SubmitRealnameRequest = {
