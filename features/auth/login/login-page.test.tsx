@@ -14,7 +14,7 @@ vi.mock('@/shared/components/site-footer', () => ({ default: () => null }));
 vi.mock('@/shared/components/ui/checkbox', () => ({ Checkbox: () => null }));
 
 describe('LoginPage', () => {
-  it('loads the above-the-fold logo eagerly for both themes', () => {
+  it('raises fetch priority for the logo without loading both themes eagerly', () => {
     render(
       <NextIntlClientProvider locale="en" messages={messages}>
         <LoginPage />
@@ -24,7 +24,8 @@ describe('LoginPage', () => {
     const images = screen.getAllByRole('img');
     expect(images).toHaveLength(2);
     for (const image of images) {
-      expect(image).toHaveAttribute('loading', 'eager');
+      expect(image).toHaveAttribute('loading', 'lazy');
+      expect(image).toHaveAttribute('fetchpriority', 'high');
     }
   });
 });

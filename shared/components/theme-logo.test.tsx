@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 describe('ThemeLogo', () => {
-  it.each([undefined, 'lazy', 'eager'] as const)(
+  it.each([undefined, 'lazy'] as const)(
     'applies loading=%s to both theme images',
     (loading) => {
       render(
@@ -19,4 +19,17 @@ describe('ThemeLogo', () => {
       expect(images[1]).toHaveClass('hidden', 'dark:block');
     }
   );
+
+  it('forwards fetchPriority without changing default lazy loading', () => {
+    render(
+      <ThemeLogo alt="Logo" width={290} height={87} fetchPriority="high" />
+    );
+
+    const images = screen.getAllByRole('img', { name: 'Logo' });
+    expect(images).toHaveLength(2);
+    for (const image of images) {
+      expect(image).toHaveAttribute('loading', 'lazy');
+      expect(image).toHaveAttribute('fetchpriority', 'high');
+    }
+  });
 });
