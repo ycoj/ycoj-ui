@@ -231,7 +231,7 @@ describe('paste form fields', () => {
     renderForm({
       paste: pasteDoc,
       onSubmit,
-      extraActions: <button type="button">Delete</button>,
+      extraActions: () => <button type="button">Delete</button>,
     });
     await userEvent.click(screen.getByRole('button', { name: 'Save changes' }));
     expect(screen.getByRole('button', { name: 'Saving…' })).toBeDisabled();
@@ -246,7 +246,7 @@ describe('paste form fields', () => {
     const extra = vi.fn();
     renderForm({
       paste: pasteDoc,
-      extraActions: (
+      extraActions: () => (
         <button type="button" onClick={extra}>
           Delete
         </button>
@@ -270,7 +270,7 @@ describe('paste form fields', () => {
 
   it('derives heading and submit copy from mode, not extra actions', () => {
     const { unmount } = renderForm({
-      extraActions: <button type="button">Extra</button>,
+      extraActions: () => <button type="button">Extra</button>,
     });
     expect(
       screen.getByRole('heading', { name: 'Share a snippet' })

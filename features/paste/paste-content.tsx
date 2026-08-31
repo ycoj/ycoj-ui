@@ -1,4 +1,4 @@
-import PasteCode from './paste-code';
+import PasteCode from '@/features/paste/paste-code';
 import Markdown from '@/shared/components/markdown';
 import type { PasteDoc } from '@/shared/types/paste';
 

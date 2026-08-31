@@ -10,9 +10,9 @@ import { useRouter } from 'next/navigation';
 import { AlertDialog } from 'radix-ui';
 import { useState } from 'react';
 
-type Props = { id: string };
+type Props = { id: string; disabled?: boolean };
 
-export default function PasteDeleteButton({ id }: Props) {
+export default function PasteDeleteButton({ id, disabled }: Props) {
   const t = useTranslations('paste');
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
@@ -51,7 +51,11 @@ export default function PasteDeleteButton({ id }: Props) {
       }}
     >
       <AlertDialog.Trigger asChild>
-        <Button type="button" variant="destructive" disabled={deleting}>
+        <Button
+          type="button"
+          variant="destructive"
+          disabled={deleting || disabled}
+        >
           {deleting ? <LoaderCircle className="animate-spin" /> : <Trash />}
           {deleting ? t('deleting') : t('delete')}
         </Button>

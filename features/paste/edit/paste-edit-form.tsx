@@ -30,7 +30,9 @@ export default function PasteEditForm({ options, paste }: Props) {
       mode="edit"
       options={options}
       defaultValues={getPasteDefaults(options, paste)}
-      extraActions={<PasteDeleteButton id={paste._id} />}
+      extraActions={(isSubmitting) => (
+        <PasteDeleteButton id={paste._id} disabled={isSubmitting} />
+      )}
       cancelHref={href}
       onSubmit={onSubmit}
     />

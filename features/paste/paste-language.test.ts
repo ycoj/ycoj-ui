@@ -1,4 +1,4 @@
-import { pasteLanguageLabel } from './paste-language';
+import { pasteLanguageLabel } from '@/features/paste/paste-language';
 import { describe, expect, it } from 'vitest';
 
 const languageOptions = { cpp: 'C++', python: 'Python', javascript: 'JS' };

@@ -27,7 +27,7 @@ type Props = {
   options: PasteFormOptions;
   defaultValues: PasteFormValues;
   onSubmit: (values: PasteFormValues) => Promise<string>;
-  extraActions?: ReactNode;
+  extraActions?: (isSubmitting: boolean) => ReactNode;
   cancelHref?: string;
 };
 
@@ -211,7 +211,7 @@ export default function PasteForm({
               ? t('share')
               : t('save')}
         </Button>
-        {extraActions}
+        {extraActions?.(isSubmitting)}
         {cancelHref && (
           <Button variant="outline" asChild>
             <Link href={cancelHref}>{t('cancel')}</Link>

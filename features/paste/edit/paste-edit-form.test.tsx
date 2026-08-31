@@ -33,7 +33,7 @@ vi.mock('@/features/paste/form/paste-form', () => ({
   }: {
     onSubmit: (values: PasteFormValues) => Promise<string>;
     mode: 'create' | 'edit';
-    extraActions?: ReactNode;
+    extraActions?: (isSubmitting: boolean) => ReactNode;
     cancelHref?: string;
   }) => {
     mocks.onSubmit = onSubmit;
@@ -45,7 +45,7 @@ vi.mock('@/features/paste/form/paste-form', () => ({
         <button type="button">
           {mode === 'create' ? messages.paste.share : messages.paste.save}
         </button>
-        {extraActions}
+        {extraActions?.(false)}
         {cancelHref && <a href={cancelHref}>Cancel</a>}
       </div>
     );

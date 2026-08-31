@@ -1,5 +1,5 @@
-import type { CreatePasteRequest } from './create';
 import { clientRequest } from '@/api/client';
+import type { CreatePasteRequest } from '@/api/client/method/paste/create';
 import type { Errorable } from '@/shared/types/error';
 
 export const updatePaste = (id: string, payload: CreatePasteRequest) =>
