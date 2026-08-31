@@ -1,0 +1,4 @@
+interface:
+  display_name: 'YCOJ Code Style'
+  short_description: 'Follow established YCOJ coding conventions'
+  default_prompt: 'Use $ycoj-code-style to implement this change using the repository conventions.'
