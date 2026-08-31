@@ -37,7 +37,7 @@ vi.mock('@/shared/components/ui/sidebar', async () => {
   };
 });
 
-function renderMenu(locale: 'en' | 'zh' = 'en', canUsePaste = true) {
+function renderMenu(locale: 'en' | 'zh' = 'en', canUsePaste = false) {
   const messages = locale === 'en' ? en : zh;
 
   return render(
@@ -63,7 +63,7 @@ describe('SidebarUserMenu theme toggle', () => {
     ['en', 'Share Snippets'],
     ['zh', '分享代码片段'],
   ] as const)('links to pastebin in %s', async (locale, label) => {
-    renderMenu(locale);
+    renderMenu(locale, true);
     await openMenu();
     expect(screen.getByRole('menuitem', { name: label })).toHaveAttribute(
       'href',

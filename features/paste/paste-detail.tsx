@@ -1,6 +1,6 @@
-import PasteContent from './paste-content';
-import PasteDetailActions from './paste-detail-actions';
 import type { PasteDetailData } from '@/api/server/method/paste/detail';
+import PasteContent from '@/features/paste/paste-content';
+import PasteDetailActions from '@/features/paste/paste-detail-actions';
 import { getFormatter, getTranslations } from 'next-intl/server';
 
 type Props = { data: PasteDetailData };
