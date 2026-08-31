@@ -110,7 +110,7 @@ export default function RecordDetail({ rdoc, pdoc, udoc, languages }: Props) {
             </span>
           </TableCell>
           <TableCell>
-            <ProblemLink problem={pdoc} />
+            <ProblemLink problem={pdoc} prefetch={null} />
           </TableCell>
           <TableCell className="text-right">
             <div className="flex justify-end">

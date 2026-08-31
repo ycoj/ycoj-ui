@@ -71,7 +71,10 @@ export default function SolutionItem({
               aria-label={t('edit')}
               title={t('edit')}
             >
-              <Link href={`/problem/${pid}/solution/${solution.docId}/edit`}>
+              <Link
+                href={`/problem/${pid}/solution/${solution.docId}/edit`}
+                prefetch={false}
+              >
                 <Pencil strokeWidth={2} />
                 <span className="sr-only" data-llm-text={t('edit')}>
                   {t('edit')}

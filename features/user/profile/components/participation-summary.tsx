@@ -89,6 +89,7 @@ export default function ParticipationSummary({ data }: UserProfileProps) {
             <Link
               key={item.docId}
               href={href}
+              prefetch={false}
               className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs hover:bg-accent/40"
             >
               <span

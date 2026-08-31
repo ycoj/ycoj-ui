@@ -227,6 +227,7 @@ export default function ProblemSidebar({
                     >
                       <Link
                         href={withTid(`/problem/${contestPid}`, tid)}
+                        prefetch={false}
                         data-llm-text={label}
                       >
                         {label}

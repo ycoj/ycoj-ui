@@ -86,7 +86,11 @@ function renderByType(
           const problem = pdict?.[rawPid as number];
           const pid = problem?.pid ?? problem?.docId ?? rawPid;
           const href = tid ? `/problem/${pid}?tid=${tid}` : `/problem/${pid}`;
-          return <Link href={href}>{node.value}</Link>;
+          return (
+            <Link href={href} prefetch={false}>
+              {node.value}
+            </Link>
+          );
         }
       }
       return <span>{node.value}</span>;
@@ -99,7 +103,11 @@ function renderByType(
         const className = getScoreColorClass(node.value);
         const content = <span className={className}>{node.value}</span>;
         if (rid) {
-          return <Link href={`/record/${rid}`}>{content}</Link>;
+          return (
+            <Link href={`/record/${rid}`} prefetch={false}>
+              {content}
+            </Link>
+          );
         }
         return content;
       }
@@ -118,7 +126,11 @@ function renderByType(
         </span>
       );
       if (rid) {
-        return <Link href={`/record/${rid}`}>{content}</Link>;
+        return (
+          <Link href={`/record/${rid}`} prefetch={false}>
+            {content}
+          </Link>
+        );
       }
       return content;
     }
@@ -159,7 +171,9 @@ function renderByType(
               <span key={i}>
                 {i > 0 && <br />}
                 {rids[i] ? (
-                  <Link href={`/record/${rids[i]}`}>{line}</Link>
+                  <Link href={`/record/${rids[i]}`} prefetch={false}>
+                    {line}
+                  </Link>
                 ) : (
                   line
                 )}
@@ -232,7 +246,7 @@ function FirstSolveIndicator({
 
   if (rid) {
     return (
-      <Link href={`/record/${rid}`} aria-label={label}>
+      <Link href={`/record/${rid}`} prefetch={false} aria-label={label}>
         {balloon}
       </Link>
     );

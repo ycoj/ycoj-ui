@@ -5,13 +5,14 @@ import {
   PublicProjectionProblem,
 } from '@/shared/types/problem';
 import { useTranslations } from 'next-intl';
-import Link from 'next/link';
+import Link, { type LinkProps } from 'next/link';
 
 export type Props = {
   problem: ContestListProjectionProblem;
   tid?: string;
   openInNewTab?: boolean;
   showId?: boolean;
+  prefetch?: LinkProps['prefetch'];
 };
 
 export default function ProblemLink({
@@ -19,6 +20,7 @@ export default function ProblemLink({
   tid,
   openInNewTab,
   showId,
+  prefetch = false,
 }: Props) {
   const t = useTranslations('misc');
   const hrefPid = problem.pid || problem.docId;
@@ -29,6 +31,7 @@ export default function ProblemLink({
     <Button className="h-6 px-0" variant="link" asChild>
       <Link
         href={href}
+        prefetch={prefetch}
         {...(openInNewTab && {
           target: '_blank',
           rel: 'noopener noreferrer',

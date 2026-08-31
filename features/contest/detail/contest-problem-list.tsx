@@ -29,7 +29,11 @@ function ProblemStatusCell({ psdoc }: { psdoc?: ContestProblemStatus }) {
     return <ProblemStatus status={psdoc} />;
   }
 
-  return <Link href={`/record/${psdoc.rid}`}>{t('submitted')}</Link>;
+  return (
+    <Link href={`/record/${psdoc.rid}`} prefetch={false}>
+      {t('submitted')}
+    </Link>
+  );
 }
 
 export default function ContestProblemList({ tid, data }: Props) {

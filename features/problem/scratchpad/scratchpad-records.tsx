@@ -95,6 +95,7 @@ export default function ScratchpadRecords({
                 <TableCell>
                   <Link
                     href={`/record/${record._id}`}
+                    prefetch={false}
                     className="hover:underline"
                   >
                     {record.score}

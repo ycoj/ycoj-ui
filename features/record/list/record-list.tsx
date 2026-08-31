@@ -96,6 +96,7 @@ export default function RecordList({ data, languages }: Props) {
               <TableCell className="tabular-nums">
                 <Link
                   href={`/record/${record._id}`}
+                  prefetch={false}
                   className="hover:underline"
                   data-llm-visible="true"
                 >

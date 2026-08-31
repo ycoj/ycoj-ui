@@ -54,6 +54,7 @@ function DiscussionRow({
       >
         <Link
           href={`/discussion/${discussion.docId}`}
+          prefetch={false}
           className="hover:underline"
         >
           {discussion.title}

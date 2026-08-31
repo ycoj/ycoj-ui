@@ -99,6 +99,7 @@ function ContestItem({
       <div className="flex items-start justify-between gap-3">
         <Link
           href={contestHref}
+          prefetch={false}
           data-llm-text={contest.title}
           className={cn(
             'truncate text-sm font-medium hover:underline md:text-lg',

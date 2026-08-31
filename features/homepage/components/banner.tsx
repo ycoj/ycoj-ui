@@ -35,6 +35,7 @@ export default function Banner({ banner }: Props) {
           <SwiperSlide key={index}>
             <Link
               href={pic.link}
+              prefetch={false}
               target="_blank"
               rel="noopener noreferrer"
               className="block h-full w-full"

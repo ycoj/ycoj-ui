@@ -73,7 +73,11 @@ function ProblemStatusCell({
   }
 
   if (status.rid) {
-    return <Link href={`/record/${status.rid}`}>{t('submitted')}</Link>;
+    return (
+      <Link href={`/record/${status.rid}`} prefetch={false}>
+        {t('submitted')}
+      </Link>
+    );
   }
 
   return <span className="text-muted-foreground">{t('submitted')}</span>;

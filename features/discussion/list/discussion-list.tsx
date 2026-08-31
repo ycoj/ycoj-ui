@@ -55,6 +55,7 @@ function DiscussionItem({
           <div className="flex items-start justify-between gap-3">
             <Link
               href={discussionHref}
+              prefetch={false}
               data-llm-text={discussion.title}
               className="text-sm font-medium text-foreground hover:text-primary hover:underline md:text-base"
             >
