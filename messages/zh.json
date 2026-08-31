@@ -1,4 +1,43 @@
 {
+  "paste": {
+    "name": "分享代码片段",
+    "create": "分享代码片段",
+    "history": "分享记录",
+    "empty": "暂无分享记录",
+    "edit": "编辑片段",
+    "title": "标题",
+    "titlePlaceholder": "可选标题",
+    "type": "类型",
+    "code": "代码",
+    "markdown": "Markdown",
+    "language": "语言",
+    "plainText": "纯文本",
+    "expiration": "有效期",
+    "expires": "过期时间",
+    "content": "内容",
+    "share": "分享",
+    "save": "保存修改",
+    "saving": "正在保存…",
+    "delete": "删除",
+    "deleting": "正在删除…",
+    "cancel": "取消",
+    "deleteConfirm": "确定删除此片段吗？删除后无法恢复。",
+    "deleteFailed": "删除失败，请重试。",
+    "submitFailed": "保存失败，请重试。",
+    "titleTooLong": "标题不能超过 64 个字符。",
+    "contentRequired": "请输入内容。",
+    "contentTooLong": "内容不能超过 65,536 个字符。",
+    "languageInvalid": "请选择有效的语言。",
+    "copyLink": "复制链接",
+    "copied": "链接已复制",
+    "raw": "原始文本",
+    "expiry": {
+      "day": "1 天",
+      "week": "1 周",
+      "month": "1 个月",
+      "never": "永不过期"
+    }
+  },
   "manage": {
     "navigation": "系统管理",
     "realname": "实名认证审核",
@@ -74,6 +113,7 @@
     "retry": "刷新"
   },
   "common": {
+    "paste": "分享代码片段",
     "accountSettings": "账户设置",
     "profile": "个人主页",
     "messages": "消息",

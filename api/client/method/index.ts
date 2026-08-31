@@ -7,6 +7,7 @@ import Discussion from '@/api/client/method/discussion';
 import Domain from '@/api/client/method/domain';
 import Homework from '@/api/client/method/homework';
 import Messages from '@/api/client/method/messages';
+import Paste from '@/api/client/method/paste';
 import Problem from '@/api/client/method/problem';
 import Realname from '@/api/client/method/realname';
 import Record from '@/api/client/method/record';
@@ -24,6 +25,7 @@ const ClientApis = {
   Domain,
   Homework,
   Messages,
+  Paste,
   Problem,
   Realname,
   Record,
