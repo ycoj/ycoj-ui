@@ -2,7 +2,13 @@ import { pasteDoc, pasteOptions } from '../paste.test-utils';
 import PasteForm from './paste-form';
 import messages from '@/messages/en.json';
 import type { PasteDoc } from '@/shared/types/paste';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import type { ComponentProps } from 'react';
@@ -239,40 +245,97 @@ describe('paste form workflow', () => {
     await waitFor(() => expect(mocks.refresh).toHaveBeenCalled());
   });
 
-  it('cancels deletion without sending a request', async () => {
-    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
-    renderForm(pasteDoc);
-    await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
-    expect(confirm).toHaveBeenCalled();
-    expect(mocks.delete).not.toHaveBeenCalled();
-    confirm.mockRestore();
-  });
+  it.each(['cancel', 'escape'])(
+    'dismisses deletion with %s without sending a request',
+    async (action) => {
+      renderForm(pasteDoc);
+      const trigger = screen.getByRole('button', { name: 'Delete' });
+      await userEvent.click(trigger);
+      const dialog = screen.getByRole('alertdialog', { name: 'Delete' });
+      expect(dialog).toHaveAccessibleDescription(messages.paste.deleteConfirm);
+      expect(mocks.delete).not.toHaveBeenCalled();
+      expect(
+        within(dialog).getByRole('button', { name: 'Cancel' })
+      ).toHaveFocus();
+      if (action === 'cancel') {
+        await userEvent.click(
+          within(dialog).getByRole('button', { name: 'Cancel' })
+        );
+      } else {
+        await userEvent.keyboard('{Escape}');
+      }
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+      expect(mocks.delete).not.toHaveBeenCalled();
+      expect(mocks.update).not.toHaveBeenCalled();
+      expect(trigger).toHaveFocus();
+    }
+  );
 
   it('deletes even when the current form content is invalid', async () => {
-    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true);
     renderForm(pasteDoc);
     fireEvent.change(screen.getByRole('textbox', { name: 'Content' }), {
       target: { value: '' },
     });
     await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    await userEvent.click(
+      within(screen.getByRole('alertdialog')).getByRole('button', {
+        name: 'Delete',
+      })
+    );
     await waitFor(() => expect(mocks.delete).toHaveBeenCalledWith('abc123'));
     expect(mocks.push).toHaveBeenCalledWith('/paste');
     expect(mocks.refresh).toHaveBeenCalled();
-    confirm.mockRestore();
+    expect(mocks.update).not.toHaveBeenCalled();
   });
 
   it('shows deletion permission errors without navigating', async () => {
-    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(true);
     mocks.delete.mockResolvedValue({
       error: { name: 'ForbiddenError', message: 'Permission denied' },
     });
     renderForm(pasteDoc);
     await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    await userEvent.click(
+      within(screen.getByRole('alertdialog')).getByRole('button', {
+        name: 'Delete',
+      })
+    );
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'Permission denied'
     );
     expect(mocks.push).not.toHaveBeenCalled();
     expect(screen.getByRole('button', { name: 'Delete' })).toBeEnabled();
-    confirm.mockRestore();
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
+
+  it('keeps the confirmation open and disables actions while deleting', async () => {
+    let resolve!: (value: { url: string }) => void;
+    mocks.delete.mockReturnValue(
+      new Promise((done) => {
+        resolve = done;
+      })
+    );
+    renderForm(pasteDoc);
+    const save = screen.getByRole('button', { name: 'Save changes' });
+    await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
+    const dialog = screen.getByRole('alertdialog');
+    await userEvent.click(
+      within(dialog).getByRole('button', { name: 'Delete' })
+    );
+    expect(
+      within(dialog).getByRole('button', { name: 'Deleting…' })
+    ).toBeDisabled();
+    expect(
+      within(dialog).getByRole('button', { name: 'Cancel' })
+    ).toBeDisabled();
+    expect(save).toBeDisabled();
+    await userEvent.keyboard('{Escape}');
+    expect(dialog).toBeInTheDocument();
+    expect(mocks.delete).toHaveBeenCalledTimes(1);
+    expect(mocks.push).not.toHaveBeenCalled();
+    resolve({ url: '/paste' });
+    await waitFor(() =>
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+    );
+    expect(mocks.push).toHaveBeenCalledWith('/paste');
   });
 });

@@ -24,6 +24,7 @@ import { LoaderCircle, Save, Share2, Trash } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { AlertDialog } from 'radix-ui';
 import { useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 
@@ -33,6 +34,7 @@ export default function PasteForm({ options, paste }: Props) {
   const t = useTranslations('paste');
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const {
     control,
     register,
@@ -107,7 +109,7 @@ export default function PasteForm({ options, paste }: Props) {
   };
 
   const onDelete = async () => {
-    if (!paste || busy || !window.confirm(t('deleteConfirm'))) return;
+    if (!paste || busy) return;
     clearErrors('root.serverError');
     setDeleting(true);
     try {
@@ -121,6 +123,7 @@ export default function PasteForm({ options, paste }: Props) {
       showError(error);
     } finally {
       setDeleting(false);
+      setDeleteOpen(false);
     }
   };
 
@@ -252,15 +255,59 @@ export default function PasteForm({ options, paste }: Props) {
         </Button>
         {paste && (
           <>
-            <Button
-              type="button"
-              variant="destructive"
-              disabled={busy}
-              onClick={() => void onDelete()}
+            <AlertDialog.Root
+              open={deleteOpen}
+              onOpenChange={(open) => {
+                if (!busy) setDeleteOpen(open);
+              }}
             >
-              {deleting ? <LoaderCircle className="animate-spin" /> : <Trash />}
-              {deleting ? t('deleting') : t('delete')}
-            </Button>
+              <AlertDialog.Trigger asChild>
+                <Button type="button" variant="destructive" disabled={busy}>
+                  {deleting ? (
+                    <LoaderCircle className="animate-spin" />
+                  ) : (
+                    <Trash />
+                  )}
+                  {deleting ? t('deleting') : t('delete')}
+                </Button>
+              </AlertDialog.Trigger>
+              <AlertDialog.Portal>
+                <AlertDialog.Overlay className="fixed inset-0 z-50 bg-black/30 backdrop-blur-xs" />
+                <AlertDialog.Content
+                  className="bg-background fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border p-5 shadow-lg"
+                  data-llm-visible="true"
+                >
+                  <AlertDialog.Title
+                    className="text-lg font-semibold"
+                    data-llm-text={t('delete')}
+                  >
+                    {t('delete')}
+                  </AlertDialog.Title>
+                  <AlertDialog.Description
+                    className="text-muted-foreground mt-2 text-sm"
+                    data-llm-text={t('deleteConfirm')}
+                  >
+                    {t('deleteConfirm')}
+                  </AlertDialog.Description>
+                  <div className="mt-5 flex justify-end gap-2">
+                    <AlertDialog.Cancel asChild>
+                      <Button type="button" variant="outline" disabled={busy}>
+                        {t('cancel')}
+                      </Button>
+                    </AlertDialog.Cancel>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      disabled={busy}
+                      onClick={() => void onDelete()}
+                    >
+                      {deleting && <LoaderCircle className="animate-spin" />}
+                      {deleting ? t('deleting') : t('delete')}
+                    </Button>
+                  </div>
+                </AlertDialog.Content>
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
             <Button variant="outline" asChild disabled={busy}>
               <Link
                 href={`/paste/${encodeURIComponent(paste._id)}`}
