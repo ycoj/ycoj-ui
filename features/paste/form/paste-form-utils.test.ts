@@ -104,9 +104,11 @@ describe('paste form contract', () => {
     'preserves saved option %j without mutating backend options',
     (language) => {
       expect(
-        getPasteLanguageOptions(pasteOptions.languageNames, language)[language]
+        getPasteLanguageOptions(pasteOptions.languageOptions, language)[
+          language
+        ]
       ).toBe(language);
-      expect(Object.hasOwn(pasteOptions.languageNames, language)).toBe(false);
+      expect(Object.hasOwn(pasteOptions.languageOptions, language)).toBe(false);
     }
   );
 });

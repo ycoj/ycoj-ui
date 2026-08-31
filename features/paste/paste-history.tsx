@@ -10,14 +10,14 @@ type Props = {
   pdocs: PasteDoc[];
   page: number;
   ppcount: number;
-  languageNames: Record<string, string>;
+  languageOptions: Record<string, string>;
 };
 
 export default function PasteHistory({
   pdocs,
   page,
   ppcount,
-  languageNames,
+  languageOptions,
 }: Props) {
   const t = useTranslations('paste');
   const format = useFormatter();
@@ -40,7 +40,11 @@ export default function PasteHistory({
             const type =
               paste.mode === 'markdown'
                 ? t('markdown')
-                : pasteLanguageLabel(paste.language, languageNames, t('code'));
+                : pasteLanguageLabel(
+                    paste.language,
+                    languageOptions,
+                    t('code')
+                  );
             const updatedAt = format.dateTime(new Date(paste.updatedAt), {
               dateStyle: 'medium',
               timeStyle: 'short',

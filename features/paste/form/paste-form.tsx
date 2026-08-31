@@ -20,27 +20,28 @@ import { useRouter } from 'next/navigation';
 import type { ReactNode } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 
+export type PasteFormMode = 'create' | 'edit';
+
 type Props = {
+  mode: PasteFormMode;
   options: PasteFormOptions;
   defaultValues: PasteFormValues;
   onSubmit: (values: PasteFormValues) => Promise<string>;
   extraActions?: ReactNode;
-  heading: string;
-  submitLabel: string;
   cancelHref?: string;
 };
 
 export default function PasteForm({
+  mode,
   options,
   defaultValues,
   onSubmit,
   extraActions,
-  heading,
-  submitLabel,
   cancelHref,
 }: Props) {
   const t = useTranslations('paste');
   const router = useRouter();
+  const heading = t(mode === 'create' ? 'create' : 'edit');
   const {
     control,
     register,
@@ -58,10 +59,10 @@ export default function PasteForm({
     ),
     defaultValues,
   });
-  const mode = useWatch({ control, name: 'mode' });
+  const pasteMode = useWatch({ control, name: 'mode' });
   const language = useWatch({ control, name: 'language' });
   const languageOptions = getPasteLanguageOptions(
-    options.languageNames,
+    options.languageOptions,
     language
   );
   const expiryOptions = Object.fromEntries(
@@ -122,7 +123,7 @@ export default function PasteForm({
         />
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
-        {mode === 'code' && (
+        {pasteMode === 'code' && (
           <Controller
             name="language"
             control={control}
@@ -166,7 +167,7 @@ export default function PasteForm({
           name="content"
           control={control}
           render={({ field }) =>
-            mode === 'markdown' ? (
+            pasteMode === 'markdown' ? (
               <MarkdownEditor
                 id="paste-content"
                 name={field.name}
@@ -199,12 +200,16 @@ export default function PasteForm({
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? (
             <LoaderCircle className="animate-spin" />
-          ) : extraActions ? (
+          ) : mode === 'edit' ? (
             <Save />
           ) : (
             <Share2 />
           )}
-          {isSubmitting ? t('saving') : submitLabel}
+          {isSubmitting
+            ? t('saving')
+            : mode === 'create'
+              ? t('share')
+              : t('save')}
         </Button>
         {extraActions}
         {cancelHref && (

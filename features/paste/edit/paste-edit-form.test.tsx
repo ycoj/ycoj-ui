@@ -27,22 +27,24 @@ vi.mock('@/api/client/method', () => ({
 vi.mock('@/features/paste/form/paste-form', () => ({
   default: ({
     onSubmit,
-    heading,
-    submitLabel,
+    mode,
     extraActions,
     cancelHref,
   }: {
     onSubmit: (values: PasteFormValues) => Promise<string>;
-    heading: string;
-    submitLabel: string;
+    mode: 'create' | 'edit';
     extraActions?: ReactNode;
     cancelHref?: string;
   }) => {
     mocks.onSubmit = onSubmit;
     return (
       <div>
-        <h1>{heading}</h1>
-        <button type="button">{submitLabel}</button>
+        <h1>
+          {mode === 'create' ? messages.paste.create : messages.paste.edit}
+        </h1>
+        <button type="button">
+          {mode === 'create' ? messages.paste.share : messages.paste.save}
+        </button>
         {extraActions}
         {cancelHref && <a href={cancelHref}>Cancel</a>}
       </div>

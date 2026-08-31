@@ -1,7 +1,7 @@
 import type { PasteDoc, PasteFormOptions } from '@/shared/types/paste';
 
 export const pasteOptions: PasteFormOptions = {
-  languageNames: { cpp: 'C++', python: 'Python', javascript: 'JS' },
+  languageOptions: { cpp: 'C++', python: 'Python', javascript: 'JS' },
   defaultExpire: 'month',
   defaultLanguage: 'cpp',
 };

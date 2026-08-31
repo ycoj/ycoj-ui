@@ -22,7 +22,7 @@ function renderHistory(pdocs: PasteDoc[], totalPages = 1) {
         pdocs={pdocs}
         page={2}
         ppcount={totalPages}
-        languageNames={pasteOptions.languageNames}
+        languageOptions={pasteOptions.languageOptions}
       />
     </NextIntlClientProvider>
   );

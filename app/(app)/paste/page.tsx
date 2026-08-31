@@ -22,7 +22,7 @@ export default async function PastePage({
   const data = await ServerApis.Paste.getPasteMain(requested);
   if ('error' in data) return <Errored error={data.error} />;
   const {
-    languageNames,
+    languageOptions,
     defaultExpire,
     defaultLanguage,
     pdocs,
@@ -33,7 +33,7 @@ export default async function PastePage({
     <TwoColumnLayout
       left={
         <PasteCreateForm
-          options={{ languageNames, defaultExpire, defaultLanguage }}
+          options={{ languageOptions, defaultExpire, defaultLanguage }}
         />
       }
       right={
@@ -41,7 +41,7 @@ export default async function PastePage({
           pdocs={pdocs}
           page={page}
           ppcount={ppcount}
-          languageNames={languageNames}
+          languageOptions={languageOptions}
         />
       }
     />

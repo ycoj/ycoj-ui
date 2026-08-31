@@ -24,11 +24,11 @@ export default async function PasteEditPage({ params }: Props) {
   const { id } = await params;
   const data = await getPasteEdit(id);
   if ('error' in data) return <Errored error={data.error} />;
-  const { pdoc, languageNames, defaultExpire, defaultLanguage } = data;
+  const { pdoc, languageOptions, defaultExpire, defaultLanguage } = data;
   return (
     <PasteEditForm
       key={pdoc._id}
-      options={{ languageNames, defaultExpire, defaultLanguage }}
+      options={{ languageOptions, defaultExpire, defaultLanguage }}
       paste={pdoc}
     />
   );

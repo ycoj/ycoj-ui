@@ -11,11 +11,11 @@ export default async function PasteDetail({ data }: Props) {
     getTranslations('paste'),
     getFormatter(),
   ]);
-  const { pdoc: paste, canManage, languageNames } = data;
+  const { pdoc: paste, canManage, languageNames: languageOptions } = data;
   const title = paste.title || t('name');
   const language = pasteLanguageLabel(
     paste.language,
-    languageNames,
+    languageOptions,
     t('plainText')
   );
   const expiry = paste.expireAt

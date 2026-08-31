@@ -36,12 +36,12 @@ export function getPasteDefaults(
 }
 
 export function getPasteLanguageOptions(
-  names: Record<string, string>,
+  languageOptions: Record<string, string>,
   language: string
 ) {
-  return Object.hasOwn(names, language)
-    ? names
-    : { ...names, [language]: language };
+  return Object.hasOwn(languageOptions, language)
+    ? languageOptions
+    : { ...languageOptions, [language]: language };
 }
 
 export function buildPastePayload(values: PasteFormValues): CreatePasteRequest {

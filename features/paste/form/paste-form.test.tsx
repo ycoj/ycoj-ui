@@ -91,10 +91,9 @@ function renderForm(
     ...render(
       <NextIntlClientProvider locale="en" messages={messages}>
         <PasteForm
+          mode={paste ? 'edit' : 'create'}
           options={pasteOptions}
           defaultValues={defaultValues}
-          heading={paste ? messages.paste.edit : messages.paste.create}
-          submitLabel={paste ? messages.paste.save : messages.paste.share}
           cancelHref={
             paste ? `/paste/${encodeURIComponent(paste._id)}` : undefined
           }
@@ -267,5 +266,23 @@ describe('paste form fields', () => {
   it('labels expiry from translations rather than backend copy', () => {
     renderForm();
     expect(screen.getByLabelText('Expiration')).toHaveTextContent('1 month');
+  });
+
+  it('derives heading and submit copy from mode, not extra actions', () => {
+    const { unmount } = renderForm({
+      extraActions: <button type="button">Extra</button>,
+    });
+    expect(
+      screen.getByRole('heading', { name: 'Share a snippet' })
+    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Share' })).toBeInTheDocument();
+    unmount();
+    renderForm({ paste: pasteDoc });
+    expect(
+      screen.getByRole('heading', { name: 'Edit snippet' })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Save changes' })
+    ).toBeInTheDocument();
   });
 });

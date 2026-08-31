@@ -16,7 +16,7 @@ export type PasteDoc = {
 };
 
 export type PasteFormOptions = {
-  languageNames: Record<string, string>;
+  languageOptions: Record<string, string>;
   defaultExpire: PasteExpire;
   defaultLanguage: string;
 };

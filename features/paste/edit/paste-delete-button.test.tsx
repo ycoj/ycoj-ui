@@ -86,11 +86,17 @@ describe('paste delete button', () => {
         name: 'Delete',
       })
     );
-    expect(await screen.findByRole('alert')).toHaveTextContent(
+    const dialog = screen.getByRole('alertdialog');
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent(
       'Permission denied'
     );
     expect(mocks.push).not.toHaveBeenCalled();
-    expect(screen.getByRole('button', { name: 'Delete' })).toBeEnabled();
+    expect(
+      within(dialog).getByRole('button', { name: 'Delete' })
+    ).toBeEnabled();
+    await userEvent.click(
+      within(dialog).getByRole('button', { name: 'Cancel' })
+    );
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
 

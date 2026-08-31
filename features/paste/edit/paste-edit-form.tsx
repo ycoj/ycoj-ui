@@ -10,12 +10,10 @@ import {
 } from '@/features/paste/form/paste-form-utils';
 import parseErrorMessage from '@/shared/components/errored/parse-message';
 import type { PasteDoc, PasteFormOptions } from '@/shared/types/paste';
-import { useTranslations } from 'next-intl';
 
 type Props = { options: PasteFormOptions; paste: PasteDoc };
 
 export default function PasteEditForm({ options, paste }: Props) {
-  const t = useTranslations('paste');
   const href = `/paste/${encodeURIComponent(paste._id)}`;
 
   const onSubmit = async (values: PasteFormValues) => {
@@ -29,10 +27,9 @@ export default function PasteEditForm({ options, paste }: Props) {
 
   return (
     <PasteForm
+      mode="edit"
       options={options}
       defaultValues={getPasteDefaults(options, paste)}
-      heading={t('edit')}
-      submitLabel={t('save')}
       extraActions={<PasteDeleteButton id={paste._id} />}
       cancelHref={href}
       onSubmit={onSubmit}
