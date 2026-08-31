@@ -1,7 +1,6 @@
 import PasteContent from './paste-content';
 import messages from '@/messages/en.json';
 import Markdown from '@/shared/components/markdown';
-import { isSupportedCodeLanguage } from '@/shared/lib/code-highlighter';
 import { createEvent, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
@@ -23,10 +22,6 @@ function renderCode(content: string, language: string) {
 }
 
 describe('paste content rendering', () => {
-  it.each(['cpp', 'python', 'javascript'])('recognizes %s', (language) => {
-    expect(isSupportedCodeLanguage(language)).toBe(true);
-  });
-
   it.each(['', 'unknown-language', 'constructor'])(
     'escapes unknown language %j as plain text',
     (language) => {

@@ -2,7 +2,6 @@
 
 import CodeCopyButton from '@/shared/components/code/code-copy-button';
 import CodeRenderer from '@/shared/components/code/code-renderer';
-import { isSupportedCodeLanguage } from '@/shared/lib/code-highlighter';
 import { confineSelectAllOnKeyDown } from '@/shared/lib/confine-select-all';
 import type { PasteDoc } from '@/shared/types/paste';
 
@@ -16,23 +15,14 @@ export default function PasteCode({ paste }: Props) {
       data-llm-text={paste.content}
     >
       <CodeCopyButton text={paste.content} />
-      {isSupportedCodeLanguage(paste.language) ? (
-        <CodeRenderer
-          code={paste.content}
-          language={paste.language}
-          className="overflow-x-auto text-sm whitespace-pre outline-none"
-          tabIndex={0}
-          onKeyDown={confineSelectAllOnKeyDown}
-        />
-      ) : (
-        <pre
-          className="overflow-x-auto text-sm whitespace-pre outline-none"
-          tabIndex={0}
-          onKeyDown={confineSelectAllOnKeyDown}
-        >
-          <code>{paste.content}</code>
-        </pre>
-      )}
+      <CodeRenderer
+        code={paste.content}
+        language={paste.language}
+        fallback="plaintext"
+        className="overflow-x-auto text-sm whitespace-pre outline-none"
+        tabIndex={0}
+        onKeyDown={confineSelectAllOnKeyDown}
+      />
     </div>
   );
 }
