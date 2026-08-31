@@ -90,6 +90,7 @@ export default function SolutionSummary({ data }: UserProfileProps) {
             <Link
               key={solution.docId}
               href={href}
+              prefetch={false}
               className="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs hover:bg-accent/40"
             >
               <span className="max-w-44 truncate" data-llm-text={title}>

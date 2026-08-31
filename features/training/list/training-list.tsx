@@ -41,6 +41,7 @@ function TrainingItem({
       <div className="flex items-start justify-between gap-3">
         <Link
           href={trainingHref}
+          prefetch={false}
           data-llm-text={training.title}
           className="truncate text-sm font-medium text-foreground hover:text-primary hover:underline md:text-lg"
         >

@@ -147,7 +147,7 @@ export function AiGenerationHeader({
         <div>
           <dt className="text-muted-foreground">{t('aiGeneration.problem')}</dt>
           <dd>
-            <ProblemLink problem={pdoc} />
+            <ProblemLink problem={pdoc} prefetch={null} />
           </dd>
         </div>
       </dl>

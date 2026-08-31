@@ -44,6 +44,7 @@ export default function Suggestions({
                     <Link
                       key={`${site.title}-${site.link}-${siteIndex}`}
                       href={site.link}
+                      prefetch={false}
                       target="_blank"
                       rel="noopener noreferrer"
                       data-llm-text={site.title}

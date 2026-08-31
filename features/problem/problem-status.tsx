@@ -104,7 +104,7 @@ export default function ProblemStatus({ status, progress }: Props) {
         style={{ backgroundColor: color }}
         asChild
       >
-        <Link href={href} data-llm-visible="true">
+        <Link href={href} prefetch={false} data-llm-visible="true">
           {content}
         </Link>
       </Badge>
@@ -118,7 +118,7 @@ export default function ProblemStatus({ status, progress }: Props) {
       style={{ borderColor: color, color }}
       asChild
     >
-      <Link href={href} data-llm-visible="true">
+      <Link href={href} prefetch={false} data-llm-visible="true">
         {content}
         <span
           aria-hidden

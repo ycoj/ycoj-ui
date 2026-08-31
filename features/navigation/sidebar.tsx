@@ -110,7 +110,7 @@ export default async function AppSidebar() {
               {items.map((item) => (
                 <SidebarMenuItem key={item.name}>
                   <SidebarMenuButton asChild>
-                    <Link href={buildHref(item)}>
+                    <Link href={buildHref(item)} prefetch={false}>
                       <span className="flex items-center gap-2">
                         {NAV_ICON_MAP[item.name] &&
                           (() => {

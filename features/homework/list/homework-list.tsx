@@ -60,6 +60,7 @@ function HomeworkItem({
       <div className="flex items-start justify-between gap-3">
         <Link
           href={homeworkHref}
+          prefetch={false}
           data-llm-text={homework.title}
           className={cn(
             'truncate text-sm font-medium hover:text-primary hover:underline md:text-lg',

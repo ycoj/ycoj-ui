@@ -49,6 +49,7 @@ function ContestRow({ contest }: { contest: Contest }) {
       <div className="flex items-start justify-between gap-2">
         <Link
           href={`/contest/${contest.docId}`}
+          prefetch={false}
           data-llm-text={contest.title}
           className={cn(
             'overflow-hidden text-sm font-medium text-ellipsis whitespace-nowrap hover:underline',
