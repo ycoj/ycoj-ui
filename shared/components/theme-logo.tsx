@@ -1,7 +1,7 @@
 import { cn } from '@/shared/lib/utils';
 import Image, { type ImageProps } from 'next/image';
 
-type Props = Omit<ImageProps, 'loading' | 'preload' | 'priority' | 'src'>;
+type Props = Omit<ImageProps, 'preload' | 'priority' | 'src'>;
 
 export default function ThemeLogo({ alt, className, ...props }: Props) {
   return (

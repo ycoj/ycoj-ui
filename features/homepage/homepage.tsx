@@ -12,6 +12,7 @@ import { getUser } from '@/features/user/lib/get-user';
 import TwoColumnLayout from '@/shared/layout/two-column';
 import type { HomepageCheckin } from '@/shared/types/checkin';
 import type { BaseUserDict } from '@/shared/types/user';
+import { redirect } from 'next/navigation';
 
 type SectionMap = {
   [K in SectionType[0]]?: Extract<SectionType, [K, unknown]>[1];
@@ -69,6 +70,7 @@ export default async function Homepage() {
     ServerApis.UI.getHomepage(),
     getUser(),
   ]);
+  if (!user?._id) redirect('/login');
 
   const contents = homepage.contents
     .flatMap((content) => content.sections)
