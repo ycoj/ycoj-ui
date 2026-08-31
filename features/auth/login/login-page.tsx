@@ -112,6 +112,7 @@ export function LoginPage() {
       <div className="flex w-full max-w-md flex-col items-center gap-6">
         <ThemeLogo
           alt={t('misc.logoAlt', { siteName })}
+          fetchPriority="high"
           width={290}
           height={87}
           sizes="160px"

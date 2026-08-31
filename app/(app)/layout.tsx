@@ -11,6 +11,8 @@ export default async function AppLayout({
   children: React.ReactNode;
 }) {
   const nav = await getNavInfos();
+  if (!nav.user?._id) redirect('/login');
+
   const access = getRealnameAccess(nav.user);
   if (access.redirectTo) redirect(access.redirectTo);
 
