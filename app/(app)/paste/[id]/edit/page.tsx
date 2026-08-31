@@ -1,4 +1,4 @@
-import PasteForm from '@/features/paste/form/paste-form';
+import PasteEditForm from '@/features/paste/edit/paste-edit-form';
 import { getPasteEdit } from '@/features/paste/get-paste';
 import { Errored } from '@/shared/components/errored';
 import type { Metadata } from 'next';
@@ -24,5 +24,12 @@ export default async function PasteEditPage({ params }: Props) {
   const { id } = await params;
   const data = await getPasteEdit(id);
   if ('error' in data) return <Errored error={data.error} />;
-  return <PasteForm key={data.pdoc._id} options={data} paste={data.pdoc} />;
+  const { pdoc, languageNames, defaultExpire, defaultLanguage } = data;
+  return (
+    <PasteEditForm
+      key={pdoc._id}
+      options={{ languageNames, defaultExpire, defaultLanguage }}
+      paste={pdoc}
+    />
+  );
 }

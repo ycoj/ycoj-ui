@@ -1,6 +1,7 @@
 import type { PasteDetailData } from '@/api/server/method/paste/detail';
 import PasteContent from '@/features/paste/paste-content';
 import PasteDetailActions from '@/features/paste/paste-detail-actions';
+import { pasteLanguageLabel } from '@/features/paste/paste-language';
 import { getFormatter, getTranslations } from 'next-intl/server';
 
 type Props = { data: PasteDetailData };
@@ -12,9 +13,11 @@ export default async function PasteDetail({ data }: Props) {
   ]);
   const { pdoc: paste, canManage, languageNames } = data;
   const title = paste.title || t('name');
-  const language = Object.hasOwn(languageNames, paste.language)
-    ? languageNames[paste.language]
-    : paste.language;
+  const language = pasteLanguageLabel(
+    paste.language,
+    languageNames,
+    t('plainText')
+  );
   const expiry = paste.expireAt
     ? format.dateTime(new Date(paste.expireAt), {
         dateStyle: 'medium',
@@ -40,9 +43,7 @@ export default async function PasteDetail({ data }: Props) {
         {paste.mode === 'code' && (
           <div className="flex gap-2">
             <dt>{t('language')}</dt>
-            <dd data-llm-text={language || t('plainText')}>
-              {language || t('plainText')}
-            </dd>
+            <dd data-llm-text={language}>{language}</dd>
           </div>
         )}
         <div className="flex gap-2">

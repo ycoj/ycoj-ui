@@ -28,7 +28,10 @@ vi.mock('next-intl/server', () => ({
   getTranslations: async () =>
     createTranslator({ locale: 'en', messages, namespace: 'paste' }),
 }));
-vi.mock('@/features/paste/form/paste-form', () => ({
+vi.mock('@/features/paste/create/paste-create-form', () => ({
+  default: () => <div>Paste form</div>,
+}));
+vi.mock('@/features/paste/edit/paste-edit-form', () => ({
   default: () => <div>Paste form</div>,
 }));
 vi.mock('@/features/paste/paste-history', () => ({

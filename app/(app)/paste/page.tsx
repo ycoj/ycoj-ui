@@ -1,5 +1,5 @@
 import ServerApis from '@/api/server/method';
-import PasteForm from '@/features/paste/form/paste-form';
+import PasteCreateForm from '@/features/paste/create/paste-create-form';
 import PasteHistory from '@/features/paste/paste-history';
 import { Errored } from '@/shared/components/errored';
 import TwoColumnLayout from '@/shared/layout/two-column';
@@ -18,24 +18,32 @@ export default async function PastePage({
 }) {
   const { page: value } = await searchParams;
   const parsed = typeof value === 'string' ? Number(value) : 1;
-  const page = Number.isSafeInteger(parsed) && parsed > 0 ? parsed : 1;
-  const data = await ServerApis.Paste.getPasteMain(page);
+  const requested = Number.isSafeInteger(parsed) && parsed > 0 ? parsed : 1;
+  const data = await ServerApis.Paste.getPasteMain(requested);
   if ('error' in data) return <Errored error={data.error} />;
-  const { expiryOptions, languageOptions, defaultExpire, defaultLanguage } =
-    data;
+  const {
+    languageNames,
+    defaultExpire,
+    defaultLanguage,
+    pdocs,
+    page,
+    ppcount,
+  } = data;
   return (
     <TwoColumnLayout
       left={
-        <PasteForm
-          options={{
-            expiryOptions,
-            languageOptions,
-            defaultExpire,
-            defaultLanguage,
-          }}
+        <PasteCreateForm
+          options={{ languageNames, defaultExpire, defaultLanguage }}
         />
       }
-      right={<PasteHistory data={data} />}
+      right={
+        <PasteHistory
+          pdocs={pdocs}
+          page={page}
+          ppcount={ppcount}
+          languageNames={languageNames}
+        />
+      }
     />
   );
 }

@@ -1,13 +1,24 @@
-import type { PasteMainData } from '@/api/server/method/paste/main';
+import { pasteLanguageLabel } from '@/features/paste/paste-language';
 import Pagination from '@/shared/components/pagination';
 import { Badge } from '@/shared/components/ui/badge';
 import { Empty, EmptyHeader, EmptyTitle } from '@/shared/components/ui/empty';
+import type { PasteDoc } from '@/shared/types/paste';
 import { useFormatter, useTranslations } from 'next-intl';
 import Link from 'next/link';
 
-type Props = { data: PasteMainData };
+type Props = {
+  pdocs: PasteDoc[];
+  page: number;
+  ppcount: number;
+  languageNames: Record<string, string>;
+};
 
-export default function PasteHistory({ data }: Props) {
+export default function PasteHistory({
+  pdocs,
+  page,
+  ppcount,
+  languageNames,
+}: Props) {
   const t = useTranslations('paste');
   const format = useFormatter();
   return (
@@ -16,7 +27,7 @@ export default function PasteHistory({ data }: Props) {
       aria-label={t('history')}
       data-llm-visible="true"
     >
-      {!data.pdocs.length ? (
+      {!pdocs.length ? (
         <Empty>
           <EmptyHeader>
             <EmptyTitle data-llm-text={t('empty')}>{t('empty')}</EmptyTitle>
@@ -24,13 +35,12 @@ export default function PasteHistory({ data }: Props) {
         </Empty>
       ) : (
         <ul className="divide-y">
-          {data.pdocs.map((paste) => {
+          {pdocs.map((paste) => {
             const title = paste.title || paste._id;
-            const language = Object.hasOwn(data.languageOptions, paste.language)
-              ? data.languageOptions[paste.language]
-              : paste.language;
             const type =
-              paste.mode === 'markdown' ? t('markdown') : language || t('code');
+              paste.mode === 'markdown'
+                ? t('markdown')
+                : pasteLanguageLabel(paste.language, languageNames, t('code'));
             const updatedAt = format.dateTime(new Date(paste.updatedAt), {
               dateStyle: 'medium',
               timeStyle: 'short',
@@ -65,7 +75,7 @@ export default function PasteHistory({ data }: Props) {
           })}
         </ul>
       )}
-      <Pagination page={data.page} totalPages={data.ppcount} />
+      <Pagination page={page} totalPages={ppcount} />
     </section>
   );
 }

@@ -19,13 +19,10 @@ function renderHistory(pdocs: PasteDoc[], totalPages = 1) {
       timeZone="Asia/Shanghai"
     >
       <PasteHistory
-        data={{
-          ...pasteOptions,
-          pdocs,
-          page: 2,
-          ppcount: totalPages,
-          pcount: 25,
-        }}
+        pdocs={pdocs}
+        page={2}
+        ppcount={totalPages}
+        languageNames={pasteOptions.languageNames}
       />
     </NextIntlClientProvider>
   );

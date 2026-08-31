@@ -1,3 +1,4 @@
+import type { CreatePasteRequest } from '@/api/client/method/paste/create';
 import type { PasteDoc, PasteFormOptions } from '@/shared/types/paste';
 import { z } from 'zod';
 
@@ -35,10 +36,20 @@ export function getPasteDefaults(
 }
 
 export function getPasteLanguageOptions(
-  options: Record<string, string>,
+  names: Record<string, string>,
   language: string
 ) {
-  return Object.hasOwn(options, language)
-    ? options
-    : { ...options, [language]: language };
+  return Object.hasOwn(names, language)
+    ? names
+    : { ...names, [language]: language };
+}
+
+export function buildPastePayload(values: PasteFormValues): CreatePasteRequest {
+  return {
+    title: values.title,
+    mode: values.mode,
+    language: values.mode === 'code' ? values.language : '',
+    content: values.content,
+    expire: values.expire,
+  };
 }

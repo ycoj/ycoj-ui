@@ -1,40 +1,16 @@
 import { pasteDoc, pasteOptions } from '../paste.test-utils';
 import PasteForm from './paste-form';
+import { getPasteDefaults } from './paste-form-utils';
 import messages from '@/messages/en.json';
-import type { PasteDoc } from '@/shared/types/paste';
-import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-  within,
-} from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import type { ComponentProps } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
-  create: vi.fn(),
-  update: vi.fn(),
-  delete: vi.fn(),
   push: vi.fn(),
   refresh: vi.fn(),
-}));
-vi.mock('@/api/client/method', () => ({
-  default: {
-    Paste: {
-      createPaste: (...args: unknown[]) => ({
-        send: () => mocks.create(...args),
-      }),
-      updatePaste: (...args: unknown[]) => ({
-        send: () => mocks.update(...args),
-      }),
-      deletePaste: (...args: unknown[]) => ({
-        send: () => mocks.delete(...args),
-      }),
-    },
-  },
 }));
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: mocks.push, refresh: mocks.refresh }),
@@ -101,36 +77,52 @@ vi.mock('@/shared/components/markdown-editor', () => ({
   ),
 }));
 
-function renderForm(paste?: PasteDoc) {
-  return render(
-    <NextIntlClientProvider locale="en" messages={messages}>
-      <PasteForm options={pasteOptions} paste={paste} />
-    </NextIntlClientProvider>
-  );
+function renderForm(
+  props: Partial<ComponentProps<typeof PasteForm>> & {
+    paste?: typeof pasteDoc;
+  } = {}
+) {
+  const { paste, ...rest } = props;
+  const onSubmit = rest.onSubmit ?? vi.fn().mockResolvedValue('/paste/new123');
+  const defaultValues =
+    rest.defaultValues ?? getPasteDefaults(pasteOptions, paste);
+  return {
+    onSubmit,
+    ...render(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <PasteForm
+          options={pasteOptions}
+          defaultValues={defaultValues}
+          heading={paste ? messages.paste.edit : messages.paste.create}
+          submitLabel={paste ? messages.paste.save : messages.paste.share}
+          cancelHref={
+            paste ? `/paste/${encodeURIComponent(paste._id)}` : undefined
+          }
+          onSubmit={onSubmit}
+          {...rest}
+        />
+      </NextIntlClientProvider>
+    ),
+  };
 }
 
-beforeEach(() => {
-  vi.clearAllMocks();
-  mocks.create.mockResolvedValue({ id: 'new123', url: '/paste/new123' });
-  mocks.update.mockResolvedValue({ url: '/paste/abc123' });
-  mocks.delete.mockResolvedValue({ url: '/paste' });
-});
+beforeEach(() => vi.clearAllMocks());
 
-describe('paste form workflow', () => {
-  it('creates a snippet with whitespace and redirects to its detail', async () => {
-    renderForm();
+describe('paste form fields', () => {
+  it('submits entered values and follows the returned path', async () => {
+    const { onSubmit } = renderForm();
     fireEvent.change(screen.getByRole('textbox', { name: 'Content' }), {
       target: { value: '  x\n\n' },
     });
     await userEvent.click(screen.getByRole('button', { name: 'Share' }));
     await waitFor(() =>
-      expect(mocks.create).toHaveBeenCalledWith(
-        '',
-        'code',
-        'cpp',
-        '  x\n\n',
-        'month'
-      )
+      expect(onSubmit).toHaveBeenCalledWith({
+        title: '',
+        mode: 'code',
+        language: 'cpp',
+        content: '  x\n\n',
+        expire: 'month',
+      })
     );
     expect(mocks.push).toHaveBeenCalledWith('/paste/new123');
     expect(mocks.refresh).toHaveBeenCalled();
@@ -157,45 +149,44 @@ describe('paste form workflow', () => {
     );
   });
 
-  it('rejects empty content without making a request', async () => {
-    renderForm();
+  it('rejects empty content without submitting', async () => {
+    const { onSubmit } = renderForm();
     await userEvent.click(screen.getByRole('button', { name: 'Share' }));
     expect(await screen.findByText('Enter some content.')).toBeInTheDocument();
-    expect(mocks.create).not.toHaveBeenCalled();
+    expect(onSubmit).not.toHaveBeenCalled();
   });
 
   it.each(['rust', ''])(
-    'updates saved language %j and expiry without coercion',
+    'keeps saved language %j and expiry in submitted values',
     async (language) => {
-      renderForm({ ...pasteDoc, language });
+      const { onSubmit } = renderForm({
+        paste: { ...pasteDoc, language },
+        onSubmit: vi.fn().mockResolvedValue('/paste/abc123'),
+      });
       expect(screen.getByLabelText('Language')).toHaveValue(language);
       expect(screen.getByLabelText('Expiration')).toHaveValue('week');
       await userEvent.click(
         screen.getByRole('button', { name: 'Save changes' })
       );
       await waitFor(() =>
-        expect(mocks.update).toHaveBeenCalledWith(
-          'abc123',
-          'Example',
-          'code',
+        expect(onSubmit).toHaveBeenCalledWith({
+          title: 'Example',
+          mode: 'code',
           language,
-          pasteDoc.content,
-          'week'
-        )
+          content: pasteDoc.content,
+          expire: 'week',
+        })
       );
       expect(mocks.push).toHaveBeenCalledWith('/paste/abc123');
     }
   );
 
-  it('retains input and reports backend rate limits', async () => {
-    mocks.create.mockResolvedValue({
-      error: {
-        name: 'RateLimitExceededError',
-        message: 'Try again in {0} seconds.',
-        params: ['60'],
-      },
+  it('retains input and reports submit errors', async () => {
+    const { onSubmit } = renderForm({
+      onSubmit: vi
+        .fn()
+        .mockRejectedValue(new Error('Try again in 60 seconds.')),
     });
-    renderForm();
     fireEvent.change(screen.getByRole('textbox', { name: 'Content' }), {
       target: { value: 'my draft' },
     });
@@ -207,12 +198,16 @@ describe('paste form workflow', () => {
       'my draft'
     );
     expect(mocks.push).not.toHaveBeenCalled();
+    expect(onSubmit).toHaveBeenCalledTimes(1);
     expect(screen.getByRole('button', { name: 'Share' })).toBeEnabled();
   });
 
-  it('handles network failures and allows retrying an edit', async () => {
-    mocks.update.mockRejectedValueOnce(new Error('Network unavailable'));
-    renderForm(pasteDoc);
+  it('handles a failed submit and allows retrying', async () => {
+    const onSubmit = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('Network unavailable'))
+      .mockResolvedValue('/paste/abc123');
+    renderForm({ paste: pasteDoc, onSubmit });
     await userEvent.click(screen.getByRole('button', { name: 'Save changes' }));
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'Network unavailable'
@@ -226,116 +221,51 @@ describe('paste form workflow', () => {
     );
   });
 
-  it('disables competing mutations while saving', async () => {
-    let resolve!: (value: { url: string }) => void;
-    mocks.update.mockReturnValue(
-      new Promise((done) => {
-        resolve = done;
-      })
+  it('disables fields while submitting', async () => {
+    let resolve!: (value: string) => void;
+    const onSubmit = vi.fn(
+      () =>
+        new Promise<string>((done) => {
+          resolve = done;
+        })
     );
-    renderForm(pasteDoc);
+    renderForm({
+      paste: pasteDoc,
+      onSubmit,
+      extraActions: <button type="button">Delete</button>,
+    });
     await userEvent.click(screen.getByRole('button', { name: 'Save changes' }));
     expect(screen.getByRole('button', { name: 'Saving…' })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Delete' })).toBeDisabled();
-    expect(screen.getByRole('link', { name: 'Cancel' })).toHaveAttribute(
-      'aria-disabled',
-      'true'
+    expect(screen.getByRole('textbox', { name: 'Content' })).toHaveAttribute(
+      'readOnly'
     );
-    resolve({ url: '/paste/abc123' });
+    resolve('/paste/abc123');
     await waitFor(() => expect(mocks.refresh).toHaveBeenCalled());
   });
 
-  it.each(['cancel', 'escape'])(
-    'dismisses deletion with %s without sending a request',
-    async (action) => {
-      renderForm(pasteDoc);
-      const trigger = screen.getByRole('button', { name: 'Delete' });
-      await userEvent.click(trigger);
-      const dialog = screen.getByRole('alertdialog', { name: 'Delete' });
-      expect(dialog).toHaveAccessibleDescription(messages.paste.deleteConfirm);
-      expect(mocks.delete).not.toHaveBeenCalled();
-      expect(
-        within(dialog).getByRole('button', { name: 'Cancel' })
-      ).toHaveFocus();
-      if (action === 'cancel') {
-        await userEvent.click(
-          within(dialog).getByRole('button', { name: 'Cancel' })
-        );
-      } else {
-        await userEvent.keyboard('{Escape}');
-      }
-      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-      expect(mocks.delete).not.toHaveBeenCalled();
-      expect(mocks.update).not.toHaveBeenCalled();
-      expect(trigger).toHaveFocus();
-    }
-  );
-
-  it('deletes even when the current form content is invalid', async () => {
-    renderForm(pasteDoc);
+  it('renders extra actions and cancel without tying them to validation', async () => {
+    const extra = vi.fn();
+    renderForm({
+      paste: pasteDoc,
+      extraActions: (
+        <button type="button" onClick={extra}>
+          Delete
+        </button>
+      ),
+    });
     fireEvent.change(screen.getByRole('textbox', { name: 'Content' }), {
       target: { value: '' },
     });
     await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
-    await userEvent.click(
-      within(screen.getByRole('alertdialog')).getByRole('button', {
-        name: 'Delete',
-      })
+    expect(extra).toHaveBeenCalled();
+    expect(screen.getByRole('link', { name: 'Cancel' })).toHaveAttribute(
+      'href',
+      '/paste/abc123'
     );
-    await waitFor(() => expect(mocks.delete).toHaveBeenCalledWith('abc123'));
-    expect(mocks.push).toHaveBeenCalledWith('/paste');
-    expect(mocks.refresh).toHaveBeenCalled();
-    expect(mocks.update).not.toHaveBeenCalled();
   });
 
-  it('shows deletion permission errors without navigating', async () => {
-    mocks.delete.mockResolvedValue({
-      error: { name: 'ForbiddenError', message: 'Permission denied' },
-    });
-    renderForm(pasteDoc);
-    await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
-    await userEvent.click(
-      within(screen.getByRole('alertdialog')).getByRole('button', {
-        name: 'Delete',
-      })
-    );
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'Permission denied'
-    );
-    expect(mocks.push).not.toHaveBeenCalled();
-    expect(screen.getByRole('button', { name: 'Delete' })).toBeEnabled();
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-  });
-
-  it('keeps the confirmation open and disables actions while deleting', async () => {
-    let resolve!: (value: { url: string }) => void;
-    mocks.delete.mockReturnValue(
-      new Promise((done) => {
-        resolve = done;
-      })
-    );
-    renderForm(pasteDoc);
-    const save = screen.getByRole('button', { name: 'Save changes' });
-    await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
-    const dialog = screen.getByRole('alertdialog');
-    await userEvent.click(
-      within(dialog).getByRole('button', { name: 'Delete' })
-    );
-    expect(
-      within(dialog).getByRole('button', { name: 'Deleting…' })
-    ).toBeDisabled();
-    expect(
-      within(dialog).getByRole('button', { name: 'Cancel' })
-    ).toBeDisabled();
-    expect(save).toBeDisabled();
-    await userEvent.keyboard('{Escape}');
-    expect(dialog).toBeInTheDocument();
-    expect(mocks.delete).toHaveBeenCalledTimes(1);
-    expect(mocks.push).not.toHaveBeenCalled();
-    resolve({ url: '/paste' });
-    await waitFor(() =>
-      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
-    );
-    expect(mocks.push).toHaveBeenCalledWith('/paste');
+  it('labels expiry from translations rather than backend copy', () => {
+    renderForm();
+    expect(screen.getByLabelText('Expiration')).toHaveTextContent('1 month');
   });
 });

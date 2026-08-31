@@ -1,5 +1,6 @@
 import { pasteDoc, pasteOptions } from '../paste.test-utils';
 import {
+  buildPastePayload,
   createPasteSchema,
   getPasteDefaults,
   getPasteLanguageOptions,
@@ -103,11 +104,47 @@ describe('paste form contract', () => {
     'preserves saved option %j without mutating backend options',
     (language) => {
       expect(
-        getPasteLanguageOptions(pasteOptions.languageOptions, language)[
-          language
-        ]
+        getPasteLanguageOptions(pasteOptions.languageNames, language)[language]
       ).toBe(language);
-      expect(Object.hasOwn(pasteOptions.languageOptions, language)).toBe(false);
+      expect(Object.hasOwn(pasteOptions.languageNames, language)).toBe(false);
     }
   );
+});
+
+describe('buildPastePayload', () => {
+  it('keeps the selected language for code writes', () => {
+    expect(
+      buildPastePayload({
+        title: '  title ',
+        mode: 'code',
+        language: 'rust',
+        content: '  code();\n\n',
+        expire: 'never',
+      })
+    ).toEqual({
+      title: '  title ',
+      mode: 'code',
+      language: 'rust',
+      content: '  code();\n\n',
+      expire: 'never',
+    });
+  });
+
+  it('clears language for markdown writes', () => {
+    expect(
+      buildPastePayload({
+        title: '',
+        mode: 'markdown',
+        language: 'cpp',
+        content: '# Heading',
+        expire: 'day',
+      })
+    ).toEqual({
+      title: '',
+      mode: 'markdown',
+      language: '',
+      content: '# Heading',
+      expire: 'day',
+    });
+  });
 });

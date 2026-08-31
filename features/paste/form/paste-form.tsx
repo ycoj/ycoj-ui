@@ -2,45 +2,50 @@
 
 import {
   createPasteSchema,
-  getPasteDefaults,
   getPasteLanguageOptions,
   type PasteFormValues,
 } from './paste-form-utils';
 import PasteSelect from './paste-select';
-import ClientApis from '@/api/client/method';
 import CodeEditor from '@/shared/components/code/code-editor';
-import parseErrorMessage from '@/shared/components/errored/parse-message';
 import MarkdownEditor from '@/shared/components/markdown-editor';
 import { Button } from '@/shared/components/ui/button';
 import { Field, FieldError, FieldLabel } from '@/shared/components/ui/field';
 import { Input } from '@/shared/components/ui/input';
-import type {
-  PasteDoc,
-  PasteExpire,
-  PasteFormOptions,
-} from '@/shared/types/paste';
+import { PASTE_EXPIRE, type PasteFormOptions } from '@/shared/types/paste';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { LoaderCircle, Save, Share2, Trash } from 'lucide-react';
+import { LoaderCircle, Save, Share2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { AlertDialog } from 'radix-ui';
-import { useState } from 'react';
+import type { ReactNode } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 
-type Props = { options: PasteFormOptions; paste?: PasteDoc };
+type Props = {
+  options: PasteFormOptions;
+  defaultValues: PasteFormValues;
+  onSubmit: (values: PasteFormValues) => Promise<string>;
+  extraActions?: ReactNode;
+  heading: string;
+  submitLabel: string;
+  cancelHref?: string;
+};
 
-export default function PasteForm({ options, paste }: Props) {
+export default function PasteForm({
+  options,
+  defaultValues,
+  onSubmit,
+  extraActions,
+  heading,
+  submitLabel,
+  cancelHref,
+}: Props) {
   const t = useTranslations('paste');
   const router = useRouter();
-  const [deleting, setDeleting] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
   const {
     control,
     register,
     handleSubmit,
     setError,
-    clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<PasteFormValues>({
     resolver: zodResolver(
@@ -51,94 +56,42 @@ export default function PasteForm({ options, paste }: Props) {
         languageInvalid: t('languageInvalid'),
       })
     ),
-    defaultValues: getPasteDefaults(options, paste),
+    defaultValues,
   });
   const mode = useWatch({ control, name: 'mode' });
   const language = useWatch({ control, name: 'language' });
-  const busy = isSubmitting || deleting;
   const languageOptions = getPasteLanguageOptions(
-    options.languageOptions,
+    options.languageNames,
     language
   );
   const expiryOptions = Object.fromEntries(
-    (Object.keys(options.expiryOptions) as PasteExpire[]).map((key) => [
-      key,
-      t(`expiry.${key}`),
-    ])
+    PASTE_EXPIRE.map((key) => [key, t(`expiry.${key}`)])
   );
 
-  const showError = (error: unknown) =>
-    setError('root.serverError', {
-      message: error instanceof Error ? error.message : t('submitFailed'),
-    });
-
-  const onSubmit = async (values: PasteFormValues) => {
-    if (deleting) return;
+  const handleFormSubmit = async (values: PasteFormValues) => {
     try {
-      const { title, mode, language, content, expire } = values;
-      if (paste) {
-        const response = await ClientApis.Paste.updatePaste(
-          paste._id,
-          title,
-          mode,
-          language,
-          content,
-          expire
-        ).send();
-        if ('error' in response)
-          throw new Error(parseErrorMessage(response.error));
-        if (!response.url) throw new Error(t('submitFailed'));
-        router.push(`/paste/${encodeURIComponent(paste._id)}`);
-      } else {
-        const response = await ClientApis.Paste.createPaste(
-          title,
-          mode,
-          language,
-          content,
-          expire
-        ).send();
-        if ('error' in response)
-          throw new Error(parseErrorMessage(response.error));
-        if (!response.id) throw new Error(t('submitFailed'));
-        router.push(`/paste/${encodeURIComponent(response.id)}`);
-      }
+      const path = await onSubmit(values);
+      router.push(path);
       router.refresh();
     } catch (error) {
-      showError(error);
-    }
-  };
-
-  const onDelete = async () => {
-    if (!paste || busy) return;
-    clearErrors('root.serverError');
-    setDeleting(true);
-    try {
-      const response = await ClientApis.Paste.deletePaste(paste._id).send();
-      if ('error' in response)
-        throw new Error(parseErrorMessage(response.error));
-      if (!response.url) throw new Error(t('deleteFailed'));
-      router.push('/paste');
-      router.refresh();
-    } catch (error) {
-      showError(error);
-    } finally {
-      setDeleting(false);
-      setDeleteOpen(false);
+      setError('root.serverError', {
+        message:
+          error instanceof Error && error.message
+            ? error.message
+            : t('submitFailed'),
+      });
     }
   };
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(handleFormSubmit)}
       noValidate
       className="space-y-5"
       data-llm-visible="true"
     >
-      <h1
-        className="text-2xl font-semibold"
-        data-llm-text={paste ? t('edit') : t('create')}
-      >
-        {paste ? t('edit') : t('create')}
+      <h1 className="text-2xl font-semibold" data-llm-text={heading}>
+        {heading}
       </h1>
       <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_10rem]">
         <Field>
@@ -146,7 +99,7 @@ export default function PasteForm({ options, paste }: Props) {
           <Input
             id="paste-title"
             placeholder={t('titlePlaceholder')}
-            disabled={busy}
+            disabled={isSubmitting}
             aria-invalid={!!errors.title}
             {...register('title')}
           />
@@ -162,7 +115,7 @@ export default function PasteForm({ options, paste }: Props) {
               value={field.value}
               onChange={field.onChange}
               options={{ code: t('code'), markdown: t('markdown') }}
-              disabled={busy}
+              disabled={isSubmitting}
               error={errors.mode?.message}
             />
           )}
@@ -185,7 +138,7 @@ export default function PasteForm({ options, paste }: Props) {
                     key ? label : t('plainText'),
                   ])
                 )}
-                disabled={busy}
+                disabled={isSubmitting}
                 error={errors.language?.message}
               />
             )}
@@ -201,7 +154,7 @@ export default function PasteForm({ options, paste }: Props) {
               value={field.value}
               onChange={field.onChange}
               options={expiryOptions}
-              disabled={busy}
+              disabled={isSubmitting}
               error={errors.expire?.message}
             />
           )}
@@ -221,7 +174,7 @@ export default function PasteForm({ options, paste }: Props) {
                 value={field.value}
                 onChange={async (event) => field.onChange(event.target.value)}
                 onBlur={async () => field.onBlur()}
-                disabled={busy}
+                disabled={isSubmitting}
                 aria-invalid={!!errors.content}
               />
             ) : (
@@ -230,7 +183,7 @@ export default function PasteForm({ options, paste }: Props) {
                 onChange={field.onChange}
                 language={language || 'plaintext'}
                 height="28rem"
-                readOnly={busy}
+                readOnly={isSubmitting}
                 invalid={!!errors.content}
                 ariaLabel={t('content')}
               />
@@ -243,84 +196,21 @@ export default function PasteForm({ options, paste }: Props) {
         <FieldError errors={[errors.root.serverError]} />
       )}
       <div className="flex flex-wrap gap-2">
-        <Button type="submit" disabled={busy}>
+        <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? (
             <LoaderCircle className="animate-spin" />
-          ) : paste ? (
+          ) : extraActions ? (
             <Save />
           ) : (
             <Share2 />
           )}
-          {isSubmitting ? t('saving') : paste ? t('save') : t('share')}
+          {isSubmitting ? t('saving') : submitLabel}
         </Button>
-        {paste && (
-          <>
-            <AlertDialog.Root
-              open={deleteOpen}
-              onOpenChange={(open) => {
-                if (!busy) setDeleteOpen(open);
-              }}
-            >
-              <AlertDialog.Trigger asChild>
-                <Button type="button" variant="destructive" disabled={busy}>
-                  {deleting ? (
-                    <LoaderCircle className="animate-spin" />
-                  ) : (
-                    <Trash />
-                  )}
-                  {deleting ? t('deleting') : t('delete')}
-                </Button>
-              </AlertDialog.Trigger>
-              <AlertDialog.Portal>
-                <AlertDialog.Overlay className="fixed inset-0 z-50 bg-black/30 backdrop-blur-xs" />
-                <AlertDialog.Content
-                  className="bg-background fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border p-5 shadow-lg"
-                  data-llm-visible="true"
-                >
-                  <AlertDialog.Title
-                    className="text-lg font-semibold"
-                    data-llm-text={t('delete')}
-                  >
-                    {t('delete')}
-                  </AlertDialog.Title>
-                  <AlertDialog.Description
-                    className="text-muted-foreground mt-2 text-sm"
-                    data-llm-text={t('deleteConfirm')}
-                  >
-                    {t('deleteConfirm')}
-                  </AlertDialog.Description>
-                  <div className="mt-5 flex justify-end gap-2">
-                    <AlertDialog.Cancel asChild>
-                      <Button type="button" variant="outline" disabled={busy}>
-                        {t('cancel')}
-                      </Button>
-                    </AlertDialog.Cancel>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      disabled={busy}
-                      onClick={() => void onDelete()}
-                    >
-                      {deleting && <LoaderCircle className="animate-spin" />}
-                      {deleting ? t('deleting') : t('delete')}
-                    </Button>
-                  </div>
-                </AlertDialog.Content>
-              </AlertDialog.Portal>
-            </AlertDialog.Root>
-            <Button variant="outline" asChild disabled={busy}>
-              <Link
-                href={`/paste/${encodeURIComponent(paste._id)}`}
-                aria-disabled={busy}
-                tabIndex={busy ? -1 : undefined}
-                onClick={(event) => {
-                  if (busy) event.preventDefault();
-                }}
-              >
-                {t('cancel')}
-              </Link>
-            </Button>
-          </>
+        {extraActions}
+        {cancelHref && (
+          <Button variant="outline" asChild>
+            <Link href={cancelHref}>{t('cancel')}</Link>
+          </Button>
         )}
       </div>
     </form>

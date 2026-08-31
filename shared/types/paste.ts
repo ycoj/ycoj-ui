@@ -1,5 +1,6 @@
 export type PasteMode = 'code' | 'markdown';
-export type PasteExpire = 'day' | 'week' | 'month' | 'never';
+export const PASTE_EXPIRE = ['day', 'week', 'month', 'never'] as const;
+export type PasteExpire = (typeof PASTE_EXPIRE)[number];
 
 export type PasteDoc = {
   _id: string;
@@ -15,8 +16,7 @@ export type PasteDoc = {
 };
 
 export type PasteFormOptions = {
-  expiryOptions: Record<PasteExpire, string>;
-  languageOptions: Record<string, string>;
+  languageNames: Record<string, string>;
   defaultExpire: PasteExpire;
   defaultLanguage: string;
 };
