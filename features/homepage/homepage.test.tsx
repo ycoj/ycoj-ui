@@ -1,4 +1,4 @@
-import Homepage from './homepage';
+import Homepage from '@/features/homepage/homepage';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({

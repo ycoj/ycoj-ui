@@ -1,4 +1,4 @@
-import ThemeLogo from './theme-logo';
+import ThemeLogo from '@/shared/components/theme-logo';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
