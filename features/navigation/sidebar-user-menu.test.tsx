@@ -37,7 +37,7 @@ vi.mock('@/shared/components/ui/sidebar', async () => {
   };
 });
 
-function renderMenu(locale: 'en' | 'zh' = 'en') {
+function renderMenu(locale: 'en' | 'zh' = 'en', canUsePaste = true) {
   const messages = locale === 'en' ? en : zh;
 
   return render(
@@ -46,6 +46,7 @@ function renderMenu(locale: 'en' | 'zh' = 'en') {
         user={{ _id: 2, uname: 'alice' }}
         roleKey="user"
         avatarSrc="/avatar.png"
+        canUsePaste={canUsePaste}
       />
     </NextIntlClientProvider>
   );
@@ -58,6 +59,25 @@ async function openMenu() {
 }
 
 describe('SidebarUserMenu theme toggle', () => {
+  it.each([
+    ['en', 'Share Snippets'],
+    ['zh', '分享代码片段'],
+  ] as const)('links to pastebin in %s', async (locale, label) => {
+    renderMenu(locale);
+    await openMenu();
+    expect(screen.getByRole('menuitem', { name: label })).toHaveAttribute(
+      'href',
+      '/paste'
+    );
+  });
+
+  it('hides pastebin when the profile privilege is missing', async () => {
+    renderMenu('en', false);
+    await openMenu();
+    expect(
+      screen.queryByRole('menuitem', { name: 'Share Snippets' })
+    ).not.toBeInTheDocument();
+  });
   it('links to the new account settings page', async () => {
     renderMenu();
     await openMenu();

@@ -12,6 +12,7 @@ import { cn } from '@/shared/lib/utils';
 import type { User } from '@/shared/types/user';
 import {
   Check,
+  Code2,
   BadgeCheck,
   ChevronDown,
   ChevronRight,
@@ -37,6 +38,7 @@ type Props = {
   user: Pick<User, '_id' | 'uname'>;
   roleKey: SidebarRoleKey;
   avatarSrc: string;
+  canUsePaste?: boolean;
 };
 
 const roleMessageKeys = {
@@ -55,7 +57,12 @@ const subscribeToHydration = () => () => {};
 const getClientHydrationSnapshot = () => true;
 const getServerHydrationSnapshot = () => false;
 
-export default function SidebarUserMenu({ user, roleKey, avatarSrc }: Props) {
+export default function SidebarUserMenu({
+  user,
+  roleKey,
+  avatarSrc,
+  canUsePaste = false,
+}: Props) {
   const locale = useLocale() as Locale;
   const t = useTranslations('common');
   const { resolvedTheme, setTheme } = useTheme();
@@ -138,6 +145,14 @@ export default function SidebarUserMenu({ user, roleKey, avatarSrc }: Props) {
               <span data-llm-text={t('messages')}>{t('messages')}</span>
             </Link>
           </DropdownMenuPrimitive.Item>
+          {canUsePaste && (
+            <DropdownMenuPrimitive.Item asChild className={menuItemClassName}>
+              <Link href="/paste">
+                <Code2 aria-hidden="true" />
+                <span data-llm-text={t('paste')}>{t('paste')}</span>
+              </Link>
+            </DropdownMenuPrimitive.Item>
+          )}
           <DropdownMenuPrimitive.Separator className="bg-foreground/10 -mx-1 my-1 h-px" />
           <DropdownMenuPrimitive.Item asChild className={menuItemClassName}>
             <Link href="/home/realname">

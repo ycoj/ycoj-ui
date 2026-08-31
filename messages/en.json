@@ -1,4 +1,43 @@
 {
+  "paste": {
+    "name": "Share Snippets",
+    "create": "Share a snippet",
+    "history": "Share history",
+    "empty": "No snippets shared yet",
+    "edit": "Edit snippet",
+    "title": "Title",
+    "titlePlaceholder": "Optional title",
+    "type": "Type",
+    "code": "Code",
+    "markdown": "Markdown",
+    "language": "Language",
+    "plainText": "Plain text",
+    "expiration": "Expiration",
+    "expires": "Expires",
+    "content": "Content",
+    "share": "Share",
+    "save": "Save changes",
+    "saving": "Saving…",
+    "delete": "Delete",
+    "deleting": "Deleting…",
+    "cancel": "Cancel",
+    "deleteConfirm": "Delete this snippet? This cannot be undone.",
+    "deleteFailed": "Could not delete the snippet. Please try again.",
+    "submitFailed": "Could not save the snippet. Please try again.",
+    "titleTooLong": "Use no more than 64 characters for the title.",
+    "contentRequired": "Enter some content.",
+    "contentTooLong": "Content must be no more than 65,536 characters.",
+    "languageInvalid": "Choose a valid language.",
+    "copyLink": "Copy link",
+    "copied": "Link copied",
+    "raw": "Raw text",
+    "expiry": {
+      "day": "1 day",
+      "week": "1 week",
+      "month": "1 month",
+      "never": "Never expire"
+    }
+  },
   "manage": {
     "navigation": "System management",
     "realname": "Real-name review",
@@ -74,6 +113,7 @@
     "retry": "Refresh"
   },
   "common": {
+    "paste": "Share Snippets",
     "accountSettings": "Account settings",
     "profile": "Profile",
     "messages": "Messages",

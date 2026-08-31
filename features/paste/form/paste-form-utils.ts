@@ -1,0 +1,44 @@
+import type { PasteDoc, PasteFormOptions } from '@/shared/types/paste';
+import { z } from 'zod';
+
+export function createPasteSchema(messages: {
+  titleTooLong: string;
+  contentRequired: string;
+  contentTooLong: string;
+  languageInvalid: string;
+}) {
+  return z.object({
+    title: z.string().max(64, messages.titleTooLong),
+    mode: z.enum(['code', 'markdown']),
+    language: z.string().regex(/^[a-z0-9-]{0,64}$/i, messages.languageInvalid),
+    content: z
+      .string()
+      .min(1, messages.contentRequired)
+      .max(65536, messages.contentTooLong),
+    expire: z.enum(['day', 'week', 'month', 'never']),
+  });
+}
+
+export type PasteFormValues = z.infer<ReturnType<typeof createPasteSchema>>;
+
+export function getPasteDefaults(
+  options: PasteFormOptions,
+  paste?: PasteDoc
+): PasteFormValues {
+  return {
+    title: paste?.title ?? '',
+    mode: paste?.mode ?? 'code',
+    language: paste?.language ?? options.defaultLanguage,
+    content: paste?.content ?? '',
+    expire: paste?.expire ?? options.defaultExpire,
+  };
+}
+
+export function getPasteLanguageOptions(
+  options: Record<string, string>,
+  language: string
+) {
+  return Object.hasOwn(options, language)
+    ? options
+    : { ...options, [language]: language };
+}
