@@ -1,5 +1,6 @@
-import { login } from './login';
+import { getLoginFactors, login } from './login';
 import { logout } from './logout';
+import { completePasswordReset, requestPasswordReset } from './recovery';
 import {
   confirmSudo,
   getWebauthnOptions,
@@ -9,11 +10,14 @@ import {
 
 const Auth = {
   login,
+  getLoginFactors,
   logout,
   confirmSudo,
   getWebauthnOptions,
   verifyWebauthn,
   resumeSudoAction,
+  requestPasswordReset,
+  completePasswordReset,
 };
 
 export default Auth;

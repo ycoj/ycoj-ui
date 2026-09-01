@@ -1,3 +1,4 @@
+import { getPasswordReset } from './recovery';
 import { alova } from '@/api/server';
 import type { BackendError, SudoPageData } from '@/shared/types/sudo';
 
@@ -6,5 +7,5 @@ export const getSudoPage = () =>
     cacheFor: 0,
   });
 
-const Auth = { getSudoPage };
+const Auth = { getSudoPage, getPasswordReset };
 export default Auth;
