@@ -189,6 +189,18 @@
     "problemId": "ID = {id}",
     "userId": "UID = {id}"
   },
+  "omnibar": {
+    "placeholder": "搜索题目和用户",
+    "openLabel": "搜索",
+    "loading": "正在搜索...",
+    "noResults": "没有匹配结果",
+    "loadFailed": "无法加载结果，请重试。",
+    "problems": "题目",
+    "users": "用户",
+    "shortcut": "Ctrl+K",
+    "shortcutMac": "⌘K",
+    "acceptance": "{accepted}/{submitted}"
+  },
   "problemListEditor": {
     "title": "题目（拖动排序）",
     "searchPlaceholder": "搜索题目",
