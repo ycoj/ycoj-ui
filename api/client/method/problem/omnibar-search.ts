@@ -4,6 +4,7 @@ import type {
   ProblemStatusDict,
 } from '@/shared/types/problem';
 
+// The new UI migration currently targets only the system domain.
 export type OmnibarProblemSearchResponse = {
   pdocs: ListProjectionProblem[];
   psdict: ProblemStatusDict;

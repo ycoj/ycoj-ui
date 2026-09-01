@@ -1,75 +1,37 @@
 'use client';
 
+import OmnibarResults from './omnibar-results';
+import { useOmnibarSearch } from './omnibar-search';
 import {
   buildOmnibarHits,
-  lookupProblemStatus,
   nextHighlightIndex,
   type OmnibarHit,
 } from './omnibar-utils';
-import ClientApis from '@/api/client/method';
-import type { UserAutoCompleteItem } from '@/api/client/method/user/auto-complete';
-import { formatProblemPid } from '@/features/problem/lib/format-problem-pid';
-import ProblemStatus from '@/features/problem/problem-status';
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from '@/shared/components/ui/avatar';
 import { Input } from '@/shared/components/ui/input';
-import { cn } from '@/shared/lib/utils';
-import type {
-  ListProjectionProblem,
-  ProblemStatusDict,
-} from '@/shared/types/problem';
-import { LoaderCircle, Search } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Dialog } from 'radix-ui';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
-type SearchStatus = 'idle' | 'loading' | 'success' | 'failed';
-
-type SearchResults = {
-  pdocs: ListProjectionProblem[];
-  psdict: ProblemStatusDict;
-  udocs: UserAutoCompleteItem[];
-};
-
-type SearchState = {
-  query: string;
-  status: Exclude<SearchStatus, 'idle'>;
-  results: SearchResults;
-};
-
-const emptyResults: SearchResults = {
-  pdocs: [],
-  psdict: {},
-  udocs: [],
-};
-
 export default function Omnibar({ open, onOpenChange }: Props) {
   const t = useTranslations('omnibar');
-  const userIdLabel = useTranslations('autoComplete');
   const router = useRouter();
-  const [query, setQuery] = useState('');
-  const [searchState, setSearchState] = useState<SearchState | null>(null);
-  const [highlightedIndex, setHighlightedIndex] = useState(-1);
-  const requestId = useRef(0);
+  const {
+    query,
+    setQuery,
+    trimmedQuery,
+    displayStatus,
+    displayResults,
+    highlightedIndex,
+    setHighlightedIndex,
+  } = useOmnibarSearch();
   const inputRef = useRef<HTMLInputElement>(null);
-  const highlightedRef = useRef<HTMLAnchorElement>(null);
-  const trimmedQuery = query.trim();
-  const currentSearchState =
-    searchState?.query === trimmedQuery ? searchState : null;
-  const displayStatus: SearchStatus = trimmedQuery
-    ? (currentSearchState?.status ?? 'loading')
-    : 'idle';
-  const displayResults = currentSearchState?.results ?? emptyResults;
   const hits = useMemo(
     () => buildOmnibarHits(displayResults.pdocs, displayResults.udocs),
     [displayResults.pdocs, displayResults.udocs]
@@ -80,56 +42,6 @@ export default function Omnibar({ open, onOpenChange }: Props) {
     const frame = window.requestAnimationFrame(() => inputRef.current?.focus());
     return () => window.cancelAnimationFrame(frame);
   }, [open]);
-
-  useEffect(() => {
-    if (!trimmedQuery) {
-      requestId.current += 1;
-      return;
-    }
-
-    const currentRequestId = ++requestId.current;
-    const timeout = window.setTimeout(() => {
-      setSearchState({
-        query: trimmedQuery,
-        status: 'loading',
-        results: emptyResults,
-      });
-      void Promise.all([
-        ClientApis.Problem.searchOmnibarProblems(trimmedQuery).send(),
-        ClientApis.User.searchUsers('system', trimmedQuery).send(),
-      ])
-        .then(([problems, users]) => {
-          if (requestId.current !== currentRequestId) return;
-          setSearchState({
-            query: trimmedQuery,
-            status: 'success',
-            results: {
-              pdocs: problems.pdocs,
-              psdict: problems.psdict ?? {},
-              udocs: users,
-            },
-          });
-          setHighlightedIndex(
-            problems.pdocs.length + users.length > 0 ? 0 : -1
-          );
-        })
-        .catch(() => {
-          if (requestId.current !== currentRequestId) return;
-          setSearchState({
-            query: trimmedQuery,
-            status: 'failed',
-            results: emptyResults,
-          });
-          setHighlightedIndex(-1);
-        });
-    }, 300);
-
-    return () => window.clearTimeout(timeout);
-  }, [trimmedQuery]);
-
-  useEffect(() => {
-    highlightedRef.current?.scrollIntoView?.({ block: 'nearest' });
-  }, [highlightedIndex]);
 
   const selectHit = (hit: OmnibarHit) => {
     onOpenChange(false);
@@ -158,20 +70,6 @@ export default function Omnibar({ open, onOpenChange }: Props) {
       selectHit(hit);
     }
   };
-
-  const showEmpty =
-    Boolean(trimmedQuery) &&
-    displayStatus === 'success' &&
-    displayResults.pdocs.length === 0 &&
-    displayResults.udocs.length === 0;
-  const statusMessage =
-    displayStatus === 'loading'
-      ? t('loading')
-      : displayStatus === 'failed'
-        ? t('loadFailed')
-        : showEmpty
-          ? t('noResults')
-          : undefined;
 
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
@@ -206,161 +104,15 @@ export default function Omnibar({ open, onOpenChange }: Props) {
               className="h-12 rounded-none border-0 pr-4 pl-10 text-base shadow-none focus-visible:ring-0 md:text-base"
             />
           </div>
-          <div
-            id="omnibar-results"
-            role="listbox"
-            className="min-h-0 flex-1 overflow-y-auto p-2"
-          >
-            {statusMessage && (
-              <div
-                className="text-muted-foreground flex items-center gap-2 px-3 py-2 text-sm"
-                data-llm-text={statusMessage}
-              >
-                {displayStatus === 'loading' && (
-                  <LoaderCircle className="size-4 animate-spin" />
-                )}
-                {statusMessage}
-              </div>
-            )}
-            {displayResults.pdocs.length > 0 && (
-              <section className="mb-2">
-                <h3
-                  className="text-muted-foreground px-2 py-1.5 text-xs font-medium tracking-wide uppercase"
-                  data-llm-text={t('problems')}
-                >
-                  {t('problems')}
-                </h3>
-                <div className="space-y-1">
-                  {hits
-                    .filter(
-                      (hit): hit is Extract<OmnibarHit, { kind: 'problem' }> =>
-                        hit.kind === 'problem'
-                    )
-                    .map((hit) => {
-                      const index = hits.indexOf(hit);
-                      const highlighted = index === highlightedIndex;
-                      const statusDoc = lookupProblemStatus(
-                        displayResults.psdict,
-                        hit.problem.docId
-                      );
-                      const pid = formatProblemPid(hit.problem);
-                      const acceptance = t('acceptance', {
-                        accepted: hit.problem.nAccept,
-                        submitted: hit.problem.nSubmit,
-                      });
-                      return (
-                        <div
-                          key={hit.id}
-                          className={cn(
-                            'flex items-center gap-2 rounded-lg px-2 py-2',
-                            highlighted && 'bg-accent'
-                          )}
-                        >
-                          {statusDoc && (
-                            <div
-                              className="shrink-0 [&_[data-slot=badge]]:px-1.5"
-                              onClick={() => onOpenChange(false)}
-                            >
-                              <ProblemStatus status={statusDoc} />
-                            </div>
-                          )}
-                          <Link
-                            ref={highlighted ? highlightedRef : undefined}
-                            id={`omnibar-${hit.id}`}
-                            role="option"
-                            aria-selected={highlighted}
-                            href={hit.href}
-                            prefetch={false}
-                            className="min-w-0 flex-1 outline-none"
-                            onClick={() => onOpenChange(false)}
-                            onMouseEnter={() => setHighlightedIndex(index)}
-                          >
-                            <div
-                              className="truncate font-medium"
-                              data-llm-text={hit.problem.title}
-                            >
-                              {hit.problem.title}
-                            </div>
-                            <div
-                              className="text-muted-foreground text-xs"
-                              data-llm-text={`${pid} ${acceptance}`}
-                            >
-                              {pid}
-                              <span className="px-1">·</span>
-                              {acceptance}
-                            </div>
-                          </Link>
-                        </div>
-                      );
-                    })}
-                </div>
-              </section>
-            )}
-            {displayResults.udocs.length > 0 && (
-              <section>
-                <h3
-                  className="text-muted-foreground px-2 py-1.5 text-xs font-medium tracking-wide uppercase"
-                  data-llm-text={t('users')}
-                >
-                  {t('users')}
-                </h3>
-                <div className="space-y-1">
-                  {hits
-                    .filter(
-                      (hit): hit is Extract<OmnibarHit, { kind: 'user' }> =>
-                        hit.kind === 'user'
-                    )
-                    .map((hit) => {
-                      const index = hits.indexOf(hit);
-                      const highlighted = index === highlightedIndex;
-                      const label = hit.user.displayName
-                        ? `${hit.user.uname} (${hit.user.displayName})`
-                        : hit.user.uname;
-                      return (
-                        <Link
-                          key={hit.id}
-                          ref={highlighted ? highlightedRef : undefined}
-                          id={`omnibar-${hit.id}`}
-                          role="option"
-                          aria-selected={highlighted}
-                          href={hit.href}
-                          prefetch={false}
-                          className={cn(
-                            'flex items-center gap-2.5 rounded-lg px-2 py-2 outline-none',
-                            highlighted && 'bg-accent'
-                          )}
-                          onClick={() => onOpenChange(false)}
-                          onMouseEnter={() => setHighlightedIndex(index)}
-                        >
-                          <Avatar size="sm">
-                            <AvatarImage src={hit.user.avatarUrl} alt="" />
-                            <AvatarFallback>
-                              {hit.user.uname.slice(0, 1).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="min-w-0">
-                            <div
-                              className="truncate font-medium"
-                              data-llm-text={label}
-                            >
-                              {label}
-                            </div>
-                            <div
-                              className="text-muted-foreground text-xs"
-                              data-llm-text={userIdLabel('userId', {
-                                id: hit.user._id,
-                              })}
-                            >
-                              {userIdLabel('userId', { id: hit.user._id })}
-                            </div>
-                          </div>
-                        </Link>
-                      );
-                    })}
-                </div>
-              </section>
-            )}
-          </div>
+          <OmnibarResults
+            results={displayResults}
+            status={displayStatus}
+            query={trimmedQuery}
+            hits={hits}
+            highlightedIndex={highlightedIndex}
+            onHighlight={setHighlightedIndex}
+            onClose={() => onOpenChange(false)}
+          />
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
