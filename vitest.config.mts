@@ -12,9 +12,9 @@ export default defineConfig(({ mode }) => ({
   },
   test: {
     ...(mode !== 'benchmark' && {
-      pool: 'vmThreads',
+      pool: 'threads',
+      isolate: true,
       maxWorkers: 2,
-      vmMemoryLimit: '512MB',
     }),
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.ts'],
