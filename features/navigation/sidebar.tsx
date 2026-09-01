@@ -1,3 +1,4 @@
+import OmnibarTrigger from './omnibar-trigger';
 import { SidebarUser } from './sidebar-user';
 import { type NavItem } from '@/api/server/method/ui/nav';
 import { getNavInfos } from '@/features/user/lib/get-user';
@@ -104,6 +105,15 @@ export default async function AppSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <OmnibarTrigger />
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu id="sidebar-nav" className="space-y-1">
