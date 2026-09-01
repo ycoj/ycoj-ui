@@ -12,6 +12,7 @@ export type OmnibarHotkeyEvent = {
   altKey: boolean;
   shiftKey: boolean;
   repeat?: boolean;
+  target?: EventTarget | null;
 };
 
 export type OmnibarProblemHit = {
@@ -34,7 +35,26 @@ export function isOmnibarHotkey(event: OmnibarHotkeyEvent): boolean {
   if (event.repeat) return false;
   if (event.altKey || event.shiftKey) return false;
   if (event.key.toLowerCase() !== 'k') return false;
+  if (isEditableHotkeyTarget(event.target)) return false;
   return event.metaKey || event.ctrlKey;
+}
+
+export function isEditableHotkeyTarget(target?: EventTarget | null): boolean {
+  if (typeof Element === 'undefined' || !(target instanceof Element)) {
+    return false;
+  }
+
+  if (
+    target.closest('input, textarea, select, [role="textbox"], .monaco-editor')
+  ) {
+    return true;
+  }
+
+  const contentEditable = target.closest('[contenteditable]');
+  return (
+    contentEditable !== null &&
+    contentEditable.getAttribute('contenteditable') !== 'false'
+  );
 }
 
 export function isApplePlatform(platform = getNavigatorPlatform()): boolean {

@@ -41,6 +41,12 @@ type SearchResults = {
   udocs: UserAutoCompleteItem[];
 };
 
+type SearchState = {
+  query: string;
+  status: Exclude<SearchStatus, 'idle'>;
+  results: SearchResults;
+};
+
 const emptyResults: SearchResults = {
   pdocs: [],
   psdict: {},
@@ -52,19 +58,22 @@ export default function Omnibar({ open, onOpenChange }: Props) {
   const userIdLabel = useTranslations('autoComplete');
   const router = useRouter();
   const [query, setQuery] = useState('');
-  const [status, setStatus] = useState<SearchStatus>('idle');
-  const [results, setResults] = useState<SearchResults>(emptyResults);
+  const [searchState, setSearchState] = useState<SearchState | null>(null);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const requestId = useRef(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const highlightedRef = useRef<HTMLAnchorElement>(null);
   const trimmedQuery = query.trim();
+  const currentSearchState =
+    searchState?.query === trimmedQuery ? searchState : null;
+  const displayStatus: SearchStatus = trimmedQuery
+    ? (currentSearchState?.status ?? 'loading')
+    : 'idle';
+  const displayResults = currentSearchState?.results ?? emptyResults;
   const hits = useMemo(
-    () => (trimmedQuery ? buildOmnibarHits(results.pdocs, results.udocs) : []),
-    [results.pdocs, results.udocs, trimmedQuery]
+    () => buildOmnibarHits(displayResults.pdocs, displayResults.udocs),
+    [displayResults.pdocs, displayResults.udocs]
   );
-  const displayStatus = trimmedQuery ? status : 'idle';
-  const displayResults = trimmedQuery ? results : emptyResults;
 
   useEffect(() => {
     if (!open) return;
@@ -80,26 +89,38 @@ export default function Omnibar({ open, onOpenChange }: Props) {
 
     const currentRequestId = ++requestId.current;
     const timeout = window.setTimeout(() => {
-      setStatus('loading');
+      setSearchState({
+        query: trimmedQuery,
+        status: 'loading',
+        results: emptyResults,
+      });
       void Promise.all([
         ClientApis.Problem.searchOmnibarProblems(trimmedQuery).send(),
         ClientApis.User.searchUsers('system', trimmedQuery).send(),
       ])
         .then(([problems, users]) => {
           if (requestId.current !== currentRequestId) return;
-          setResults({
-            pdocs: problems.pdocs,
-            psdict: problems.psdict ?? {},
-            udocs: users,
+          setSearchState({
+            query: trimmedQuery,
+            status: 'success',
+            results: {
+              pdocs: problems.pdocs,
+              psdict: problems.psdict ?? {},
+              udocs: users,
+            },
           });
-          setStatus('success');
           setHighlightedIndex(
             problems.pdocs.length + users.length > 0 ? 0 : -1
           );
         })
         .catch(() => {
           if (requestId.current !== currentRequestId) return;
-          setStatus('failed');
+          setSearchState({
+            query: trimmedQuery,
+            status: 'failed',
+            results: emptyResults,
+          });
+          setHighlightedIndex(-1);
         });
     }, 300);
 
@@ -236,7 +257,10 @@ export default function Omnibar({ open, onOpenChange }: Props) {
                           )}
                         >
                           {statusDoc && (
-                            <div className="shrink-0 [&_[data-slot=badge]]:px-1.5">
+                            <div
+                              className="shrink-0 [&_[data-slot=badge]]:px-1.5"
+                              onClick={() => onOpenChange(false)}
+                            >
                               <ProblemStatus status={statusDoc} />
                             </div>
                           )}

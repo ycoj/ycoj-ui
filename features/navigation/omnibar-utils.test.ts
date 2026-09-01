@@ -1,6 +1,7 @@
 import {
   buildOmnibarHits,
   isApplePlatform,
+  isEditableHotkeyTarget,
   isOmnibarHotkey,
   lookupProblemStatus,
   nextHighlightIndex,
@@ -52,6 +53,49 @@ describe('isOmnibarHotkey', () => {
         ...partial,
       })
     ).toBe(expected);
+  });
+
+  it.each([
+    ['textarea', document.createElement('textarea')],
+    ['input', document.createElement('input')],
+    ['select', document.createElement('select')],
+  ])('ignores shortcuts from a %s', (_, target) => {
+    expect(
+      isOmnibarHotkey({
+        key: 'k',
+        ctrlKey: true,
+        metaKey: false,
+        altKey: false,
+        shiftKey: false,
+        target,
+      })
+    ).toBe(false);
+  });
+});
+
+describe('isEditableHotkeyTarget', () => {
+  it('recognizes descendants of Monaco and active contenteditable regions', () => {
+    const monaco = document.createElement('div');
+    monaco.className = 'monaco-editor';
+    const monacoInput = monaco.appendChild(document.createElement('div'));
+
+    const editor = document.createElement('div');
+    editor.setAttribute('contenteditable', 'true');
+    const editorChild = editor.appendChild(document.createElement('span'));
+
+    expect(isEditableHotkeyTarget(monacoInput)).toBe(true);
+    expect(isEditableHotkeyTarget(editorChild)).toBe(true);
+  });
+
+  it('does not treat disabled contenteditable regions or ordinary elements as editable', () => {
+    const editor = document.createElement('div');
+    editor.setAttribute('contenteditable', 'false');
+
+    expect(isEditableHotkeyTarget(editor)).toBe(false);
+    expect(isEditableHotkeyTarget(document.createElement('button'))).toBe(
+      false
+    );
+    expect(isEditableHotkeyTarget(document)).toBe(false);
   });
 });
 

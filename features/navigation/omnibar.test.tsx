@@ -31,6 +31,16 @@ function methodError(error: Error) {
   return { send: vi.fn().mockRejectedValue(error) };
 }
 
+function deferredMethod<T>() {
+  let resolve!: (value: T) => void;
+  let reject!: (error: Error) => void;
+  const promise = new Promise<T>((resolvePromise, rejectPromise) => {
+    resolve = resolvePromise;
+    reject = rejectPromise;
+  });
+  return { method: { send: vi.fn(() => promise) }, resolve, reject };
+}
+
 const problem = {
   _id: 'p1',
   domainId: 'system',
@@ -146,6 +156,15 @@ describe('OmnibarProvider', () => {
     expect(mocks.push).toHaveBeenCalledWith('/problem/P3');
   });
 
+  it('closes when navigating through a problem status', async () => {
+    renderOmnibar();
+    await openAndSearch('tree');
+
+    fireEvent.click(screen.getByRole('link', { name: 'Accepted' }));
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
   it('closes on Escape and keeps the last query', async () => {
     renderOmnibar();
     const input = await openAndSearch('tree');
@@ -180,5 +199,38 @@ describe('OmnibarProvider', () => {
     expect(
       screen.getByText('Could not load results. Try again.')
     ).toBeInTheDocument();
+  });
+
+  it('never exposes results from a previous query', async () => {
+    renderOmnibar();
+    const input = await openAndSearch('tree');
+    expect(screen.getByRole('option', { name: /Binary Tree/ })).toBeVisible();
+
+    const pendingProblems = deferredMethod<{
+      pdocs: ListProjectionProblem[];
+      psdict: Record<string, never>;
+    }>();
+    mocks.searchOmnibarProblems.mockReturnValueOnce(pendingProblems.method);
+    mocks.searchUsers.mockReturnValueOnce(methodResult([]));
+
+    fireEvent.change(input, { target: { value: 'graph' } });
+    expect(screen.queryByRole('option')).not.toBeInTheDocument();
+
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(mocks.push).not.toHaveBeenCalled();
+
+    act(() => vi.advanceTimersByTime(300));
+    expect(screen.getByText('Searching...')).toBeInTheDocument();
+    expect(screen.queryByRole('option')).not.toBeInTheDocument();
+
+    await act(async () => {
+      pendingProblems.reject(new Error('network'));
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    expect(
+      screen.getByText('Could not load results. Try again.')
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('option')).not.toBeInTheDocument();
   });
 });
