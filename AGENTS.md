@@ -17,6 +17,7 @@ delegation for tasks that can be completed directly.
 
 ## Collaboration
 
+- Run `pnpm lint`, `pnpm format:check`, `pnpm lint:type` and `pnpm test`, and fix failures before commit.
 - Use conventional commits messages for both commit messages and PR titles.
 - Add yourself to commit co-author. For example, if you are Codex, add `Co-authored-by: Codex <codex@openai.com>` to commit message.
 
