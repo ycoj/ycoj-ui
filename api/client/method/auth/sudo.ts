@@ -18,9 +18,17 @@ export type WebauthnOptionsResponse =
 export const confirmSudo = (method: SudoCredentialType, value: string) =>
   clientRequest.Post<SudoResponse>('/user/sudo', { [method]: value });
 
-export const getWebauthnOptions = () =>
+export const getWebauthnOptions = (
+  params: {
+    uname?: string;
+    login?: boolean;
+  } = {}
+) =>
   clientRequest.Get<WebauthnOptionsResponse>('/user/webauthn', {
-    params: { login: false },
+    params: {
+      login: params.login ?? false,
+      ...(params.uname ? { uname: params.uname } : {}),
+    },
     cacheFor: 0,
   });
 
