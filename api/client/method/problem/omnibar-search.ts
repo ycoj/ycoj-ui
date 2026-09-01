@@ -10,12 +10,9 @@ export type OmnibarProblemSearchResponse = {
 };
 
 export const searchOmnibarProblems = (query: string) =>
-  clientRequest.Get<OmnibarProblemSearchResponse>(
-    '/d/system/p',
-    {
-      params: {
-        q: query,
-        limit: 10,
-      },
-    }
-  );
+  clientRequest.Get<OmnibarProblemSearchResponse>('/d/system/p', {
+    params: {
+      q: query,
+      limit: 10,
+    },
+  });
