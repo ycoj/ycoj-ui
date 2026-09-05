@@ -1,5 +1,6 @@
 import type { PreliminaryDetailData } from '@/api/server/method/preliminary/detail';
 import PreliminaryOption from '@/features/preliminary/detail/preliminary-option';
+import PreliminaryOptionText from '@/features/preliminary/detail/preliminary-option-text';
 import PreliminarySectionShell from '@/features/preliminary/detail/preliminary-section-shell';
 import {
   getAlphabeticId,
@@ -122,10 +123,10 @@ export default function PreliminaryContent({ data, isReadOnly }: Props) {
                           value={option.id}
                           disabled={isReadOnly}
                         >
-                          <span className="mr-2 font-medium">
-                            {getAlphabeticId(optionIndex)}.
-                          </span>
-                          <Markdown>{option.text}</Markdown>
+                          <PreliminaryOptionText
+                            index={optionIndex}
+                            text={option.text}
+                          />
                         </PreliminaryOption>
                       ))
                     )}

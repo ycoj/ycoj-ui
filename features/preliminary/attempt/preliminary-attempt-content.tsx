@@ -2,6 +2,7 @@ import type {
   PreliminaryAttemptData,
   PreliminaryReviewQuestion,
 } from '@/api/server/method/preliminary/attempt';
+import PreliminaryOptionText from '@/features/preliminary/detail/preliminary-option-text';
 import PreliminarySectionShell from '@/features/preliminary/detail/preliminary-section-shell';
 import { getAlphabeticId } from '@/features/preliminary/lib/preliminary-utils';
 import Markdown from '@/shared/components/markdown';
@@ -28,7 +29,7 @@ function ReviewOption({
   return (
     <div
       className={cn(
-        'flex items-center gap-3 rounded-md border p-3 text-sm',
+        'flex items-start gap-3 rounded-md border p-3 text-sm',
         correct &&
           'border-green-500/50 bg-green-50 dark:border-green-500/40 dark:bg-green-500/10',
         selected &&
@@ -36,7 +37,7 @@ function ReviewOption({
           'border-red-500/50 bg-red-50 dark:border-red-500/40 dark:bg-red-500/10'
       )}
     >
-      <span className="flex shrink-0 items-center">
+      <span className="mt-0.5 flex shrink-0 items-center">
         {correct ? (
           <Check className="size-4 text-green-600 dark:text-green-400" />
         ) : selected ? (
@@ -105,10 +106,7 @@ function ReviewQuestion({ question }: { question: PreliminaryReviewQuestion }) {
               selected={question.result.answer === option.id}
               correct={question.correctAnswer === option.id}
             >
-              <span className="mr-2 font-medium">
-                {getAlphabeticId(index)}.
-              </span>
-              <Markdown>{option.text}</Markdown>
+              <PreliminaryOptionText index={index} text={option.text} />
             </ReviewOption>
           ))
         )}
