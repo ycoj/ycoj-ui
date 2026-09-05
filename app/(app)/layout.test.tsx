@@ -57,4 +57,23 @@ describe('AppLayout access', () => {
     expect(layout.props).toMatchObject({ userId: 2, initialUnread: 3 });
     expect(layout.props.children.props.children).toBe('Home content');
   });
+
+  it.each(['pending', 'rejected'] as const)(
+    'renders ordinary pages for %s users during the first submission grace period',
+    async (realnameStatus) => {
+      mocks.getNavInfos.mockResolvedValue({
+        navItems: [],
+        user: {
+          _id: 2,
+          priv: 0,
+          realnameStatus,
+          realnameSubmittedAt: new Date(Date.now() - 86_400_000).toISOString(),
+        },
+      });
+
+      const layout = await AppLayout({ children: 'Home content' });
+
+      expect(layout.props.children.props.children).toBe('Home content');
+    }
+  );
 });
