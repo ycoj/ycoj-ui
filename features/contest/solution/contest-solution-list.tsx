@@ -1,7 +1,15 @@
 import type { ContestDetailResponse } from '@/api/server/method/contests/detail';
 import UserSpan from '@/features/user/user-span';
 import { Button } from '@/shared/components/ui/button';
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@/shared/components/ui/empty';
 import oid2ts from '@/shared/lib/oid2ts';
+import { Lightbulb } from 'lucide-react';
 import { getFormatter, getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 
@@ -9,12 +17,13 @@ type Props = { tid: string; data: ContestDetailResponse };
 
 export default async function ContestSolutionList({ tid, data }: Props) {
   if (data.tdoc.rule === 'homework' || !data.showContestSolutions) return null;
+  if (!data.csdocs?.length && !data.canManage) return null;
   const t = await getTranslations('contestSolution');
   const format = await getFormatter();
   return (
     <section
       id="contest-solutions"
-      className="space-y-4"
+      className="space-y-4 border-t pt-8"
       data-llm-visible="true"
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -26,7 +35,17 @@ export default async function ContestSolutionList({ tid, data }: Props) {
         )}
       </div>
       {!data.csdocs?.length ? (
-        <p className="text-muted-foreground">{t('empty')}</p>
+        <Empty>
+          <EmptyMedia variant="icon">
+            <Lightbulb strokeWidth={2} />
+          </EmptyMedia>
+          <EmptyHeader>
+            <EmptyTitle data-llm-text={t('empty')}>{t('empty')}</EmptyTitle>
+            <EmptyDescription data-llm-text={t('emptyDescription')}>
+              {t('emptyDescription')}
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">

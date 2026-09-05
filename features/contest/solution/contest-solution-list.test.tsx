@@ -34,6 +34,14 @@ const data: ContestDetailResponse = {
 };
 
 describe('contest solution visibility', () => {
+  it.each([[], undefined])(
+    'hides empty solutions from readers (%s)',
+    async (csdocs) => {
+      expect(
+        await ContestSolutionList({ tid: 'contest', data: { ...data, csdocs } })
+      ).toBeNull();
+    }
+  );
   it('hides the section when the backend does not grant visibility', async () => {
     expect(
       await ContestSolutionList({
@@ -67,7 +75,7 @@ describe('contest solution visibility', () => {
         data: { ...data, canManage: true, csdocs: [] },
       })
     );
-    expect(screen.getByText('No solutions yet.')).toBeInTheDocument();
+    expect(screen.getByText('No solutions yet')).toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: 'Create solution' })
     ).toHaveAttribute('href', '/contest/contest/solution/create');

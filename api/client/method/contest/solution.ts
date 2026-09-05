@@ -17,6 +17,6 @@ export const saveContestSolution = (
 
 export const deleteContestSolution = (tid: string, sid: string) =>
   clientRequest.Post<Errorable<{ url?: string }>>(
-    `/contest/${tid}/solution/${sid}/edit`,
+    `/contest/${tid}/solution/${sid}`,
     { operation: 'delete' }
   );
