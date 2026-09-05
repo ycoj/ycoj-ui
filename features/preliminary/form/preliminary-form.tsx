@@ -6,7 +6,7 @@ import {
 } from '@/features/preliminary/form/preliminary-form-schema';
 import type { PreliminaryFormValues } from '@/features/preliminary/form/preliminary-form-utils';
 import PreliminarySectionList from '@/features/preliminary/form/preliminary-section-list';
-import { SAVE_PRELIMINARY_FAILED } from '@/features/preliminary/lib/preliminary-save';
+import { PreliminaryRequestError } from '@/features/preliminary/lib/preliminary-error';
 import { Button } from '@/shared/components/ui/button';
 import {
   Field,
@@ -112,14 +112,14 @@ export default function PreliminaryForm({
       router.push(path);
       router.refresh();
     } catch (error) {
-      const message =
-        error instanceof Error && error.message
-          ? error.message
-          : SAVE_PRELIMINARY_FAILED;
       setError('root.serverError', {
         type: 'server',
         message:
-          message === SAVE_PRELIMINARY_FAILED ? t('submitFailed') : message,
+          error instanceof PreliminaryRequestError
+            ? t('submitFailed')
+            : error instanceof Error && error.message
+              ? error.message
+              : t('submitFailed'),
       });
     }
   };

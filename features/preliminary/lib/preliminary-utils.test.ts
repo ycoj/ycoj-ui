@@ -1,6 +1,7 @@
 import {
   buildAllowedAnswers,
   getAlphabeticId,
+  getPreliminaryNavQuestions,
   getQuestionDisplayNumber,
 } from './preliminary-utils';
 import { describe, expect, it } from 'vitest';
@@ -41,7 +42,10 @@ describe('buildAllowedAnswers', () => {
             {
               id: 'q1',
               type: 'choice',
-              options: [{ id: 'o1' }, { id: 'o2' }],
+              options: [
+                { id: 'o1', text: 'A' },
+                { id: 'o2', text: 'B' },
+              ],
             },
           ],
         },
@@ -69,7 +73,9 @@ describe('buildAllowedAnswers', () => {
           ],
         },
         {
-          questions: [{ id: 'q3', type: 'choice', options: [{ id: 'o9' }] }],
+          questions: [
+            { id: 'q3', type: 'choice', options: [{ id: 'o9', text: 'A' }] },
+          ],
         },
       ])
     ).toEqual({
@@ -77,5 +83,31 @@ describe('buildAllowedAnswers', () => {
       q2: ['true', 'false'],
       q3: ['o9'],
     });
+  });
+});
+
+describe('getPreliminaryNavQuestions', () => {
+  it('numbers questions with a global index across sections', () => {
+    expect(
+      getPreliminaryNavQuestions([
+        { questions: [{ id: 'q1' }, { id: 'q2' }] },
+        { questions: [{ id: 'q3' }] },
+      ])
+    ).toEqual([
+      { id: 'q1', number: 1 },
+      { id: 'q2', number: 2 },
+      { id: 'q3', number: 3 },
+    ]);
+  });
+
+  it('prefers backend question numbers', () => {
+    expect(
+      getPreliminaryNavQuestions([
+        { questions: [{ id: 'q1', questionNumber: 7 }, { id: 'q2' }] },
+      ])
+    ).toEqual([
+      { id: 'q1', number: 7 },
+      { id: 'q2', number: 2 },
+    ]);
   });
 });

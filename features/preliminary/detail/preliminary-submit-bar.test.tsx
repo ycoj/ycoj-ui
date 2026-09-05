@@ -1,15 +1,16 @@
 import PreliminarySubmitBar from './preliminary-submit-bar';
 import messages from '@/messages/en.json';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
   answersState: {
     answers: {},
     answeredCount: 0,
     totalCount: 2,
-    clearAnswers: vi.fn(),
+    clearAnswers: vi.fn(() => Promise.resolve()),
     isReady: true,
     draftError: false,
   },
@@ -39,7 +40,6 @@ function renderBar(canSubmit = true) {
       <PreliminarySubmitBar
         paperId="paper1"
         revision={1}
-        draftId="draft1"
         canSubmit={canSubmit}
         navigation={<button type="button">Question navigation</button>}
       />
@@ -48,13 +48,6 @@ function renderBar(canSubmit = true) {
 }
 
 beforeEach(() => {
-  vi.stubGlobal(
-    'ResizeObserver',
-    class {
-      observe() {}
-      disconnect() {}
-    }
-  );
   vi.clearAllMocks();
   mocks.answersState.answers = {};
   mocks.answersState.answeredCount = 0;
@@ -62,8 +55,6 @@ beforeEach(() => {
   mocks.answersState.isReady = true;
   mocks.answersState.draftError = false;
 });
-
-afterEach(() => vi.unstubAllGlobals());
 
 describe('PreliminarySubmitBar old-browser warning', () => {
   it('warns when draft storage is unavailable', () => {
@@ -114,5 +105,50 @@ describe('PreliminarySubmitBar permissions', () => {
     expect(
       screen.getByRole('button', { name: messages.preliminary.clearAnswers })
     ).toBeDisabled();
+  });
+});
+
+describe('PreliminarySubmitBar submit', () => {
+  it('clears answers through the provider after a successful submit', async () => {
+    const user = userEvent.setup();
+    mocks.answersState.answers = { q1: 'o1' };
+    mocks.submit.mockResolvedValue({ url: '/preliminary/paper1/attempt/a1' });
+    renderBar();
+    await user.click(
+      screen.getByRole('button', { name: messages.preliminary.submit })
+    );
+    expect(mocks.submit).toHaveBeenCalled();
+    expect(mocks.answersState.clearAnswers).toHaveBeenCalled();
+    expect(mocks.push).toHaveBeenCalledWith('/preliminary/paper1/attempt/a1');
+  });
+
+  it('shows the translated message when submission fails', async () => {
+    const user = userEvent.setup();
+    mocks.submit.mockResolvedValue({ error: { message: 'denied' } });
+    renderBar();
+    await user.click(
+      screen.getByRole('button', { name: messages.preliminary.submit })
+    );
+    expect(
+      screen.getByText(messages.preliminary.submitFailed)
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByText('PreliminaryRequestFailed')
+    ).not.toBeInTheDocument();
+    expect(mocks.push).not.toHaveBeenCalled();
+  });
+
+  it('shows backend copy as-is instead of mistranslating it', async () => {
+    const user = userEvent.setup();
+    mocks.submit.mockRejectedValue(new Error('submitFailed'));
+    renderBar();
+    await user.click(
+      screen.getByRole('button', { name: messages.preliminary.submit })
+    );
+    expect(screen.getByText('submitFailed')).toBeInTheDocument();
+    expect(
+      screen.queryByText(messages.preliminary.submitFailed)
+    ).not.toBeInTheDocument();
+    expect(mocks.push).not.toHaveBeenCalled();
   });
 });

@@ -1,18 +1,21 @@
 'use client';
 
 import { usePreliminaryAnswers } from '@/features/preliminary/detail/preliminary-answer-provider';
-import { getPreliminaryQuestionAnchorId } from '@/features/preliminary/lib/preliminary-utils';
+import {
+  getPreliminaryQuestionAnchorId,
+  type PreliminaryNavQuestion,
+} from '@/features/preliminary/lib/preliminary-utils';
 import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/utils';
 
 type Props = {
-  questions: Array<{ id: string; number: number }>;
-  onNavigate?: (questionId: string) => void;
+  questions: PreliminaryNavQuestion[];
+  onSelectQuestion?: (questionId: string) => void;
 };
 
 export default function PreliminaryQuestionNav({
   questions,
-  onNavigate,
+  onSelectQuestion,
 }: Props) {
   const { isAnswered, isReady } = usePreliminaryAnswers();
 
@@ -37,9 +40,9 @@ export default function PreliminaryQuestionNav({
               href={`#${getPreliminaryQuestionAnchorId(question.id)}`}
               aria-label={String(question.number)}
               onClick={(event) => {
-                if (!onNavigate) return;
+                if (!onSelectQuestion) return;
                 event.preventDefault();
-                onNavigate(question.id);
+                onSelectQuestion(question.id);
               }}
             >
               {question.number}

@@ -10,9 +10,6 @@ import { describe, expect, it, vi } from 'vitest';
 vi.mock('@/features/preliminary/detail/preliminary-answer-provider', () => ({
   usePreliminaryAnswers: () => ({ isReady: true, isAnswered: () => false }),
 }));
-vi.mock('@/features/preliminary/detail/preliminary-sidebar', () => ({
-  default: () => <div>Paper details</div>,
-}));
 
 const data: PreliminaryDetailData = {
   paper: {
@@ -63,22 +60,38 @@ function renderNavigation() {
 }
 
 describe('mobile question navigation', () => {
-  it('closes the sheet and focuses and scrolls to the selected question', async () => {
+  it('closes the sheet then focuses and scrolls to the question', async () => {
     const user = userEvent.setup();
     renderNavigation();
-    const target = screen.getByText('Question');
-    const scroll = vi.fn();
-    target.scrollIntoView = scroll;
     await user.click(
       screen.getByRole('button', { name: messages.preliminary.directory })
     );
     expect(screen.getByRole('dialog')).toBeInTheDocument();
-    await user.click(screen.getByRole('link', { name: '1' }));
+    const link = screen.getByRole('link', { name: '1' });
+    expect(link).toHaveAttribute(
+      'href',
+      `#${getPreliminaryQuestionAnchorId('q1')}`
+    );
+    const target = document.getElementById(
+      getPreliminaryQuestionAnchorId('q1')
+    ) as HTMLElement;
+    if (typeof target.scrollIntoView !== 'function') {
+      target.scrollIntoView = () => {};
+    }
+    const focusSpy = vi.spyOn(target, 'focus');
+    const scrollSpy = vi
+      .spyOn(target, 'scrollIntoView')
+      .mockImplementation(() => {});
+    await user.click(link);
     await waitFor(() =>
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     );
-    await waitFor(() => expect(target).toHaveFocus());
-    expect(scroll).toHaveBeenCalledWith({ block: 'start' });
+    await waitFor(() =>
+      expect(focusSpy).toHaveBeenCalledWith({
+        preventScroll: true,
+      })
+    );
+    expect(scrollSpy).toHaveBeenCalledWith({ block: 'start' });
   });
 
   it('returns focus to the trigger when dismissed without navigating', async () => {

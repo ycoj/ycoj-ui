@@ -1,13 +1,15 @@
 'use client';
 
 import type { PreliminaryDetailData } from '@/api/server/method/preliminary/detail';
+import PreliminaryEditActions from '@/features/preliminary/detail/preliminary-edit-actions';
+import PreliminaryPaperMeta from '@/features/preliminary/detail/preliminary-paper-meta';
 import PreliminaryQuestionNav from '@/features/preliminary/detail/preliminary-question-nav';
-import PreliminarySidebar from '@/features/preliminary/detail/preliminary-sidebar';
 import {
+  getPreliminaryNavQuestions,
   getPreliminaryQuestionAnchorId,
-  getQuestionDisplayNumber,
 } from '@/features/preliminary/lib/preliminary-utils';
 import { Button } from '@/shared/components/ui/button';
+import { Separator } from '@/shared/components/ui/separator';
 import {
   Sheet,
   SheetClose,
@@ -19,7 +21,7 @@ import {
 } from '@/shared/components/ui/sheet';
 import { ListOrdered, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
 type Props = {
   paperId: string;
@@ -29,13 +31,27 @@ type Props = {
 export default function PreliminaryMobileNavigation({ paperId, data }: Props) {
   const t = useTranslations('preliminary');
   const [open, setOpen] = useState(false);
-  const selectedQuestion = useRef<string | null>(null);
-  const questions = data.paper.sections
-    .flatMap((section) => section.questions)
-    .map((question, index) => ({
-      id: question.id,
-      number: getQuestionDisplayNumber(question, index),
-    }));
+  const [pendingQuestionId, setPendingQuestionId] = useState<string | null>(
+    null
+  );
+  const questions = getPreliminaryNavQuestions(data.paper.sections);
+
+  const handleSelectQuestion = (questionId: string) => {
+    setPendingQuestionId(questionId);
+    setOpen(false);
+  };
+
+  const handleCloseAutoFocus = (event: Event) => {
+    if (!pendingQuestionId) return;
+    const target = document.getElementById(
+      getPreliminaryQuestionAnchorId(pendingQuestionId)
+    );
+    setPendingQuestionId(null);
+    if (!target) return;
+    event.preventDefault();
+    target.focus({ preventScroll: true });
+    target.scrollIntoView({ block: 'start' });
+  };
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -53,17 +69,7 @@ export default function PreliminaryMobileNavigation({ paperId, data }: Props) {
         side="bottom"
         showCloseButton={false}
         className="max-h-[85dvh] rounded-t-2xl pb-[env(safe-area-inset-bottom)]"
-        onCloseAutoFocus={(event) => {
-          if (!selectedQuestion.current) return;
-          const target = document.getElementById(
-            getPreliminaryQuestionAnchorId(selectedQuestion.current)
-          );
-          selectedQuestion.current = null;
-          if (!target) return;
-          event.preventDefault();
-          target.focus({ preventScroll: true });
-          target.scrollIntoView({ block: 'start' });
-        }}
+        onCloseAutoFocus={handleCloseAutoFocus}
       >
         <SheetClose asChild>
           <Button
@@ -85,18 +91,12 @@ export default function PreliminaryMobileNavigation({ paperId, data }: Props) {
         <div className="min-h-0 space-y-6 overflow-y-auto overscroll-contain px-4 pb-6">
           <PreliminaryQuestionNav
             questions={questions}
-            onNavigate={(id) => {
-              selectedQuestion.current = id;
-              setOpen(false);
-            }}
+            onSelectQuestion={handleSelectQuestion}
           />
-          <PreliminarySidebar
-            paperId={paperId}
-            data={data}
-            owner={data.owner}
-            canEdit={data.canEdit}
-            showQuestionNav={false}
-          />
+          <Separator />
+          {data.canEdit && <PreliminaryEditActions paperId={paperId} />}
+          {data.canEdit && <Separator />}
+          <PreliminaryPaperMeta paperId={paperId} data={data} />
         </div>
       </SheetContent>
     </Sheet>

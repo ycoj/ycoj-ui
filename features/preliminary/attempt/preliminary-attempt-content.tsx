@@ -2,9 +2,10 @@ import type {
   PreliminaryAttemptData,
   PreliminaryReviewQuestion,
 } from '@/api/server/method/preliminary/attempt';
-import PreliminaryOptionText from '@/features/preliminary/detail/preliminary-option-text';
+import PreliminaryOptionContent, {
+  getPreliminaryOptionInfos,
+} from '@/features/preliminary/detail/preliminary-option-content';
 import PreliminarySectionShell from '@/features/preliminary/detail/preliminary-section-shell';
-import { getAlphabeticId } from '@/features/preliminary/lib/preliminary-utils';
 import Markdown from '@/shared/components/markdown';
 import { Badge } from '@/shared/components/ui/badge';
 import {
@@ -16,6 +17,7 @@ import {
 import { cn } from '@/shared/lib/utils';
 import { Check, X } from 'lucide-react';
 import { useFormatter, useTranslations } from 'next-intl';
+import type { ReactNode } from 'react';
 
 function ReviewOption({
   selected,
@@ -24,7 +26,7 @@ function ReviewOption({
 }: {
   selected: boolean;
   correct: boolean;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <div
@@ -82,34 +84,19 @@ function ReviewQuestion({ question }: { question: PreliminaryReviewQuestion }) {
       </div>
       <Markdown>{question.prompt}</Markdown>
       <div className="space-y-2">
-        {question.type === 'true_false' ? (
-          <>
-            <ReviewOption
-              selected={question.result.answer === 'true'}
-              correct={question.correctAnswer === 'true'}
-            >
-              <span className="mr-2 font-medium">{getAlphabeticId(0)}.</span>
-              {t('trueLabel')}
-            </ReviewOption>
-            <ReviewOption
-              selected={question.result.answer === 'false'}
-              correct={question.correctAnswer === 'false'}
-            >
-              <span className="mr-2 font-medium">{getAlphabeticId(1)}.</span>
-              {t('falseLabel')}
-            </ReviewOption>
-          </>
-        ) : (
-          (question.options ?? []).map((option, index) => (
-            <ReviewOption
-              key={option.id}
-              selected={question.result.answer === option.id}
-              correct={question.correctAnswer === option.id}
-            >
-              <PreliminaryOptionText index={index} text={option.text} />
-            </ReviewOption>
-          ))
-        )}
+        {getPreliminaryOptionInfos(question).map((info) => (
+          <ReviewOption
+            key={info.value}
+            selected={question.result.answer === info.value}
+            correct={question.correctAnswer === info.value}
+          >
+            <PreliminaryOptionContent
+              info={info}
+              trueLabel={t('trueLabel')}
+              falseLabel={t('falseLabel')}
+            />
+          </ReviewOption>
+        ))}
       </div>
       {!correct && question.explanation?.trim() && (
         <div className="rounded-md border bg-muted/40 p-3">

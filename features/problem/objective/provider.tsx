@@ -69,6 +69,9 @@ export default function ObjectiveProvider({
       clear: clearDraft,
       sanitize,
       isReadOnly,
+      // Questions register after the draft loads; hold persistence until at
+      // least one is known so a valid draft is not cleared as empty.
+      isSanitizeReady: questions.length > 0,
     });
 
   const registerQuestion = useCallback((question: ObjectiveQuestion) => {

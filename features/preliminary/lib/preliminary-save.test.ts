@@ -1,7 +1,5 @@
-import {
-  SAVE_PRELIMINARY_FAILED,
-  savePreliminaryValues,
-} from './preliminary-save';
+import { PreliminaryRequestError } from './preliminary-error';
+import { savePreliminaryValues } from './preliminary-save';
 import type { PreliminaryFormValues } from '@/features/preliminary/form/preliminary-form-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -68,10 +66,10 @@ describe('savePreliminaryValues', () => {
       response: { url: '/preliminary/x' },
     },
     { name: 'an empty response', response: null },
-  ])('throws the submit sentinel on $name', async ({ response }) => {
+  ])('throws the request error on $name', async ({ response }) => {
     mocks.save.mockResolvedValue(response);
     await expect(savePreliminaryValues(values(), true)).rejects.toThrow(
-      SAVE_PRELIMINARY_FAILED
+      PreliminaryRequestError
     );
   });
 });

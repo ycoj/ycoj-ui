@@ -1,4 +1,5 @@
 // Pure helpers for the preliminary training feature.
+import type { PreliminaryQuestion } from '@/shared/types/preliminary';
 
 export function getAlphabeticId(index: number): string {
   let result = '';
@@ -18,11 +19,7 @@ export function getPreliminaryQuestionAnchorId(questionId: string): string {
 // restored drafts. True/false questions accept fixed literals; choice
 // questions accept their current option ids.
 export type AllowedAnswerSection = {
-  questions: {
-    id: string;
-    type: string;
-    options?: { id: string }[];
-  }[];
+  questions: Pick<PreliminaryQuestion, 'id' | 'type' | 'options'>[];
 };
 
 export function buildAllowedAnswers(
@@ -47,4 +44,28 @@ export function getQuestionDisplayNumber(
   globalIndex: number
 ): number {
   return question.questionNumber ?? globalIndex + 1;
+}
+
+export type PreliminaryNavQuestion = {
+  id: string;
+  number: number;
+};
+
+// Single pass over sections in display order; replaces the ad-hoc
+// slice/reduce/flatMap variants previously spread across detail views.
+export function getPreliminaryNavQuestions(
+  sections: Array<{ questions: Array<{ id: string; questionNumber?: number }> }>
+): PreliminaryNavQuestion[] {
+  const questions: PreliminaryNavQuestion[] = [];
+  let globalIndex = 0;
+  for (const section of sections) {
+    for (const question of section.questions) {
+      questions.push({
+        id: question.id,
+        number: getQuestionDisplayNumber(question, globalIndex),
+      });
+      globalIndex += 1;
+    }
+  }
+  return questions;
 }

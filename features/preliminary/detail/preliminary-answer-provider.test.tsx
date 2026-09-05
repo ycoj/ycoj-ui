@@ -54,6 +54,18 @@ describe('sanitizeDraft', () => {
   ])('$name', ({ stored, expected }) => {
     expect(sanitizeDraft(stored, ALLOWED)).toEqual(expected);
   });
+
+  it('returns the input when nothing changed', () => {
+    const stored = { q1: 'o1', q2: 'false' };
+    expect(sanitizeDraft(stored, ALLOWED)).toBe(stored);
+  });
+
+  it('returns a new object when entries are dropped', () => {
+    const stored = { q1: 'o1', gone: 'x' };
+    const sanitized = sanitizeDraft(stored, ALLOWED);
+    expect(sanitized).toEqual({ q1: 'o1' });
+    expect(sanitized).not.toBe(stored);
+  });
 });
 
 function AnswersView() {
@@ -118,9 +130,6 @@ describe('PreliminaryAnswerProvider readOnly guards', () => {
     await waitFor(() =>
       expect(screen.getByTestId('answers')).toHaveTextContent('{"q1":"o1"}')
     );
-    // Ignore the load-time re-save of the restored draft; guards are about
-    // user-triggered mutations below.
-    mockedSaveDraft.mockClear();
     await userEvent.click(screen.getByText('set'));
     await userEvent.click(screen.getByText('clear'));
     expect(screen.getByTestId('answers')).toHaveTextContent('{"q1":"o1"}');

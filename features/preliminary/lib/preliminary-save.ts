@@ -3,8 +3,7 @@ import {
   buildPreliminaryPayload,
   type PreliminaryFormValues,
 } from '@/features/preliminary/form/preliminary-form-utils';
-
-export const SAVE_PRELIMINARY_FAILED = 'submitFailed';
+import { PreliminaryRequestError } from '@/features/preliminary/lib/preliminary-error';
 
 export async function savePreliminaryValues(
   values: PreliminaryFormValues,
@@ -17,6 +16,6 @@ export async function savePreliminaryValues(
     paperId
   ).send();
   if (!response || 'error' in response || !response.paperId)
-    throw new Error(SAVE_PRELIMINARY_FAILED);
+    throw new PreliminaryRequestError();
   return `/preliminary/${response.paperId}`;
 }

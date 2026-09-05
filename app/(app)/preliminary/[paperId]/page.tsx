@@ -4,6 +4,7 @@ import PreliminaryContent from '@/features/preliminary/detail/preliminary-conten
 import PreliminaryMobileNavigation from '@/features/preliminary/detail/preliminary-mobile-navigation';
 import PreliminarySidebar from '@/features/preliminary/detail/preliminary-sidebar';
 import PreliminarySubmitBar from '@/features/preliminary/detail/preliminary-submit-bar';
+import { buildAllowedAnswers } from '@/features/preliminary/lib/preliminary-utils';
 import { getUser } from '@/features/user/lib/get-user';
 import { Errored } from '@/shared/components/errored';
 import TwoColumnLayout from '@/shared/layout/two-column';
@@ -50,19 +51,12 @@ export default async function PreliminaryDetailPage({
     return <Errored title={t('notPublished')} error={data.error} />;
   }
 
-  const allowedAnswers: Record<string, string[]> = {};
-  for (const section of data.paper.sections) {
-    for (const question of section.questions) {
-      allowedAnswers[question.id] =
-        question.type === 'true_false'
-          ? ['true', 'false']
-          : (question.options ?? []).map((option) => option.id);
-    }
-  }
+  const allowedAnswers = buildAllowedAnswers(data.paper.sections);
   const draftId = `${user?._id ?? 0}/preliminary/${paperId}@${data.paper.revision}`;
 
   return (
     <PreliminaryAnswerProvider
+      key={draftId}
       draftId={draftId}
       allowedAnswers={allowedAnswers}
       isReadOnly={!data.canSubmit}
@@ -76,7 +70,6 @@ export default async function PreliminaryDetailPage({
               <PreliminarySubmitBar
                 paperId={paperId}
                 revision={data.paper.revision}
-                draftId={draftId}
                 navigation={
                   <PreliminaryMobileNavigation paperId={paperId} data={data} />
                 }
@@ -89,7 +82,6 @@ export default async function PreliminaryDetailPage({
               <PreliminarySidebar
                 paperId={paperId}
                 data={data}
-                owner={data.owner}
                 canEdit={data.canEdit}
               />
             </div>

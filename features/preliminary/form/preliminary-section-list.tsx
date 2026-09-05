@@ -1,7 +1,6 @@
 'use client';
 
 import {
-  getSectionTypeLabel,
   newSection,
   type PreliminaryFormValues,
   type PreliminarySectionValue,
@@ -91,9 +90,7 @@ export default function PreliminarySectionList({ disabled }: Props) {
           size="sm"
           disabled={disabled}
           onClick={() => {
-            append(
-              newSection(sectionType, getSectionTypeLabel(sectionType, t))
-            );
+            append(newSection(sectionType, ''));
           }}
         >
           <Plus />

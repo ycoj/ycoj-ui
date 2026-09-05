@@ -11,6 +11,10 @@ export type UseIndexedDbDraftOptions<T> = IndexedDbDraftOperations<T> & {
   sanitize: (stored: T) => T;
   isReadOnly: boolean;
   initial?: T;
+  // False while sanitize inputs are still registering (e.g. objective
+  // questions parsed from the statement). Persists nothing until ready so a
+  // draft loaded before its questions does not clear itself.
+  isSanitizeReady?: boolean;
 };
 
 export type UseIndexedDbDraftResult<T> = {
@@ -35,14 +39,19 @@ export function useIndexedDbDraft<V>(
     sanitize,
     isReadOnly,
     initial = {} as Record<string, V>,
+    isSanitizeReady = true,
   }: UseIndexedDbDraftOptions<Record<string, V>>
 ): UseIndexedDbDraftResult<Record<string, V>> {
   const [storedAnswers, setStoredAnswers] = useState<Record<string, V>>(() => ({
     ...initial,
   }));
-  const [isReady, setIsReady] = useState(false);
+  const [loadedDraftId, setLoadedDraftId] = useState<string | null>(null);
   const [draftError, setDraftError] = useState(false);
   const lastSavedRef = useRef<Record<string, V>>({ ...initial });
+  const [initialSnapshot] = useState<Record<string, V>>(() => ({
+    ...initial,
+  }));
+  const isReady = loadedDraftId === draftId;
 
   const answers = useMemo(
     () => sanitize(storedAnswers),
@@ -51,7 +60,13 @@ export function useIndexedDbDraft<V>(
 
   useEffect(() => {
     let cancelled = false;
+    const resetState: Record<string, V> = { ...initialSnapshot };
+    lastSavedRef.current = resetState;
     (async () => {
+      if (!cancelled) {
+        setStoredAnswers(resetState);
+        setDraftError(false);
+      }
       try {
         if (typeof indexedDB === 'undefined' || indexedDB === null)
           throw new Error('no idb');
@@ -63,20 +78,28 @@ export function useIndexedDbDraft<V>(
       } catch {
         if (!cancelled) setDraftError(true);
       } finally {
-        if (!cancelled) setIsReady(true);
+        if (!cancelled) setLoadedDraftId(draftId);
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, [draftId, load]);
+  }, [draftId, initialSnapshot, load]);
 
   useEffect(() => {
     if (!isReady) return;
+    if (isReadOnly) return;
+    if (!isSanitizeReady) return;
     if (answers === lastSavedRef.current) return;
+    if (Object.keys(answers).length === 0) {
+      if (Object.keys(lastSavedRef.current).length === 0) return;
+      lastSavedRef.current = answers;
+      clear(draftId).catch(() => setDraftError(true));
+      return;
+    }
     lastSavedRef.current = answers;
     save(draftId, answers).catch(() => setDraftError(true));
-  }, [answers, draftId, isReady, save]);
+  }, [answers, clear, draftId, isReady, isReadOnly, isSanitizeReady, save]);
 
   const setAnswer = useCallback(
     (id: string, value: V) => {
@@ -88,7 +111,9 @@ export function useIndexedDbDraft<V>(
 
   const clearAnswers = useCallback(async () => {
     if (isReadOnly) return;
-    setStoredAnswers({});
+    const empty: Record<string, V> = {};
+    lastSavedRef.current = empty;
+    setStoredAnswers(empty);
     try {
       await clear(draftId);
     } catch {

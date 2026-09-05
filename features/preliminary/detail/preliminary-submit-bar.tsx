@@ -1,8 +1,8 @@
 'use client';
 
-import ClientApis from '@/api/client/method';
-import { clearDraft } from '@/features/preliminary/detail/draft-storage';
 import { usePreliminaryAnswers } from '@/features/preliminary/detail/preliminary-answer-provider';
+import { PreliminaryRequestError } from '@/features/preliminary/lib/preliminary-error';
+import { submitPreliminaryAnswers } from '@/features/preliminary/lib/preliminary-submit';
 import { Alert, AlertDescription } from '@/shared/components/ui/alert';
 import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/utils';
@@ -14,7 +14,6 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 type Props = {
   paperId: string;
   revision: number;
-  draftId: string;
   canSubmit: boolean;
   navigation?: ReactNode;
 };
@@ -22,7 +21,6 @@ type Props = {
 export default function PreliminarySubmitBar({
   paperId,
   revision,
-  draftId,
   canSubmit,
   navigation,
 }: Props) {
@@ -38,16 +36,21 @@ export default function PreliminarySubmitBar({
   } = usePreliminaryAnswers();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
   const barRef = useRef<HTMLDivElement>(null);
   const [barHeight, setBarHeight] = useState(112);
 
+  // Tracks only the fixed action bar (banners stay in flow above the
+  // spacer) so wrapping, i18n length, and safe-area padding never overlap
+  // content. getBoundingClientRect includes the safe-area padding.
   useEffect(() => {
     const bar = barRef.current;
     if (!bar) return;
-    const observer = new ResizeObserver(() => {
+    if (typeof ResizeObserver === 'undefined') return;
+    const update = () => {
       setBarHeight(bar.getBoundingClientRect().height);
-    });
+    };
+    update();
+    const observer = new ResizeObserver(update);
     observer.observe(bar);
     return () => observer.disconnect();
   }, [canSubmit, navigation]);
@@ -64,32 +67,21 @@ export default function PreliminarySubmitBar({
     setPending(true);
     setError(null);
     try {
-      const response = await ClientApis.Preliminary.submitPreliminary(
+      const url = await submitPreliminaryAnswers(
         paperId,
         revision,
-        answers
-      ).send();
-      if (!response || 'error' in response) {
-        setError(t('submitFailed'));
-        return;
-      }
-      if (response?.url) {
-        try {
-          // Best-effort bypass of the provider on purpose: a successful
-          // submit navigates away, so clearing in-memory answers state would
-          // only add a render (and a saveDraft({}) round-trip) before
-          // unmount. Dropping the stored draft is enough to prevent a stale
-          // resume; failures are ignored because the attempt was recorded.
-          await clearDraft(draftId);
-        } catch {
-          // Draft cleanup is best-effort; the attempt was recorded.
-        }
-        router.push(response.url);
-        return;
-      }
-      setError(t('submitFailed'));
+        answers,
+        clearAnswers
+      );
+      router.push(url);
     } catch (e) {
-      setError(e instanceof Error ? e.message : t('submitFailed'));
+      if (e instanceof PreliminaryRequestError) {
+        setError(t('submitFailed'));
+      } else {
+        setError(
+          e instanceof Error && e.message ? e.message : t('submitFailed')
+        );
+      }
     } finally {
       setPending(false);
     }
@@ -97,6 +89,16 @@ export default function PreliminarySubmitBar({
 
   return (
     <>
+      {isReady && draftError && (
+        <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+          {t('draftError')}
+        </div>
+      )}
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
       <div
         aria-hidden="true"
         className="md:hidden"
@@ -105,21 +107,11 @@ export default function PreliminarySubmitBar({
       <div
         ref={barRef}
         className={cn(
-          'fixed inset-x-0 bottom-0 z-30 space-y-2 border-t bg-background px-4 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:sticky md:inset-x-auto md:bottom-4 md:border-0 md:bg-transparent md:p-0',
+          'fixed inset-x-0 bottom-0 z-30 px-4 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom))] md:sticky md:inset-x-auto md:bottom-4 md:p-0',
           !canSubmit && 'md:hidden'
         )}
       >
-        {isReady && draftError && (
-          <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-            {t('draftError')}
-          </div>
-        )}
-        {error && (
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-        <div className="flex flex-wrap items-center gap-2 md:gap-3 md:rounded-xl md:border md:bg-card/95 md:p-3 md:shadow-lg md:backdrop-blur">
+        <div className="flex flex-wrap items-center gap-2 rounded-xl border bg-card/95 p-3 shadow-lg backdrop-blur md:gap-3">
           {navigation}
           {canSubmit && (
             <>

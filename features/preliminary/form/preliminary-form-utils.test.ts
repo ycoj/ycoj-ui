@@ -4,6 +4,7 @@ import {
   getPreliminaryCreateDefaults,
   getSectionTypeLabel,
   mapPreliminaryEditToFormValues,
+  newId,
   newQuestion,
   newSection,
 } from './preliminary-form-utils';
@@ -119,6 +120,75 @@ describe('buildPreliminaryPayload', () => {
     expect(payload.sections[0].title).toBe('Choice');
     expect(payload.sections[0].questions[0].explanation).toBe('why');
     expect(payload.sections[0].questions[1].options).toEqual([]);
+  });
+
+  it.each([NaN, Infinity, -Infinity])(
+    'coerces non-finite score %s to the default',
+    (score) => {
+      const payload = buildPreliminaryPayload({
+        title: 'Paper',
+        content: '',
+        sections: [
+          {
+            id: 's1',
+            type: 'single_choice',
+            title: 'S',
+            content: '',
+            questions: [
+              {
+                id: 'q1',
+                type: 'choice',
+                prompt: 'p',
+                score,
+                explanation: '',
+                answer: 'o1',
+                options: [{ id: 'o1', text: 'A' }],
+              },
+            ],
+          },
+        ],
+      });
+      expect(payload.sections[0].questions[0].score).toBe(2);
+    }
+  );
+});
+
+describe('newId', () => {
+  it('falls back when randomUUID is unavailable', () => {
+    const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'crypto');
+    Object.defineProperty(globalThis, 'crypto', {
+      value: undefined,
+      configurable: true,
+    });
+    try {
+      expect(newId()).toMatch(/^id-/);
+    } finally {
+      if (descriptor) {
+        Object.defineProperty(globalThis, 'crypto', descriptor);
+      }
+    }
+  });
+
+  it('uses getRandomValues when randomUUID is unavailable', () => {
+    const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'crypto');
+    const realCrypto = globalThis.crypto;
+    Object.defineProperty(globalThis, 'crypto', {
+      value: {
+        getRandomValues: realCrypto.getRandomValues.bind(realCrypto),
+      },
+      configurable: true,
+    });
+    try {
+      const first = newId();
+      const second = newId();
+      expect(first).toMatch(/^id-[0-9a-f]{32}$/);
+      expect(second).toMatch(/^id-[0-9a-f]{32}$/);
+      expect(first).not.toBe(second);
+    } finally {
+      if (descriptor) {
+        Object.defineProperty(globalThis, 'crypto', descriptor);
+      }
+    }
   });
 });
 

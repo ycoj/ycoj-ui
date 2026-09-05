@@ -43,12 +43,17 @@ export function sanitizeDraft(
   stored: PreliminaryAnswers,
   allowed: Record<string, string[]>
 ): PreliminaryAnswers {
+  let changed = false;
   const result: PreliminaryAnswers = {};
   for (const [questionId, value] of Object.entries(stored)) {
     const options = allowed[questionId];
-    if (options && options.includes(value)) result[questionId] = value;
+    if (options && options.includes(value)) {
+      result[questionId] = value;
+    } else {
+      changed = true;
+    }
   }
-  return result;
+  return changed ? result : stored;
 }
 
 type ProviderProps = {

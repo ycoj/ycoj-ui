@@ -1,11 +1,12 @@
 import type { PreliminaryDetailData } from '@/api/server/method/preliminary/detail';
 import PreliminaryOption from '@/features/preliminary/detail/preliminary-option';
-import PreliminaryOptionText from '@/features/preliminary/detail/preliminary-option-text';
+import PreliminaryOptionContent, {
+  getPreliminaryOptionInfos,
+} from '@/features/preliminary/detail/preliminary-option-content';
 import PreliminarySectionShell from '@/features/preliminary/detail/preliminary-section-shell';
 import {
-  getAlphabeticId,
+  getPreliminaryNavQuestions,
   getPreliminaryQuestionAnchorId,
-  getQuestionDisplayNumber,
 } from '@/features/preliminary/lib/preliminary-utils';
 import Markdown from '@/shared/components/markdown';
 import { Badge } from '@/shared/components/ui/badge';
@@ -16,6 +17,7 @@ import {
   CardTitle,
 } from '@/shared/components/ui/card';
 import { useTranslations } from 'next-intl';
+import { useMemo } from 'react';
 
 type Props = {
   data: PreliminaryDetailData;
@@ -26,10 +28,15 @@ export default function PreliminaryContent({ data, isReadOnly }: Props) {
   const t = useTranslations('preliminary');
   const paper = data.paper;
   const description = paper.content?.trim();
-  const sectionStarts = paper.sections.map((_, sectionIndex) =>
-    paper.sections
-      .slice(0, sectionIndex)
-      .reduce((count, prior) => count + prior.questions.length, 0)
+  const displayNumbers = useMemo(
+    () =>
+      new Map(
+        getPreliminaryNavQuestions(paper.sections).map((question) => [
+          question.id,
+          question.number,
+        ])
+      ),
+    [paper.sections]
   );
 
   return (
@@ -57,17 +64,16 @@ export default function PreliminaryContent({ data, isReadOnly }: Props) {
         )}
       </Card>
 
-      {paper.sections.map((section, sectionIndex) => (
+      {paper.sections.map((section) => (
         <PreliminarySectionShell
           key={section.id}
           title={section.title}
           content={section.content}
         >
-          {section.questions.map((question, index) => {
-            const displayNumber = getQuestionDisplayNumber(
-              question,
-              (sectionStarts[sectionIndex] ?? 0) + index
-            );
+          {section.questions.map((question) => {
+            // 0 is unreachable; nav questions cover every id, so 0 surfaces
+            // a mapping bug instead of colliding with question 1.
+            const displayNumber = displayNumbers.get(question.id) ?? 0;
             return (
               <li
                 key={question.id}
@@ -93,44 +99,20 @@ export default function PreliminaryContent({ data, isReadOnly }: Props) {
                   aria-label={String(displayNumber)}
                 >
                   <div className="space-y-2">
-                    {question.type === 'true_false' ? (
-                      <>
-                        <PreliminaryOption
-                          questionId={question.id}
-                          value="true"
-                          disabled={isReadOnly}
-                        >
-                          <span className="mr-2 font-medium">
-                            {getAlphabeticId(0)}.
-                          </span>
-                          {t('trueLabel')}
-                        </PreliminaryOption>
-                        <PreliminaryOption
-                          questionId={question.id}
-                          value="false"
-                          disabled={isReadOnly}
-                        >
-                          <span className="mr-2 font-medium">
-                            {getAlphabeticId(1)}.
-                          </span>
-                          {t('falseLabel')}
-                        </PreliminaryOption>
-                      </>
-                    ) : (
-                      (question.options ?? []).map((option, optionIndex) => (
-                        <PreliminaryOption
-                          key={option.id}
-                          questionId={question.id}
-                          value={option.id}
-                          disabled={isReadOnly}
-                        >
-                          <PreliminaryOptionText
-                            index={optionIndex}
-                            text={option.text}
-                          />
-                        </PreliminaryOption>
-                      ))
-                    )}
+                    {getPreliminaryOptionInfos(question).map((info) => (
+                      <PreliminaryOption
+                        key={info.value}
+                        questionId={question.id}
+                        value={info.value}
+                        disabled={isReadOnly}
+                      >
+                        <PreliminaryOptionContent
+                          info={info}
+                          trueLabel={t('trueLabel')}
+                          falseLabel={t('falseLabel')}
+                        />
+                      </PreliminaryOption>
+                    ))}
                   </div>
                 </fieldset>
               </li>

@@ -35,7 +35,24 @@ export type PreliminaryFormValues = {
 };
 
 export function newId(): string {
-  return crypto.randomUUID();
+  if (
+    typeof crypto !== 'undefined' &&
+    typeof crypto.randomUUID === 'function'
+  ) {
+    return crypto.randomUUID();
+  }
+  if (
+    typeof crypto !== 'undefined' &&
+    typeof crypto.getRandomValues === 'function'
+  ) {
+    const bytes = crypto.getRandomValues(new Uint8Array(16));
+    let hex = '';
+    for (const byte of bytes) {
+      hex += byte.toString(16).padStart(2, '0');
+    }
+    return `id-${hex}`;
+  }
+  return `id-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
 export function newOption(): PreliminaryOptionValue {
@@ -123,7 +140,7 @@ export function buildPreliminaryPayload(
         id: question.id,
         type: question.type,
         prompt: question.prompt,
-        score: question.score,
+        score: Number.isFinite(question.score) ? question.score : 2,
         explanation: question.explanation ?? '',
         answer: question.answer,
         options:
