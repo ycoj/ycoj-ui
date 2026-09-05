@@ -5,19 +5,31 @@ import { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages } from 'next-intl/server';
 import { ThemeProvider } from 'next-themes';
-import { Geist, Geist_Mono, Inter } from 'next/font/google';
+import localFont from 'next/font/local';
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
+const inter = localFont({
+  src: '../public/fonts/Inter[opsz,wght].ttf',
+  variable: '--font-sans',
+  weight: '100 900',
+  style: 'normal',
+  display: 'swap',
+});
 const siteName = process.env.SITE_NAME ?? '';
 
-const geistSans = Geist({
+const geistSans = localFont({
+  src: '../public/fonts/Geist[wght].ttf',
   variable: '--font-geist-sans',
-  subsets: ['latin'],
+  weight: '100 900',
+  style: 'normal',
+  display: 'swap',
 });
 
-const geistMono = Geist_Mono({
+const geistMono = localFont({
+  src: '../public/fonts/GeistMono[wght].ttf',
   variable: '--font-geist-mono',
-  subsets: ['latin'],
+  weight: '100 900',
+  style: 'normal',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
