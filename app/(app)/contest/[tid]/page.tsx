@@ -5,6 +5,7 @@ import ContestSidebar from '@/features/contest/detail/contest-sidebar';
 import { canShowContestScoreboard } from '@/features/contest/detail/contest-utils';
 import { getContestDetail } from '@/features/contest/detail/get-contest-detail';
 import { canEditContest } from '@/features/contest/lib/can-edit-contest';
+import ContestSolutionList from '@/features/contest/solution/contest-solution-list';
 import { getUser } from '@/features/user/lib/get-user';
 import TwoColumnLayout from '@/shared/layout/two-column';
 import type { Metadata } from 'next';
@@ -45,11 +46,14 @@ export default async function ContestDetailPage({
       <TwoColumnLayout
         ratio="8-2"
         left={
-          <ContestContent
-            tid={tid}
-            introduction={data.tdoc.content ?? ''}
-            files={data.tdoc.files ?? []}
-          />
+          <div className="space-y-8">
+            <ContestContent
+              tid={tid}
+              introduction={data.tdoc.content ?? ''}
+              files={data.tdoc.files ?? []}
+            />
+            <ContestSolutionList tid={tid} data={data} />
+          </div>
         }
         right={
           <ContestSidebar

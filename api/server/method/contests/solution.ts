@@ -1,5 +1,6 @@
 import { alova } from '@/api/server';
 import type { Contest, ContestStatus } from '@/shared/types/contest';
+import type { Errorable } from '@/shared/types/error';
 import type { BaseUserDict } from '@/shared/types/user';
 
 export type ContestSolution = {
@@ -20,4 +21,20 @@ export type ContestSolutionResponse = {
 };
 
 export const getContestSolution = (tid: string, sid: string) =>
-  alova.Get<ContestSolutionResponse>(`/contest/${tid}/solution/${sid}`);
+  alova.Get<Errorable<ContestSolutionResponse>>(
+    `/contest/${tid}/solution/${sid}`
+  );
+
+export type ContestSolutionEditResponse = {
+  tdoc: Contest;
+  tsdoc: ContestStatus | null;
+  csdoc: ContestSolution | Record<string, never>;
+  canManage: boolean;
+};
+
+export const getContestSolutionEdit = (tid: string, sid?: string) =>
+  alova.Get<Errorable<ContestSolutionEditResponse>>(
+    sid
+      ? `/contest/${tid}/solution/${sid}/edit`
+      : `/contest/${tid}/solution/create`
+  );
