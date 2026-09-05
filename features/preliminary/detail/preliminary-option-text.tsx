@@ -8,11 +8,11 @@ type Props = {
 
 export default function PreliminaryOptionText({ index, text }: Props) {
   return (
-    <span className="flex items-start gap-2">
+    <div className="flex items-baseline gap-2">
       <span className="shrink-0 font-medium">{getAlphabeticId(index)}.</span>
-      <span className="min-w-0 flex-1 [&_.markdown>:last-child]:mb-0">
+      <div className="min-w-0 flex-1 [&_.markdown>:nth-last-child(2)]:mb-0!">
         <Markdown>{text}</Markdown>
-      </span>
-    </span>
+      </div>
+    </div>
   );
 }

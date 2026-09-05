@@ -37,7 +37,7 @@ function ReviewOption({
           'border-red-500/50 bg-red-50 dark:border-red-500/40 dark:bg-red-500/10'
       )}
     >
-      <span className="mt-0.5 flex shrink-0 items-center">
+      <span className="mt-1.5 flex shrink-0 items-center">
         {correct ? (
           <Check className="size-4 text-green-600 dark:text-green-400" />
         ) : selected ? (
