@@ -1815,5 +1815,27 @@
     "interactive": "Interactive",
     "communication": "Communication",
     "remoteJudge": "Remote judge"
+  },
+  "contestSolution": {
+    "heading": "Contest solutions",
+    "create": "Create solution",
+    "edit": "Edit solution",
+    "empty": "No solutions yet.",
+    "title": "Title",
+    "author": "Author",
+    "time": "Time",
+    "content": "Content",
+    "titleRequired": "Enter a title.",
+    "contentRequired": "Enter solution content.",
+    "save": "Save",
+    "saving": "Saving…",
+    "saveFailed": "Could not save the solution.",
+    "delete": "Delete solution",
+    "confirmDelete": "Delete this solution?",
+    "deleteFailed": "Could not delete the solution.",
+    "cancel": "Cancel",
+    "deleting": "Deleting…",
+    "confirm": "Confirm",
+    "back": "Back to contest"
   }
 }

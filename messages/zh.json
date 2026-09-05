@@ -1815,5 +1815,27 @@
     "interactive": "交互题",
     "communication": "通信题",
     "remoteJudge": "远端评测题"
+  },
+  "contestSolution": {
+    "heading": "比赛题解",
+    "create": "创建题解",
+    "edit": "编辑题解",
+    "empty": "暂无题解。",
+    "title": "标题",
+    "author": "作者",
+    "time": "时间",
+    "content": "内容",
+    "titleRequired": "请输入标题。",
+    "contentRequired": "请输入题解内容。",
+    "save": "保存",
+    "saving": "保存中…",
+    "saveFailed": "无法保存题解。",
+    "delete": "删除题解",
+    "confirmDelete": "确定删除这篇题解？",
+    "deleteFailed": "无法删除题解。",
+    "cancel": "取消",
+    "deleting": "删除中…",
+    "confirm": "确认",
+    "back": "返回比赛"
   }
 }

@@ -1,3 +1,4 @@
+import type { ContestSolution } from './solution';
 import { alova } from '@/api/server';
 import type { Contest, ContestStatus } from '@/shared/types/contest';
 import type { FileInfo } from '@/shared/types/file';
@@ -9,6 +10,9 @@ export type ContestDetailTdoc = Contest | Homework;
 export type ContestDetailStatus = ContestStatus;
 
 export type ContestDetailResponse = {
+  csdocs?: Pick<ContestSolution, 'docId' | 'title' | 'owner'>[];
+  showContestSolutions?: boolean;
+  canManage?: boolean;
   tdoc: ContestDetailTdoc;
   tsdoc: ContestDetailStatus | null;
   udict: BaseUserDict;
