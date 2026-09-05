@@ -27,10 +27,15 @@ export default function ContestSolutionForm({
   const t = useTranslations('contestSolution');
   const router = useRouter();
   const schema = z.object({
-    title: z.string().trim().min(1, t('titleRequired')),
+    title: z
+      .string()
+      .trim()
+      .min(1, t('titleRequired'))
+      .max(64, t('titleTooLong')),
     content: z
       .string()
-      .refine((value) => value.trim().length > 0, t('contentRequired')),
+      .refine((value) => value.trim().length > 0, t('contentRequired'))
+      .refine((value) => value.trim().length < 65536, t('contentTooLong')),
   });
   type Values = z.infer<typeof schema>;
   const {

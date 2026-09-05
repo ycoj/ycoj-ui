@@ -37,6 +37,43 @@ function mount(node: ReactNode) {
 beforeEach(() => vi.resetAllMocks());
 
 describe('contest solution form', () => {
+  it.each([
+    { title: 'a'.repeat(65), content: 'Answer', error: 'titleTooLong' },
+    { title: 'Editorial', content: 'a'.repeat(65536), error: 'contentTooLong' },
+  ] as const)(
+    'rejects $error before saving',
+    async ({ title, content, error }) => {
+      mount(
+        <ContestSolutionForm tid="contest" initialValues={{ title, content }} />
+      );
+      await userEvent.click(
+        screen.getByRole('button', { name: 'Create solution' })
+      );
+      expect(
+        await screen.findByText(messages.contestSolution[error])
+      ).toBeInTheDocument();
+      expect(mocks.save).not.toHaveBeenCalled();
+    }
+  );
+  it('accepts the length limits and ignores surrounding content whitespace', async () => {
+    const title = 'a'.repeat(64);
+    const content = ` \n${'a'.repeat(65535)}\n `;
+    mocks.save.mockResolvedValue({ sid: 'new' });
+    mount(
+      <ContestSolutionForm tid="contest" initialValues={{ title, content }} />
+    );
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Create solution' })
+    );
+    await waitFor(() =>
+      expect(mocks.push).toHaveBeenCalledWith('/contest/contest/solution/new')
+    );
+    expect(mocks.save).toHaveBeenCalledWith(
+      'contest',
+      { title, content },
+      undefined
+    );
+  });
   it('rejects empty title and content', async () => {
     mount(<ContestSolutionForm tid="contest" />);
     await userEvent.click(

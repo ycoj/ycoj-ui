@@ -1827,6 +1827,8 @@
     "time": "时间",
     "content": "内容",
     "titleRequired": "请输入标题。",
+    "titleTooLong": "标题不能超过 64 个字符。",
+    "contentTooLong": "内容去除首尾空白后不能超过 65,535 个字符。",
     "contentRequired": "请输入题解内容。",
     "save": "保存",
     "saving": "保存中…",

@@ -1827,6 +1827,8 @@
     "time": "Time",
     "content": "Content",
     "titleRequired": "Enter a title.",
+    "titleTooLong": "Title must be at most 64 characters.",
+    "contentTooLong": "Content must be at most 65,535 characters, excluding leading and trailing whitespace.",
     "contentRequired": "Enter solution content.",
     "save": "Save",
     "saving": "Saving…",
