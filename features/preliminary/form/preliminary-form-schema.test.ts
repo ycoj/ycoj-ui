@@ -1,5 +1,6 @@
 import {
   buildPreliminarySchema,
+  countQuestions,
   type PreliminarySchemaMessages,
 } from './preliminary-form-schema';
 import type { PreliminaryFormValues } from './preliminary-form-utils';
@@ -7,12 +8,18 @@ import { describe, expect, it } from 'vitest';
 
 const messages: PreliminarySchemaMessages = {
   titleRequired: 'titleRequired',
+  titleTooLong: 'titleTooLong',
+  contentTooLong: 'contentTooLong',
   sectionTitleRequired: 'sectionTitleRequired',
+  sectionTitleTooLong: 'sectionTitleTooLong',
   promptRequired: 'promptRequired',
+  promptTooLong: 'promptTooLong',
   scoreInvalid: 'scoreInvalid',
+  optionTextTooLong: 'optionTextTooLong',
   optionsRequired: 'optionsRequired',
   answerRequired: 'answerRequired',
   answerInvalid: 'answerInvalid',
+  explanationTooLong: 'explanationTooLong',
   sectionsRequired: 'sectionsRequired',
   questionsRequired: 'questionsRequired',
   tooManySections: 'tooManySections',
@@ -49,6 +56,18 @@ function validValues(): PreliminaryFormValues {
     ],
   };
 }
+
+describe('countQuestions', () => {
+  it('sums questions across sections', () => {
+    expect(
+      countQuestions([
+        { questions: [1, 2] },
+        { questions: [] },
+        { questions: [3] },
+      ])
+    ).toBe(3);
+  });
+});
 
 describe('buildPreliminarySchema', () => {
   it('accepts a complete paper', () => {
@@ -142,6 +161,73 @@ describe('buildPreliminarySchema', () => {
       answer: 'false',
       options: [],
     };
+    expect(buildPreliminarySchema(messages).safeParse(values).success).toBe(
+      true
+    );
+  });
+
+  it.each([
+    {
+      name: 'paper title over 64 characters',
+      mutate: (values: PreliminaryFormValues) => {
+        values.title = 't'.repeat(65);
+      },
+      message: 'titleTooLong',
+    },
+    {
+      name: 'section title over 255 characters',
+      mutate: (values: PreliminaryFormValues) => {
+        values.sections[0].title = 't'.repeat(256);
+      },
+      message: 'sectionTitleTooLong',
+    },
+    {
+      name: 'prompt over 16384 characters',
+      mutate: (values: PreliminaryFormValues) => {
+        values.sections[0].questions[0].prompt = 'p'.repeat(16385);
+      },
+      message: 'promptTooLong',
+    },
+    {
+      name: 'option text over 8192 characters',
+      mutate: (values: PreliminaryFormValues) => {
+        values.sections[0].questions[0].options[0].text = 'o'.repeat(8193);
+      },
+      message: 'optionTextTooLong',
+    },
+    {
+      name: 'explanation over 32768 characters',
+      mutate: (values: PreliminaryFormValues) => {
+        values.sections[0].questions[0].explanation = 'e'.repeat(32769);
+      },
+      message: 'explanationTooLong',
+    },
+    {
+      name: 'introduction over 65535 characters',
+      mutate: (values: PreliminaryFormValues) => {
+        values.content = 'c'.repeat(65536);
+      },
+      message: 'contentTooLong',
+    },
+  ])('rejects $name', ({ mutate, message }) => {
+    const values = validValues();
+    mutate(values);
+    const result = buildPreliminarySchema(messages).safeParse(values);
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(result.error.issues.some((issue) => issue.message === message)).toBe(
+      true
+    );
+  });
+
+  it('accepts text fields exactly at the backend limits', () => {
+    const values = validValues();
+    values.title = 't'.repeat(64);
+    values.content = 'c'.repeat(65535);
+    values.sections[0].title = 's'.repeat(255);
+    values.sections[0].questions[0].prompt = 'p'.repeat(16384);
+    values.sections[0].questions[0].explanation = 'e'.repeat(32768);
+    values.sections[0].questions[0].options[0].text = 'o'.repeat(8192);
     expect(buildPreliminarySchema(messages).safeParse(values).success).toBe(
       true
     );

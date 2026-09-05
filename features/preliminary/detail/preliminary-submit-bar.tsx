@@ -1,8 +1,10 @@
 'use client';
 
 import { usePreliminaryAnswers } from '@/features/preliminary/detail/preliminary-answer-provider';
-import { PreliminaryRequestError } from '@/features/preliminary/lib/preliminary-error';
-import { submitPreliminaryAnswers } from '@/features/preliminary/lib/preliminary-submit';
+import {
+  PreliminaryRequestError,
+  submitPreliminaryAnswers,
+} from '@/features/preliminary/lib/preliminary-request';
 import { Alert, AlertDescription } from '@/shared/components/ui/alert';
 import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/utils';
@@ -17,6 +19,31 @@ type Props = {
   canSubmit: boolean;
   navigation?: ReactNode;
 };
+
+// Measures only the fixed action bar (banners stay in flow above the spacer)
+// so wrapping, i18n length, and safe-area padding never overlap content.
+// getBoundingClientRect includes the safe-area padding. A ResizeObserver
+// covers every size change (wrapping, i18n, class toggles), so no props
+// belong in the effect dependencies.
+function useFixedBarHeight() {
+  const barRef = useRef<HTMLDivElement>(null);
+  const [barHeight, setBarHeight] = useState(112);
+
+  useEffect(() => {
+    const bar = barRef.current;
+    if (!bar) return;
+    if (typeof ResizeObserver === 'undefined') return;
+    const update = () => {
+      setBarHeight(bar.getBoundingClientRect().height);
+    };
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(bar);
+    return () => observer.disconnect();
+  }, []);
+
+  return { barRef, barHeight };
+}
 
 export default function PreliminarySubmitBar({
   paperId,
@@ -36,26 +63,7 @@ export default function PreliminarySubmitBar({
   } = usePreliminaryAnswers();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const barRef = useRef<HTMLDivElement>(null);
-  const [barHeight, setBarHeight] = useState(112);
-
-  // Tracks only the fixed action bar (banners stay in flow above the
-  // spacer) so wrapping, i18n length, and safe-area padding never overlap
-  // content. getBoundingClientRect includes the safe-area padding.
-  useEffect(() => {
-    const bar = barRef.current;
-    if (!bar) return;
-    if (typeof ResizeObserver === 'undefined') return;
-    const update = () => {
-      setBarHeight(bar.getBoundingClientRect().height);
-    };
-    update();
-    const observer = new ResizeObserver(update);
-    observer.observe(bar);
-    return () => observer.disconnect();
-  }, [canSubmit, navigation]);
-
-  if (!canSubmit && !navigation) return null;
+  const { barRef, barHeight } = useFixedBarHeight();
 
   const handleClear = async () => {
     if (!window.confirm(t('clearConfirm'))) return;

@@ -5,6 +5,13 @@ export type PreliminarySectionType =
 
 export type PreliminaryQuestionType = 'choice' | 'true_false';
 
+// Fixed answer literals for true/false questions, shared by the publish
+// schema, the draft allow-list, and the option renderers.
+export const PRELIMINARY_TRUE_FALSE_VALUES = ['true', 'false'] as const;
+
+export type PreliminaryTrueFalseValue =
+  (typeof PRELIMINARY_TRUE_FALSE_VALUES)[number];
+
 export type PreliminaryChoiceOption = {
   id: string;
   text: string;

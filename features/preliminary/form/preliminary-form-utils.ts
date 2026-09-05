@@ -34,6 +34,27 @@ export type PreliminaryFormValues = {
   sections: PreliminarySectionValue[];
 };
 
+export const PRELIMINARY_DEFAULT_SCORE = 2;
+
+// Normalizes raw score input at the form boundary (wired via setValueAs on
+// the score field): number inputs yield NaN when cleared, which would
+// otherwise flow into the payload and fail backend validation.
+//
+// Behavior change: non-finite input used to survive in form state and was
+// silently coerced to the default deep in buildPreliminaryPayload. It is now
+// coerced here, so form state, validation, and the payload always agree.
+// Draft saving still only validates the title; the score it persists is
+// whatever the input boundary normalized.
+export function normalizeScoreInput(value: unknown): number {
+  // Number('') is 0, so a cleared input needs an explicit blank check;
+  // otherwise an empty score would persist as 0 and fail validation.
+  if (typeof value === 'string' && value.trim() === '') {
+    return PRELIMINARY_DEFAULT_SCORE;
+  }
+  const parsed = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(parsed) ? parsed : PRELIMINARY_DEFAULT_SCORE;
+}
+
 export function newId(): string {
   if (
     typeof crypto !== 'undefined' &&
@@ -67,7 +88,7 @@ export function newQuestion(
       id: newId(),
       type,
       prompt: '',
-      score: 2,
+      score: PRELIMINARY_DEFAULT_SCORE,
       explanation: '',
       answer: 'true',
       options: [],
@@ -78,7 +99,7 @@ export function newQuestion(
     id: newId(),
     type,
     prompt: '',
-    score: 2,
+    score: PRELIMINARY_DEFAULT_SCORE,
     explanation: '',
     answer: options[0].id,
     options,
@@ -108,10 +129,6 @@ export function getPreliminaryCreateDefaults(): PreliminaryFormValues {
   };
 }
 
-export function countQuestions(sections: { questions: unknown[] }[]): number {
-  return sections.reduce((sum, section) => sum + section.questions.length, 0);
-}
-
 export type SectionTypeLabelKey =
   'singleChoice' | 'programReading' | 'programCompletion';
 
@@ -128,6 +145,9 @@ export function getSectionTypeLabel(
 export function buildPreliminaryPayload(
   values: PreliminaryFormValues
 ): PreliminaryDefinitionInput {
+  // Trim every free-text field to match the backend text() normalization;
+  // the score is trusted as-is because the score input coerces non-finite
+  // values at the form boundary (see normalizeScoreInput).
   return {
     title: values.title.trim(),
     content: values.content.trim(),
@@ -135,20 +155,20 @@ export function buildPreliminaryPayload(
       id: section.id,
       type: section.type,
       title: section.title.trim(),
-      content: section.content,
+      content: section.content.trim(),
       questions: section.questions.map((question) => ({
         id: question.id,
         type: question.type,
-        prompt: question.prompt,
-        score: Number.isFinite(question.score) ? question.score : 2,
-        explanation: question.explanation ?? '',
+        prompt: question.prompt.trim(),
+        score: question.score,
+        explanation: (question.explanation ?? '').trim(),
         answer: question.answer,
         options:
           question.type === 'true_false'
             ? []
             : question.options.map((option) => ({
                 id: option.id,
-                text: option.text,
+                text: option.text.trim(),
               })),
       })),
     })),
@@ -170,7 +190,7 @@ export function mapPreliminaryEditToFormValues(
         id: question.id || newId(),
         type: question.type,
         prompt: question.prompt ?? '',
-        score: question.score ?? 2,
+        score: question.score ?? PRELIMINARY_DEFAULT_SCORE,
         explanation: question.explanation ?? '',
         answer: question.answer ?? '',
         options: (question.options ?? []).map((option) => ({

@@ -1,5 +1,5 @@
-import { getPreliminaryAttempt } from '@/features/preliminary/attempt/get-preliminary-attempt';
 import PreliminaryAttemptContent from '@/features/preliminary/attempt/preliminary-attempt-content';
+import { getPreliminaryAttempt } from '@/features/preliminary/lib/preliminary-loaders';
 import { Errored } from '@/shared/components/errored';
 import { Button } from '@/shared/components/ui/button';
 import TwoColumnLayout from '@/shared/layout/two-column';

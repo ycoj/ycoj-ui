@@ -5,8 +5,9 @@ import PreliminaryOptionContent, {
 } from '@/features/preliminary/detail/preliminary-option-content';
 import PreliminarySectionShell from '@/features/preliminary/detail/preliminary-section-shell';
 import {
-  getPreliminaryNavQuestions,
   getPreliminaryQuestionAnchorId,
+  getPreliminarySectionStarts,
+  getQuestionDisplayNumber,
 } from '@/features/preliminary/lib/preliminary-utils';
 import Markdown from '@/shared/components/markdown';
 import { Badge } from '@/shared/components/ui/badge';
@@ -17,7 +18,6 @@ import {
   CardTitle,
 } from '@/shared/components/ui/card';
 import { useTranslations } from 'next-intl';
-import { useMemo } from 'react';
 
 type Props = {
   data: PreliminaryDetailData;
@@ -28,16 +28,7 @@ export default function PreliminaryContent({ data, isReadOnly }: Props) {
   const t = useTranslations('preliminary');
   const paper = data.paper;
   const description = paper.content?.trim();
-  const displayNumbers = useMemo(
-    () =>
-      new Map(
-        getPreliminaryNavQuestions(paper.sections).map((question) => [
-          question.id,
-          question.number,
-        ])
-      ),
-    [paper.sections]
-  );
+  const sectionsWithStarts = getPreliminarySectionStarts(paper.sections);
 
   return (
     <div className="space-y-4" data-llm-visible="true">
@@ -64,16 +55,17 @@ export default function PreliminaryContent({ data, isReadOnly }: Props) {
         )}
       </Card>
 
-      {paper.sections.map((section) => (
+      {sectionsWithStarts.map(({ section, start }) => (
         <PreliminarySectionShell
           key={section.id}
           title={section.title}
           content={section.content}
         >
-          {section.questions.map((question) => {
-            // 0 is unreachable; nav questions cover every id, so 0 surfaces
-            // a mapping bug instead of colliding with question 1.
-            const displayNumber = displayNumbers.get(question.id) ?? 0;
+          {section.questions.map((question, questionIndex) => {
+            const displayNumber = getQuestionDisplayNumber(
+              question,
+              start + questionIndex
+            );
             return (
               <li
                 key={question.id}

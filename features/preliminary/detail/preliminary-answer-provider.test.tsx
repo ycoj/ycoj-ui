@@ -1,4 +1,3 @@
-import { clearDraft, getDraft, saveDraft } from './draft-storage';
 import PreliminaryAnswerProvider, {
   sanitizeDraft,
   usePreliminaryAnswers,
@@ -8,15 +7,25 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('./draft-storage', () => ({
+const mocks = vi.hoisted(() => ({
   getDraft: vi.fn(),
   saveDraft: vi.fn(() => Promise.resolve()),
   clearDraft: vi.fn(() => Promise.resolve()),
 }));
+vi.mock('@/shared/lib/indexeddb-draft', () => ({
+  DRAFT_DATABASES: {
+    preliminary: { dbName: 'test-db', storeName: 'test-store' },
+  },
+  makeDraftStorage: () => ({
+    getDraft: mocks.getDraft,
+    saveDraft: mocks.saveDraft,
+    clearDraft: mocks.clearDraft,
+  }),
+}));
 
-const mockedGetDraft = vi.mocked(getDraft);
-const mockedSaveDraft = vi.mocked(saveDraft);
-const mockedClearDraft = vi.mocked(clearDraft);
+const mockedGetDraft = mocks.getDraft;
+const mockedSaveDraft = mocks.saveDraft;
+const mockedClearDraft = mocks.clearDraft;
 
 const ALLOWED = { q1: ['o1', 'o2'], q2: ['true', 'false'] };
 

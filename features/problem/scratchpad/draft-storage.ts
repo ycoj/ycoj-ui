@@ -1,4 +1,7 @@
-import { makeDraftStorage } from '@/shared/lib/indexeddb-draft';
+import {
+  DRAFT_DATABASES,
+  makeDraftStorage,
+} from '@/shared/lib/indexeddb-draft';
 
 export type ScratchpadDraft = {
   code: string;
@@ -18,8 +21,8 @@ function migrateLegacyDraft(record: unknown): ScratchpadDraft | null {
 }
 
 const { getDraft, saveDraft } = makeDraftStorage<ScratchpadDraft>(
-  'ycoj-scratchpad',
-  'drafts',
+  DRAFT_DATABASES.scratchpad.dbName,
+  DRAFT_DATABASES.scratchpad.storeName,
   { migrate: migrateLegacyDraft }
 );
 

@@ -1,5 +1,8 @@
 // Pure helpers for the preliminary training feature.
-import type { PreliminaryQuestion } from '@/shared/types/preliminary';
+import {
+  PRELIMINARY_TRUE_FALSE_VALUES,
+  type PreliminaryQuestion,
+} from '@/shared/types/preliminary';
 
 export function getAlphabeticId(index: number): string {
   let result = '';
@@ -30,7 +33,7 @@ export function buildAllowedAnswers(
     for (const question of section.questions) {
       allowed[question.id] =
         question.type === 'true_false'
-          ? ['true', 'false']
+          ? [...PRELIMINARY_TRUE_FALSE_VALUES]
           : (question.options ?? []).map((option) => option.id);
     }
   }
@@ -50,6 +53,20 @@ export type PreliminaryNavQuestion = {
   id: string;
   number: number;
 };
+
+// Pairs each section with its starting global question index so detail and
+// review views can number questions with a running index inline, without an
+// intermediate id-to-number Map.
+export function getPreliminarySectionStarts<T extends { questions: unknown[] }>(
+  sections: T[]
+): Array<{ section: T; start: number }> {
+  let start = 0;
+  return sections.map((section) => {
+    const current = start;
+    start += section.questions.length;
+    return { section, start: current };
+  });
+}
 
 // Single pass over sections in display order; replaces the ad-hoc
 // slice/reduce/flatMap variants previously spread across detail views.

@@ -1,9 +1,9 @@
-import { getPreliminaryDetail } from '@/features/preliminary/detail/get-preliminary-detail';
 import PreliminaryAnswerProvider from '@/features/preliminary/detail/preliminary-answer-provider';
 import PreliminaryContent from '@/features/preliminary/detail/preliminary-content';
 import PreliminaryMobileNavigation from '@/features/preliminary/detail/preliminary-mobile-navigation';
 import PreliminarySidebar from '@/features/preliminary/detail/preliminary-sidebar';
 import PreliminarySubmitBar from '@/features/preliminary/detail/preliminary-submit-bar';
+import { getPreliminaryDetail } from '@/features/preliminary/lib/preliminary-loaders';
 import { buildAllowedAnswers } from '@/features/preliminary/lib/preliminary-utils';
 import { getUser } from '@/features/user/lib/get-user';
 import { Errored } from '@/shared/components/errored';
@@ -67,6 +67,9 @@ export default async function PreliminaryDetailPage({
           left={
             <div className="min-w-0 space-y-4">
               <PreliminaryContent data={data} isReadOnly={!data.canSubmit} />
+              {/* The submit bar always renders here: mobile navigation is
+              always provided, so the bar is never empty even for
+              read-only viewers. */}
               <PreliminarySubmitBar
                 paperId={paperId}
                 revision={data.paper.revision}

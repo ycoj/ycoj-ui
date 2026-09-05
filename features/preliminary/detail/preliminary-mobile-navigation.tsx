@@ -2,12 +2,11 @@
 
 import type { PreliminaryDetailData } from '@/api/server/method/preliminary/detail';
 import PreliminaryEditActions from '@/features/preliminary/detail/preliminary-edit-actions';
+import PreliminaryNavPanel, {
+  focusPreliminaryQuestion,
+} from '@/features/preliminary/detail/preliminary-nav-panel';
 import PreliminaryPaperMeta from '@/features/preliminary/detail/preliminary-paper-meta';
-import PreliminaryQuestionNav from '@/features/preliminary/detail/preliminary-question-nav';
-import {
-  getPreliminaryNavQuestions,
-  getPreliminaryQuestionAnchorId,
-} from '@/features/preliminary/lib/preliminary-utils';
+import { getPreliminaryNavQuestions } from '@/features/preliminary/lib/preliminary-utils';
 import { Button } from '@/shared/components/ui/button';
 import { Separator } from '@/shared/components/ui/separator';
 import {
@@ -43,14 +42,9 @@ export default function PreliminaryMobileNavigation({ paperId, data }: Props) {
 
   const handleCloseAutoFocus = (event: Event) => {
     if (!pendingQuestionId) return;
-    const target = document.getElementById(
-      getPreliminaryQuestionAnchorId(pendingQuestionId)
-    );
+    const questionId = pendingQuestionId;
     setPendingQuestionId(null);
-    if (!target) return;
-    event.preventDefault();
-    target.focus({ preventScroll: true });
-    target.scrollIntoView({ block: 'start' });
+    if (focusPreliminaryQuestion(questionId)) event.preventDefault();
   };
 
   return (
@@ -89,7 +83,7 @@ export default function PreliminaryMobileNavigation({ paperId, data }: Props) {
           </SheetDescription>
         </SheetHeader>
         <div className="min-h-0 space-y-6 overflow-y-auto overscroll-contain px-4 pb-6">
-          <PreliminaryQuestionNav
+          <PreliminaryNavPanel
             questions={questions}
             onSelectQuestion={handleSelectQuestion}
           />

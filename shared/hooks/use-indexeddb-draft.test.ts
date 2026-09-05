@@ -73,6 +73,34 @@ describe('useIndexedDbDraft draft switching', () => {
   });
 });
 
+describe('useIndexedDbDraft sanitize equality', () => {
+  it('does not save when sanitize returns a fresh-but-equal object', async () => {
+    load.mockResolvedValue({ q1: 'o1' });
+    const freshSanitize = (stored: Record<string, string>) => ({ ...stored });
+    const { result } = renderHook(() =>
+      useIndexedDbDraft('d1', {
+        load,
+        save,
+        clear,
+        sanitize: freshSanitize,
+        isReadOnly: false,
+      })
+    );
+    await waitFor(() => expect(result.current.isReady).toBe(true));
+    expect(result.current.answers).toEqual({ q1: 'o1' });
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    expect(save).not.toHaveBeenCalled();
+    expect(clear).not.toHaveBeenCalled();
+
+    await act(async () => {
+      result.current.setAnswer('q2', 'o2');
+    });
+    await waitFor(() =>
+      expect(save).toHaveBeenCalledWith('d1', { q1: 'o1', q2: 'o2' })
+    );
+  });
+});
+
 describe('useIndexedDbDraft empty saves', () => {
   it('does not persist an empty payload after clearing', async () => {
     load.mockResolvedValue({ q1: 'o1' });

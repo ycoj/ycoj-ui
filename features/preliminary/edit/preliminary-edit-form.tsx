@@ -2,13 +2,13 @@
 
 import PreliminaryForm from '@/features/preliminary/form/preliminary-form';
 import type { PreliminaryFormValues } from '@/features/preliminary/form/preliminary-form-utils';
-import { savePreliminaryValues } from '@/features/preliminary/lib/preliminary-save';
+import { savePreliminaryValues } from '@/features/preliminary/lib/preliminary-request';
 import { useDeletePreliminary } from '@/features/preliminary/lib/use-delete-preliminary';
 import { Button } from '@/shared/components/ui/button';
 import { FieldError } from '@/shared/components/ui/field';
-import { Trash } from 'lucide-react';
+import { Save, Trash } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 
 type Props = {
   paperId: string;
@@ -22,18 +22,27 @@ export default function PreliminaryEditForm({
   defaultValues,
 }: Props) {
   const tp = useTranslations('preliminary');
+  const t = useTranslations('preliminaryForm');
   const { deleting, deleteError, handleDelete } = useDeletePreliminary(paperId);
   const handleSave = useCallback(
     (values: PreliminaryFormValues, published: boolean) =>
       savePreliminaryValues(values, published, paperId),
     [paperId]
   );
+  const labels = useMemo(
+    () => ({
+      draft: wasPublished ? t('unpublish') : t('saveDraft'),
+      publish: wasPublished ? t('saveChanges') : t('publish'),
+      saving: t('saving'),
+    }),
+    [t, wasPublished]
+  );
 
   return (
     <div className="space-y-5">
       <PreliminaryForm
-        mode="edit"
-        wasPublished={wasPublished}
+        labels={labels}
+        publishIcon={<Save />}
         defaultValues={defaultValues}
         cancelHref={`/preliminary/${paperId}`}
         extraActions={

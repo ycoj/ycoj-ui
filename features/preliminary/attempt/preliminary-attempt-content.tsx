@@ -6,6 +6,10 @@ import PreliminaryOptionContent, {
   getPreliminaryOptionInfos,
 } from '@/features/preliminary/detail/preliminary-option-content';
 import PreliminarySectionShell from '@/features/preliminary/detail/preliminary-section-shell';
+import {
+  getPreliminarySectionStarts,
+  getQuestionDisplayNumber,
+} from '@/features/preliminary/lib/preliminary-utils';
 import Markdown from '@/shared/components/markdown';
 import { Badge } from '@/shared/components/ui/badge';
 import {
@@ -53,18 +57,25 @@ function ReviewOption({
   );
 }
 
-function ReviewQuestion({ question }: { question: PreliminaryReviewQuestion }) {
+function ReviewQuestion({
+  question,
+  globalIndex,
+}: {
+  question: PreliminaryReviewQuestion;
+  globalIndex: number;
+}) {
   const t = useTranslations('preliminary');
   const correct = question.result.correct;
+  const displayNumber = getQuestionDisplayNumber(question, globalIndex);
 
   return (
     <li className="space-y-2">
       <div className="flex flex-wrap items-center gap-2">
         <span
           className="font-medium tabular-nums"
-          data-llm-text={String(question.questionNumber ?? '')}
+          data-llm-text={String(displayNumber)}
         >
-          {question.questionNumber}
+          {displayNumber}
         </span>
         <Badge
           variant="secondary"
@@ -149,14 +160,18 @@ export default function PreliminaryAttemptContent({ data }: Props) {
         </CardContent>
       </Card>
 
-      {paper.sections.map((section) => (
+      {getPreliminarySectionStarts(paper.sections).map(({ section, start }) => (
         <PreliminarySectionShell
           key={section.id}
           title={section.title}
           content={section.content}
         >
-          {section.questions.map((question) => (
-            <ReviewQuestion key={question.id} question={question} />
+          {section.questions.map((question, questionIndex) => (
+            <ReviewQuestion
+              key={question.id}
+              question={question}
+              globalIndex={start + questionIndex}
+            />
           ))}
         </PreliminarySectionShell>
       ))}

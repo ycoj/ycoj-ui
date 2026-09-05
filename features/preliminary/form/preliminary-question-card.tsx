@@ -1,6 +1,9 @@
 'use client';
 
-import { newOption } from '@/features/preliminary/form/preliminary-form-utils';
+import {
+  newOption,
+  normalizeScoreInput,
+} from '@/features/preliminary/form/preliminary-form-utils';
 import type { PreliminaryFormValues } from '@/features/preliminary/form/preliminary-form-utils';
 import { getAlphabeticId } from '@/features/preliminary/lib/preliminary-utils';
 import { Button } from '@/shared/components/ui/button';
@@ -153,7 +156,11 @@ export default function PreliminaryQuestionCard({
               step={1}
               disabled={disabled}
               aria-invalid={!!questionErrors?.score}
-              {...register(`${base}.score`, { valueAsNumber: true })}
+              // Coerces cleared/invalid input to the default score at the
+              // input boundary so NaN never reaches the payload builder.
+              {...register(`${base}.score`, {
+                setValueAs: (value) => normalizeScoreInput(value),
+              })}
             />
             <FieldError errors={[questionErrors?.score]} />
           </FieldContent>
@@ -200,8 +207,8 @@ export default function PreliminaryQuestionCard({
                       type="radio"
                       value={optionId}
                       disabled={disabled}
-                      title={t('answer')}
-                      aria-label={t('answer')}
+                      title={`${t('answer')} ${getAlphabeticId(optionIndex)}`}
+                      aria-label={`${t('answer')} ${getAlphabeticId(optionIndex)}`}
                       className="size-4 shrink-0 accent-primary"
                       {...register(`${base}.answer`)}
                     />

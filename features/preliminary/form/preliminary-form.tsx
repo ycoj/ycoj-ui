@@ -6,7 +6,7 @@ import {
 } from '@/features/preliminary/form/preliminary-form-schema';
 import type { PreliminaryFormValues } from '@/features/preliminary/form/preliminary-form-utils';
 import PreliminarySectionList from '@/features/preliminary/form/preliminary-section-list';
-import { PreliminaryRequestError } from '@/features/preliminary/lib/preliminary-error';
+import { PreliminaryRequestError } from '@/features/preliminary/lib/preliminary-request';
 import { Button } from '@/shared/components/ui/button';
 import {
   Field,
@@ -17,18 +17,25 @@ import {
 import { Input } from '@/shared/components/ui/input';
 import { Textarea } from '@/shared/components/ui/textarea';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ArrowLeft, Plus, Save } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState, type ReactNode } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-export type PreliminaryFormMode = 'create' | 'edit';
+export type PreliminaryFormLabels = {
+  draft: string;
+  publish: string;
+  saving: string;
+};
 
 type Props = {
-  mode: PreliminaryFormMode;
-  wasPublished?: boolean;
+  // Caller-owned action copy: create vs edit (and published vs draft) only
+  // change button labels/icons, so callers compute them and the form renders
+  // one JSX path with a single busy ternary each.
+  labels: PreliminaryFormLabels;
+  publishIcon: ReactNode;
   defaultValues: PreliminaryFormValues;
   cancelHref: string;
   extraActions?: ReactNode;
@@ -39,8 +46,8 @@ type Props = {
 };
 
 export default function PreliminaryForm({
-  mode,
-  wasPublished,
+  labels,
+  publishIcon,
   defaultValues,
   cancelHref,
   extraActions,
@@ -51,12 +58,18 @@ export default function PreliminaryForm({
   const messages = useMemo<PreliminarySchemaMessages>(
     () => ({
       titleRequired: t('titleRequired'),
+      titleTooLong: t('titleTooLong'),
+      contentTooLong: t('contentTooLong'),
       sectionTitleRequired: t('sectionTitleRequired'),
+      sectionTitleTooLong: t('sectionTitleTooLong'),
       promptRequired: t('promptRequired'),
+      promptTooLong: t('promptTooLong'),
       scoreInvalid: t('scoreInvalid'),
+      optionTextTooLong: t('optionTextTooLong'),
       optionsRequired: t('optionsRequired'),
       answerRequired: t('answerRequired'),
       answerInvalid: t('answerInvalid'),
+      explanationTooLong: t('explanationTooLong'),
       sectionsRequired: t('sectionsRequired'),
       questionsRequired: t('questionsRequired'),
       tooManySections: t('tooManySections'),
@@ -87,20 +100,8 @@ export default function PreliminaryForm({
   // papers can be resumed later.
   const [savingDraft, setSavingDraft] = useState(false);
   const busy = isSubmitting || savingDraft;
-
-  // wasPublished only changes the button copy/icons; the draft/publish
-  // actions stay the same, so compute the labels once and render one JSX.
-  const draftLabel = busy
-    ? t('saving')
-    : wasPublished
-      ? t('unpublish')
-      : t('saveDraft');
-  const publishLabel = busy
-    ? t('saving')
-    : wasPublished
-      ? t('saveChanges')
-      : t('publish');
-  const PublishIcon = wasPublished || mode === 'edit' ? Save : Plus;
+  const draftLabel = busy ? labels.saving : labels.draft;
+  const publishLabel = busy ? labels.saving : labels.publish;
 
   const handleSave = async (
     values: PreliminaryFormValues,
@@ -193,7 +194,7 @@ export default function PreliminaryForm({
             {draftLabel}
           </Button>
           <Button type="submit" disabled={busy}>
-            <PublishIcon />
+            {publishIcon}
             {publishLabel}
           </Button>
           {extraActions}

@@ -1,5 +1,8 @@
 import type { ObjectiveAnswers } from '@/features/problem/objective/types';
-import { makeDraftStorage } from '@/shared/lib/indexeddb-draft';
+import {
+  DRAFT_DATABASES,
+  makeDraftStorage,
+} from '@/shared/lib/indexeddb-draft';
 
 // Drafts written before the shared value envelope stored answers under the
 // `answers` key; keep them readable, the next save rewrites the envelope.
@@ -11,6 +14,10 @@ function migrateLegacyDraft(record: unknown): ObjectiveAnswers | null {
 }
 
 export const { getDraft, saveDraft, clearDraft } =
-  makeDraftStorage<ObjectiveAnswers>('ycoj-ui', 'objective-drafts', {
-    migrate: migrateLegacyDraft,
-  });
+  makeDraftStorage<ObjectiveAnswers>(
+    DRAFT_DATABASES.objective.dbName,
+    DRAFT_DATABASES.objective.storeName,
+    {
+      migrate: migrateLegacyDraft,
+    }
+  );

@@ -1,5 +1,7 @@
-import { PreliminaryRequestError } from './preliminary-error';
-import { savePreliminaryValues } from './preliminary-save';
+import {
+  PreliminaryRequestError,
+  savePreliminaryValues,
+} from './preliminary-request';
 import type { PreliminaryFormValues } from '@/features/preliminary/form/preliminary-form-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -59,13 +61,27 @@ describe('savePreliminaryValues', () => {
     expect(mocks.save).toHaveBeenCalledWith(expect.anything(), false, 'abc123');
   });
 
+  it('prefers the backend url over the synthesized path', async () => {
+    mocks.save.mockResolvedValue({
+      paperId: 'abc123',
+      url: '/preliminary/abc123?from=save',
+    });
+    await expect(savePreliminaryValues(values(), true)).resolves.toBe(
+      '/preliminary/abc123?from=save'
+    );
+  });
+
+  it('falls back to the synthesized path when the backend url is missing', async () => {
+    mocks.save.mockResolvedValue({ paperId: 'abc123' });
+    await expect(savePreliminaryValues(values(), true)).resolves.toBe(
+      '/preliminary/abc123'
+    );
+  });
+
   it.each([
     { name: 'an error payload', response: { error: { message: 'denied' } } },
-    {
-      name: 'a response without a paper id',
-      response: { url: '/preliminary/x' },
-    },
     { name: 'an empty response', response: null },
+    { name: 'a response with neither url nor paper id', response: {} },
   ])('throws the request error on $name', async ({ response }) => {
     mocks.save.mockResolvedValue(response);
     await expect(savePreliminaryValues(values(), true)).rejects.toThrow(

@@ -2,6 +2,7 @@ import {
   buildAllowedAnswers,
   getAlphabeticId,
   getPreliminaryNavQuestions,
+  getPreliminarySectionStarts,
   getQuestionDisplayNumber,
 } from './preliminary-utils';
 import { describe, expect, it } from 'vitest';
@@ -83,6 +84,21 @@ describe('buildAllowedAnswers', () => {
       q2: ['true', 'false'],
       q3: ['o9'],
     });
+  });
+});
+
+describe('getPreliminarySectionStarts', () => {
+  it('pairs each section with its starting global index', () => {
+    const sections = [
+      { id: 's1', questions: [{ id: 'q1' }, { id: 'q2' }] },
+      { id: 's2', questions: [] },
+      { id: 's3', questions: [{ id: 'q3' }] },
+    ];
+    expect(getPreliminarySectionStarts(sections)).toEqual([
+      { section: sections[0], start: 0 },
+      { section: sections[1], start: 2 },
+      { section: sections[2], start: 2 },
+    ]);
   });
 });
 

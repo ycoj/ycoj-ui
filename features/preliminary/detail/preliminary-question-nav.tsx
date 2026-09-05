@@ -19,12 +19,14 @@ export default function PreliminaryQuestionNav({
 }: Props) {
   const { isAnswered, isReady } = usePreliminaryAnswers();
 
-  if (!isReady || questions.length === 0) return null;
+  if (questions.length === 0) return null;
 
   return (
     <div className="grid grid-cols-5 gap-2" data-llm-visible="true">
       {questions.map((question) => {
-        const answered = isAnswered(question.id);
+        // Render the grid before the draft is ready; only the answered
+        // styling lags until answers load.
+        const answered = isReady && isAnswered(question.id);
         return (
           <Button
             key={question.id}

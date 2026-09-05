@@ -1,11 +1,10 @@
 'use client';
 
-import {
-  clearDraft,
-  getDraft,
-  saveDraft,
-} from '@/features/preliminary/detail/draft-storage';
 import { useIndexedDbDraft } from '@/shared/hooks/use-indexeddb-draft';
+import {
+  DRAFT_DATABASES,
+  makeDraftStorage,
+} from '@/shared/lib/indexeddb-draft';
 import type { PreliminaryAnswers } from '@/shared/types/preliminary';
 import {
   createContext,
@@ -14,6 +13,12 @@ import {
   useMemo,
   type ReactNode,
 } from 'react';
+
+const { getDraft, saveDraft, clearDraft } =
+  makeDraftStorage<PreliminaryAnswers>(
+    DRAFT_DATABASES.preliminary.dbName,
+    DRAFT_DATABASES.preliminary.storeName
+  );
 
 type PreliminaryAnswerContextValue = {
   answers: PreliminaryAnswers;

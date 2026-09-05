@@ -2,11 +2,10 @@
 
 import type { PreliminaryDetailData } from '@/api/server/method/preliminary/detail';
 import PreliminaryEditActions from '@/features/preliminary/detail/preliminary-edit-actions';
+import PreliminaryNavPanel from '@/features/preliminary/detail/preliminary-nav-panel';
 import PreliminaryPaperMeta from '@/features/preliminary/detail/preliminary-paper-meta';
-import PreliminaryQuestionNav from '@/features/preliminary/detail/preliminary-question-nav';
 import { getPreliminaryNavQuestions } from '@/features/preliminary/lib/preliminary-utils';
 import { Separator } from '@/shared/components/ui/separator';
-import { useTranslations } from 'next-intl';
 
 type Props = {
   paperId: string;
@@ -15,7 +14,6 @@ type Props = {
 };
 
 export default function PreliminarySidebar({ paperId, data, canEdit }: Props) {
-  const t = useTranslations('preliminary');
   const navQuestions = getPreliminaryNavQuestions(data.paper.sections);
 
   return (
@@ -31,12 +29,7 @@ export default function PreliminarySidebar({ paperId, data, canEdit }: Props) {
 
       <Separator />
 
-      <div className="space-y-3">
-        <h2 className="text-sm font-medium" data-llm-text={t('directory')}>
-          {t('directory')}
-        </h2>
-        <PreliminaryQuestionNav questions={navQuestions} />
-      </div>
+      <PreliminaryNavPanel questions={navQuestions} />
     </div>
   );
 }

@@ -55,6 +55,10 @@ export default async function PreliminaryListPage({
     view
   );
 
+  // Remount the filter when the view or query changes: its search input is
+  // uncontrolled (defaultValue from search params), so a key reset is the
+  // simplest way to drop stale text. Kept as-is instead of a controlled
+  // input to avoid re-rendering the whole server-driven list on keystrokes.
   const filterKey = `${view}-${q ?? ''}`;
 
   return (

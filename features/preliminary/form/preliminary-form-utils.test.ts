@@ -1,26 +1,14 @@
 import {
   buildPreliminaryPayload,
-  countQuestions,
   getPreliminaryCreateDefaults,
   getSectionTypeLabel,
   mapPreliminaryEditToFormValues,
   newId,
   newQuestion,
   newSection,
+  normalizeScoreInput,
 } from './preliminary-form-utils';
 import { describe, expect, it } from 'vitest';
-
-describe('countQuestions', () => {
-  it('sums questions across sections', () => {
-    expect(
-      countQuestions([
-        { questions: [1, 2] },
-        { questions: [] },
-        { questions: [3] },
-      ])
-    ).toBe(3);
-  });
-});
 
 describe('getSectionTypeLabel', () => {
   const t = (key: string) => key;
@@ -79,8 +67,24 @@ describe('getPreliminaryCreateDefaults', () => {
   });
 });
 
+describe('normalizeScoreInput', () => {
+  it.each([
+    { value: 5, expected: 5 },
+    { value: '5', expected: 5 },
+    { value: '', expected: 2 },
+    { value: '   ', expected: 2 },
+    { value: NaN, expected: 2 },
+    { value: 'abc', expected: 2 },
+    { value: Infinity, expected: 2 },
+    { value: -Infinity, expected: 2 },
+    { value: undefined, expected: 2 },
+  ])('normalizes $value to $expected', ({ value, expected }) => {
+    expect(normalizeScoreInput(value)).toBe(expected);
+  });
+});
+
 describe('buildPreliminaryPayload', () => {
-  it('trims text fields and keeps explanations', () => {
+  it('trims every free-text field like the backend text() helper', () => {
     const payload = buildPreliminaryPayload({
       title: '  CSP-J  ',
       content: ' intro ',
@@ -89,17 +93,17 @@ describe('buildPreliminaryPayload', () => {
           id: 's1',
           type: 'single_choice',
           title: ' Choice ',
-          content: '',
+          content: ' passage ',
           questions: [
             {
               id: 'q1',
               type: 'choice',
-              prompt: 'prompt',
+              prompt: '  prompt  ',
               score: 5,
-              explanation: 'why',
+              explanation: '  why  ',
               answer: 'o1',
               options: [
-                { id: 'o1', text: 'A' },
+                { id: 'o1', text: '  A  ' },
                 { id: 'o2', text: 'B' },
               ],
             },
@@ -117,40 +121,44 @@ describe('buildPreliminaryPayload', () => {
       ],
     });
     expect(payload.title).toBe('CSP-J');
+    expect(payload.content).toBe('intro');
     expect(payload.sections[0].title).toBe('Choice');
+    expect(payload.sections[0].content).toBe('passage');
+    expect(payload.sections[0].questions[0].prompt).toBe('prompt');
     expect(payload.sections[0].questions[0].explanation).toBe('why');
+    expect(payload.sections[0].questions[0].options).toEqual([
+      { id: 'o1', text: 'A' },
+      { id: 'o2', text: 'B' },
+    ]);
     expect(payload.sections[0].questions[1].options).toEqual([]);
   });
 
-  it.each([NaN, Infinity, -Infinity])(
-    'coerces non-finite score %s to the default',
-    (score) => {
-      const payload = buildPreliminaryPayload({
-        title: 'Paper',
-        content: '',
-        sections: [
-          {
-            id: 's1',
-            type: 'single_choice',
-            title: 'S',
-            content: '',
-            questions: [
-              {
-                id: 'q1',
-                type: 'choice',
-                prompt: 'p',
-                score,
-                explanation: '',
-                answer: 'o1',
-                options: [{ id: 'o1', text: 'A' }],
-              },
-            ],
-          },
-        ],
-      });
-      expect(payload.sections[0].questions[0].score).toBe(2);
-    }
-  );
+  it('passes the boundary-normalized score through untouched', () => {
+    const payload = buildPreliminaryPayload({
+      title: 'Paper',
+      content: '',
+      sections: [
+        {
+          id: 's1',
+          type: 'single_choice',
+          title: 'S',
+          content: '',
+          questions: [
+            {
+              id: 'q1',
+              type: 'choice',
+              prompt: 'p',
+              score: 5,
+              explanation: '',
+              answer: 'o1',
+              options: [{ id: 'o1', text: 'A' }],
+            },
+          ],
+        },
+      ],
+    });
+    expect(payload.sections[0].questions[0].score).toBe(5);
+  });
 });
 
 describe('newId', () => {
