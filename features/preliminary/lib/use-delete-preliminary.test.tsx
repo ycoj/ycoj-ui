@@ -69,6 +69,26 @@ describe('useDeletePreliminary', () => {
     expect(mocks.refresh).toHaveBeenCalled();
   });
 
+  it('navigates to the backend url when present', async () => {
+    mocks.remove.mockResolvedValue({ url: '/preliminary?from=delete' });
+    renderHarness();
+    await userEvent.click(screen.getByRole('button', { name: 'delete' }));
+    await waitFor(() => expect(mocks.remove).toHaveBeenCalledWith('paper1'));
+    expect(mocks.push).toHaveBeenCalledWith('/preliminary?from=delete');
+    expect(mocks.refresh).toHaveBeenCalled();
+  });
+
+  it('strips the domain prefix from the backend url', async () => {
+    mocks.remove.mockResolvedValue({
+      url: '/d/system/preliminary?from=delete',
+    });
+    renderHarness();
+    await userEvent.click(screen.getByRole('button', { name: 'delete' }));
+    await waitFor(() => expect(mocks.remove).toHaveBeenCalledWith('paper1'));
+    expect(mocks.push).toHaveBeenCalledWith('/preliminary?from=delete');
+    expect(mocks.refresh).toHaveBeenCalled();
+  });
+
   it('surfaces a failure without navigating on an error payload', async () => {
     mocks.remove.mockResolvedValue({ error: { message: 'denied' } });
     renderHarness();

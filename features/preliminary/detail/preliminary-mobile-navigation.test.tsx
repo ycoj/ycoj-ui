@@ -35,8 +35,6 @@ const data: PreliminaryDetailData = {
             type: 'true_false',
             prompt: 'Question',
             score: 2,
-            explanation: '',
-            answer: 'true',
           },
         ],
       },

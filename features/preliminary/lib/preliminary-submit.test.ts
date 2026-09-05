@@ -44,6 +44,17 @@ describe('submitPreliminaryAnswers', () => {
     ).resolves.toBe('/preliminary/p1/attempt/a1');
   });
 
+  it('strips the domain prefix from the backend url, preserving the query', async () => {
+    mocks.submit.mockResolvedValue({
+      url: '/d/system/preliminary/p1/attempt/a1?from=submit',
+    });
+    const clearAnswers = vi.fn(() => Promise.resolve());
+    await expect(
+      submitPreliminaryAnswers('p1', 2, {}, clearAnswers)
+    ).resolves.toBe('/preliminary/p1/attempt/a1?from=submit');
+    expect(clearAnswers).toHaveBeenCalled();
+  });
+
   it.each([
     { name: 'an error payload', response: { error: { message: 'denied' } } },
     {
@@ -57,6 +68,31 @@ describe('submitPreliminaryAnswers', () => {
     await expect(
       submitPreliminaryAnswers('p1', 2, {}, clearAnswers)
     ).rejects.toThrow(PreliminaryRequestError);
+    expect(clearAnswers).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    {
+      name: 'a stale revision',
+      backendError: { name: 'ValidationError', message: 'stale' },
+    },
+    {
+      name: 'rate limiting',
+      backendError: { name: 'OpcountExceededError', message: 'too fast' },
+    },
+  ])('preserves the backend error on $name', async ({ backendError }) => {
+    mocks.submit.mockResolvedValue({ error: backendError });
+    const clearAnswers = vi.fn(() => Promise.resolve());
+    const failure = await submitPreliminaryAnswers(
+      'p1',
+      2,
+      {},
+      clearAnswers
+    ).catch((error: unknown) => error);
+    expect(failure).toBeInstanceOf(PreliminaryRequestError);
+    expect((failure as PreliminaryRequestError).backendError).toEqual(
+      backendError
+    );
     expect(clearAnswers).not.toHaveBeenCalled();
   });
 });

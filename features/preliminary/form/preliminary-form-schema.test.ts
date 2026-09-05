@@ -12,9 +12,11 @@ const messages: PreliminarySchemaMessages = {
   contentTooLong: 'contentTooLong',
   sectionTitleRequired: 'sectionTitleRequired',
   sectionTitleTooLong: 'sectionTitleTooLong',
+  sectionContentRequired: 'sectionContentRequired',
   promptRequired: 'promptRequired',
   promptTooLong: 'promptTooLong',
   scoreInvalid: 'scoreInvalid',
+  optionTextRequired: 'optionTextRequired',
   optionTextTooLong: 'optionTextTooLong',
   optionsRequired: 'optionsRequired',
   answerRequired: 'answerRequired',
@@ -124,6 +126,41 @@ describe('buildPreliminarySchema', () => {
       },
       path: ['sections', 0, 'questions', 0, 'answer'],
       message: 'answerInvalid',
+    },
+    {
+      name: 'empty option text',
+      mutate: (values: PreliminaryFormValues) => {
+        values.sections[0].questions[0].options[0].text = '   ';
+      },
+      path: ['sections', 0, 'questions', 0, 'options', 0, 'text'],
+      message: 'optionTextRequired',
+    },
+    {
+      name: 'empty program-reading passage',
+      mutate: (values: PreliminaryFormValues) => {
+        values.sections[0].type = 'program_reading';
+        values.sections[0].content = '   ';
+        values.sections[0].questions[0] = {
+          id: 'q1',
+          type: 'true_false',
+          prompt: 'Is it true?',
+          score: 2,
+          explanation: '',
+          answer: 'true',
+          options: [],
+        };
+      },
+      path: ['sections', 0, 'content'],
+      message: 'sectionContentRequired',
+    },
+    {
+      name: 'empty program-completion content',
+      mutate: (values: PreliminaryFormValues) => {
+        values.sections[0].type = 'program_completion';
+        values.sections[0].content = '';
+      },
+      path: ['sections', 0, 'content'],
+      message: 'sectionContentRequired',
     },
     {
       name: 'true/false outside program reading',

@@ -42,9 +42,13 @@ export type PreliminaryReviewPaper = {
 export type PreliminaryAttemptDoc = {
   docId: ObjectId;
   paperId: ObjectId;
+  parentId: ObjectId;
+  parentType: number;
+  revisionId: ObjectId;
   revision: number;
   owner: number;
   answers: PreliminaryAnswers;
+  results: PreliminaryQuestionResult[];
   score: number;
   totalScore: number;
   submittedAt: string;

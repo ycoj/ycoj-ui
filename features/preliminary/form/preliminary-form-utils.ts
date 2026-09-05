@@ -1,8 +1,9 @@
-import type {
-  PreliminaryDefinition,
-  PreliminaryDefinitionInput,
-  PreliminaryQuestionType,
-  PreliminarySectionType,
+import {
+  PRELIMINARY_TRUE_FALSE_VALUES,
+  type PreliminaryDefinition,
+  type PreliminaryDefinitionInput,
+  type PreliminaryQuestionType,
+  type PreliminarySectionType,
 } from '@/shared/types/preliminary';
 
 export type PreliminaryOptionValue = {
@@ -146,8 +147,14 @@ export function buildPreliminaryPayload(
   values: PreliminaryFormValues
 ): PreliminaryDefinitionInput {
   // Trim every free-text field to match the backend text() normalization;
-  // the score is trusted as-is because the score input coerces non-finite
-  // values at the form boundary (see normalizeScoreInput).
+  // non-finite scores fall back to the default at the input boundary (see
+  // normalizeScoreInput) and are guarded again here.
+  //
+  // Draft saving bypasses the publish schema, but the backend always rejects
+  // scores outside 1..1000 (int) and true/false answers outside true/false,
+  // even for drafts (see normalizePreliminaryDefinition). Coerce both here so
+  // a draft can never emit a payload the backend always rejects: scores are
+  // truncated into 1..1000, and an empty true/false answer defaults to true.
   return {
     title: values.title.trim(),
     content: values.content.trim(),
@@ -160,9 +167,15 @@ export function buildPreliminaryPayload(
         id: question.id,
         type: question.type,
         prompt: question.prompt.trim(),
-        score: question.score,
+        score: normalizePayloadScore(question.score),
         explanation: (question.explanation ?? '').trim(),
-        answer: question.answer,
+        answer:
+          question.type === 'true_false' &&
+          !(PRELIMINARY_TRUE_FALSE_VALUES as readonly string[]).includes(
+            question.answer
+          )
+            ? 'true'
+            : question.answer,
         options:
           question.type === 'true_false'
             ? []
@@ -173,6 +186,17 @@ export function buildPreliminaryPayload(
       })),
     })),
   };
+}
+
+// Coerces draft scores the publish schema never sees into the backend's
+// always-enforced 1..1000 integer range.
+export function normalizePayloadScore(score: unknown): number {
+  const parsed = typeof score === 'number' ? score : Number(score);
+  if (!Number.isFinite(parsed)) return PRELIMINARY_DEFAULT_SCORE;
+  const int = Math.trunc(parsed);
+  if (int < 1) return 1;
+  if (int > 1000) return 1000;
+  return int;
 }
 
 export function mapPreliminaryEditToFormValues(
@@ -192,7 +216,13 @@ export function mapPreliminaryEditToFormValues(
         prompt: question.prompt ?? '',
         score: question.score ?? PRELIMINARY_DEFAULT_SCORE,
         explanation: question.explanation ?? '',
-        answer: question.answer ?? '',
+        answer:
+          question.type === 'true_false' &&
+          !(PRELIMINARY_TRUE_FALSE_VALUES as readonly string[]).includes(
+            question.answer ?? ''
+          )
+            ? 'true'
+            : (question.answer ?? ''),
         options: (question.options ?? []).map((option) => ({
           id: option.id || newId(),
           text: option.text ?? '',

@@ -7,9 +7,11 @@ export type PreliminarySchemaMessages = {
   contentTooLong: string;
   sectionTitleRequired: string;
   sectionTitleTooLong: string;
+  sectionContentRequired: string;
   promptRequired: string;
   promptTooLong: string;
   scoreInvalid: string;
+  optionTextRequired: string;
   optionTextTooLong: string;
   optionsRequired: string;
   answerRequired: string;
@@ -37,7 +39,11 @@ export function countQuestions(sections: { questions: unknown[] }[]): number {
 export function buildPreliminarySchema(messages: PreliminarySchemaMessages) {
   const optionSchema = z.object({
     id: z.string(),
-    text: z.string().max(8192, messages.optionTextTooLong),
+    text: z
+      .string()
+      .trim()
+      .min(1, messages.optionTextRequired)
+      .max(8192, messages.optionTextTooLong),
   });
 
   const questionSchema = z
@@ -105,6 +111,13 @@ export function buildPreliminarySchema(messages: PreliminarySchemaMessages) {
       questions: z.array(questionSchema).min(1, messages.questionsRequired),
     })
     .superRefine((section, ctx) => {
+      if (section.type !== 'single_choice' && !section.content.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['content'],
+          message: messages.sectionContentRequired,
+        });
+      }
       section.questions.forEach((question, index) => {
         if (
           question.type === 'true_false' &&

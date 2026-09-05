@@ -1,4 +1,5 @@
 import ClientApis from '@/api/client/method';
+import { normalizeBackendPathname } from '@/shared/lib/backend-response';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useCallback, useState } from 'react';
@@ -25,7 +26,7 @@ export function useDeletePreliminary(paperId: string): {
         setDeleteError(t('deleteFailed'));
         return;
       }
-      router.push('/preliminary');
+      router.push(normalizeBackendPathname(response.url ?? '/preliminary'));
       router.refresh();
     } catch {
       setDeleteError(t('deleteFailed'));

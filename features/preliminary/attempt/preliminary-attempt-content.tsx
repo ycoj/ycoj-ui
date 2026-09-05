@@ -23,6 +23,17 @@ import { Check, X } from 'lucide-react';
 import { useFormatter, useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
 
+// The backend omits correctAnswer (and explanation) when result.correct
+// (see toPreliminaryReview), so the correct option cannot be derived from
+// correctAnswer alone: a correct answer would otherwise render red.
+export function isCorrectOption(
+  question: PreliminaryReviewQuestion,
+  value: string
+): boolean {
+  if (question.result.correct) return question.result.answer === value;
+  return question.correctAnswer === value;
+}
+
 function ReviewOption({
   selected,
   correct,
@@ -99,7 +110,7 @@ function ReviewQuestion({
           <ReviewOption
             key={info.value}
             selected={question.result.answer === info.value}
-            correct={question.correctAnswer === info.value}
+            correct={isCorrectOption(question, info.value)}
           >
             <PreliminaryOptionContent
               info={info}

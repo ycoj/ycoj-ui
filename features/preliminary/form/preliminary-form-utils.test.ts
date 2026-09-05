@@ -6,6 +6,7 @@ import {
   newId,
   newQuestion,
   newSection,
+  normalizePayloadScore,
   normalizeScoreInput,
 } from './preliminary-form-utils';
 import { describe, expect, it } from 'vitest';
@@ -83,6 +84,23 @@ describe('normalizeScoreInput', () => {
   });
 });
 
+describe('normalizePayloadScore', () => {
+  it.each([
+    { value: 5, expected: 5 },
+    { value: 1, expected: 1 },
+    { value: 1000, expected: 1000 },
+    { value: 2.5, expected: 2 },
+    { value: 0, expected: 1 },
+    { value: -3, expected: 1 },
+    { value: 1001, expected: 1000 },
+    { value: NaN, expected: 2 },
+    { value: Infinity, expected: 2 },
+    { value: 'abc', expected: 2 },
+  ])('normalizes $value to $expected', ({ value, expected }) => {
+    expect(normalizePayloadScore(value)).toBe(expected);
+  });
+});
+
 describe('buildPreliminaryPayload', () => {
   it('trims every free-text field like the backend text() helper', () => {
     const payload = buildPreliminaryPayload({
@@ -131,6 +149,82 @@ describe('buildPreliminaryPayload', () => {
       { id: 'o2', text: 'B' },
     ]);
     expect(payload.sections[0].questions[1].options).toEqual([]);
+  });
+
+  it('coerces draft scores and true/false answers the backend always rejects', () => {
+    const payload = buildPreliminaryPayload({
+      title: 'Paper',
+      content: '',
+      sections: [
+        {
+          id: 's1',
+          type: 'program_reading',
+          title: 'S',
+          content: '',
+          questions: [
+            {
+              id: 'q1',
+              type: 'true_false',
+              prompt: 'p',
+              score: 0,
+              explanation: '',
+              answer: '',
+              options: [],
+            },
+            {
+              id: 'q2',
+              type: 'choice',
+              prompt: 'p',
+              score: 2.5,
+              explanation: '',
+              answer: '',
+              options: [{ id: 'o1', text: 'A' }],
+            },
+            {
+              id: 'q3',
+              type: 'choice',
+              prompt: 'p',
+              score: 2000,
+              explanation: '',
+              answer: '',
+              options: [{ id: 'o1', text: 'A' }],
+            },
+          ],
+        },
+      ],
+    });
+    expect(payload.sections[0].questions[0].score).toBe(1);
+    expect(payload.sections[0].questions[0].answer).toBe('true');
+    expect(payload.sections[0].questions[1].score).toBe(2);
+    expect(payload.sections[0].questions[1].answer).toBe('');
+    expect(payload.sections[0].questions[2].score).toBe(1000);
+  });
+
+  it('keeps valid true/false answers untouched', () => {
+    const payload = buildPreliminaryPayload({
+      title: 'Paper',
+      content: '',
+      sections: [
+        {
+          id: 's1',
+          type: 'program_reading',
+          title: 'S',
+          content: 'program',
+          questions: [
+            {
+              id: 'q1',
+              type: 'true_false',
+              prompt: 'p',
+              score: 2,
+              explanation: '',
+              answer: 'false',
+              options: [],
+            },
+          ],
+        },
+      ],
+    });
+    expect(payload.sections[0].questions[0].answer).toBe('false');
   });
 
   it('passes the boundary-normalized score through untouched', () => {
@@ -228,5 +322,59 @@ describe('mapPreliminaryEditToFormValues', () => {
     expect(values.sections[0].id).not.toBe('');
     expect(values.sections[0].questions[0].explanation).toBe('because');
     expect(values.sections[0].questions[0].options[0].id).not.toBe('');
+  });
+
+  it('defaults an empty true/false answer to true', () => {
+    const values = mapPreliminaryEditToFormValues({
+      title: 'Paper',
+      content: '',
+      sections: [
+        {
+          id: 's1',
+          type: 'program_reading',
+          title: 'S',
+          content: 'program',
+          questions: [
+            {
+              id: 'q1',
+              type: 'true_false',
+              prompt: 'p',
+              score: 2,
+              explanation: '',
+              answer: '' as unknown as 'false',
+              options: [],
+            },
+          ],
+        },
+      ],
+    });
+    expect(values.sections[0].questions[0].answer).toBe('true');
+  });
+
+  it('keeps a valid true/false answer untouched', () => {
+    const values = mapPreliminaryEditToFormValues({
+      title: 'Paper',
+      content: '',
+      sections: [
+        {
+          id: 's1',
+          type: 'program_reading',
+          title: 'S',
+          content: 'program',
+          questions: [
+            {
+              id: 'q1',
+              type: 'true_false',
+              prompt: 'p',
+              score: 2,
+              explanation: '',
+              answer: 'false',
+              options: [],
+            },
+          ],
+        },
+      ],
+    });
+    expect(values.sections[0].questions[0].answer).toBe('false');
   });
 });

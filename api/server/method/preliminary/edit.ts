@@ -13,8 +13,5 @@ export type PreliminaryEditData = {
 
 export type PreliminaryEditResponse = Errorable<PreliminaryEditData>;
 
-export const getPreliminaryCreate = () =>
-  alova.Get<PreliminaryEditResponse>('/preliminary/create');
-
 export const getPreliminaryEdit = (paperId: string) =>
   alova.Get<PreliminaryEditResponse>(`/preliminary/${paperId}/edit`);

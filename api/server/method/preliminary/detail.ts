@@ -2,20 +2,32 @@ import { alova } from '@/api/server';
 import type { Errorable } from '@/shared/types/error';
 import type {
   PreliminaryAttemptSummary,
-  PreliminaryDefinition,
   PreliminaryPaperSummary,
+  PreliminaryQuestion,
+  PreliminarySection,
 } from '@/shared/types/preliminary';
-import type { BaseUser, BaseUserDict } from '@/shared/types/user';
+import type { BaseUser } from '@/shared/types/user';
+
+// The public detail never includes answer keys or explanations (see
+// toPublicPreliminaryDefinition in YCOJ lib/preliminary.ts).
+export type PublicPreliminaryQuestion = Omit<
+  PreliminaryQuestion,
+  'answer' | 'explanation'
+>;
+
+export type PublicPreliminarySection = Omit<PreliminarySection, 'questions'> & {
+  questions: PublicPreliminaryQuestion[];
+};
 
 // title/content come from the summary only; sections come from the definition.
-export type PreliminaryPublicPaper = PreliminaryPaperSummary &
-  Pick<PreliminaryDefinition, 'sections'>;
+export type PreliminaryPublicPaper = PreliminaryPaperSummary & {
+  sections: PublicPreliminarySection[];
+};
 
 export type PreliminaryDetailData = {
   paper: PreliminaryPublicPaper;
   attempts: PreliminaryAttemptSummary[];
   owner: BaseUser;
-  udict?: BaseUserDict;
   canEdit: boolean;
   canSubmit: boolean;
 };
