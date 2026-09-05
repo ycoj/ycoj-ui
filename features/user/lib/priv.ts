@@ -123,11 +123,13 @@ export const PRIV = {
   PRIV_NEVER: 1 << 20,
 } as const;
 
-export function hasPerm(user: User, perm: bigint) {
+export function hasPerm(user: User | null | undefined, perm: bigint) {
+  if (!user) return false;
   const currentPerm = BigInt(user.perm.replace('BigInt::', ''));
   return (perm & currentPerm) === perm;
 }
 
-export function hasPriv(user: User, priv: number) {
+export function hasPriv(user: User | null | undefined, priv: number) {
+  if (!user) return false;
   return (user.priv & priv) === priv;
 }

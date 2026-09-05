@@ -1458,7 +1458,8 @@
     "falseLabel": "False",
     "notPublished": "This paper is not published",
     "unanswered": "Unanswered",
-    "viewAttempt": "View result"
+    "viewAttempt": "View result",
+    "draftError": "Your browser is outdated and cannot auto-save drafts. Answers will be lost if you leave the page. Please upgrade your browser before answering."
   },
   "record": {
     "submitterPlaceholder": "Submitter UID / username",

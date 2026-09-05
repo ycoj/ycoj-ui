@@ -76,6 +76,8 @@ export default function PreliminaryForm({
     handleSubmit,
     getValues,
     setError,
+    clearErrors,
+    trigger,
     formState: { errors, isSubmitting },
   } = methods;
   // Draft saving bypasses handleSubmit (and therefore react-hook-form's
@@ -104,6 +106,7 @@ export default function PreliminaryForm({
     values: PreliminaryFormValues,
     published: boolean
   ) => {
+    clearErrors('root.serverError');
     try {
       const path = await onSave(values, published);
       router.push(path);
@@ -123,15 +126,14 @@ export default function PreliminaryForm({
 
   const handleDraftSave = async () => {
     if (busy) return;
-    const values = getValues();
-    if (!values.title.trim()) {
-      setError('title', { type: 'manual', message: t('titleRequired') });
+    const valid = await trigger('title');
+    if (!valid) {
       document.getElementById('title')?.focus();
       return;
     }
     setSavingDraft(true);
     try {
-      await handleSave(values, false);
+      await handleSave(getValues(), false);
     } finally {
       setSavingDraft(false);
     }

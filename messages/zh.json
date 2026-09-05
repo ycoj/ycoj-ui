@@ -1458,7 +1458,8 @@
     "falseLabel": "错误",
     "notPublished": "该试卷尚未发布",
     "unanswered": "未作答",
-    "viewAttempt": "查看结果"
+    "viewAttempt": "查看结果",
+    "draftError": "当前浏览器过旧，作答草稿无法自动保存，离开页面后将会丢失，建议升级浏览器后作答。"
   },
   "record": {
     "submitterPlaceholder": "提交者 UID / 用户名",

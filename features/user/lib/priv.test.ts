@@ -35,6 +35,11 @@ describe('hasPriv', () => {
     const user = makeUser({ priv: PRIV.PRIV_JUDGE });
     expect(hasPriv(user, PRIV.PRIV_JUDGE | PRIV.PRIV_REJUDGE)).toBe(false);
   });
+
+  it('returns false for missing users without throwing', () => {
+    expect(hasPriv(undefined, PRIV.PRIV_USER_PROFILE)).toBe(false);
+    expect(hasPriv(null, PRIV.PRIV_USER_PROFILE)).toBe(false);
+  });
 });
 
 describe('hasPerm', () => {
@@ -55,5 +60,10 @@ describe('hasPerm', () => {
     expect(
       hasPerm(user, PERM.PERM_VIEW_PROBLEM | PERM.PERM_SUBMIT_PROBLEM)
     ).toBe(false);
+  });
+
+  it('returns false for missing users without throwing', () => {
+    expect(hasPerm(undefined, PERM.PERM_CREATE_PROBLEM)).toBe(false);
+    expect(hasPerm(null, PERM.PERM_CREATE_PROBLEM)).toBe(false);
   });
 });
