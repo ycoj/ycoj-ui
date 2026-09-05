@@ -1433,6 +1433,7 @@
     "submittedAt": "提交时间",
     "paper": "试卷",
     "information": "试卷信息",
+    "closeNavigation": "关闭题目导航",
     "directory": "题目导航",
     "creator": "创建者",
     "submit": "提交",

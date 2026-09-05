@@ -18,6 +18,7 @@ type Props = {
   data: PreliminaryDetailData;
   owner?: BaseUser;
   canEdit: boolean;
+  showQuestionNav?: boolean;
 };
 
 type SidebarButtonProps = {
@@ -30,7 +31,7 @@ function SidebarButton({ href, icon: Icon, text }: SidebarButtonProps) {
   return (
     <Button
       asChild
-      className="h-10 w-full justify-start gap-3 px-4"
+      className="h-11 w-full md:h-10 justify-start gap-3 px-4"
       variant="ghost"
     >
       <Link href={href}>
@@ -65,6 +66,7 @@ export default function PreliminarySidebar({
   data,
   owner,
   canEdit,
+  showQuestionNav = true,
 }: Props) {
   const t = useTranslations('preliminary');
   const common = useTranslations('common');
@@ -96,7 +98,7 @@ export default function PreliminarySidebar({
               variant="ghost"
               disabled={deleting}
               onClick={() => void handleDelete()}
-              className="h-10 w-full justify-start gap-3 px-4 text-destructive hover:text-destructive"
+              className="h-11 w-full md:h-10 justify-start gap-3 px-4 text-destructive hover:text-destructive"
             >
               <Trash strokeWidth={2} />
               <span data-llm-text={deleting ? t('deleting') : t('delete')}>
@@ -155,7 +157,7 @@ export default function PreliminarySidebar({
                   key={attempt.docId}
                   asChild
                   variant="ghost"
-                  className="h-auto w-full justify-start px-2 py-1.5"
+                  className="h-auto min-h-11 w-full justify-start md:min-h-0 px-2 py-1.5"
                 >
                   <Link
                     href={`/preliminary/${paperId}/attempt/${attempt.docId}`}
@@ -173,14 +175,18 @@ export default function PreliminarySidebar({
         </>
       )}
 
-      <Separator />
+      {showQuestionNav && (
+        <>
+          <Separator />
 
-      <div className="space-y-3">
-        <h2 className="text-sm font-medium" data-llm-text={t('directory')}>
-          {t('directory')}
-        </h2>
-        <PreliminaryQuestionNav questions={navQuestions} />
-      </div>
+          <div className="space-y-3">
+            <h2 className="text-sm font-medium" data-llm-text={t('directory')}>
+              {t('directory')}
+            </h2>
+            <PreliminaryQuestionNav questions={navQuestions} />
+          </div>
+        </>
+      )}
     </div>
   );
 }

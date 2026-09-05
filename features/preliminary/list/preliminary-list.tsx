@@ -21,7 +21,7 @@ function PreliminaryItem({ paper }: { paper: PreliminaryPaperSummary }) {
           href={paperHref}
           prefetch={false}
           data-llm-text={paper.title}
-          className="truncate text-sm font-medium text-foreground hover:text-primary hover:underline md:text-lg"
+          className="min-w-0 py-1 text-base font-medium break-words md:truncate md:py-0 text-foreground hover:text-primary hover:underline md:text-lg"
         >
           {paper.title}
         </Link>
@@ -34,7 +34,7 @@ function PreliminaryItem({ paper }: { paper: PreliminaryPaperSummary }) {
 
       {description && (
         <p
-          className="line-clamp-1 text-xs text-muted-foreground md:text-sm"
+          className="line-clamp-2 text-xs md:line-clamp-1 text-muted-foreground md:text-sm"
           data-llm-text={description}
         >
           {description}

@@ -7,9 +7,13 @@ import { cn } from '@/shared/lib/utils';
 
 type Props = {
   questions: Array<{ id: string; number: number }>;
+  onNavigate?: (questionId: string) => void;
 };
 
-export default function PreliminaryQuestionNav({ questions }: Props) {
+export default function PreliminaryQuestionNav({
+  questions,
+  onNavigate,
+}: Props) {
   const { isAnswered, isReady } = usePreliminaryAnswers();
 
   if (!isReady || questions.length === 0) return null;
@@ -25,13 +29,18 @@ export default function PreliminaryQuestionNav({ questions }: Props) {
             variant={answered ? 'default' : 'outline'}
             size="sm"
             className={cn(
-              'h-8 px-2 text-xs tabular-nums',
+              'h-11 px-2 text-sm tabular-nums md:h-8 md:text-xs',
               answered && 'bg-green-600 hover:bg-green-700'
             )}
           >
             <a
               href={`#${getPreliminaryQuestionAnchorId(question.id)}`}
               aria-label={String(question.number)}
+              onClick={(event) => {
+                if (!onNavigate) return;
+                event.preventDefault();
+                onNavigate(question.id);
+              }}
             >
               {question.number}
             </a>

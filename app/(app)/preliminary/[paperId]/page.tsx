@@ -1,6 +1,7 @@
 import { getPreliminaryDetail } from '@/features/preliminary/detail/get-preliminary-detail';
 import PreliminaryAnswerProvider from '@/features/preliminary/detail/preliminary-answer-provider';
 import PreliminaryContent from '@/features/preliminary/detail/preliminary-content';
+import PreliminaryMobileNavigation from '@/features/preliminary/detail/preliminary-mobile-navigation';
 import PreliminarySidebar from '@/features/preliminary/detail/preliminary-sidebar';
 import PreliminarySubmitBar from '@/features/preliminary/detail/preliminary-submit-bar';
 import { getUser } from '@/features/user/lib/get-user';
@@ -66,27 +67,32 @@ export default async function PreliminaryDetailPage({
       allowedAnswers={allowedAnswers}
       isReadOnly={!data.canSubmit}
     >
-      <div className="space-y-6">
+      <div className="space-y-6 [&_.markdown]:min-w-0 [&_.markdown]:max-w-full [&_.markdown]:overflow-x-auto">
         <TwoColumnLayout
           ratio="8-2"
           left={
-            <div className="space-y-4">
+            <div className="min-w-0 space-y-4">
               <PreliminaryContent data={data} isReadOnly={!data.canSubmit} />
               <PreliminarySubmitBar
                 paperId={paperId}
                 revision={data.paper.revision}
                 draftId={draftId}
+                navigation={
+                  <PreliminaryMobileNavigation paperId={paperId} data={data} />
+                }
                 canSubmit={data.canSubmit}
               />
             </div>
           }
           right={
-            <PreliminarySidebar
-              paperId={paperId}
-              data={data}
-              owner={data.owner}
-              canEdit={data.canEdit}
-            />
+            <div className="hidden md:block">
+              <PreliminarySidebar
+                paperId={paperId}
+                data={data}
+                owner={data.owner}
+                canEdit={data.canEdit}
+              />
+            </div>
           }
         />
       </div>

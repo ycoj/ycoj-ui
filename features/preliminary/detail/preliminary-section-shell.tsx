@@ -19,15 +19,15 @@ export default function PreliminarySectionShell({
   children,
 }: Props) {
   return (
-    <Card>
-      <CardHeader>
+    <Card className="min-w-0">
+      <CardHeader className="px-4 md:px-6">
         <CardTitle className="text-base md:text-lg" data-llm-text={title}>
           {title}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="min-w-0 space-y-4 px-4 md:px-6">
         {content?.trim() && <Markdown>{content}</Markdown>}
-        <ol className="space-y-4">{children}</ol>
+        <ol className="space-y-6 md:space-y-4">{children}</ol>
       </CardContent>
     </Card>
   );

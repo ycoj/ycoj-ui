@@ -35,7 +35,7 @@ export default function PreliminaryContent({ data, isReadOnly }: Props) {
   return (
     <div className="space-y-4" data-llm-visible="true">
       <Card>
-        <CardHeader>
+        <CardHeader className="px-4 md:px-6">
           <div className="flex items-start justify-between gap-3">
             <CardTitle
               className="text-lg md:text-xl"
@@ -51,7 +51,7 @@ export default function PreliminaryContent({ data, isReadOnly }: Props) {
           </div>
         </CardHeader>
         {description && (
-          <CardContent>
+          <CardContent className="px-4 md:px-6">
             <Markdown>{description}</Markdown>
           </CardContent>
         )}
@@ -73,7 +73,8 @@ export default function PreliminaryContent({ data, isReadOnly }: Props) {
                 key={question.id}
                 id={getPreliminaryQuestionAnchorId(question.id)}
                 data-question-id={question.id}
-                className="space-y-2 scroll-mt-20"
+                tabIndex={-1}
+                className="min-w-0 space-y-3 scroll-mt-20 rounded-md focus-visible:outline-2 focus-visible:outline-primary md:space-y-2"
               >
                 <div className="flex items-baseline gap-2">
                   <span

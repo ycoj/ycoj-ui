@@ -61,31 +61,43 @@ export default function PreliminaryFilter({
     <div className="space-y-3">
       {showAttemptsTab && (
         <Tabs value={view} onValueChange={handleViewChange}>
-          <TabsList>
-            <TabsTrigger value="papers">{t('papers')}</TabsTrigger>
-            <TabsTrigger value="attempts">{t('myAttempts')}</TabsTrigger>
+          <TabsList className="h-12 w-full md:h-9 md:w-fit">
+            <TabsTrigger className="min-h-11 flex-1 md:min-h-0" value="papers">
+              {t('papers')}
+            </TabsTrigger>
+            <TabsTrigger
+              className="min-h-11 flex-1 md:min-h-0"
+              value="attempts"
+            >
+              {t('myAttempts')}
+            </TabsTrigger>
           </TabsList>
         </Tabs>
       )}
       {view === 'papers' && (
         <form onSubmit={onSubmit}>
           <div className="flex flex-wrap items-center gap-3">
-            <div className="relative min-w-[240px] flex-1">
+            <div className="relative w-full min-w-0 md:w-auto md:min-w-[240px] md:flex-1">
               <Input
                 name="q"
                 defaultValue={searchParams.get('q') || ''}
                 placeholder={t('searchPlaceholder')}
-                className="pr-3 pl-9 text-sm"
+                aria-label={t('searchPlaceholder')}
+                className="h-11 pr-3 pl-9 text-base md:h-8 md:text-sm"
               />
               <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
             </div>
 
-            <Button type="submit" variant="secondary" className="ml-auto gap-2">
+            <Button
+              type="submit"
+              variant="secondary"
+              className="h-11 flex-1 gap-2 md:ml-auto md:h-8 md:flex-none"
+            >
               <Search strokeWidth={2} />
               {common('filter')}
             </Button>
             {canCreate && (
-              <Button asChild>
+              <Button asChild className="h-11 flex-1 md:h-8 md:flex-none">
                 <Link href="/preliminary/create">
                   <Plus />
                   {t('newPaper')}
