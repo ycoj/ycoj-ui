@@ -117,7 +117,8 @@ describe('ObjectiveProvider clearAnswers', () => {
       expect(screen.getByTestId('answers')).toHaveTextContent('{}')
     );
     expect(mockedClearDraft).toHaveBeenCalledWith('d1');
-    await waitFor(() => expect(mockedSaveDraft).toHaveBeenCalledWith('d1', {}));
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(mockedSaveDraft).not.toHaveBeenCalledWith('d1', {});
   });
 
   it('prevents read-only users from mutating state or storage', async () => {
@@ -131,5 +132,33 @@ describe('ObjectiveProvider clearAnswers', () => {
     expect(screen.getByTestId('answers')).toHaveTextContent('{"1":"a"}');
     expect(mockedClearDraft).not.toHaveBeenCalled();
     expect(mockedSaveDraft).not.toHaveBeenCalled();
+  });
+
+  it('does not delete a draft loaded before questions register', async () => {
+    mockedGetDraft.mockResolvedValue({ '1': 'ok' });
+    const { rerender } = render(
+      <ObjectiveProvider draftId="d1" isReadOnly={false}>
+        <AnswersView />
+      </ObjectiveProvider>
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId('answers')).toHaveTextContent('{}')
+    );
+    await new Promise((resolve) => setTimeout(resolve, 30));
+    expect(mockedClearDraft).not.toHaveBeenCalled();
+    expect(mockedSaveDraft).not.toHaveBeenCalled();
+
+    rerender(
+      <ObjectiveProvider draftId="d1" isReadOnly={false}>
+        <Registrar questions={QUESTIONS} />
+        <AnswersView />
+        <Controls />
+      </ObjectiveProvider>
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId('answers')).toHaveTextContent('{"1":"ok"}')
+    );
+    await new Promise((resolve) => setTimeout(resolve, 30));
+    expect(mockedClearDraft).not.toHaveBeenCalled();
   });
 });

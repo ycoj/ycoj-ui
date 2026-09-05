@@ -8,6 +8,7 @@ import Discussion from '@/api/server/method/discussion';
 import Homework from '@/api/server/method/homework';
 import Messages from '@/api/server/method/messages';
 import Paste from '@/api/server/method/paste';
+import Preliminary from '@/api/server/method/preliminary';
 import Problems from '@/api/server/method/problems';
 import Ranking from '@/api/server/method/ranking';
 import Realname from '@/api/server/method/realname';
@@ -28,6 +29,7 @@ const ServerApis = {
   Homework,
   Messages,
   Paste,
+  Preliminary,
   Training,
   Ranking,
   Realname,
