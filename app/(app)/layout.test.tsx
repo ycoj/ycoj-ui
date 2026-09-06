@@ -67,7 +67,7 @@ describe('AppLayout access', () => {
           _id: 2,
           priv: 0,
           realnameStatus,
-          realnameSubmittedAt: new Date(Date.now() - 86_400_000).toISOString(),
+          realnameSubmittedAt: new Date(Date.now() - 60_000).toISOString(),
         },
       });
 
