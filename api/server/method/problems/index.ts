@@ -4,6 +4,7 @@ import { getProblemDetail } from './detail';
 import { getProblemFiles } from './files';
 import { getProblemsList } from './list';
 import { getProblemSolution } from './solution';
+import { getSolutionReview } from './solution-review';
 import { submitProblem } from './submit';
 import { getProblemTags } from './tags';
 import { getAiGenerationOptions } from '@/api/server/method/problems/ai-generation';
@@ -16,6 +17,7 @@ const Problems = {
   getProblemFiles,
   submitProblem,
   getProblemSolution,
+  getSolutionReview,
   getProblemTags,
   getProblemsByIds,
 };

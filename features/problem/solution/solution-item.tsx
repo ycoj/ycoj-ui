@@ -1,4 +1,5 @@
 import SolutionDeleteButton from './solution-delete-button';
+import SolutionStatus from './solution-status';
 import SolutionVote from './solution-vote';
 import UserSpan from '@/features/user/user-span';
 import Markdown from '@/shared/components/markdown';
@@ -50,8 +51,8 @@ export default function SolutionItem({
 
   return (
     <div className="space-y-3" data-llm-visible="true">
-      <div className="text-muted-foreground flex items-center justify-between gap-x-3 overflow-hidden whitespace-nowrap text-xs">
-        <div className="flex items-center gap-x-3">
+      <div className="text-muted-foreground flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="flex min-w-0 flex-wrap items-center gap-3">
           <SolutionVote
             pid={pid}
             sid={solution.docId}
@@ -59,6 +60,7 @@ export default function SolutionItem({
             initialUserVote={userVote}
           />
           {user && <UserSpan user={user} showAvatar />}
+          <SolutionStatus status={solution.reviewStatus} />
         </div>
         <div className="flex items-center gap-x-1">
           <span className="flex items-center text-sm">{createdAt}</span>

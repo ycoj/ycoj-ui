@@ -1,6 +1,7 @@
 import ProblemTitle from '@/features/problem/detail/problem-title';
 import { getProblemSolution } from '@/features/problem/solution/get-problem-solution';
 import SolutionCreateForm from '@/features/problem/solution/solution-create-form';
+import { Errored } from '@/shared/components/errored';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
@@ -17,6 +18,7 @@ export async function generateMetadata({
   const { pid } = await params;
   const data = await getProblemSolution(pid);
   const t = await getTranslations('metadata');
+  if ('error' in data) return { title: t('editSolution') };
   return {
     title: `${data.pdoc.title} - ${t('editSolution')}`,
   };
@@ -29,6 +31,10 @@ export default async function ProblemSolutionEditPage({
 }) {
   const { pid, psid } = await params;
   const data = await getProblemSolution(pid, psid);
+  if ('error' in data) {
+    const t = await getTranslations('metadata');
+    return <Errored title={t('editSolution')} error={data.error} />;
+  }
   const solution =
     data.psdocs.find((item) => item.docId === psid) ?? data.psdocs[0];
 
