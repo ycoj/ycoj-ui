@@ -48,18 +48,63 @@ export default function HtmlToMarkdownSection({
     const contentWhenStarted = getContent();
     setIsConverting(true);
     try {
-      const response = await ClientApis.Problem.htmlToMarkdown(pid).send();
-      if ('error' in response) {
-        toast.error(parseErrorMessage(response.error));
+      // Submit the conversion job
+      const submitResponse =
+        await ClientApis.Problem.submitHtmlToMarkdown(pid).send();
+      if ('error' in submitResponse) {
+        toast.error(parseErrorMessage(submitResponse.error));
         return;
       }
-      if (getContent() !== contentWhenStarted) {
-        toast.error(t('contentChangedDuringConversion'));
-        return;
+
+      const { jobId } = submitResponse;
+
+      // Poll for completion
+      let pollAttempts = 0;
+      const maxPollAttempts = 900; // 15 minutes at 1 second intervals
+      const pollInterval = 1000; // 1 second
+
+      while (pollAttempts < maxPollAttempts) {
+        await new Promise((resolve) => setTimeout(resolve, pollInterval));
+        pollAttempts++;
+
+        const pollResponse = await ClientApis.Problem.pollHtmlToMarkdown(
+          pid,
+          jobId
+        ).send();
+
+        if ('error' in pollResponse && typeof pollResponse.error === 'object') {
+          // This is an Errorable error response (HydroError)
+          toast.error(parseErrorMessage(pollResponse.error));
+          return;
+        }
+
+        // Type assertion to work around TypeScript's discriminated union limitations
+        const response = pollResponse as Exclude<
+          typeof pollResponse,
+          { error: { name: string } }
+        >;
+
+        if (response.status === 'completed') {
+          if (getContent() !== contentWhenStarted) {
+            toast.error(t('contentChangedDuringConversion'));
+            return;
+          }
+          onApply(response.markdown);
+          setMode('closed');
+          toast.success(t('success'));
+          return;
+        }
+
+        if (response.status === 'failed') {
+          toast.error((response as { error: string }).error || t('failed'));
+          return;
+        }
+
+        // Continue polling for 'pending' or 'running' status
       }
-      onApply(response.markdown);
-      setMode('closed');
-      toast.success(t('success'));
+
+      // Timeout reached
+      toast.error(t('timeout'));
     } catch (err) {
       toast.error(
         err instanceof Error && err.message ? err.message : t('failed')
