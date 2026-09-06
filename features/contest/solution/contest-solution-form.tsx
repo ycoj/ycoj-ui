@@ -1,7 +1,9 @@
 'use client';
 
-import ContestSolutionDeleteButton from './contest-solution-delete-button';
-import ClientApis from '@/api/client/method';
+import {
+  buildContestSolutionSchema,
+  type ContestSolutionFormValues,
+} from './contest-solution-form-utils';
 import MarkdownEditor from '@/shared/components/markdown-editor';
 import { Button } from '@/shared/components/ui/button';
 import { Field, FieldError, FieldLabel } from '@/shared/components/ui/field';
@@ -10,82 +12,75 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Controller, useForm } from 'react-hook-form';
-import { z } from 'zod';
+import type { ReactNode } from 'react';
+import { useForm } from 'react-hook-form';
 
 type Props = {
-  tid: string;
-  sid?: string;
-  initialValues?: { title: string; content: string };
+  mode: 'create' | 'edit';
+  defaultValues: ContestSolutionFormValues;
+  cancelHref: string;
+  onSubmit: (values: ContestSolutionFormValues) => Promise<string>;
+  extraActions?: ReactNode;
 };
 
 export default function ContestSolutionForm({
-  tid,
-  sid,
-  initialValues,
+  mode,
+  defaultValues,
+  cancelHref,
+  onSubmit,
+  extraActions,
 }: Props) {
   const t = useTranslations('contestSolution');
   const router = useRouter();
-  const schema = z.object({
-    title: z
-      .string()
-      .trim()
-      .min(1, t('titleRequired'))
-      .max(64, t('titleTooLong')),
-    content: z
-      .string()
-      .refine((value) => value.trim().length > 0, t('contentRequired'))
-      .refine((value) => value.trim().length < 65536, t('contentTooLong')),
-  });
-  type Values = z.infer<typeof schema>;
   const {
     register,
-    control,
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
-  } = useForm<Values>({
-    resolver: zodResolver(schema),
-    defaultValues: initialValues ?? { title: '', content: '' },
+  } = useForm<ContestSolutionFormValues>({
+    resolver: zodResolver(
+      buildContestSolutionSchema({
+        titleRequired: t('titleRequired'),
+        titleTooLong: t('titleTooLong'),
+        contentRequired: t('contentRequired'),
+        contentTooLong: t('contentTooLong'),
+      })
+    ),
+    defaultValues,
   });
-  const onSubmit = async (values: Values) => {
+
+  const handleFormSubmit = async (values: ContestSolutionFormValues) => {
     try {
-      const result = await ClientApis.Contest.saveContestSolution(
-        tid,
-        values,
-        sid
-      );
-      if ('error' in result) {
-        setError('root', { message: result.error.message });
-        return;
-      }
-      if (!result.sid) {
-        setError('root', { message: t('saveFailed') });
-        return;
-      }
-      router.push(`/contest/${tid}/solution/${result.sid}`);
-      router.refresh();
+      const path = await onSubmit(values);
+      // Push only: the destination page revalidates on navigation, so an
+      // extra refresh would refetch without visible benefit.
+      router.push(path);
     } catch (error) {
-      setError('root', {
-        message: error instanceof Error ? error.message : t('saveFailed'),
+      setError('root.serverError', {
+        type: 'server',
+        message:
+          error instanceof Error && error.message
+            ? error.message
+            : t('saveFailed'),
       });
     }
   };
+
   return (
     <form
       className="space-y-6"
       noValidate
-      onSubmit={handleSubmit(onSubmit)}
+      onSubmit={handleSubmit(handleFormSubmit)}
       onKeyDown={(event) => {
-        if (event.ctrlKey && event.key === 'Enter') {
+        if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
           event.preventDefault();
-          if (!isSubmitting) void handleSubmit(onSubmit)();
+          if (!isSubmitting) void handleSubmit(handleFormSubmit)();
         }
       }}
       data-llm-visible="true"
     >
       <h1 className="text-2xl font-semibold">
-        {sid ? t('edit') : t('create')}
+        {mode === 'create' ? t('create') : t('edit')}
       </h1>
       <Field>
         <FieldLabel htmlFor="solution-title">{t('title')}</FieldLabel>
@@ -99,37 +94,30 @@ export default function ContestSolutionForm({
       </Field>
       <Field>
         <FieldLabel htmlFor="solution-content">{t('content')}</FieldLabel>
-        <Controller
-          name="content"
-          control={control}
-          render={({ field }) => (
-            <MarkdownEditor
-              id="solution-content"
-              {...field}
-              onChange={async (event) => field.onChange(event.target.value)}
-              onBlur={async () => field.onBlur()}
-              disabled={isSubmitting}
-              aria-invalid={!!errors.content}
-            />
-          )}
+        {/* register matches the solution family: MarkdownEditor forwards
+            register's onChange/onBlur through its hidden textarea bridge. */}
+        <MarkdownEditor
+          id="solution-content"
+          defaultValue={defaultValues.content}
+          disabled={isSubmitting}
+          aria-invalid={!!errors.content}
+          {...register('content')}
         />
         <FieldError errors={[errors.content]} />
       </Field>
-      <FieldError errors={[errors.root]} />
+      <FieldError errors={[errors.root?.serverError]} />
       <div className="flex items-center gap-3">
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? t('saving') : sid ? t('save') : t('create')}
+          {isSubmitting
+            ? t('saving')
+            : mode === 'create'
+              ? t('create')
+              : t('save')}
         </Button>
         <Button asChild variant="secondary">
-          <Link
-            href={sid ? `/contest/${tid}/solution/${sid}` : `/contest/${tid}`}
-          >
-            {t('cancel')}
-          </Link>
+          <Link href={cancelHref}>{t('cancel')}</Link>
         </Button>
-        {sid && !isSubmitting && (
-          <ContestSolutionDeleteButton tid={tid} sid={sid} />
-        )}
+        {extraActions}
       </div>
     </form>
   );

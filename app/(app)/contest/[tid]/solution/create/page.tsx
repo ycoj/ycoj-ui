@@ -1,5 +1,8 @@
-import ContestSolutionForm from '@/features/contest/solution/contest-solution-form';
-import { getContestSolutionEdit } from '@/features/contest/solution/get-contest-solution';
+import ContestSolutionCreateForm from '@/features/contest/solution/contest-solution-create-form';
+import {
+  getContestSolutionCreate,
+  requireContestSolutionManage,
+} from '@/features/contest/solution/get-contest-solution';
 import { Errored } from '@/shared/components/errored';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
@@ -13,11 +16,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function ContestSolutionCreatePage({ params }: Props) {
   const { tid } = await params;
-  const data = await getContestSolutionEdit(tid);
+  const data = await getContestSolutionCreate(tid);
   const t = await getTranslations('error');
-  if ('error' in data)
-    return <Errored title={t('unavailable')} error={data.error} />;
-  if (!data.canManage)
-    return <Errored title={t('unavailable')} error={t('unavailable')} />;
-  return <ContestSolutionForm tid={tid} />;
+  const result = requireContestSolutionManage(data, t('unavailable'));
+  if ('error' in result)
+    return <Errored title={t('unavailable')} error={result.error} />;
+  return <ContestSolutionCreateForm tid={tid} />;
 }

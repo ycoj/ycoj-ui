@@ -1,5 +1,5 @@
 import ContestSolutionDeleteButton from './contest-solution-delete-button';
-import type { ContestSolutionResponse } from '@/api/server/method/contests/solution';
+import type { ContestSolutionData } from '@/api/server/method/contests/solution';
 import ContestSidebar from '@/features/contest/detail/contest-sidebar';
 import { canShowContestScoreboard } from '@/features/contest/detail/contest-utils';
 import { canEditContest } from '@/features/contest/lib/can-edit-contest';
@@ -11,7 +11,7 @@ import { ArrowLeft } from 'lucide-react';
 import { getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 
-type Props = { tid: string; data: ContestSolutionResponse };
+type Props = { tid: string; data: ContestSolutionData };
 
 export default async function ContestSolutionDetail({ tid, data }: Props) {
   const [t, user] = await Promise.all([

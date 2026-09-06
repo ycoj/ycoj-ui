@@ -12,6 +12,7 @@ import { getContestProblems } from '@/api/server/method/contests/problems';
 import { getContestScoreboard } from '@/api/server/method/contests/scoreboard';
 import {
   getContestSolution,
+  getContestSolutionCreate,
   getContestSolutionEdit,
 } from '@/api/server/method/contests/solution';
 
@@ -27,6 +28,7 @@ const Contests = {
   getContestBalloons,
   getContestBulkSubmit,
   getContestSolution,
+  getContestSolutionCreate,
   getContestSolutionEdit,
 };
 

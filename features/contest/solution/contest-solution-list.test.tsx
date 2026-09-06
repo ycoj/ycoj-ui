@@ -1,7 +1,7 @@
 import ContestSolutionList from './contest-solution-list';
-import type { ContestDetailResponse } from '@/api/server/method/contests/detail';
 import messages from '@/messages/en.json';
 import { render, screen } from '@testing-library/react';
+import type { ComponentProps } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('next-intl/server', () => ({
@@ -9,57 +9,35 @@ vi.mock('next-intl/server', () => ({
     messages.contestSolution[key],
   getFormatter: async () => ({ dateTime: () => 'September 5, 2026' }),
 }));
-const data: ContestDetailResponse = {
-  tdoc: {
-    _id: 'contest',
-    docId: 'contest',
-    docType: 30,
-    domainId: 'system',
-    owner: 1,
-    title: 'Contest',
-    content: '',
-    rule: 'acm',
-    beginAt: new Date(),
-    endAt: new Date(),
-    attend: 0,
-    pids: [],
-    duration: 0,
-  },
-  tsdoc: null,
-  udict: {},
-  files: [],
+
+const baseProps: ComponentProps<typeof ContestSolutionList> = {
+  tid: 'contest',
+  rule: 'acm',
   showContestSolutions: true,
+  items: [{ docId: '65a1bc000000000000000000', title: 'Editorial', owner: 1 }],
+  udict: {},
   canManage: false,
-  csdocs: [{ docId: '65a1bc000000000000000000', title: 'Editorial', owner: 1 }],
 };
 
 describe('contest solution visibility', () => {
-  it.each([[], undefined])(
-    'hides empty solutions from readers (%s)',
-    async (csdocs) => {
-      expect(
-        await ContestSolutionList({ tid: 'contest', data: { ...data, csdocs } })
-      ).toBeNull();
-    }
-  );
+  it('hides empty solutions from readers', async () => {
+    expect(await ContestSolutionList({ ...baseProps, items: [] })).toBeNull();
+  });
   it('hides the section when the backend does not grant visibility', async () => {
     expect(
       await ContestSolutionList({
-        tid: 'contest',
-        data: { ...data, showContestSolutions: undefined },
+        ...baseProps,
+        showContestSolutions: undefined,
       })
     ).toBeNull();
   });
   it('excludes homework', async () => {
     expect(
-      await ContestSolutionList({
-        tid: 'contest',
-        data: { ...data, tdoc: { ...data.tdoc, rule: 'homework' } },
-      })
+      await ContestSolutionList({ ...baseProps, rule: 'homework' })
     ).toBeNull();
   });
   it('shows published solutions without management controls for readers', async () => {
-    render(await ContestSolutionList({ tid: 'contest', data }));
+    render(await ContestSolutionList(baseProps));
     expect(screen.getByRole('link', { name: 'Editorial' })).toHaveAttribute(
       'href',
       '/contest/contest/solution/65a1bc000000000000000000'
@@ -70,14 +48,21 @@ describe('contest solution visibility', () => {
   });
   it('lets managers create the first solution', async () => {
     render(
-      await ContestSolutionList({
-        tid: 'contest',
-        data: { ...data, canManage: true, csdocs: [] },
-      })
+      await ContestSolutionList({ ...baseProps, canManage: true, items: [] })
     );
     expect(screen.getByText('No solutions yet')).toBeInTheDocument();
     expect(
       screen.getByRole('link', { name: 'Create solution' })
     ).toHaveAttribute('href', '/contest/contest/solution/create');
+  });
+  it('renders a fallback for malformed solution ids', async () => {
+    render(
+      await ContestSolutionList({
+        ...baseProps,
+        items: [{ docId: 'not-an-object-id', title: 'Broken', owner: 1 }],
+      })
+    );
+    expect(screen.getByRole('link', { name: 'Broken' })).toBeInTheDocument();
+    expect(screen.getByText('-')).toBeInTheDocument();
   });
 });

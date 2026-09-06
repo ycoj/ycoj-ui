@@ -7,6 +7,7 @@ import { getContestDetail } from '@/features/contest/detail/get-contest-detail';
 import { canEditContest } from '@/features/contest/lib/can-edit-contest';
 import ContestSolutionList from '@/features/contest/solution/contest-solution-list';
 import { getUser } from '@/features/user/lib/get-user';
+import { Errored } from '@/shared/components/errored';
 import TwoColumnLayout from '@/shared/layout/two-column';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
@@ -24,6 +25,12 @@ export async function generateMetadata({
   const data = await getContestDetail(tid);
   const t = await getTranslations('metadata');
 
+  if ('error' in data) {
+    return {
+      title: t('contestDetail'),
+    };
+  }
+
   return {
     title: data.tdoc.title || t('contestDetail'),
   };
@@ -36,6 +43,12 @@ export default async function ContestDetailPage({
 }) {
   const { tid } = await params;
   const [data, user] = await Promise.all([getContestDetail(tid), getUser()]);
+  const t = await getTranslations('error');
+
+  if ('error' in data) {
+    return <Errored title={t('unavailable')} error={data.error} />;
+  }
+
   const owner = data.udict[data.tdoc.owner];
   const showScoreboard = canShowContestScoreboard(data.tdoc, user);
 
@@ -52,7 +65,14 @@ export default async function ContestDetailPage({
               introduction={data.tdoc.content ?? ''}
               files={data.tdoc.files ?? []}
             />
-            <ContestSolutionList tid={tid} data={data} />
+            <ContestSolutionList
+              tid={tid}
+              rule={data.tdoc.rule}
+              showContestSolutions={data.showContestSolutions}
+              items={data.csdocs}
+              udict={data.udict}
+              canManage={data.canManage}
+            />
           </div>
         }
         right={

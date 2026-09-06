@@ -1,4 +1,9 @@
-import type { ContestDetailResponse } from '@/api/server/method/contests/detail';
+import type { ContestSolutionListItem } from '@/api/server/method/contests/solution';
+import {
+  canShowContestSolutions,
+  getContestSolutionDate,
+  getVisibleContestSolutions,
+} from '@/features/contest/solution/contest-solution-utils';
 import UserSpan from '@/features/user/user-span';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -8,18 +13,36 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/shared/components/ui/empty';
-import oid2ts from '@/shared/lib/oid2ts';
+import type { ContestRule } from '@/shared/types/contest';
+import type { BaseUserDict } from '@/shared/types/user';
 import { Lightbulb } from 'lucide-react';
 import { getFormatter, getTranslations } from 'next-intl/server';
 import Link from 'next/link';
 
-type Props = { tid: string; data: ContestDetailResponse };
+type Props = {
+  tid: string;
+  rule: ContestRule;
+  showContestSolutions?: boolean;
+  items?: ContestSolutionListItem[];
+  udict: BaseUserDict;
+  canManage?: boolean;
+};
 
-export default async function ContestSolutionList({ tid, data }: Props) {
-  if (data.tdoc.rule === 'homework' || !data.showContestSolutions) return null;
-  if (!data.csdocs?.length && !data.canManage) return null;
-  const t = await getTranslations('contestSolution');
-  const format = await getFormatter();
+export default async function ContestSolutionList({
+  tid,
+  rule,
+  showContestSolutions,
+  items,
+  udict,
+  canManage,
+}: Props) {
+  if (!canShowContestSolutions(rule, showContestSolutions)) return null;
+  const visible = getVisibleContestSolutions(items, canManage);
+  if (!visible) return null;
+  const [t, format] = await Promise.all([
+    getTranslations('contestSolution'),
+    getFormatter(),
+  ]);
   return (
     <section
       id="contest-solutions"
@@ -28,13 +51,13 @@ export default async function ContestSolutionList({ tid, data }: Props) {
     >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-xl font-semibold">{t('heading')}</h2>
-        {data.canManage && (
+        {canManage && (
           <Button asChild>
             <Link href={`/contest/${tid}/solution/create`}>{t('create')}</Link>
           </Button>
         )}
       </div>
-      {!data.csdocs?.length ? (
+      {!visible.length ? (
         <Empty>
           <EmptyMedia variant="icon">
             <Lightbulb strokeWidth={2} />
@@ -57,31 +80,36 @@ export default async function ContestSolutionList({ tid, data }: Props) {
               </tr>
             </thead>
             <tbody>
-              {data.csdocs.map((doc) => (
-                <tr key={doc.docId} className="border-b">
-                  <td className="py-3 pr-3">
-                    <Link
-                      className="text-primary hover:underline"
-                      href={`/contest/${tid}/solution/${doc.docId}`}
-                    >
-                      {doc.title}
-                    </Link>
-                  </td>
-                  <td className="whitespace-nowrap p-3">
-                    {data.udict[doc.owner] ? (
-                      <UserSpan user={data.udict[doc.owner]} />
-                    ) : (
-                      doc.owner
-                    )}
-                  </td>
-                  <td className="whitespace-nowrap p-3">
-                    {format.dateTime(new Date(oid2ts(doc.docId)), {
-                      dateStyle: 'medium',
-                      timeStyle: 'short',
-                    })}
-                  </td>
-                </tr>
-              ))}
+              {visible.map((doc) => {
+                const date = getContestSolutionDate(doc.docId);
+                return (
+                  <tr key={doc.docId} className="border-b">
+                    <td className="py-3 pr-3">
+                      <Link
+                        className="text-primary hover:underline"
+                        href={`/contest/${tid}/solution/${doc.docId}`}
+                      >
+                        {doc.title}
+                      </Link>
+                    </td>
+                    <td className="whitespace-nowrap p-3">
+                      {udict[doc.owner] ? (
+                        <UserSpan user={udict[doc.owner]} />
+                      ) : (
+                        doc.owner
+                      )}
+                    </td>
+                    <td className="whitespace-nowrap p-3">
+                      {date
+                        ? format.dateTime(date, {
+                            dateStyle: 'medium',
+                            timeStyle: 'short',
+                          })
+                        : '-'}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
