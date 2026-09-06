@@ -3,7 +3,7 @@ import ContestStatus, {
   getContestStatusHoverTextClassName,
   getContestStatusTextClassName,
 } from '@/features/contest/contest-status';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { render, screen } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { describe, expect, it } from 'vitest';

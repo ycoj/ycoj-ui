@@ -1,5 +1,5 @@
 import PasteDeleteButton from './paste-delete-button';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';

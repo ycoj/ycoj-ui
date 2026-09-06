@@ -1,0 +1,19 @@
+{
+  "title": "确认身份",
+  "description": "请再次验证身份，以继续访问受保护的页面或完成操作。",
+  "unavailable": "当前没有待确认的请求，请返回需要访问的页面后重试。",
+  "resumeFailed": "无法确认操作结果，请检查当前状态后再重试。",
+  "resuming": "身份验证成功，正在继续原请求…",
+  "backHome": "返回首页",
+  "method": "验证方式",
+  "authn": "安全密钥",
+  "tfa": "动态验证码",
+  "password": "密码",
+  "codeRequired": "请输入六位动态验证码。",
+  "passwordRequired": "请输入密码。",
+  "unsupported": "安全密钥需要受支持的浏览器和安全连接，请选择其他验证方式。",
+  "failed": "身份验证失败，请重试。",
+  "cancel": "取消",
+  "confirm": "验证身份",
+  "verifying": "正在验证…"
+}

@@ -1,0 +1,19 @@
+{
+  "unrated": "Unrated",
+  "none": "None",
+  "beginner": "Beginner",
+  "basicMinus": "Basic-",
+  "basicAdvancedMinus": "Basic/Advanced-",
+  "basicPlusAdvanced": "Basic+/Advanced",
+  "advancedMinus": "Advanced-",
+  "advanced": "Advanced",
+  "advancedPlusProvincialMinus": "Advanced+/Provincial-",
+  "provincialMinus": "Provincial-",
+  "provincial": "Provincial",
+  "provincialNoiMinus": "Provincial/NOI-",
+  "noi": "NOI",
+  "noiNoiPlus": "NOI/NOI+",
+  "noiPlus": "NOI+",
+  "noiPlusCstc": "NOI+/CSTC",
+  "level": "Difficulty {level}"
+}

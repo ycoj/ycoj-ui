@@ -1,7 +1,7 @@
 import { AiGenerationTimeline } from '@/features/record/detail/ai-generation/ai-generation-timeline';
 import type { AiTraceEvent } from '@/features/record/detail/ai-generation/ai-generation-trace';
-import messages from '@/messages/en.json';
-import messagesZh from '@/messages/zh.json';
+import messages from '@/messages/en';
+import messagesZh from '@/messages/zh';
 import type {
   AiTraceEventType,
   AiTraceState,

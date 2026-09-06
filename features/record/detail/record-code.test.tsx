@@ -1,5 +1,5 @@
 import RecordCode from './record-code';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import type { RecordDoc } from '@/shared/types/record';
 import { createEvent, fireEvent, render } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';

@@ -1,0 +1,7 @@
+{
+  "loading": "正在加载 PDF",
+  "mixedContent": "此 PDF 使用 HTTP，无法在 HTTPS 页面中显示。",
+  "error": "无法显示 PDF。",
+  "pageLimit": "仅显示前 {limit} 页，共 {count} 页。",
+  "document": "PDF 文档"
+}

@@ -1,0 +1,15 @@
+{
+  "noData": "暂无成绩数据",
+  "noSubmissions": "目前还没有人在此活动中提交题目。",
+  "unlock": "解锁成绩表",
+  "unlocking": "解锁中...",
+  "firstSolve": "本题首通",
+  "error": {
+    "notLive": "比赛尚未开始",
+    "hidden": "成绩表暂不可见",
+    "forbidden": "权限不足，无法查看成绩表",
+    "loadError": "加载成绩表时出错",
+    "checkNetwork": "请检查网络连接后重试",
+    "retry": "重试"
+  }
+}

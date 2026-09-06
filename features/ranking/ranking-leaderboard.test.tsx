@@ -1,6 +1,6 @@
 import RankingLeaderboard from './ranking-leaderboard';
 import type { RankingUser } from '@/api/server/method/ranking/list';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { render, screen } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { describe, expect, it } from 'vitest';

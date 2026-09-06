@@ -2,7 +2,7 @@ import { clearDraft, getDraft } from './draft-storage';
 import ObjectiveNavigation from './navigation';
 import ObjectiveProvider, { useObjective } from './provider';
 import type { ObjectiveQuestion } from './question-schema';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';

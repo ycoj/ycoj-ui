@@ -1,0 +1,13 @@
+{
+  "loading": "Searching...",
+  "noResults": "No matches found",
+  "loadFailed": "Could not load suggestions",
+  "clear": "Clear selection",
+  "remove": "Remove {name}",
+  "group": "Group",
+  "user": "User",
+  "groupUsers": "{count, plural, one {# user} other {# users}}",
+  "invalid": "Invalid",
+  "problemId": "ID = {id}",
+  "userId": "UID = {id}"
+}

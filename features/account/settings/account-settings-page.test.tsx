@@ -1,7 +1,7 @@
 import AccountSettingsPage from './account-settings-page';
 import { AVATAR_MAX_BYTES } from './avatar-form-utils';
-import en from '@/messages/en.json';
-import zh from '@/messages/zh.json';
+import en from '@/messages/en';
+import zh from '@/messages/zh';
 import {
   SETTING_FLAG,
   type AccountSetting,

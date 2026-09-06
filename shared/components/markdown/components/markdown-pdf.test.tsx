@@ -2,7 +2,7 @@ import MarkdownPdf, {
   isMixedContentPdfUrl,
   MarkdownPdfViewer,
 } from './markdown-pdf';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { render, screen } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import type { ReactNode } from 'react';

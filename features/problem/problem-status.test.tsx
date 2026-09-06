@@ -1,5 +1,5 @@
 import ProblemStatus from './problem-status';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { STATUS } from '@/shared/configs/status';
 import type { ProblemStatus as ProblemStatusDoc } from '@/shared/types/problem';
 import { render } from '@testing-library/react';

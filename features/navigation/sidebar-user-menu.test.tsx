@@ -1,6 +1,6 @@
 import SidebarUserMenu from './sidebar-user-menu';
-import en from '@/messages/en.json';
-import zh from '@/messages/zh.json';
+import en from '@/messages/en';
+import zh from '@/messages/zh';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';

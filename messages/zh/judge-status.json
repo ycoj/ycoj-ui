@@ -1,0 +1,23 @@
+{
+  "label": {
+    "waiting": "等待评测",
+    "accepted": "答案正确",
+    "wrongAnswer": "答案错误",
+    "timeLimitExceeded": "时间超限",
+    "memoryLimitExceeded": "内存超限",
+    "outputLimitExceeded": "输出超限",
+    "runtimeError": "运行错误",
+    "compileError": "编译错误",
+    "systemError": "系统错误",
+    "canceled": "成绩取消",
+    "unknownError": "未知错误",
+    "hacked": "被攻破",
+    "judging": "正在运行",
+    "compiling": "正在编译",
+    "fetched": "已抓取",
+    "ignored": "被忽略",
+    "formatError": "配置错误",
+    "hackSuccessful": "成功攻破",
+    "hackUnsuccessful": "失败攻破"
+  }
+}
