@@ -47,6 +47,19 @@
     margin-top: 0;
   }
 
+  & :where(code):not(:where(pre *)) {
+    background-color: var(--muted);
+    border-radius: var(--radius-sm);
+    padding: 0.15em 0.3em;
+  }
+
+  & :where(code)::before,
+  & :where(code)::after,
+  & :where(blockquote p:first-of-type)::before,
+  & :where(blockquote p:last-of-type)::after {
+    content: none;
+  }
+
   /* Code block spacing */
   & :where(pre) {
     margin-top: 0.75em;
