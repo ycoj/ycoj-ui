@@ -1,8 +1,5 @@
 import ContestSolutionCreateForm from './contest-solution-create-form';
-import {
-  normalizeContestSolutionPayload,
-  type ContestSolutionFormValues,
-} from './contest-solution-form-utils';
+import type { ContestSolutionFormValues } from './contest-solution-form-utils';
 import messages from '@/messages/en.json';
 import { render, screen } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
@@ -16,7 +13,7 @@ const mocks = vi.hoisted(() => ({
 vi.mock('@/api/client/method', () => ({
   default: {
     Contest: {
-      createContestSolution: (tid: string, payload: unknown) => ({
+      saveContestSolution: (tid: string, payload: unknown) => ({
         send: () => mocks.save(tid, payload),
       }),
     },
@@ -49,8 +46,8 @@ vi.mock('@/features/contest/solution/contest-solution-form', () => ({
 }));
 
 const values: ContestSolutionFormValues = {
-  title: '  Editorial  ',
-  content: '  Answer\n',
+  title: 'Editorial',
+  content: 'Answer',
 };
 
 beforeEach(() => {
@@ -68,7 +65,7 @@ function renderCreate() {
 }
 
 describe('contest solution create form', () => {
-  it('creates with the trimmed payload and returns the detail path', async () => {
+  it('creates with the validated payload and returns the detail path', async () => {
     renderCreate();
     expect(
       screen.getByRole('heading', { name: 'Create solution' })
@@ -76,10 +73,7 @@ describe('contest solution create form', () => {
     await expect(mocks.onSubmit!(values)).resolves.toBe(
       '/contest/contest/solution/new'
     );
-    expect(mocks.save).toHaveBeenCalledWith(
-      'contest',
-      normalizeContestSolutionPayload(values)
-    );
+    expect(mocks.save).toHaveBeenCalledWith('contest', values);
   });
 
   it('throws a backend error without navigating', async () => {

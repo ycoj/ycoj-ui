@@ -2,10 +2,6 @@
 
 import ClientApis from '@/api/client/method';
 import ContestSolutionForm from '@/features/contest/solution/contest-solution-form';
-import {
-  getContestSolutionDefaults,
-  normalizeContestSolutionPayload,
-} from '@/features/contest/solution/contest-solution-form-utils';
 import { useTranslations } from 'next-intl';
 
 type Props = {
@@ -18,12 +14,12 @@ export default function ContestSolutionCreateForm({ tid }: Props) {
   return (
     <ContestSolutionForm
       mode="create"
-      defaultValues={getContestSolutionDefaults()}
+      defaultValues={{ title: '', content: '' }}
       cancelHref={`/contest/${tid}`}
       onSubmit={async (values) => {
-        const response = await ClientApis.Contest.createContestSolution(
+        const response = await ClientApis.Contest.saveContestSolution(
           tid,
-          normalizeContestSolutionPayload(values)
+          values
         ).send();
         if ('error' in response)
           throw new Error(response.error.message || t('saveFailed'));

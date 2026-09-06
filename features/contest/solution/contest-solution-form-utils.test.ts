@@ -2,7 +2,6 @@ import {
   CONTEST_SOLUTION_CONTENT_MAX_LENGTH,
   CONTEST_SOLUTION_TITLE_MAX_LENGTH,
   buildContestSolutionSchema,
-  normalizeContestSolutionPayload,
 } from './contest-solution-form-utils';
 import { describe, expect, it } from 'vitest';
 
@@ -66,20 +65,7 @@ describe('contest solution schema', () => {
       content: '  Answer\n',
     });
     expect(parsed.success).toBe(true);
-    if (parsed.success) {
+    if (parsed.success)
       expect(parsed.data).toEqual({ title: 'Editorial', content: 'Answer' });
-      expect(normalizeContestSolutionPayload(parsed.data)).toEqual({
-        title: 'Editorial',
-        content: 'Answer',
-      });
-    }
-  });
-});
-
-describe('normalizeContestSolutionPayload', () => {
-  it('trims title and content before transport', () => {
-    expect(
-      normalizeContestSolutionPayload({ title: '  T  ', content: '\nC\n' })
-    ).toEqual({ title: 'T', content: 'C' });
   });
 });

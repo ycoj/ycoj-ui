@@ -1,8 +1,5 @@
+import ServerApis from '@/api/server/method';
 import ContestSolutionEditForm from '@/features/contest/solution/contest-solution-edit-form';
-import {
-  getContestSolutionEdit,
-  requireContestSolutionManage,
-} from '@/features/contest/solution/get-contest-solution';
 import { Errored } from '@/shared/components/errored';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
@@ -16,18 +13,17 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function ContestSolutionEditPage({ params }: Props) {
   const { tid, sid } = await params;
-  const data = await getContestSolutionEdit(tid, sid);
+  const data = await ServerApis.Contests.getContestSolutionEdit(tid, sid);
   const t = await getTranslations('error');
-  const result = requireContestSolutionManage(data, t('unavailable'));
-  if ('error' in result)
-    return <Errored title={t('unavailable')} error={result.error} />;
+  if ('error' in data)
+    return <Errored title={t('unavailable')} error={data.error} />;
   return (
     <ContestSolutionEditForm
       tid={tid}
       sid={sid}
       defaultValues={{
-        title: result.data.csdoc.title,
-        content: result.data.csdoc.content,
+        title: data.csdoc.title,
+        content: data.csdoc.content,
       }}
     />
   );

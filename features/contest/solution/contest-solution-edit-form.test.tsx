@@ -1,8 +1,5 @@
 import ContestSolutionEditForm from './contest-solution-edit-form';
-import {
-  normalizeContestSolutionPayload,
-  type ContestSolutionFormValues,
-} from './contest-solution-form-utils';
+import type { ContestSolutionFormValues } from './contest-solution-form-utils';
 import messages from '@/messages/en.json';
 import { render, screen } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
@@ -17,8 +14,8 @@ const mocks = vi.hoisted(() => ({
 vi.mock('@/api/client/method', () => ({
   default: {
     Contest: {
-      updateContestSolution: (tid: string, sid: string, payload: unknown) => ({
-        send: () => mocks.save(tid, sid, payload),
+      saveContestSolution: (tid: string, payload: unknown, sid: string) => ({
+        send: () => mocks.save(tid, payload, sid),
       }),
     },
   },
@@ -86,7 +83,7 @@ function renderEdit() {
 }
 
 describe('contest solution edit form', () => {
-  it('updates with the trimmed payload and returns the detail path', async () => {
+  it('updates with the validated payload and returns the detail path', async () => {
     renderEdit();
     expect(
       screen.getByRole('heading', { name: 'Edit solution' })
@@ -101,11 +98,7 @@ describe('contest solution edit form', () => {
     await expect(mocks.onSubmit!(values)).resolves.toBe(
       '/contest/contest/solution/solution'
     );
-    expect(mocks.save).toHaveBeenCalledWith(
-      'contest',
-      'solution',
-      normalizeContestSolutionPayload(values)
-    );
+    expect(mocks.save).toHaveBeenCalledWith('contest', values, 'solution');
   });
 
   it('throws a backend error without navigating', async () => {

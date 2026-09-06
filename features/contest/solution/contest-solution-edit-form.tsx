@@ -3,10 +3,7 @@
 import ClientApis from '@/api/client/method';
 import ContestSolutionDeleteButton from '@/features/contest/solution/contest-solution-delete-button';
 import ContestSolutionForm from '@/features/contest/solution/contest-solution-form';
-import {
-  normalizeContestSolutionPayload,
-  type ContestSolutionFormValues,
-} from '@/features/contest/solution/contest-solution-form-utils';
+import type { ContestSolutionFormValues } from '@/features/contest/solution/contest-solution-form-utils';
 import { useTranslations } from 'next-intl';
 
 type Props = {
@@ -29,10 +26,10 @@ export default function ContestSolutionEditForm({
       cancelHref={`/contest/${tid}/solution/${sid}`}
       extraActions={<ContestSolutionDeleteButton tid={tid} sid={sid} />}
       onSubmit={async (values) => {
-        const response = await ClientApis.Contest.updateContestSolution(
+        const response = await ClientApis.Contest.saveContestSolution(
           tid,
-          sid,
-          normalizeContestSolutionPayload(values)
+          values,
+          sid
         ).send();
         if ('error' in response)
           throw new Error(response.error.message || t('saveFailed'));

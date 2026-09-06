@@ -1,34 +1,22 @@
 import { clientRequest } from '@/api/client';
 import type { Errorable } from '@/shared/types/error';
 
-export type CreateContestSolutionResponse = { sid: string };
-export type UpdateContestSolutionResponse = { sid: string };
+export type SaveContestSolutionResponse = { sid: string };
 
 export type SaveContestSolutionPayload = {
   title: string;
   content: string;
 };
 
-// Hydro `contest_solution_create` accepts {title, content} and returns {sid}.
-// Hydro `contest_solution_edit` accepts the same {title, content} shape and
-// returns {sid}. The split wrappers keep each route's contract explicit
-// instead of a unified save(tid, payload, sid?) helper.
-export const createContestSolution = (
+export const saveContestSolution = (
   tid: string,
-  payload: SaveContestSolutionPayload
+  payload: SaveContestSolutionPayload,
+  sid?: string
 ) =>
-  clientRequest.Post<Errorable<CreateContestSolutionResponse>>(
-    `/contest/${tid}/solution/create`,
-    payload
-  );
-
-export const updateContestSolution = (
-  tid: string,
-  sid: string,
-  payload: SaveContestSolutionPayload
-) =>
-  clientRequest.Post<Errorable<UpdateContestSolutionResponse>>(
-    `/contest/${tid}/solution/${sid}/edit`,
+  clientRequest.Post<Errorable<SaveContestSolutionResponse>>(
+    sid
+      ? `/contest/${tid}/solution/${sid}/edit`
+      : `/contest/${tid}/solution/create`,
     payload
   );
 

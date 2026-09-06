@@ -12,7 +12,6 @@ vi.mock('next-intl/server', () => ({
 
 const baseProps: ComponentProps<typeof ContestSolutionList> = {
   tid: 'contest',
-  rule: 'acm',
   showContestSolutions: true,
   items: [{ docId: '65a1bc000000000000000000', title: 'Editorial', owner: 1 }],
   udict: {},
@@ -29,11 +28,6 @@ describe('contest solution visibility', () => {
         ...baseProps,
         showContestSolutions: undefined,
       })
-    ).toBeNull();
-  });
-  it('excludes homework', async () => {
-    expect(
-      await ContestSolutionList({ ...baseProps, rule: 'homework' })
     ).toBeNull();
   });
   it('shows published solutions without management controls for readers', async () => {
@@ -54,15 +48,5 @@ describe('contest solution visibility', () => {
     expect(
       screen.getByRole('link', { name: 'Create solution' })
     ).toHaveAttribute('href', '/contest/contest/solution/create');
-  });
-  it('renders a fallback for malformed solution ids', async () => {
-    render(
-      await ContestSolutionList({
-        ...baseProps,
-        items: [{ docId: 'not-an-object-id', title: 'Broken', owner: 1 }],
-      })
-    );
-    expect(screen.getByRole('link', { name: 'Broken' })).toBeInTheDocument();
-    expect(screen.getByText('-')).toBeInTheDocument();
   });
 });

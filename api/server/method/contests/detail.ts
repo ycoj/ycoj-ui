@@ -12,8 +12,7 @@ export type ContestDetailStatus = ContestStatus;
 
 export type ContestDetailData = {
   /**
-   * Absence is legitimate: when omitted, consumers must fail safe and hide
-   * the solutions section (see `canShowContestSolutions`).
+   * The backend omits the field when solutions are unavailable to the viewer.
    */
   csdocs?: ContestSolutionListItem[];
   /**

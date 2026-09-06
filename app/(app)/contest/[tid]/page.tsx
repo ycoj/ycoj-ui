@@ -67,7 +67,6 @@ export default async function ContestDetailPage({
             />
             <ContestSolutionList
               tid={tid}
-              rule={data.tdoc.rule}
               showContestSolutions={data.showContestSolutions}
               items={data.csdocs}
               udict={data.udict}

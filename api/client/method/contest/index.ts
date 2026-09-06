@@ -19,9 +19,8 @@ import { getContestProblems } from '@/api/client/method/contest/problems';
 import { attendContest } from '@/api/client/method/contest/registration';
 import { unlockScoreboard } from '@/api/client/method/contest/scoreboard';
 import {
-  createContestSolution,
   deleteContestSolution,
-  updateContestSolution,
+  saveContestSolution,
 } from '@/api/client/method/contest/solution';
 
 const Contest = {
@@ -42,8 +41,7 @@ const Contest = {
   setContestBalloonColor,
   markContestBalloonDone,
   submitContestBulk,
-  createContestSolution,
-  updateContestSolution,
+  saveContestSolution,
   deleteContestSolution,
 };
 

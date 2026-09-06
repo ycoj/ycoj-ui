@@ -1,5 +1,4 @@
 import ContestSolutionForm from './contest-solution-form';
-import { getContestSolutionDefaults } from './contest-solution-form-utils';
 import messages from '@/messages/en.json';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -37,7 +36,7 @@ function renderForm(
     ...mount(
       <ContestSolutionForm
         mode="create"
-        defaultValues={getContestSolutionDefaults()}
+        defaultValues={{ title: '', content: '' }}
         cancelHref="/contest/contest"
         onSubmit={onSubmit}
         {...props}
@@ -60,11 +59,11 @@ describe('contest solution form', () => {
     expect(mocks.push).not.toHaveBeenCalled();
   });
 
-  it('submits entered values and follows the returned path', async () => {
+  it('submits schema-transformed values and follows the returned path', async () => {
     const { onSubmit } = renderForm();
-    await userEvent.type(screen.getByLabelText('Title'), 'Editorial');
+    await userEvent.type(screen.getByLabelText('Title'), '  Editorial  ');
     fireEvent.change(screen.getByLabelText('Content'), {
-      target: { value: '# Answer\n\n    code' },
+      target: { value: ' \n# Answer\n\n    code\n ' },
     });
     await userEvent.click(
       screen.getByRole('button', { name: 'Create solution' })

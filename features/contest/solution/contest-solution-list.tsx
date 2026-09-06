@@ -1,9 +1,4 @@
 import type { ContestSolutionListItem } from '@/api/server/method/contests/solution';
-import {
-  canShowContestSolutions,
-  getContestSolutionDate,
-  getVisibleContestSolutions,
-} from '@/features/contest/solution/contest-solution-utils';
 import UserSpan from '@/features/user/user-span';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -13,7 +8,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '@/shared/components/ui/empty';
-import type { ContestRule } from '@/shared/types/contest';
+import oid2ts from '@/shared/lib/oid2ts';
 import type { BaseUserDict } from '@/shared/types/user';
 import { Lightbulb } from 'lucide-react';
 import { getFormatter, getTranslations } from 'next-intl/server';
@@ -21,7 +16,6 @@ import Link from 'next/link';
 
 type Props = {
   tid: string;
-  rule: ContestRule;
   showContestSolutions?: boolean;
   items?: ContestSolutionListItem[];
   udict: BaseUserDict;
@@ -30,15 +24,14 @@ type Props = {
 
 export default async function ContestSolutionList({
   tid,
-  rule,
   showContestSolutions,
   items,
   udict,
   canManage,
 }: Props) {
-  if (!canShowContestSolutions(rule, showContestSolutions)) return null;
-  const visible = getVisibleContestSolutions(items, canManage);
-  if (!visible) return null;
+  if (!showContestSolutions) return null;
+  const visible = items ?? [];
+  if (!visible.length && !canManage) return null;
   const [t, format] = await Promise.all([
     getTranslations('contestSolution'),
     getFormatter(),
@@ -81,7 +74,7 @@ export default async function ContestSolutionList({
             </thead>
             <tbody>
               {visible.map((doc) => {
-                const date = getContestSolutionDate(doc.docId);
+                const date = new Date(oid2ts(doc.docId));
                 return (
                   <tr key={doc.docId} className="border-b">
                     <td className="py-3 pr-3">
@@ -100,12 +93,10 @@ export default async function ContestSolutionList({
                       )}
                     </td>
                     <td className="whitespace-nowrap p-3">
-                      {date
-                        ? format.dateTime(date, {
-                            dateStyle: 'medium',
-                            timeStyle: 'short',
-                          })
-                        : '-'}
+                      {format.dateTime(date, {
+                        dateStyle: 'medium',
+                        timeStyle: 'short',
+                      })}
                     </td>
                   </tr>
                 );

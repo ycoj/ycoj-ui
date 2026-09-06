@@ -21,11 +21,7 @@ export type ContestSolutionData = {
   tdoc: Contest;
   tsdoc: ContestStatus | null;
   csdoc: ContestSolution;
-  /**
-   * Absence is legitimate: when omitted, consumers must fail safe and treat
-   * the viewer as a reader without management controls.
-   */
-  canManage?: boolean;
+  canManage: boolean;
   udict: BaseUserDict;
 };
 
@@ -37,11 +33,7 @@ export const getContestSolution = (tid: string, sid: string) =>
 export type ContestSolutionCreateData = {
   tdoc: Contest;
   tsdoc: ContestStatus | null;
-  /**
-   * Absence is legitimate: when omitted, consumers must fail safe and treat
-   * the viewer as a reader without management controls.
-   */
-  canManage?: boolean;
+  canManage: true;
 };
 
 export type ContestSolutionCreateResponse =
@@ -54,11 +46,7 @@ export type ContestSolutionEditData = {
   tdoc: Contest;
   tsdoc: ContestStatus | null;
   csdoc: ContestSolution;
-  /**
-   * Absence is legitimate: when omitted, consumers must fail safe and treat
-   * the viewer as a reader without management controls.
-   */
-  canManage?: boolean;
+  canManage: true;
 };
 
 export type ContestSolutionEditResponse = Errorable<ContestSolutionEditData>;
