@@ -1,0 +1,23 @@
+{
+  "title": "Messages",
+  "new": "New",
+  "newConversation": "New conversation",
+  "selectRecipient": "Search for a recipient",
+  "startConversation": "Start conversation",
+  "recipientNotFound": "Recipient was not found",
+  "noConversations": "No conversations yet",
+  "noConversationSelected": "Select a conversation to continue.",
+  "composePlaceholder": "Write a message",
+  "send": "Send",
+  "sending": "Sending...",
+  "sendFailed": "Message could not be sent",
+  "loadFailed": "Could not load users",
+  "userId": "UID: {id}",
+  "viewProfile": "View profile",
+  "initialUnread": "You have {count, plural, one {a new message} other {# new messages}}.",
+  "systemMessage": "You received a system message. Open messages to view it.",
+  "open": "Open",
+  "alertTitle": "Message alert",
+  "messageFrom": "Message from {name}",
+  "dismiss": "Dismiss"
+}

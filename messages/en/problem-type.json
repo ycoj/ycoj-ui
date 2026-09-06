@@ -1,0 +1,9 @@
+{
+  "default": "Traditional",
+  "objective": "Multiple choice",
+  "submitAnswer": "Submit answer",
+  "fileIo": "File I/O",
+  "interactive": "Interactive",
+  "communication": "Communication",
+  "remoteJudge": "Remote judge"
+}

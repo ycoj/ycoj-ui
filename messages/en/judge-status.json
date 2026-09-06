@@ -1,0 +1,23 @@
+{
+  "label": {
+    "waiting": "Waiting",
+    "accepted": "Accepted",
+    "wrongAnswer": "Wrong Answer",
+    "timeLimitExceeded": "Time Exceeded",
+    "memoryLimitExceeded": "Memory Exceeded",
+    "outputLimitExceeded": "Output Exceeded",
+    "runtimeError": "Runtime Error",
+    "compileError": "Compile Error",
+    "systemError": "System Error",
+    "canceled": "Canceled",
+    "unknownError": "Unknown Error",
+    "hacked": "Hacked",
+    "judging": "Judging",
+    "compiling": "Compiling",
+    "fetched": "Fetched",
+    "ignored": "Ignored",
+    "formatError": "Format Error",
+    "hackSuccessful": "Hack Successful",
+    "hackUnsuccessful": "Hack Unsuccessful"
+  }
+}

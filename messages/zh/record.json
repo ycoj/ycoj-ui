@@ -1,0 +1,79 @@
+{
+  "submitterPlaceholder": "提交者 UID / 用户名",
+  "allStatuses": "全部状态",
+  "codeLength": "代码长度",
+  "rejudge": "重测",
+  "cancelResult": "取消成绩",
+  "subtask": "子任务 {id}",
+  "testcaseDetails": "测试点详情",
+  "judgeVersion": "评测版本",
+  "latestVersion": "最新版本",
+  "historicalVersion": "历史版本",
+  "judgedAt": "评测于 {time}",
+  "aiGeneration": {
+    "title": "AI 测试数据生成",
+    "pageTitle": "数据生成 - {title}",
+    "stages": {
+      "waiting": "等待执行",
+      "preparing": "准备环境",
+      "agent": "智能体执行中",
+      "validating": "校验测试数据",
+      "replacing": "安装测试数据",
+      "completed": "已完成",
+      "failed": "失败",
+      "cancelled": "已取消"
+    },
+    "progress": "生成进度",
+    "model": "模型",
+    "testcaseTarget": "测试点目标数",
+    "testcaseCount": "已安装测试点数",
+    "judgeLimits": "时间 / 内存限制",
+    "checker": "比较器",
+    "checkerModes": {
+      "default": "标准比较",
+      "provided": "提供的 Testlib 比较器",
+      "generated": "AI 生成的 Testlib 比较器"
+    },
+    "problem": "题目",
+    "startedAt": "开始时间",
+    "finishedAt": "完成时间",
+    "recordId": "记录 ID",
+    "instructions": "生成要求",
+    "report": "生成报告",
+    "timeline": "执行时间线",
+    "noEvents": "暂时还没有生成轨迹。",
+    "events": {
+      "generation": "生成测试数据",
+      "preparation": "准备环境",
+      "agentTurn": "智能体回合",
+      "validation": "校验测试数据",
+      "replacement": "安装测试数据"
+    },
+    "states": {
+      "running": "执行中",
+      "completed": "已完成",
+      "failed": "失败",
+      "cancelled": "已取消",
+      "timedOut": "已超时"
+    },
+    "tools": {
+      "reading": "正在读取",
+      "read": "已读取",
+      "editing": "正在编辑",
+      "edited": "已编辑",
+      "readFile": "{action} {path}",
+      "editFile": "{action} {path}",
+      "runningCommand": "正在运行命令",
+      "runningCommandSingle": "正在运行 {names} 命令",
+      "runningCommandMultiple": "正在运行 {names} 等 {count} 个命令",
+      "ranCommand": "已运行命令",
+      "ranCommandSingle": "已运行 {names} 命令",
+      "ranCommandMultiple": "已运行 {names} 等 {count} 个命令",
+      "call": "工具调用"
+    },
+    "cancel": "取消生成",
+    "cancelling": "取消中...",
+    "caseCount": "已安装测试点：{count}",
+    "totalBytes": "总大小：{size}"
+  }
+}

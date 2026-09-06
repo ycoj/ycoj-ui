@@ -1,7 +1,7 @@
 import { ProblemConfigProvider } from './problem-config-context';
 import TestdataSidebar from './testdata-sidebar';
 import ClientApis from '@/api/client/method';
-import en from '@/messages/en.json';
+import en from '@/messages/en';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { toast } from 'sonner';

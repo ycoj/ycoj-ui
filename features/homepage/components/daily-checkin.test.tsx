@@ -1,5 +1,5 @@
 import DailyCheckin from './daily-checkin';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import type {
   CheckinRecord,
   CheckinResponse,

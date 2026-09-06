@@ -1,6 +1,6 @@
 import ContestProblemList from './contest-problem-list';
 import type { ContestProblemsData } from '@/api/server/method/contests/problems';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import type { Contest } from '@/shared/types/contest';
 import type { ProblemDoc } from '@/shared/types/problem';
 import { render, screen } from '@testing-library/react';

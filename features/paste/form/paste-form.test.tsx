@@ -1,7 +1,7 @@
 import { pasteDoc, pasteOptions } from '../paste.test-utils';
 import PasteForm from './paste-form';
 import { getPasteDefaults } from './paste-form-utils';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';

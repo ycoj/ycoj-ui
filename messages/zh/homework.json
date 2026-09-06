@@ -1,0 +1,16 @@
+{
+  "participants": "参与人数",
+  "duration": "作业时长",
+  "registered": "已报名",
+  "register": "报名作业",
+  "registering": "报名中...",
+  "searchPlaceholder": "搜索作业标题",
+  "create": "创建作业",
+  "introduction": "作业介绍",
+  "problems": "题目列表",
+  "time": "作业时间",
+  "joined": "已参加",
+  "backToHomework": "返回作业",
+  "none": "暂无作业",
+  "noneDescription": "教练还没有添加作业，或是你没有对应权限。"
+}

@@ -1,0 +1,23 @@
+{
+  "title": "消息",
+  "new": "新建",
+  "newConversation": "新建会话",
+  "selectRecipient": "搜索收件人",
+  "startConversation": "开始会话",
+  "recipientNotFound": "未找到收件人",
+  "noConversations": "还没有会话",
+  "noConversationSelected": "选择一个会话以继续。",
+  "composePlaceholder": "输入消息",
+  "send": "发送",
+  "sending": "发送中...",
+  "sendFailed": "消息发送失败",
+  "loadFailed": "无法加载用户",
+  "userId": "UID：{id}",
+  "viewProfile": "查看主页",
+  "initialUnread": "你有 {count} 条新消息。",
+  "systemMessage": "你收到了一条系统消息，打开消息页查看。",
+  "open": "打开",
+  "alertTitle": "消息提醒",
+  "messageFrom": "来自 {name} 的消息",
+  "dismiss": "关闭"
+}

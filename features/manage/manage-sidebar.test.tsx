@@ -3,7 +3,7 @@ import {
   manageLanding,
 } from '@/features/manage/manage-access';
 import ManageSidebar from '@/features/manage/manage-sidebar';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { render, screen } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { describe, expect, it, vi } from 'vitest';

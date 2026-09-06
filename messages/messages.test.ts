@@ -1,5 +1,5 @@
-import en from './en.json';
-import zh from './zh.json';
+import en from './en';
+import zh from './zh';
 import { describe, expect, it } from 'vitest';
 
 function getKeys(value: unknown, prefix = ''): string[] {

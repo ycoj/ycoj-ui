@@ -1,0 +1,16 @@
+{
+  "title": "题目（拖动排序）",
+  "searchPlaceholder": "搜索题目",
+  "copy": "复制题单",
+  "paste": "粘贴题单",
+  "copySuccess": "题单已复制。",
+  "copyFailed": "无法复制题单。",
+  "pasteSuccess": "已添加 {count} 道题。",
+  "pasteNone": "没有添加新题目。",
+  "pasteFailed": "无法读取剪贴板。",
+  "pasteMissing": "未找到：{ids}",
+  "remove": "移除 {label}",
+  "moveUp": "上移 {label}",
+  "moveDown": "下移 {label}",
+  "empty": "还没有题目，请搜索添加。"
+}

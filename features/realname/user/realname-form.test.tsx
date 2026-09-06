@@ -1,5 +1,5 @@
 import RealnameForm from '@/features/realname/user/realname-form';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import type { RealnamePageData } from '@/shared/types/realname';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
