@@ -48,7 +48,6 @@ export default function HtmlToMarkdownSection({
     const contentWhenStarted = getContent();
     setIsConverting(true);
     try {
-      // Submit the conversion job
       const submitResponse =
         await ClientApis.Problem.submitHtmlToMarkdown(pid).send();
       if ('error' in submitResponse) {
@@ -58,10 +57,9 @@ export default function HtmlToMarkdownSection({
 
       const { jobId } = submitResponse;
 
-      // Poll for completion
       let pollAttempts = 0;
-      const maxPollAttempts = 900; // 15 minutes at 1 second intervals
-      const pollInterval = 1000; // 1 second
+      const maxPollAttempts = 60;
+      const pollInterval = 1000;
 
       while (pollAttempts < maxPollAttempts) {
         await new Promise((resolve) => setTimeout(resolve, pollInterval));
@@ -73,12 +71,10 @@ export default function HtmlToMarkdownSection({
         ).send();
 
         if ('error' in pollResponse && typeof pollResponse.error === 'object') {
-          // This is an Errorable error response (HydroError)
           toast.error(parseErrorMessage(pollResponse.error));
           return;
         }
 
-        // Type assertion to work around TypeScript's discriminated union limitations
         const response = pollResponse as Exclude<
           typeof pollResponse,
           { error: { name: string } }
@@ -99,11 +95,8 @@ export default function HtmlToMarkdownSection({
           toast.error((response as { error: string }).error || t('failed'));
           return;
         }
-
-        // Continue polling for 'pending' or 'running' status
       }
 
-      // Timeout reached
       toast.error(t('timeout'));
     } catch (err) {
       toast.error(

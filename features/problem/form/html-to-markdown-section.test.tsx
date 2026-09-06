@@ -79,13 +79,11 @@ describe('HtmlToMarkdownSection', () => {
     const submitSend = vi
       .fn()
       .mockResolvedValue({ jobId: 'job-123', status: 'pending' });
-    const pollSend = vi
-      .fn()
-      .mockResolvedValue({
-        jobId: 'job-123',
-        status: 'completed',
-        markdown: '# converted',
-      });
+    const pollSend = vi.fn().mockResolvedValue({
+      jobId: 'job-123',
+      status: 'completed',
+      markdown: '# converted',
+    });
     mocks.submitHtmlToMarkdown.mockReturnValue({ send: submitSend });
     mocks.pollHtmlToMarkdown.mockReturnValue({ send: pollSend });
     render(<Harness originalContent="# saved statement" />);
@@ -104,7 +102,9 @@ describe('HtmlToMarkdownSection', () => {
     await user.click(screen.getByRole('button', { name: 'Convert' }));
 
     await waitFor(() => expect(submitSend).toHaveBeenCalled());
-    await waitFor(() => expect(pollSend).toHaveBeenCalled());
+    await waitFor(() => expect(pollSend).toHaveBeenCalled(), {
+      timeout: 2000,
+    });
     await waitFor(() =>
       expect(screen.getByLabelText('statement')).toHaveValue('# converted')
     );
@@ -119,7 +119,6 @@ describe('HtmlToMarkdownSection', () => {
       .fn()
       .mockResolvedValue({ jobId: 'job-123', status: 'pending' });
 
-    // First poll returns pending, second returns completed
     let pollCallCount = 0;
     const pollSend = vi.fn().mockImplementation(() => {
       pollCallCount++;
@@ -142,7 +141,6 @@ describe('HtmlToMarkdownSection', () => {
     );
     await waitFor(() => expect(submitSend).toHaveBeenCalledTimes(1));
 
-    // Wait for first poll call
     await waitFor(() => expect(pollSend).toHaveBeenCalledTimes(1), {
       timeout: 2000,
     });
@@ -153,7 +151,6 @@ describe('HtmlToMarkdownSection', () => {
       '# typed while pending'
     );
 
-    // Wait for second poll to complete
     await waitFor(() => expect(pollSend).toHaveBeenCalledTimes(2), {
       timeout: 2000,
     });
@@ -176,13 +173,11 @@ describe('HtmlToMarkdownSection', () => {
     const submitSend = vi
       .fn()
       .mockResolvedValue({ jobId: 'job-123', status: 'pending' });
-    const pollSend = vi
-      .fn()
-      .mockResolvedValue({
-        jobId: 'job-123',
-        status: 'completed',
-        markdown: '# converted',
-      });
+    const pollSend = vi.fn().mockResolvedValue({
+      jobId: 'job-123',
+      status: 'completed',
+      markdown: '# converted',
+    });
     mocks.submitHtmlToMarkdown.mockReturnValue({ send: submitSend });
     mocks.pollHtmlToMarkdown.mockReturnValue({ send: pollSend });
     render(<Harness originalContent="<p>saved</p>" />);
