@@ -1,4 +1,5 @@
 import { clientRequest } from '@/api/client';
+import type { Errorable } from '@/shared/types/error';
 import type { ObjectId } from '@/shared/types/shared';
 
 export type ProblemSolutionDoc = {
@@ -21,8 +22,11 @@ export const editProblemSolution = (
   psid: ObjectId,
   content: string
 ) =>
-  clientRequest.Post<ProblemSolutionEditResponse>(`/p/${pid}/solution`, {
-    psid,
-    content,
-    operation: 'edit_solution',
-  });
+  clientRequest.Post<Errorable<ProblemSolutionEditResponse>>(
+    `/p/${pid}/solution`,
+    {
+      psid,
+      content,
+      operation: 'edit_solution',
+    }
+  );

@@ -1,4 +1,5 @@
 import { clientRequest } from '@/api/client';
+import type { Errorable } from '@/shared/types/error';
 import type { ObjectId } from '@/shared/types/shared';
 
 export type ProblemSolutionSubmitResponse = {
@@ -6,7 +7,10 @@ export type ProblemSolutionSubmitResponse = {
 };
 
 export const submitProblemSolution = (pid: number, content: string) =>
-  clientRequest.Post<ProblemSolutionSubmitResponse>(`/p/${pid}/solution`, {
-    content,
-    operation: 'submit',
-  });
+  clientRequest.Post<Errorable<ProblemSolutionSubmitResponse>>(
+    `/p/${pid}/solution`,
+    {
+      content,
+      operation: 'submit',
+    }
+  );

@@ -18,6 +18,10 @@ import { searchOmnibarProblems } from './omnibar-search';
 import { deleteProblemSolution } from './solution-delete';
 import { editProblemSolution } from './solution-edit';
 import { replyProblemSolution } from './solution-reply';
+import {
+  reviewProblemSolution,
+  unblockSolutionAuthor,
+} from './solution-review';
 import { submitProblemSolution } from './solution-submit';
 import { voteSolution } from './solution-vote';
 import { submitProblem } from './submit';
@@ -44,6 +48,8 @@ const Problem = {
   editProblemSolution,
   replyProblemSolution,
   deleteProblemSolution,
+  reviewProblemSolution,
+  unblockSolutionAuthor,
 };
 
 export default Problem;

@@ -1,5 +1,6 @@
 'use client';
 
+import { solutionErrorMessage } from './solution-error';
 import ClientApis from '@/api/client/method';
 import MarkdownEditor from '@/shared/components/markdown-editor';
 import { Button } from '@/shared/components/ui/button';
@@ -72,8 +73,16 @@ export default function SolutionCreateForm({
           values.content
         ).send();
 
+        if ('error' in res) {
+          setError('root.serverError', {
+            message: solutionErrorMessage(res.error, (key) =>
+              t(`errors.${key}`)
+            ),
+          });
+          return;
+        }
         if (res?.psdoc?.docId) {
-          router.back();
+          router.push(`/problem/${routePid}/solution`);
           return;
         }
       } else {
@@ -82,6 +91,14 @@ export default function SolutionCreateForm({
           values.content
         ).send();
 
+        if ('error' in res) {
+          setError('root.serverError', {
+            message: solutionErrorMessage(res.error, (key) =>
+              t(`errors.${key}`)
+            ),
+          });
+          return;
+        }
         if (res?.psid) {
           router.push(`/problem/${routePid}/solution`);
           return;
