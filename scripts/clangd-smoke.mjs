@@ -73,7 +73,7 @@ const server = createServer(async (request, response) => {
     return;
   }
   const allowed =
-    /^\/clangd\/(worker\.mjs|lsp-stream\.mjs|v1\/clangd\.(js|wasm))$/;
+    /^\/clangd\/(worker\.mjs|lsp-stream\.mjs|v2\/clangd\.(js|wasm))$/;
   if (!allowed.test(pathname)) {
     response.writeHead(404).end();
     return;
@@ -91,6 +91,7 @@ const server = createServer(async (request, response) => {
     response.writeHead(404).end();
   }
 });
-server.listen(Number(process.env.CLANGD_SMOKE_PORT ?? 4179), '127.0.0.1', () =>
-  console.log('Open http://127.0.0.1:4179 for the clangd smoke test.')
+const port = Number(process.env.CLANGD_SMOKE_PORT ?? 4179);
+server.listen(port, '127.0.0.1', () =>
+  console.log(`Open http://127.0.0.1:${port} for the clangd smoke test.`)
 );

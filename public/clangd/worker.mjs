@@ -41,7 +41,7 @@ async function start(standard) {
   if (!/^gnu\+\+(98|11|14|17|20|23|26)$/.test(standard)) {
     throw new Error('Unsupported C++ standard');
   }
-  const { default: Clangd } = await import('./v1/clangd.js');
+  const { default: Clangd } = await import('./v2/clangd.js');
   const decoder = new MessageDecoder((message) => {
     globalThis.postMessage({ type: 'rpc', message });
   });

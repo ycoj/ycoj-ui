@@ -48,6 +48,6 @@ next-env.d.ts
 .kiro/
 
 # Temporary files generated while verifying the Clangd runtime
-/public/clangd/v1/*.tmp
+/public/clangd/v2/*.tmp
 .vscode/
 opencode.json

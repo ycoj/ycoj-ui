@@ -10,7 +10,7 @@ workers.
 ## Deployment
 
 `pnpm build` runs `pnpm prepare:clangd` before Next.js. This verifies the pinned
-runtime already checked into `public/clangd/v1/`; both the JavaScript loader and
+runtime already checked into `public/clangd/v2/`; both the JavaScript loader and
 Wasm binary are tracked with Git LFS. The build does not download Clangd assets.
 Keep this directory in deployments and serve `/clangd/` from the same origin as
 the application. No LLVM compilation takes place during the build. To verify
@@ -20,7 +20,12 @@ The source is the [clangd-in-browser project](https://github.com/guyutongxue/cla
 Checksums in `scripts/prepare-clangd.mjs` pin the JavaScript and Wasm snapshot.
 The preparation script limits its pthread pool to four workers; clangd uses two
 analysis threads. When updating the snapshot, update the checksums and versioned
-asset directory together. License notices ship under `public/clangd/`.
+asset directory together, then update the matching runtime paths in
+`.gitattributes`, the lint and formatter ignore files,
+`public/clangd/worker.mjs`, `scripts/clangd-smoke.mjs`,
+`scripts/prepare-clangd.mjs` and `next.config.ts`. The versioned cache header
+must move with the runtime so immutable URLs never serve an older snapshot.
+License notices ship under `public/clangd/`.
 
 The page needs a secure context and cross-origin isolation. `next.config.ts`
 applies COOP `same-origin` and COEP `credentialless` to `/problem/*?clangd=1`

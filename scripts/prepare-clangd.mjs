@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile, rename } from 'node:fs/promises';
 
-const directory = new URL('../public/clangd/v1/', import.meta.url);
+const directory = new URL('../public/clangd/v2/', import.meta.url);
 const files = {
   'clangd.js':
     'a7ff1c588eb5374783bbda84d949b92b8027c2381c786072448b96eba90c7027',
@@ -11,6 +11,9 @@ const files = {
 const poolOriginal =
   'var pthreadPoolSize=Math.max(navigator.hardwareConcurrency,8);';
 const poolLimited = 'var pthreadPoolSize=4;';
+const gitLfsPointerSignature = Buffer.from(
+  'version https://git-lfs.github.com/spec/v1'
+);
 const hash = (bytes) => createHash('sha256').update(bytes).digest('hex');
 
 await mkdir(directory, { recursive: true });
@@ -26,6 +29,15 @@ for (const [name, checksum] of Object.entries(files)) {
       );
     }
     throw error;
+  }
+  if (
+    bytes
+      .subarray(0, gitLfsPointerSignature.length)
+      .equals(gitLfsPointerSignature)
+  ) {
+    throw new Error(
+      `Git LFS did not smudge ${name}; run git lfs pull before building.`
+    );
   }
   // The committed LFS blob is the POST-patch file (pthread pool already
   // limited to 4). The SHA-256 checksum above is of the reconstructed

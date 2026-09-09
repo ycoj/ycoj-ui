@@ -45,7 +45,7 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: '/clangd/v1/:path*',
+        source: '/clangd/v2/:path*',
         headers: [
           {
             key: 'Cache-Control',

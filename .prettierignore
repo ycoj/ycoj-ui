@@ -2,4 +2,4 @@
 node_modules/
 .pnpm-store/
 pnpm-lock.yaml
-public/clangd/v1/
+public/clangd/v2/
