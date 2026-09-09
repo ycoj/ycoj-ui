@@ -94,16 +94,22 @@ describe('clangd worker connection', () => {
     expect(failed).toHaveBeenCalledOnce();
     expect(worker.terminate).toHaveBeenCalledOnce();
   });
-  it('stops an unresponsive server after the handshake or a feature request stalls', async () => {
+  it('cancels a stalled request without dropping the connection', async () => {
     const { worker, connection, failed } = setup();
     worker.emit({ type: 'ready' });
     await connection.ready;
-    const request = connection.request('initialize', {});
-    const rejection = expect(request).rejects.toThrow('stopped');
+    const request = connection.request('textDocument/completion', {});
+    const rejection = expect(request).rejects.toThrow('timed out');
     await vi.advanceTimersByTimeAsync(15_000);
     await rejection;
-    expect(failed).toHaveBeenCalledOnce();
-    await vi.advanceTimersByTimeAsync(100);
-    expect(worker.terminate).toHaveBeenCalledOnce();
+    expect(worker.postMessage).toHaveBeenLastCalledWith({
+      type: 'rpc',
+      message: { jsonrpc: '2.0', method: '$/cancelRequest', params: { id: 1 } },
+    });
+    expect(failed).not.toHaveBeenCalled();
+    const retry = connection.request('textDocument/completion', {});
+    worker.emit({ type: 'rpc', message: { id: 2, result: {} } });
+    await expect(retry).resolves.toEqual({});
+    connection.dispose();
   });
 });

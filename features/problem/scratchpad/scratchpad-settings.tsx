@@ -21,6 +21,7 @@ type Props = {
   settings: ScratchpadSettings;
   onChange: (settings: ScratchpadSettings) => void;
   clangdReloading: boolean;
+  clangdDraftPending: boolean;
   onReloadClangd: () => Promise<void>;
 };
 
@@ -28,6 +29,7 @@ export default function ScratchpadSettingsPanel({
   settings,
   onChange,
   clangdReloading,
+  clangdDraftPending,
   onReloadClangd,
 }: Props) {
   const t = useTranslations('problem.scratchpad');
@@ -41,6 +43,7 @@ export default function ScratchpadSettingsPanel({
         enabled={settings.clangd}
         onChange={(clangd) => onChange({ ...settings, clangd })}
         reloading={clangdReloading}
+        draftPending={clangdDraftPending}
         onReload={onReloadClangd}
       />
       <div className="space-y-2">

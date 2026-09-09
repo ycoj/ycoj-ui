@@ -36,6 +36,8 @@ globalThis.onmessage = (event) => {
 };
 
 async function start(standard) {
+  // Keep in sync with getClangdStandard in
+  // features/problem/scratchpad/clangd/clangd-support.ts.
   if (!/^gnu\+\+(98|11|14|17|20|23|26)$/.test(standard)) {
     throw new Error('Unsupported C++ standard');
   }

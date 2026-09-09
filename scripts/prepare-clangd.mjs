@@ -27,6 +27,11 @@ for (const [name, checksum] of Object.entries(files)) {
     }
     throw error;
   }
+  // The committed LFS blob is the POST-patch file (pthread pool already
+  // limited to 4). The SHA-256 checksum above is of the reconstructed
+  // PRE-patch original: those bytes only exist transiently in memory during
+  // this run — the checked-out file is reverted to the original, verified,
+  // then re-patched before being written back.
   if (name.endsWith('.js')) {
     bytes = Buffer.from(bytes.toString().replace(poolLimited, poolOriginal));
   }

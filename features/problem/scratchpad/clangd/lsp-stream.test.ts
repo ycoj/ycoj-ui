@@ -1,9 +1,17 @@
-import {
-  encodeMessage,
-  MessageDecoder,
-  StdinStream,
-} from '@/public/clangd/lsp-stream.mjs';
+import { MessageDecoder, StdinStream } from '@/public/clangd/lsp-stream.mjs';
 import { describe, expect, it, vi } from 'vitest';
+
+/** Encode byte lengths, including non-ASCII source code, for clangd's stdin. */
+function encodeMessage(message: unknown): Uint8Array {
+  const body = new TextEncoder().encode(JSON.stringify(message));
+  const header = new TextEncoder().encode(
+    `Content-Length: ${body.length}\r\n\r\n`
+  );
+  const bytes = new Uint8Array(header.length + body.length);
+  bytes.set(header);
+  bytes.set(body, header.length);
+  return bytes;
+}
 
 describe('clangd byte framing', () => {
   it('keeps header lines and body separate for the patched stdin waits', async () => {

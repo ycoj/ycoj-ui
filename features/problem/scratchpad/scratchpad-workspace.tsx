@@ -511,6 +511,22 @@ export default function ScratchpadWorkspace({
     t,
   ]);
 
+  const handleReloadClangd = useCallback(async () => {
+    if (!draftLoaded || clangdReloading) return;
+    setClangdReloading(true);
+    try {
+      await saveScratchpadDraft({ id: draftId, code, language });
+      window.localStorage.setItem(
+        SETTINGS_KEY,
+        JSON.stringify({ ...settings, clangd: true })
+      );
+      window.location.assign(getClangdReloadUrl(window.location.href));
+    } catch {
+      setClangdReloading(false);
+      toast.error(t('clangd.saveFailed'));
+    }
+  }, [clangdReloading, code, draftId, draftLoaded, language, settings, t]);
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.isComposing) return;
@@ -578,21 +594,8 @@ export default function ScratchpadWorkspace({
       settings={settings}
       onChange={setSettings}
       clangdReloading={clangdReloading}
-      onReloadClangd={async () => {
-        if (!draftLoaded || clangdReloading) return;
-        setClangdReloading(true);
-        try {
-          await saveScratchpadDraft({ id: draftId, code, language });
-          window.localStorage.setItem(
-            SETTINGS_KEY,
-            JSON.stringify({ ...settings, clangd: true })
-          );
-          window.location.assign(getClangdReloadUrl(window.location.href));
-        } catch {
-          setClangdReloading(false);
-          toast.error(t('clangd.saveFailed'));
-        }
-      }}
+      clangdDraftPending={!draftLoaded}
+      onReloadClangd={handleReloadClangd}
     />
   );
   const problemStatement = canPretest ? (

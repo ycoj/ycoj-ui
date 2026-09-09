@@ -44,6 +44,12 @@ export function startClangdSession(
   const subscriptions: { dispose: () => void }[] = [];
   onStatus('loading');
 
+  const severityByLsp: Record<number, MonacoApi.MarkerSeverity> = {
+    1: monaco.MarkerSeverity.Error,
+    2: monaco.MarkerSeverity.Warning,
+    3: monaco.MarkerSeverity.Info,
+    4: monaco.MarkerSeverity.Hint,
+  };
   const connection = new ClangdConnection(
     new Worker('/clangd/worker.mjs', {
       type: 'module',
@@ -74,14 +80,8 @@ export function startClangdSession(
           code:
             diagnostic.code === undefined ? undefined : String(diagnostic.code),
           severity:
-            (
-              {
-                1: monaco.MarkerSeverity.Error,
-                2: monaco.MarkerSeverity.Warning,
-                3: monaco.MarkerSeverity.Info,
-                4: monaco.MarkerSeverity.Hint,
-              } as Record<number, number>
-            )[diagnostic.severity ?? 1] ?? monaco.MarkerSeverity.Error,
+            severityByLsp[diagnostic.severity ?? 1] ??
+            monaco.MarkerSeverity.Error,
         }))
       );
     },
@@ -114,6 +114,57 @@ export function startClangdSession(
       textDocument: { uri, version: ++version },
       contentChanges: [{ text: model!.getValue() }],
     });
+  }
+
+  function isStale(
+    current: MonacoApi.editor.ITextModel,
+    requestedVersion: number
+  ) {
+    return (
+      disposed ||
+      current.isDisposed() ||
+      current.getVersionId() !== requestedVersion
+    );
+  }
+
+  function requestWithCancellation<T>(
+    token: MonacoApi.CancellationToken,
+    run: (signal: AbortSignal) => Promise<T>
+  ) {
+    const abort = new AbortController();
+    const cancellation = token.onCancellationRequested(() => abort.abort());
+    if (token.isCancellationRequested) abort.abort();
+    return run(abort.signal).finally(() => cancellation.dispose());
+  }
+
+  async function requestPositionInfo<T>(
+    method: string,
+    current: MonacoApi.editor.ITextModel,
+    position: MonacoApi.Position,
+    token: MonacoApi.CancellationToken
+  ): Promise<T | undefined> {
+    if (current !== model || disposed) return undefined;
+    sync();
+    const requestedVersion = current.getVersionId();
+    try {
+      const result = await requestWithCancellation(token, (signal) =>
+        connection.request<T>(
+          method,
+          {
+            textDocument: { uri },
+            position: {
+              line: position.lineNumber - 1,
+              character: position.column - 1,
+            },
+          },
+          signal
+        )
+      );
+      if (!result || isStale(current, requestedVersion)) return undefined;
+      return result;
+    } catch {
+      return undefined;
+    }
   }
 
   async function initialize() {
@@ -155,149 +206,102 @@ export function startClangdSession(
       })
     );
     const kinds = monaco.languages.CompletionItemKind;
-    const completionKinds = [
-      kinds.Text,
-      kinds.Text,
-      kinds.Method,
-      kinds.Function,
-      kinds.Constructor,
-      kinds.Field,
-      kinds.Variable,
-      kinds.Class,
-      kinds.Interface,
-      kinds.Module,
-      kinds.Property,
-      kinds.Unit,
-      kinds.Value,
-      kinds.Enum,
-      kinds.Keyword,
-      kinds.Snippet,
-      kinds.Color,
-      kinds.File,
-      kinds.Reference,
-      kinds.Folder,
-      kinds.EnumMember,
-      kinds.Constant,
-      kinds.Struct,
-      kinds.Event,
-      kinds.Operator,
-      kinds.TypeParameter,
-    ];
+    const completionKinds: Record<
+      number,
+      MonacoApi.languages.CompletionItemKind
+    > = {
+      1: kinds.Text,
+      2: kinds.Method,
+      3: kinds.Function,
+      4: kinds.Constructor,
+      5: kinds.Field,
+      6: kinds.Variable,
+      7: kinds.Class,
+      8: kinds.Interface,
+      9: kinds.Module,
+      10: kinds.Property,
+      11: kinds.Unit,
+      12: kinds.Value,
+      13: kinds.Enum,
+      14: kinds.Keyword,
+      15: kinds.Snippet,
+      16: kinds.Color,
+      17: kinds.File,
+      18: kinds.Reference,
+      19: kinds.Folder,
+      20: kinds.EnumMember,
+      21: kinds.Constant,
+      22: kinds.Struct,
+      23: kinds.Event,
+      24: kinds.Operator,
+      25: kinds.TypeParameter,
+    };
     subscriptions.push(
       monaco.languages.registerCompletionItemProvider('cpp', {
         triggerCharacters: ['.', '>', ':'],
         async provideCompletionItems(current, position, _context, token) {
-          if (current !== model || disposed) return { suggestions: [] };
-          sync();
-          const requestedVersion = current.getVersionId();
-          const abort = new AbortController();
-          const cancellation = token.onCancellationRequested(() =>
-            abort.abort()
+          const result = await requestPositionInfo<CompletionResult>(
+            'textDocument/completion',
+            current,
+            position,
+            token
           );
-          if (token.isCancellationRequested) abort.abort();
-          try {
-            const result = await connection.request<CompletionResult>(
-              'textDocument/completion',
-              {
-                textDocument: { uri },
-                position: {
-                  line: position.lineNumber - 1,
-                  character: position.column - 1,
-                },
-              },
-              abort.signal
-            );
-            if (
-              !result ||
-              disposed ||
-              current.isDisposed() ||
-              current.getVersionId() !== requestedVersion
-            )
-              return { suggestions: [] };
-            const word = current.getWordUntilPosition(position);
-            return {
-              incomplete: !Array.isArray(result) && result.isIncomplete,
-              suggestions: (Array.isArray(result) ? result : result.items).map(
-                (item) => ({
-                  label: item.label,
-                  kind: completionKinds[item.kind ?? 1] ?? kinds.Text,
-                  detail: item.detail,
-                  documentation: item.documentation
-                    ? markdown(item.documentation)
+          if (!result) return { suggestions: [] };
+          const word = current.getWordUntilPosition(position);
+          return {
+            incomplete: !Array.isArray(result) && result.isIncomplete,
+            suggestions: (Array.isArray(result) ? result : result.items).map(
+              (item) => ({
+                label: item.label,
+                kind: completionKinds[item.kind ?? 1] ?? kinds.Text,
+                detail: item.detail,
+                documentation: item.documentation
+                  ? markdown(item.documentation)
+                  : undefined,
+                insertText:
+                  item.textEdit?.newText ?? item.insertText ?? item.label,
+                insertTextRules:
+                  item.insertTextFormat === 2
+                    ? monaco.languages.CompletionItemInsertTextRule
+                        .InsertAsSnippet
                     : undefined,
-                  insertText:
-                    item.textEdit?.newText ?? item.insertText ?? item.label,
-                  insertTextRules:
-                    item.insertTextFormat === 2
-                      ? monaco.languages.CompletionItemInsertTextRule
-                          .InsertAsSnippet
-                      : undefined,
-                  filterText: item.filterText,
-                  sortText: item.sortText,
-                  range: item.textEdit
-                    ? range(item.textEdit.range)
-                    : {
-                        startLineNumber: position.lineNumber,
-                        endLineNumber: position.lineNumber,
-                        startColumn: word.startColumn,
-                        endColumn: word.endColumn,
-                      },
-                  additionalTextEdits: item.additionalTextEdits?.map(
-                    (edit) => ({ range: range(edit.range), text: edit.newText })
-                  ),
-                })
-              ),
-            };
-          } catch {
-            return { suggestions: [] };
-          } finally {
-            cancellation.dispose();
-          }
+                filterText: item.filterText,
+                sortText: item.sortText,
+                range: item.textEdit
+                  ? range(item.textEdit.range)
+                  : {
+                      startLineNumber: position.lineNumber,
+                      endLineNumber: position.lineNumber,
+                      startColumn: word.startColumn,
+                      endColumn: word.endColumn,
+                    },
+                additionalTextEdits: item.additionalTextEdits?.map((edit) => ({
+                  range: range(edit.range),
+                  text: edit.newText,
+                })),
+              })
+            ),
+          };
         },
       })
     );
     subscriptions.push(
       monaco.languages.registerHoverProvider('cpp', {
         async provideHover(current, position, token) {
-          if (current !== model || disposed) return null;
-          sync();
-          const requestedVersion = current.getVersionId();
-          const abort = new AbortController();
-          const cancellation = token.onCancellationRequested(() =>
-            abort.abort()
+          const result = await requestPositionInfo<Hover>(
+            'textDocument/hover',
+            current,
+            position,
+            token
           );
-          if (token.isCancellationRequested) abort.abort();
-          try {
-            const result = await connection.request<Hover>(
-              'textDocument/hover',
-              {
-                textDocument: { uri },
-                position: {
-                  line: position.lineNumber - 1,
-                  character: position.column - 1,
-                },
-              },
-              abort.signal
-            );
-            if (
-              !result ||
-              disposed ||
-              current.isDisposed() ||
-              current.getVersionId() !== requestedVersion
-            )
-              return null;
-            return {
-              range: result.range ? range(result.range) : undefined,
-              contents: (Array.isArray(result.contents)
-                ? result.contents
-                : [result.contents]
-              ).map(markdown),
-            };
-          } catch {
-            return null;
-          } finally {
-            cancellation.dispose();
-          }
+          if (!result) return null;
+          return {
+            range: result.range ? range(result.range) : undefined,
+            contents: (Array.isArray(result.contents)
+              ? result.contents
+              : [result.contents]
+            ).map(markdown),
+          };
         },
       })
     );

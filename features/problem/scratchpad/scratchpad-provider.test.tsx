@@ -1,3 +1,7 @@
+import {
+  CLANGD_ISOLATION_PARAM,
+  SCRATCHPAD_OPEN_PARAM,
+} from './clangd/clangd-support';
 import ScratchpadProvider, { useScratchpad } from './scratchpad-provider';
 import type { ScratchpadConfig } from './scratchpad-types';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -47,7 +51,7 @@ describe('ScratchpadProvider', () => {
     window.history.replaceState(
       null,
       '',
-      '/problem/P1?tid=contest&clangd=1&scratchpad=1'
+      `/problem/P1?tid=contest&${CLANGD_ISOLATION_PARAM}=1&${SCRATCHPAD_OPEN_PARAM}=1`
     );
     render(
       <StrictMode>
@@ -57,7 +61,9 @@ describe('ScratchpadProvider', () => {
       </StrictMode>
     );
     await waitFor(() => expect(screen.getByRole('dialog')).toBeInTheDocument());
-    expect(window.location.search).toBe('?tid=contest&clangd=1');
+    expect(window.location.search).toBe(
+      `?tid=contest&${CLANGD_ISOLATION_PARAM}=1`
+    );
     window.history.replaceState(null, '', '/');
   });
   it('opens, closes, and restores focus to the launcher', async () => {

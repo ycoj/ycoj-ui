@@ -79,29 +79,33 @@ export class ClangdConnection {
     if (this.disposed || signal?.aborted)
       return Promise.reject(new Error('Request cancelled'));
     const id = ++this.nextId;
-    let cancel = () => {};
+    let cancel: (reason: string) => void = () => {};
+    let onAbort: () => void = () => {};
     const result = new Promise<unknown>((resolve, reject) => {
-      cancel = () => {
+      cancel = (reason: string) => {
         const request = this.pending.get(id);
         if (!request) return;
         this.pending.delete(id);
         clearTimeout(request.timer);
         this.notify('$/cancelRequest', { id });
-        reject(new Error('Request cancelled or timed out'));
+        reject(new Error(reason));
       };
+      onAbort = () => cancel('Request cancelled');
+      // A slow request is rejected on its own; only worker failures or the
+      // startup budget tear the whole connection down.
       this.pending.set(id, {
         resolve,
         reject,
-        timer: setTimeout(() => this.fail(), 15_000),
+        timer: setTimeout(() => cancel('Request timed out'), 15_000),
       });
-      signal?.addEventListener('abort', cancel, { once: true });
+      signal?.addEventListener('abort', onAbort, { once: true });
       this.worker.postMessage({
         type: 'rpc',
         message: { jsonrpc: '2.0', id, method, params },
       });
     });
     return result.finally(() =>
-      signal?.removeEventListener('abort', cancel)
+      signal?.removeEventListener('abort', onAbort)
     ) as Promise<T>;
   }
 

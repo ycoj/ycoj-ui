@@ -1,6 +1,8 @@
 export type ClangdSupport =
   'supported' | 'reload' | 'unsupported' | 'lowMemory';
 export type ClangdStatus = 'loading' | 'ready' | 'failed';
+export const CLANGD_ISOLATION_PARAM = 'clangd';
+export const SCRATCHPAD_OPEN_PARAM = 'scratchpad';
 
 export function getClangdSupport(): ClangdSupport {
   if (
@@ -15,7 +17,9 @@ export function getClangdSupport(): ClangdSupport {
     .deviceMemory;
   if (memory !== undefined && memory < 8) return 'lowMemory';
   if (!window.crossOriginIsolated) {
-    return new URL(window.location.href).searchParams.get('clangd') === '1'
+    return new URL(window.location.href).searchParams.get(
+      CLANGD_ISOLATION_PARAM
+    ) === '1'
       ? 'unsupported'
       : 'reload';
   }
@@ -29,6 +33,8 @@ export function getClangdSupport(): ClangdSupport {
 }
 
 export function getClangdStandard(language: string): string | undefined {
+  // Keep in sync with the supported-standards whitelist in
+  // public/clangd/worker.mjs.
   const version =
     /^(?:cc|cpp)\.(?:cc|cpp)(98|03|11|14|17|20|23|26|2a|2b|2c)(?:o2)?$/.exec(
       language
@@ -45,7 +51,7 @@ export function getClangdStandard(language: string): string | undefined {
 
 export function getClangdReloadUrl(href: string): string {
   const url = new URL(href);
-  url.searchParams.set('clangd', '1');
-  url.searchParams.set('scratchpad', '1');
+  url.searchParams.set(CLANGD_ISOLATION_PARAM, '1');
+  url.searchParams.set(SCRATCHPAD_OPEN_PARAM, '1');
   return url.href;
 }

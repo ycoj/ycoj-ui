@@ -1,15 +1,3 @@
-/** Encode byte lengths, including non-ASCII source code, for clangd's stdin. */
-export function encodeMessage(message) {
-  const body = new TextEncoder().encode(JSON.stringify(message));
-  const header = new TextEncoder().encode(
-    `Content-Length: ${body.length}\r\n\r\n`
-  );
-  const bytes = new Uint8Array(header.length + body.length);
-  bytes.set(header);
-  bytes.set(body, header.length);
-  return bytes;
-}
-
 /** The patched transport waits before each header line and body read. Keep
  * these chunks separate so stdio cannot read ahead and then wait on an empty queue. */
 export class StdinStream {

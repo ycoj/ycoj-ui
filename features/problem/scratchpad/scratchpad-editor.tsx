@@ -17,6 +17,11 @@ type Props = ComponentProps<typeof CodeEditor> & {
   onDisableClangd: () => void;
 };
 
+type MountedEditor = {
+  editor: Parameters<OnMount>[0];
+  monaco: Parameters<OnMount>[1];
+};
+
 export default function ScratchpadEditor({
   clangdEnabled,
   compilerLanguage,
@@ -24,7 +29,7 @@ export default function ScratchpadEditor({
   ...props
 }: Props) {
   const t = useTranslations('problem.scratchpad.clangd');
-  const [mounted, setMounted] = useState<Parameters<OnMount>>();
+  const [mounted, setMounted] = useState<MountedEditor>();
   const [status, setStatus] = useState<ClangdStatus>('loading');
   const [support] = useState(getClangdSupport);
   const standard = getClangdStandard(compilerLanguage);
@@ -38,8 +43,8 @@ export default function ScratchpadEditor({
       .then(({ startClangdSession }) => {
         if (!active) return;
         session = startClangdSession(
-          mounted[0],
-          mounted[1],
+          mounted.editor,
+          mounted.monaco,
           standard,
           setStatus
         );
@@ -71,7 +76,7 @@ export default function ScratchpadEditor({
       <div className="min-h-0 flex-1">
         <CodeEditor
           {...props}
-          onMount={(editor, monaco) => setMounted([editor, monaco])}
+          onMount={(editor, monaco) => setMounted({ editor, monaco })}
         />
       </div>
     </div>

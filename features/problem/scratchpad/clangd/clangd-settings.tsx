@@ -9,6 +9,7 @@ type Props = {
   enabled: boolean;
   onChange: (enabled: boolean) => void;
   reloading: boolean;
+  draftPending: boolean;
   onReload: () => Promise<void>;
 };
 
@@ -16,6 +17,7 @@ export default function ClangdSettings({
   enabled,
   onChange,
   reloading,
+  draftPending,
   onReload,
 }: Props) {
   const t = useTranslations('problem.scratchpad.clangd');
@@ -39,7 +41,11 @@ export default function ClangdSettings({
         </p>
       )}
       {support === 'reload' && (
-        <Button size="sm" disabled={reloading} onClick={() => void onReload()}>
+        <Button
+          size="sm"
+          disabled={reloading || draftPending}
+          onClick={() => void onReload()}
+        >
           {t(reloading ? 'saving' : 'enableReload')}
         </Button>
       )}

@@ -1,4 +1,6 @@
 import {
+  CLANGD_ISOLATION_PARAM,
+  SCRATCHPAD_OPEN_PARAM,
   getClangdReloadUrl,
   getClangdStandard,
   getClangdSupport,
@@ -31,7 +33,11 @@ describe('clangd browser support', () => {
   it('requires a reload for a document without isolation and avoids reload loops', () => {
     vi.stubGlobal('crossOriginIsolated', false);
     expect(getClangdSupport()).toBe('reload');
-    window.history.replaceState(null, '', '/problem/P1?clangd=1');
+    window.history.replaceState(
+      null,
+      '',
+      `/problem/P1?${CLANGD_ISOLATION_PARAM}=1`
+    );
     expect(getClangdSupport()).toBe('unsupported');
   });
   it('rejects browsers without workers or secure contexts', () => {
@@ -69,8 +75,8 @@ describe('clangd compiler selection', () => {
       getClangdReloadUrl('https://ycoj.cc/problem/P1?tid=contest#sample')
     );
     expect(url.searchParams.get('tid')).toBe('contest');
-    expect(url.searchParams.get('clangd')).toBe('1');
-    expect(url.searchParams.get('scratchpad')).toBe('1');
+    expect(url.searchParams.get(CLANGD_ISOLATION_PARAM)).toBe('1');
+    expect(url.searchParams.get(SCRATCHPAD_OPEN_PARAM)).toBe('1');
     expect(url.hash).toBe('#sample');
   });
 });
