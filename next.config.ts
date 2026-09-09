@@ -14,6 +14,35 @@ const nextConfig: NextConfig = {
   },
   assetPrefix:
     process.env.NODE_ENV === 'production' ? 'https://next-cdn.ycoj.cc' : '',
+  async headers() {
+    const isolationHeaders = [
+      { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+      { key: 'Cross-Origin-Embedder-Policy', value: 'credentialless' },
+    ];
+    return [
+      {
+        source: '/problem/:path*',
+        has: [{ type: 'query', key: 'clangd', value: '1' }],
+        headers: isolationHeaders,
+      },
+      {
+        source: '/clangd/:path*',
+        headers: [
+          ...isolationHeaders,
+          { key: 'Cross-Origin-Resource-Policy', value: 'same-origin' },
+        ],
+      },
+      {
+        source: '/clangd/v1/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+    ];
+  },
   async rewrites() {
     return [
       {

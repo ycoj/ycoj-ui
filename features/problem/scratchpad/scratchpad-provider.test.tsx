@@ -1,7 +1,8 @@
 import ScratchpadProvider, { useScratchpad } from './scratchpad-provider';
 import type { ScratchpadConfig } from './scratchpad-types';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { StrictMode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('./scratchpad-workspace', () => ({
@@ -42,6 +43,23 @@ function renderProvider() {
 }
 
 describe('ScratchpadProvider', () => {
+  it('reopens after the isolation reload even with Strict Mode effect replay', async () => {
+    window.history.replaceState(
+      null,
+      '',
+      '/problem/P1?tid=contest&clangd=1&scratchpad=1'
+    );
+    render(
+      <StrictMode>
+        <ScratchpadProvider config={config} statement={<p>Statement</p>}>
+          <Launcher />
+        </ScratchpadProvider>
+      </StrictMode>
+    );
+    await waitFor(() => expect(screen.getByRole('dialog')).toBeInTheDocument());
+    expect(window.location.search).toBe('?tid=contest&clangd=1');
+    window.history.replaceState(null, '', '/');
+  });
   it('opens, closes, and restores focus to the launcher', async () => {
     const user = userEvent.setup();
     renderProvider();

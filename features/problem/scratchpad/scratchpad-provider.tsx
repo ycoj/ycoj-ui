@@ -49,6 +49,17 @@ export default function ScratchpadProvider({
   }, []);
 
   useEffect(() => {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get('scratchpad') !== '1') return;
+    const frame = window.requestAnimationFrame(() => {
+      url.searchParams.delete('scratchpad');
+      window.history.replaceState(window.history.state, '', url);
+      open();
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [open]);
+
+  useEffect(() => {
     if (isOpen) return;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.altKey && event.key.toLowerCase() === 'e') {
