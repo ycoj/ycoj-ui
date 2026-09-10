@@ -13,14 +13,13 @@ export type HtmlToMarkdownPollResponse = Errorable<
 >;
 
 export const submitHtmlToMarkdown = (pid: string, profileId?: string) =>
-  clientRequest.Post<HtmlToMarkdownSubmitResponse>(`/p/${pid}`, {
-    operation: 'html_to_markdown',
-    ...(profileId && { profileId }),
-  });
+  clientRequest.Post<HtmlToMarkdownSubmitResponse>(
+    `/p/${pid}/html-to-markdown`,
+    { ...(profileId && { profileId }) }
+  );
 
 export const pollHtmlToMarkdown = (pid: string, jobId: string) =>
   clientRequest.Get<HtmlToMarkdownPollResponse>(
-    `/p/${pid}/html-to-markdown/${jobId}`
+    `/p/${pid}/html-to-markdown/${jobId}`,
+    { cacheFor: 0 }
   );
-
-export const htmlToMarkdown = submitHtmlToMarkdown;
