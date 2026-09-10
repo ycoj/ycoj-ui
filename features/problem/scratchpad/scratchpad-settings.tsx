@@ -1,5 +1,6 @@
 'use client';
 
+import ClangdSettings from '@/features/problem/scratchpad/clangd/clangd-settings';
 import type {
   ScratchpadEditorTheme,
   ScratchpadSettings,
@@ -19,9 +20,18 @@ import { useState } from 'react';
 type Props = {
   settings: ScratchpadSettings;
   onChange: (settings: ScratchpadSettings) => void;
+  clangdReloading: boolean;
+  clangdDraftPending: boolean;
+  onReloadClangd: () => Promise<void>;
 };
 
-export default function ScratchpadSettingsPanel({ settings, onChange }: Props) {
+export default function ScratchpadSettingsPanel({
+  settings,
+  onChange,
+  clangdReloading,
+  clangdDraftPending,
+  onReloadClangd,
+}: Props) {
   const t = useTranslations('problem.scratchpad');
   const [fontSizeDraft, setFontSizeDraft] = useState<string>(
     String(settings.fontSize)
@@ -29,6 +39,13 @@ export default function ScratchpadSettingsPanel({ settings, onChange }: Props) {
 
   return (
     <div className="space-y-6 p-4" data-llm-visible="true">
+      <ClangdSettings
+        enabled={settings.clangd}
+        onChange={(clangd) => onChange({ ...settings, clangd })}
+        reloading={clangdReloading}
+        draftPending={clangdDraftPending}
+        onReload={onReloadClangd}
+      />
       <div className="space-y-2">
         <Label htmlFor="scratchpad-font-size" data-llm-text={t('fontSize')}>
           {t('fontSize')}

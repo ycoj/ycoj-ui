@@ -1083,7 +1083,25 @@
       "fillSample": "Fill into pretest",
       "submitted": "Submitted",
       "submittedHidden": "Submitted. Results are hidden by the contest rules.",
-      "unknownStatus": "Unknown status"
+      "unknownStatus": "Unknown status",
+      "clangd": {
+        "title": "C++ language server (clangd Wasm)",
+        "description": "Optional completion, hover information and error checks run on your device. The first download is about 121 MiB before compression. This mode reserves 2 GiB of memory; 8 GiB of device RAM is recommended. Ordinary editing uses fewer resources.",
+        "compatibility": "Uses Clang and libc++ with a convenience bits/stdc++.h header. GCC-specific libraries such as PBDS are unavailable; judge results remain authoritative.",
+        "unsupported": "This browser or page cannot run the C++ language server. Ordinary editing remains available.",
+        "lowMemory": "Your browser reports less than 8 GiB of device RAM. Use ordinary editing on this device.",
+        "reloadDescription": "Enabling this mode saves your draft and reloads the page with the browser features it needs.",
+        "enableReload": "Enable and reload",
+        "saving": "Saving draft…",
+        "enable": "Enable the C++ language server",
+        "disable": "Use ordinary mode",
+        "loading": "Loading the C++ language server… You can keep editing.",
+        "ready": "C++ language server ready",
+        "failed": "The C++ language server stopped. Ordinary editing is still available; disable and enable it to retry.",
+        "reload": "Open settings to reload and activate the C++ language server.",
+        "languageUnsupported": "The C++ language server is unavailable for this compiler version. Using ordinary editing.",
+        "saveFailed": "Could not save your draft or preferences. The page was not reloaded."
+      }
     },
     "objectiveForm": {
       "answer": "Answer",

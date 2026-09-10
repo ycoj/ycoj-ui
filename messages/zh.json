@@ -1083,7 +1083,25 @@
       "fillSample": "填充到自测",
       "submitted": "已提交",
       "submittedHidden": "提交成功，比赛规则暂不显示结果。",
-      "unknownStatus": "未知状态"
+      "unknownStatus": "未知状态",
+      "clangd": {
+        "title": "C++ 语言服务器（clangd Wasm）",
+        "description": "可选的补全、悬停提示和错误检查均在你的设备上运行。首次下载约 121 MiB（压缩前），此模式预留 2 GiB 内存，建议设备至少有 8 GiB 内存。普通编辑模式更节省资源。",
+        "compatibility": "使用 Clang 和 libc++，提供便捷的 bits/stdc++.h 头文件。不支持 PBDS 等 GCC 专用库，最终结果以评测为准。",
+        "unsupported": "当前浏览器或页面无法运行 C++ 语言服务器，仍可使用普通编辑模式。",
+        "lowMemory": "浏览器报告的设备内存不足 8 GiB，请在此设备上使用普通编辑模式。",
+        "reloadDescription": "启用后将保存草稿并重新加载页面，以开启所需的浏览器功能。",
+        "enableReload": "启用并重新加载",
+        "saving": "正在保存草稿…",
+        "enable": "启用 C++ 语言服务器",
+        "disable": "使用普通模式",
+        "loading": "正在加载 C++ 语言服务器… 你可以继续编辑。",
+        "ready": "C++ 语言服务器已就绪",
+        "failed": "C++ 语言服务器已停止，仍可正常编辑。关闭后重新启用可重试。",
+        "reload": "请打开设置，重新加载页面以启用 C++ 语言服务器。",
+        "languageUnsupported": "此编译器版本暂不支持 C++ 语言服务器，使用普通编辑模式。",
+        "saveFailed": "无法保存草稿或偏好设置，页面未重新加载。"
+      }
     },
     "objectiveForm": {
       "answer": "答案",

@@ -1,0 +1,2 @@
+public/clangd/v2/clangd.js filter=lfs diff=lfs merge=lfs -text
+public/clangd/v2/clangd.wasm filter=lfs diff=lfs merge=lfs -text
