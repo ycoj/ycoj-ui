@@ -12,7 +12,7 @@ import {
   uploadProblemConfig,
   uploadProblemFile,
 } from './files';
-import { htmlToMarkdown } from './html-to-markdown';
+import { pollHtmlToMarkdown, submitHtmlToMarkdown } from './html-to-markdown';
 import { importProblems } from './import';
 import { searchOmnibarProblems } from './omnibar-search';
 import { deleteProblemSolution } from './solution-delete';
@@ -27,7 +27,8 @@ const Problem = {
   searchOmnibarProblems,
   createProblem,
   editProblem,
-  htmlToMarkdown,
+  submitHtmlToMarkdown,
+  pollHtmlToMarkdown,
   generateAiTestdata,
   getProblemFileLinks,
   getProblemFileDownloadUrl,

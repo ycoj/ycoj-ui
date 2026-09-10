@@ -1,7 +1,13 @@
 import HtmlToMarkdownSection from '@/features/problem/form/html-to-markdown-section';
 import type { ProblemFormValues } from '@/features/problem/form/problem-form';
 import messages from '@/messages/en.json';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import { useForm, useWatch } from 'react-hook-form';
@@ -9,11 +15,17 @@ import { toast } from 'sonner';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
-  htmlToMarkdown: vi.fn(),
+  submitHtmlToMarkdown: vi.fn(),
+  pollHtmlToMarkdown: vi.fn(),
 }));
 
 vi.mock('@/api/client/method', () => ({
-  default: { Problem: { htmlToMarkdown: mocks.htmlToMarkdown } },
+  default: {
+    Problem: {
+      submitHtmlToMarkdown: mocks.submitHtmlToMarkdown,
+      pollHtmlToMarkdown: mocks.pollHtmlToMarkdown,
+    },
+  },
 }));
 
 const defaultValues: ProblemFormValues = {
@@ -58,7 +70,8 @@ function Harness({ originalContent }: { originalContent: string }) {
 
 describe('HtmlToMarkdownSection', () => {
   beforeEach(() => {
-    mocks.htmlToMarkdown.mockReset();
+    mocks.submitHtmlToMarkdown.mockReset();
+    mocks.pollHtmlToMarkdown.mockReset();
     vi.spyOn(toast, 'error').mockImplementation(() => '');
     vi.spyOn(toast, 'success').mockImplementation(() => '');
   });
@@ -69,8 +82,16 @@ describe('HtmlToMarkdownSection', () => {
 
   it('warns when conversion is launched after the statement has changed', async () => {
     const user = userEvent.setup();
-    const send = vi.fn().mockResolvedValue({ markdown: '# converted' });
-    mocks.htmlToMarkdown.mockReturnValue({ send });
+    const submitSend = vi
+      .fn()
+      .mockResolvedValue({ jobId: 'job-123', status: 'pending' });
+    const pollSend = vi.fn().mockResolvedValue({
+      jobId: 'job-123',
+      status: 'completed',
+      markdown: '# converted',
+    });
+    mocks.submitHtmlToMarkdown.mockReturnValue({ send: submitSend });
+    mocks.pollHtmlToMarkdown.mockReturnValue({ send: pollSend });
     render(<Harness originalContent="# saved statement" />);
 
     await user.clear(screen.getByLabelText('statement'));
@@ -82,10 +103,14 @@ describe('HtmlToMarkdownSection', () => {
     expect(screen.getByRole('alertdialog')).toHaveTextContent(
       'You have unsaved edits. Conversion uses the last saved statement and will replace what you see now.'
     );
-    expect(send).not.toHaveBeenCalled();
+    expect(submitSend).not.toHaveBeenCalled();
 
     await user.click(screen.getByRole('button', { name: 'Convert' }));
-    await waitFor(() => expect(send).toHaveBeenCalled());
+
+    await waitFor(() => expect(submitSend).toHaveBeenCalled());
+    await waitFor(() => expect(pollSend).toHaveBeenCalled(), {
+      timeout: 2000,
+    });
     await waitFor(() =>
       expect(screen.getByLabelText('statement')).toHaveValue('# converted')
     );
@@ -96,20 +121,35 @@ describe('HtmlToMarkdownSection', () => {
 
   it('does not replace later edits made while conversion is pending', async () => {
     const user = userEvent.setup();
-    let resolveConvert!: (value: { markdown: string }) => void;
-    const send = vi.fn(
-      () =>
-        new Promise<{ markdown: string }>((resolve) => {
-          resolveConvert = resolve;
-        })
-    );
-    mocks.htmlToMarkdown.mockReturnValue({ send });
+    const submitSend = vi
+      .fn()
+      .mockResolvedValue({ jobId: 'job-123', status: 'pending' });
+
+    let pollCallCount = 0;
+    const pollSend = vi.fn().mockImplementation(() => {
+      pollCallCount++;
+      if (pollCallCount === 1) {
+        return Promise.resolve({ jobId: 'job-123', status: 'pending' });
+      }
+      return Promise.resolve({
+        jobId: 'job-123',
+        status: 'completed',
+        markdown: '# converted',
+      });
+    });
+
+    mocks.submitHtmlToMarkdown.mockReturnValue({ send: submitSend });
+    mocks.pollHtmlToMarkdown.mockReturnValue({ send: pollSend });
     render(<Harness originalContent="# saved statement" />);
 
-    await user.click(
+    const convertPromise = user.click(
       screen.getByRole('button', { name: 'Convert HTML to Markdown' })
     );
-    expect(send).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(submitSend).toHaveBeenCalledTimes(1));
+
+    await waitFor(() => expect(pollSend).toHaveBeenCalledTimes(1), {
+      timeout: 2000,
+    });
 
     await user.clear(screen.getByLabelText('statement'));
     await user.type(
@@ -117,9 +157,11 @@ describe('HtmlToMarkdownSection', () => {
       '# typed while pending'
     );
 
-    await act(async () => {
-      resolveConvert({ markdown: '# converted' });
+    await waitFor(() => expect(pollSend).toHaveBeenCalledTimes(2), {
+      timeout: 2000,
     });
+
+    await convertPromise;
 
     await waitFor(() =>
       expect(toast.error).toHaveBeenCalledWith(
@@ -132,11 +174,51 @@ describe('HtmlToMarkdownSection', () => {
     expect(toast.success).not.toHaveBeenCalled();
   });
 
+  it('times out and aborts a poll request that never settles', async () => {
+    vi.useFakeTimers();
+    try {
+      const submitSend = vi
+        .fn()
+        .mockResolvedValue({ jobId: 'job-123', status: 'pending' });
+      const pollAbort = vi.fn();
+      const pollSend = vi.fn().mockImplementation(() => new Promise(() => {}));
+      mocks.submitHtmlToMarkdown.mockReturnValue({ send: submitSend });
+      mocks.pollHtmlToMarkdown.mockReturnValue({
+        send: pollSend,
+        abort: pollAbort,
+      });
+      render(<Harness originalContent="# saved statement" />);
+
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Convert HTML to Markdown' })
+      );
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(60_000);
+      });
+
+      expect(pollSend).toHaveBeenCalledTimes(1);
+      expect(pollAbort).toHaveBeenCalledTimes(1);
+      expect(toast.error).toHaveBeenCalledWith(
+        'Conversion timed out. Please try again.'
+      );
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('shows an extra warning when HTML conversion would replace unsaved edits', async () => {
     const user = userEvent.setup();
-    mocks.htmlToMarkdown.mockReturnValue({
-      send: vi.fn().mockResolvedValue({ markdown: '# converted' }),
+    const submitSend = vi
+      .fn()
+      .mockResolvedValue({ jobId: 'job-123', status: 'pending' });
+    const pollSend = vi.fn().mockResolvedValue({
+      jobId: 'job-123',
+      status: 'completed',
+      markdown: '# converted',
     });
+    mocks.submitHtmlToMarkdown.mockReturnValue({ send: submitSend });
+    mocks.pollHtmlToMarkdown.mockReturnValue({ send: pollSend });
     render(<Harness originalContent="<p>saved</p>" />);
 
     await waitFor(() =>
@@ -161,14 +243,14 @@ describe('HtmlToMarkdownSection', () => {
 
   it('displays parsed HydroError messages instead of [object Object]', async () => {
     const user = userEvent.setup();
-    const send = vi.fn().mockResolvedValue({
+    const submitSend = vi.fn().mockResolvedValue({
       error: {
         name: 'ValidationError',
         message: 'Field {0} must be {1}',
         params: ['email', 'unique'],
       },
     });
-    mocks.htmlToMarkdown.mockReturnValue({ send });
+    mocks.submitHtmlToMarkdown.mockReturnValue({ send: submitSend });
     render(<Harness originalContent="# saved statement" />);
 
     await user.click(

@@ -1164,7 +1164,8 @@
       "confirm": "转换",
       "cancel": "取消",
       "success": "已转换为 Markdown，请检查后保存。",
-      "failed": "转换失败，请重试。"
+      "failed": "转换失败，请重试。",
+      "timeout": "转换超时，请重试。"
     }
   },
   "problemImport": {

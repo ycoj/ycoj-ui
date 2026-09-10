@@ -1164,7 +1164,8 @@
       "confirm": "Convert",
       "cancel": "Cancel",
       "success": "Converted to Markdown. Review and save.",
-      "failed": "Conversion failed. Please try again."
+      "failed": "Conversion failed. Please try again.",
+      "timeout": "Conversion timed out. Please try again."
     }
   },
   "problemImport": {
