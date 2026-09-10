@@ -21,7 +21,7 @@ import {
 import { Input } from '@/shared/components/ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
 import dayjs from 'dayjs';
-import { ArrowLeft, Plus, Save } from 'lucide-react';
+import { ArrowLeft, Copy, Plus, Save } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -36,6 +36,7 @@ type Props = {
   domainId: string;
   cancelHref: string;
   onSubmit: (values: HomeworkFormValues) => Promise<string>;
+  onClone?: (values: HomeworkFormValues) => Promise<string>;
 };
 
 const datePattern = /^\d{4}-\d{2}-\d{2}$/;
@@ -47,6 +48,7 @@ export default function HomeworkForm({
   domainId,
   cancelHref,
   onSubmit,
+  onClone,
 }: Props) {
   const t = useTranslations(
     mode === 'create' ? 'homeworkCreate' : 'homeworkEdit'
@@ -99,9 +101,12 @@ export default function HomeworkForm({
     defaultValues,
   });
 
-  const handleFormSubmit = async (values: HomeworkFormValues) => {
+  const runSubmission = async (
+    action: (values: HomeworkFormValues) => Promise<string>,
+    values: HomeworkFormValues
+  ) => {
     try {
-      const path = await onSubmit(values);
+      const path = await action(values);
       router.push(path);
       router.refresh();
     } catch (error) {
@@ -113,6 +118,14 @@ export default function HomeworkForm({
             : t('submitFailed'),
       });
     }
+  };
+
+  const handleFormSubmit = (values: HomeworkFormValues) =>
+    runSubmission(onSubmit, values);
+
+  const handleFormClone = async (values: HomeworkFormValues) => {
+    if (!onClone) return;
+    await runSubmission(onClone, values);
   };
 
   return (
@@ -344,6 +357,17 @@ export default function HomeworkForm({
           {mode === 'create' ? <Plus /> : <Save />}
           {isSubmitting ? t('creating') : t('create')}
         </Button>
+        {mode === 'edit' && onClone && (
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={isSubmitting}
+            onClick={handleSubmit(handleFormClone)}
+          >
+            <Copy />
+            {t('clone')}
+          </Button>
+        )}
         <Button asChild variant="secondary">
           <Link href={cancelHref}>
             <ArrowLeft />

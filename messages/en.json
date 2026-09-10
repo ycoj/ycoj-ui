@@ -592,6 +592,7 @@
     "submitFailed": "Failed to save the contest. Please try again later.",
     "creating": "Saving...",
     "create": "Save changes",
+    "clone": "Clone",
     "cancel": "Back to contest"
   },
   "homeworkCreate": {
@@ -660,6 +661,7 @@
     "submitFailed": "Failed to save the homework. Please try again later.",
     "creating": "Saving...",
     "create": "Save changes",
+    "clone": "Clone",
     "cancel": "Back to homework"
   },
   "trainingForm": {

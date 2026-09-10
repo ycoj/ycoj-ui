@@ -12,14 +12,24 @@ type Props = {
   tid: string;
   defaultValues: HomeworkFormValues;
   domainId: string;
+  canClone: boolean;
 };
 
 export default function HomeworkEditForm({
   tid,
   defaultValues,
   domainId,
+  canClone,
 }: Props) {
   const t = useTranslations('homeworkEdit');
+
+  const handleClone = async (values: HomeworkFormValues) => {
+    const response = await ClientApis.Homework.createHomework(
+      buildCreateHomeworkPayload(values)
+    ).send();
+    if (!response?.tid) throw new Error(t('submitFailed'));
+    return `/homework/${response.tid}`;
+  };
 
   return (
     <HomeworkForm
@@ -35,6 +45,7 @@ export default function HomeworkEditForm({
         if (!response?.tid) throw new Error(t('submitFailed'));
         return `/homework/${response.tid}`;
       }}
+      onClone={canClone ? handleClone : undefined}
     />
   );
 }

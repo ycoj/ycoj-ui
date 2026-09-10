@@ -13,6 +13,7 @@ type Props = {
   defaultValues: ContestFormValues;
   canAutoHide: boolean;
   domainId: string;
+  canClone: boolean;
 };
 
 export default function ContestEditForm({
@@ -20,8 +21,17 @@ export default function ContestEditForm({
   defaultValues,
   canAutoHide,
   domainId,
+  canClone,
 }: Props) {
   const t = useTranslations('contestEdit');
+
+  const handleClone = async (values: ContestFormValues) => {
+    const response = await ClientApis.Contest.createContest(
+      buildCreateContestPayload(values)
+    ).send();
+    if (!response?.tid) throw new Error(t('submitFailed'));
+    return `/contest/${response.tid}`;
+  };
 
   return (
     <ContestForm
@@ -38,6 +48,7 @@ export default function ContestEditForm({
         if (!response?.tid) throw new Error(t('submitFailed'));
         return `/contest/${response.tid}`;
       }}
+      onClone={canClone ? handleClone : undefined}
     />
   );
 }

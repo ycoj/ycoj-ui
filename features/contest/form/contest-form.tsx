@@ -35,7 +35,7 @@ import {
 import { cn } from '@/shared/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import dayjs from 'dayjs';
-import { ArrowLeft, Plus, Save } from 'lucide-react';
+import { ArrowLeft, Copy, Plus, Save } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -58,6 +58,7 @@ type Props = {
   domainId: string;
   cancelHref: string;
   onSubmit: (values: ContestFormValues) => Promise<string>;
+  onClone?: (values: ContestFormValues) => Promise<string>;
 };
 
 const datePattern = /^\d{4}-\d{2}-\d{2}$/;
@@ -70,6 +71,7 @@ export default function ContestForm({
   domainId,
   cancelHref,
   onSubmit,
+  onClone,
 }: Props) {
   const t = useTranslations(
     mode === 'create' ? 'contestCreate' : 'contestEdit'
@@ -138,9 +140,12 @@ export default function ContestForm({
   const supportsFlexibleDuration = contestRuleSupportsFlexibleDuration(rule);
   const supportsHiddenScoreboard = contestRuleSupportsHiddenScoreboard(rule);
 
-  const handleFormSubmit = async (values: ContestFormValues) => {
+  const runSubmission = async (
+    action: (values: ContestFormValues) => Promise<string>,
+    values: ContestFormValues
+  ) => {
     try {
-      const path = await onSubmit({
+      const path = await action({
         ...values,
         autoHide: resolveContestAutoHide(canAutoHide, values.autoHide),
       });
@@ -155,6 +160,14 @@ export default function ContestForm({
             : t('submitFailed'),
       });
     }
+  };
+
+  const handleFormSubmit = (values: ContestFormValues) =>
+    runSubmission(onSubmit, values);
+
+  const handleFormClone = async (values: ContestFormValues) => {
+    if (!onClone) return;
+    await runSubmission(onClone, values);
   };
 
   return (
@@ -481,6 +494,17 @@ export default function ContestForm({
           {mode === 'create' ? <Plus /> : <Save />}
           {isSubmitting ? t('creating') : t('create')}
         </Button>
+        {mode === 'edit' && onClone && (
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={isSubmitting}
+            onClick={handleSubmit(handleFormClone)}
+          >
+            <Copy />
+            {t('clone')}
+          </Button>
+        )}
         <Button asChild variant="secondary">
           <Link href={cancelHref}>
             <ArrowLeft />

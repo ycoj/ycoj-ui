@@ -592,6 +592,7 @@
     "submitFailed": "保存比赛失败，请稍后重试。",
     "creating": "保存中...",
     "create": "保存修改",
+    "clone": "复制",
     "cancel": "返回比赛"
   },
   "homeworkCreate": {
@@ -660,6 +661,7 @@
     "submitFailed": "保存作业失败，请稍后重试。",
     "creating": "保存中...",
     "create": "保存修改",
+    "clone": "复制",
     "cancel": "返回作业"
   },
   "trainingForm": {
