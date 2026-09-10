@@ -21,5 +21,5 @@ export const submitHtmlToMarkdown = (pid: string, profileId?: string) =>
 export const pollHtmlToMarkdown = (pid: string, jobId: string) =>
   clientRequest.Get<HtmlToMarkdownPollResponse>(
     `/p/${pid}/html-to-markdown/${jobId}`,
-    { cacheFor: 0 }
+    { cacheFor: 0, timeout: 10_000 }
   );

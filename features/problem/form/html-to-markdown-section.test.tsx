@@ -1,7 +1,13 @@
 import HtmlToMarkdownSection from '@/features/problem/form/html-to-markdown-section';
 import type { ProblemFormValues } from '@/features/problem/form/problem-form';
 import messages from '@/messages/en.json';
-import { render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import { useForm, useWatch } from 'react-hook-form';
@@ -166,6 +172,39 @@ describe('HtmlToMarkdownSection', () => {
       '# typed while pending'
     );
     expect(toast.success).not.toHaveBeenCalled();
+  });
+
+  it('times out and aborts a poll request that never settles', async () => {
+    vi.useFakeTimers();
+    try {
+      const submitSend = vi
+        .fn()
+        .mockResolvedValue({ jobId: 'job-123', status: 'pending' });
+      const pollAbort = vi.fn();
+      const pollSend = vi.fn().mockImplementation(() => new Promise(() => {}));
+      mocks.submitHtmlToMarkdown.mockReturnValue({ send: submitSend });
+      mocks.pollHtmlToMarkdown.mockReturnValue({
+        send: pollSend,
+        abort: pollAbort,
+      });
+      render(<Harness originalContent="# saved statement" />);
+
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Convert HTML to Markdown' })
+      );
+
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(60_000);
+      });
+
+      expect(pollSend).toHaveBeenCalledTimes(1);
+      expect(pollAbort).toHaveBeenCalledTimes(1);
+      expect(toast.error).toHaveBeenCalledWith(
+        'Conversion timed out. Please try again.'
+      );
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('shows an extra warning when HTML conversion would replace unsaved edits', async () => {

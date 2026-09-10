@@ -22,6 +22,29 @@ type Props = {
   disabled?: boolean;
 };
 
+type PollOutcome<T> = { status: 'settled'; value: T } | { status: 'timeout' };
+
+async function settleWithinDeadline<T>(
+  request: () => Promise<T>,
+  abort: () => void,
+  timeoutMs: number
+): Promise<PollOutcome<T>> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      request().then((value) => ({ status: 'settled' as const, value })),
+      new Promise<PollOutcome<T>>((resolve) => {
+        timer = setTimeout(() => {
+          abort();
+          resolve({ status: 'timeout' });
+        }, timeoutMs);
+      }),
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export default function HtmlToMarkdownSection({
   pid,
   originalContent,
@@ -57,18 +80,31 @@ export default function HtmlToMarkdownSection({
 
       const { jobId } = submitResponse;
 
-      let pollAttempts = 0;
       const maxPollAttempts = 60;
       const pollInterval = 1000;
+      const pollDeadline = Date.now() + maxPollAttempts * pollInterval;
 
-      while (pollAttempts < maxPollAttempts) {
-        await new Promise((resolve) => setTimeout(resolve, pollInterval));
-        pollAttempts++;
+      while (Date.now() < pollDeadline) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, Math.min(pollInterval, pollDeadline - Date.now()))
+        );
 
-        const pollResponse = await ClientApis.Problem.pollHtmlToMarkdown(
-          pid,
-          jobId
-        ).send();
+        const remaining = pollDeadline - Date.now();
+        if (remaining <= 0) break;
+
+        const pollMethod = ClientApis.Problem.pollHtmlToMarkdown(pid, jobId);
+        const pollOutcome = await settleWithinDeadline(
+          () => pollMethod.send(),
+          () => pollMethod.abort(),
+          remaining
+        );
+
+        if (pollOutcome.status === 'timeout') {
+          toast.error(t('timeout'));
+          return;
+        }
+
+        const pollResponse = pollOutcome.value;
 
         if ('error' in pollResponse && typeof pollResponse.error === 'object') {
           toast.error(parseErrorMessage(pollResponse.error));
@@ -99,6 +135,10 @@ export default function HtmlToMarkdownSection({
 
       toast.error(t('timeout'));
     } catch (err) {
+      if (err instanceof Error && /timeout/i.test(err.message)) {
+        toast.error(t('timeout'));
+        return;
+      }
       toast.error(
         err instanceof Error && err.message ? err.message : t('failed')
       );

@@ -24,4 +24,10 @@ describe('pollHtmlToMarkdown', () => {
     expect(request.url).toBe('/p/P1000/html-to-markdown/job-123');
     expect(request.config.cacheFor).toBe(0);
   });
+
+  it('times out a stalled poll request', () => {
+    const request = pollHtmlToMarkdown('P1000', 'job-123');
+
+    expect(request.config.timeout).toBe(10_000);
+  });
 });
