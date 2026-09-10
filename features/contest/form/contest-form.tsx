@@ -1,12 +1,16 @@
 'use client';
 
+import ContestCloneDialog from '@/features/contest/form/contest-clone-dialog';
 import {
   CONTEST_CREATE_RULES,
   CONTEST_PERMISSIONS,
   contestRuleSupportsFlexibleDuration,
   contestRuleSupportsHiddenScoreboard,
   contestRuleSupportsLock,
+  datePattern,
+  timePattern,
   resolveContestAutoHide,
+  type ContestCloneValues,
   type ContestFormValues,
 } from '@/features/contest/form/contest-form-utils';
 import LanguageAutoComplete from '@/features/language/language-auto-complete';
@@ -39,6 +43,7 @@ import { ArrowLeft, Copy, Plus, Save } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useState, type ReactNode } from 'react';
 import {
   Controller,
   useForm,
@@ -59,10 +64,8 @@ type Props = {
   cancelHref: string;
   onSubmit: (values: ContestFormValues) => Promise<string>;
   onClone?: (values: ContestFormValues) => Promise<string>;
+  extraActions?: ReactNode;
 };
-
-const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-const timePattern = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
 
 export default function ContestForm({
   mode,
@@ -72,6 +75,7 @@ export default function ContestForm({
   cancelHref,
   onSubmit,
   onClone,
+  extraActions,
 }: Props) {
   const t = useTranslations(
     mode === 'create' ? 'contestCreate' : 'contestEdit'
@@ -136,6 +140,7 @@ export default function ContestForm({
     control,
     name: ['rule', 'permission'],
   });
+  const [cloneSource, setCloneSource] = useState<ContestFormValues>();
   const supportsLock = contestRuleSupportsLock(rule);
   const supportsFlexibleDuration = contestRuleSupportsFlexibleDuration(rule);
   const supportsHiddenScoreboard = contestRuleSupportsHiddenScoreboard(rule);
@@ -165,354 +170,385 @@ export default function ContestForm({
   const handleFormSubmit = (values: ContestFormValues) =>
     runSubmission(onSubmit, values);
 
-  const handleFormClone = async (values: ContestFormValues) => {
+  const handleFormClone = (values: ContestFormValues) => {
     if (!onClone) return;
-    await runSubmission(onClone, values);
+    setCloneSource(values);
+  };
+
+  const handleCloneConfirm = async (patch: ContestCloneValues) => {
+    if (!onClone || !cloneSource) return;
+    const path = await onClone({
+      ...cloneSource,
+      ...patch,
+      autoHide: resolveContestAutoHide(canAutoHide, cloneSource.autoHide),
+    });
+    setCloneSource(undefined);
+    router.push(path);
+    router.refresh();
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(handleFormSubmit)}
-      noValidate
-      className="space-y-6"
-      data-llm-visible="true"
-    >
-      <div className="space-y-5">
-        <div className="grid gap-4 md:grid-cols-[12rem_minmax(0,1fr)]">
+    <>
+      <form
+        onSubmit={handleSubmit(handleFormSubmit)}
+        noValidate
+        className="space-y-6"
+        data-llm-visible="true"
+      >
+        <div className="space-y-5">
+          <div className="grid gap-4 md:grid-cols-[12rem_minmax(0,1fr)]">
+            <Field>
+              <FieldLabel htmlFor="rule">{t('rule')}</FieldLabel>
+              <FieldContent>
+                <Controller
+                  control={control}
+                  name="rule"
+                  render={({ field }) => (
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      disabled={isSubmitting}
+                    >
+                      <SelectTrigger
+                        id="rule"
+                        className="w-full"
+                        aria-invalid={!!errors.rule}
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CONTEST_CREATE_RULES.map((value) => (
+                          <SelectItem key={value} value={value}>
+                            {ruleT(value)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                <FieldError errors={[errors.rule]} />
+              </FieldContent>
+            </Field>
+            <Field>
+              <FieldLabel htmlFor="title">{t('contestTitle')}</FieldLabel>
+              <FieldContent>
+                <Input
+                  id="title"
+                  autoFocus
+                  placeholder={t('titlePlaceholder')}
+                  disabled={isSubmitting}
+                  aria-invalid={!!errors.title}
+                  {...register('title')}
+                />
+                <FieldError errors={[errors.title]} />
+              </FieldContent>
+            </Field>
+          </div>
+
+          <ContestTimingFields
+            mode={mode}
+            control={control}
+            register={register}
+            errors={errors}
+            isSubmitting={isSubmitting}
+          />
+
           <Field>
-            <FieldLabel htmlFor="rule">{t('rule')}</FieldLabel>
+            <Controller
+              control={control}
+              name="pids"
+              render={({ field }) => (
+                <ProblemListEditor
+                  id="pids"
+                  domainId={domainId}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  onBlur={field.onBlur}
+                  disabled={isSubmitting}
+                  invalid={!!errors.pids}
+                />
+              )}
+            />
+            <FieldError errors={[errors.pids]} />
+          </Field>
+
+          <Field>
+            <FieldLabel htmlFor="content">{t('content')}</FieldLabel>
+            <FieldContent>
+              <MarkdownEditor
+                id="content"
+                defaultValue={defaultValues.content}
+                disabled={isSubmitting}
+                aria-invalid={!!errors.content}
+                {...register('content')}
+              />
+              <FieldError errors={[errors.content]} />
+            </FieldContent>
+          </Field>
+        </div>
+
+        <div
+          className={cn(
+            'grid gap-4',
+            permission === 'public'
+              ? 'md:grid-cols-[24rem_12rem]'
+              : 'md:grid-cols-[24rem_12rem_minmax(0,1fr)]'
+          )}
+        >
+          <Field className="min-w-0">
+            <FieldLabel htmlFor="maintainer">{t('maintainer')}</FieldLabel>
             <FieldContent>
               <Controller
                 control={control}
-                name="rule"
+                name="maintainer"
+                render={({ field }) => (
+                  <UserAutoComplete
+                    multiple
+                    id="maintainer"
+                    domainId={domainId}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    onBlur={field.onBlur}
+                    placeholder={t('maintainerPlaceholder')}
+                    ariaLabel={t('maintainer')}
+                    disabled={isSubmitting}
+                  />
+                )}
+              />
+              <FieldDescription>{t('maintainerHelp')}</FieldDescription>
+              <FieldError errors={[errors.maintainer]} />
+            </FieldContent>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="permission">{t('permission')}</FieldLabel>
+            <FieldContent>
+              <Controller
+                control={control}
+                name="permission"
                 render={({ field }) => (
                   <Select
                     value={field.value}
                     onValueChange={field.onChange}
                     disabled={isSubmitting}
                   >
-                    <SelectTrigger
-                      id="rule"
-                      className="w-full"
-                      aria-invalid={!!errors.rule}
-                    >
+                    <SelectTrigger id="permission" className="w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {CONTEST_CREATE_RULES.map((value) => (
+                      {CONTEST_PERMISSIONS.map((value) => (
                         <SelectItem key={value} value={value}>
-                          {ruleT(value)}
+                          {t(`permissionOptions.${value}`)}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 )}
               />
-              <FieldError errors={[errors.rule]} />
             </FieldContent>
           </Field>
-          <Field>
-            <FieldLabel htmlFor="title">{t('contestTitle')}</FieldLabel>
-            <FieldContent>
-              <Input
-                id="title"
-                autoFocus
-                placeholder={t('titlePlaceholder')}
-                disabled={isSubmitting}
-                aria-invalid={!!errors.title}
-                {...register('title')}
-              />
-              <FieldError errors={[errors.title]} />
-            </FieldContent>
-          </Field>
-        </div>
-
-        <ContestTimingFields
-          mode={mode}
-          control={control}
-          register={register}
-          errors={errors}
-          isSubmitting={isSubmitting}
-        />
-
-        <Field>
-          <Controller
-            control={control}
-            name="pids"
-            render={({ field }) => (
-              <ProblemListEditor
-                id="pids"
-                domainId={domainId}
-                value={field.value}
-                onValueChange={field.onChange}
-                onBlur={field.onBlur}
-                disabled={isSubmitting}
-                invalid={!!errors.pids}
-              />
-            )}
-          />
-          <FieldError errors={[errors.pids]} />
-        </Field>
-
-        <Field>
-          <FieldLabel htmlFor="content">{t('content')}</FieldLabel>
-          <FieldContent>
-            <MarkdownEditor
-              id="content"
-              defaultValue={defaultValues.content}
-              disabled={isSubmitting}
-              aria-invalid={!!errors.content}
-              {...register('content')}
-            />
-            <FieldError errors={[errors.content]} />
-          </FieldContent>
-        </Field>
-      </div>
-
-      <div
-        className={cn(
-          'grid gap-4',
-          permission === 'public'
-            ? 'md:grid-cols-[24rem_12rem]'
-            : 'md:grid-cols-[24rem_12rem_minmax(0,1fr)]'
-        )}
-      >
-        <Field className="min-w-0">
-          <FieldLabel htmlFor="maintainer">{t('maintainer')}</FieldLabel>
-          <FieldContent>
-            <Controller
-              control={control}
-              name="maintainer"
-              render={({ field }) => (
-                <UserAutoComplete
-                  multiple
-                  id="maintainer"
-                  domainId={domainId}
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  onBlur={field.onBlur}
-                  placeholder={t('maintainerPlaceholder')}
-                  ariaLabel={t('maintainer')}
-                  disabled={isSubmitting}
-                />
-              )}
-            />
-            <FieldDescription>{t('maintainerHelp')}</FieldDescription>
-            <FieldError errors={[errors.maintainer]} />
-          </FieldContent>
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="permission">{t('permission')}</FieldLabel>
-          <FieldContent>
-            <Controller
-              control={control}
-              name="permission"
-              render={({ field }) => (
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  disabled={isSubmitting}
-                >
-                  <SelectTrigger id="permission" className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CONTEST_PERMISSIONS.map((value) => (
-                      <SelectItem key={value} value={value}>
-                        {t(`permissionOptions.${value}`)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </FieldContent>
-        </Field>
-        {permission === 'assign' && (
-          <Field className="min-w-0">
-            <FieldLabel htmlFor="assign">{t('assign')}</FieldLabel>
-            <Controller
-              control={control}
-              name="assign"
-              render={({ field }) => (
-                <AssignSelectAutoComplete
-                  id="assign"
-                  domainId={domainId}
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  onBlur={field.onBlur}
-                  placeholder={t('assignPlaceholder')}
-                  ariaLabel={t('assign')}
-                  disabled={isSubmitting}
-                />
-              )}
-            />
-          </Field>
-        )}
-        {permission === 'invite' && (
-          <Field>
-            <FieldLabel htmlFor="code">{t('invitationCode')}</FieldLabel>
-            <Input
-              id="code"
-              placeholder={t('invitationCodePlaceholder')}
-              disabled={isSubmitting}
-              {...register('code')}
-            />
-          </Field>
-        )}
-      </div>
-
-      <div className="space-y-4">
-        <div
-          className={cn(
-            'grid items-start gap-4 sm:grid-cols-2',
-            supportsHiddenScoreboard ? 'md:grid-cols-5' : 'md:grid-cols-4'
-          )}
-        >
-          <BooleanField
-            control={control}
-            name="rated"
-            id="rated"
-            label={t('rated')}
-            description={t('ratedHelp')}
-            disabled={isSubmitting}
-          />
-          <BooleanField
-            control={control}
-            name="autoHide"
-            id="autoHide"
-            label={t('autoHide')}
-            description={t(
-              canAutoHide ? 'autoHideHelp' : 'autoHideUnavailable'
-            )}
-            checked={canAutoHide ? undefined : false}
-            disabled={isSubmitting || !canAutoHide}
-          />
-          <BooleanField
-            control={control}
-            name="allowViewCode"
-            id="allowViewCode"
-            label={t('allowViewCode')}
-            description={t('allowViewCodeHelp')}
-            disabled={isSubmitting}
-          />
-          <BooleanField
-            control={control}
-            name="allowPrint"
-            id="allowPrint"
-            label={t('allowPrint')}
-            description={t('allowPrintHelp')}
-            disabled={isSubmitting}
-          />
-          {supportsHiddenScoreboard && (
-            <BooleanField
-              control={control}
-              name="keepScoreboardHidden"
-              id="keepScoreboardHidden"
-              label={t('keepScoreboardHidden')}
-              description={t('keepScoreboardHiddenHelp')}
-              disabled={isSubmitting}
-            />
-          )}
-        </div>
-
-        <div
-          className={cn(
-            (supportsLock || supportsFlexibleDuration) && 'grid gap-4',
-            supportsLock && supportsFlexibleDuration
-              ? 'md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]'
-              : (supportsLock || supportsFlexibleDuration) &&
-                  'md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]'
-          )}
-        >
-          <Field className="min-w-0">
-            <FieldLabel htmlFor="langs">{t('languages')}</FieldLabel>
-            <FieldContent>
+          {permission === 'assign' && (
+            <Field className="min-w-0">
+              <FieldLabel htmlFor="assign">{t('assign')}</FieldLabel>
               <Controller
                 control={control}
-                name="langs"
+                name="assign"
                 render={({ field }) => (
-                  <LanguageAutoComplete
-                    id="langs"
+                  <AssignSelectAutoComplete
+                    id="assign"
+                    domainId={domainId}
                     value={field.value}
                     onValueChange={field.onChange}
                     onBlur={field.onBlur}
-                    placeholder={t('languagesPlaceholder')}
-                    ariaLabel={t('languages')}
+                    placeholder={t('assignPlaceholder')}
+                    ariaLabel={t('assign')}
                     disabled={isSubmitting}
                   />
                 )}
               />
-              <FieldDescription>{t('languagesHelp')}</FieldDescription>
-            </FieldContent>
-          </Field>
-          {supportsLock && (
-            <Field>
-              <FieldLabel htmlFor="lock">{t('lock')}</FieldLabel>
-              <FieldContent>
-                <Input
-                  id="lock"
-                  type="number"
-                  min="1"
-                  placeholder={t('optional')}
-                  disabled={isSubmitting}
-                  aria-invalid={!!errors.lock}
-                  {...register('lock')}
-                />
-                <FieldDescription>{t('lockHelp')}</FieldDescription>
-                <FieldError errors={[errors.lock]} />
-              </FieldContent>
             </Field>
           )}
-          {supportsFlexibleDuration && (
+          {permission === 'invite' && (
             <Field>
-              <FieldLabel htmlFor="contestDuration">
-                {t('flexibleDuration')}
-              </FieldLabel>
-              <FieldContent>
-                <Input
-                  id="contestDuration"
-                  type="number"
-                  min="0.01"
-                  step="0.25"
-                  placeholder={t('optional')}
-                  disabled={isSubmitting}
-                  aria-invalid={!!errors.contestDuration}
-                  {...register('contestDuration')}
-                />
-                <FieldDescription>{t('flexibleDurationHelp')}</FieldDescription>
-                <FieldError errors={[errors.contestDuration]} />
-              </FieldContent>
+              <FieldLabel htmlFor="code">{t('invitationCode')}</FieldLabel>
+              <Input
+                id="code"
+                placeholder={t('invitationCodePlaceholder')}
+                disabled={isSubmitting}
+                {...register('code')}
+              />
             </Field>
           )}
         </div>
-      </div>
 
-      <FieldError errors={[errors.root?.serverError]} />
-      <div className="flex flex-wrap gap-2">
-        <Button type="submit" disabled={isSubmitting}>
-          {mode === 'create' ? <Plus /> : <Save />}
-          {isSubmitting ? t('creating') : t('create')}
-        </Button>
-        {mode === 'edit' && onClone && (
-          <Button
-            type="button"
-            variant="secondary"
-            disabled={isSubmitting}
-            onClick={handleSubmit(handleFormClone)}
+        <div className="space-y-4">
+          <div
+            className={cn(
+              'grid items-start gap-4 sm:grid-cols-2',
+              supportsHiddenScoreboard ? 'md:grid-cols-5' : 'md:grid-cols-4'
+            )}
           >
-            <Copy />
-            {t('clone')}
+            <BooleanField
+              control={control}
+              name="rated"
+              id="rated"
+              label={t('rated')}
+              description={t('ratedHelp')}
+              disabled={isSubmitting}
+            />
+            <BooleanField
+              control={control}
+              name="autoHide"
+              id="autoHide"
+              label={t('autoHide')}
+              description={t(
+                canAutoHide ? 'autoHideHelp' : 'autoHideUnavailable'
+              )}
+              checked={canAutoHide ? undefined : false}
+              disabled={isSubmitting || !canAutoHide}
+            />
+            <BooleanField
+              control={control}
+              name="allowViewCode"
+              id="allowViewCode"
+              label={t('allowViewCode')}
+              description={t('allowViewCodeHelp')}
+              disabled={isSubmitting}
+            />
+            <BooleanField
+              control={control}
+              name="allowPrint"
+              id="allowPrint"
+              label={t('allowPrint')}
+              description={t('allowPrintHelp')}
+              disabled={isSubmitting}
+            />
+            {supportsHiddenScoreboard && (
+              <BooleanField
+                control={control}
+                name="keepScoreboardHidden"
+                id="keepScoreboardHidden"
+                label={t('keepScoreboardHidden')}
+                description={t('keepScoreboardHiddenHelp')}
+                disabled={isSubmitting}
+              />
+            )}
+          </div>
+
+          <div
+            className={cn(
+              (supportsLock || supportsFlexibleDuration) && 'grid gap-4',
+              supportsLock && supportsFlexibleDuration
+                ? 'md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)]'
+                : (supportsLock || supportsFlexibleDuration) &&
+                    'md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]'
+            )}
+          >
+            <Field className="min-w-0">
+              <FieldLabel htmlFor="langs">{t('languages')}</FieldLabel>
+              <FieldContent>
+                <Controller
+                  control={control}
+                  name="langs"
+                  render={({ field }) => (
+                    <LanguageAutoComplete
+                      id="langs"
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      onBlur={field.onBlur}
+                      placeholder={t('languagesPlaceholder')}
+                      ariaLabel={t('languages')}
+                      disabled={isSubmitting}
+                    />
+                  )}
+                />
+                <FieldDescription>{t('languagesHelp')}</FieldDescription>
+              </FieldContent>
+            </Field>
+            {supportsLock && (
+              <Field>
+                <FieldLabel htmlFor="lock">{t('lock')}</FieldLabel>
+                <FieldContent>
+                  <Input
+                    id="lock"
+                    type="number"
+                    min="1"
+                    placeholder={t('optional')}
+                    disabled={isSubmitting}
+                    aria-invalid={!!errors.lock}
+                    {...register('lock')}
+                  />
+                  <FieldDescription>{t('lockHelp')}</FieldDescription>
+                  <FieldError errors={[errors.lock]} />
+                </FieldContent>
+              </Field>
+            )}
+            {supportsFlexibleDuration && (
+              <Field>
+                <FieldLabel htmlFor="contestDuration">
+                  {t('flexibleDuration')}
+                </FieldLabel>
+                <FieldContent>
+                  <Input
+                    id="contestDuration"
+                    type="number"
+                    min="0.01"
+                    step="0.25"
+                    placeholder={t('optional')}
+                    disabled={isSubmitting}
+                    aria-invalid={!!errors.contestDuration}
+                    {...register('contestDuration')}
+                  />
+                  <FieldDescription>
+                    {t('flexibleDurationHelp')}
+                  </FieldDescription>
+                  <FieldError errors={[errors.contestDuration]} />
+                </FieldContent>
+              </Field>
+            )}
+          </div>
+        </div>
+
+        <FieldError errors={[errors.root?.serverError]} />
+        <div className="flex flex-wrap gap-2">
+          <Button type="submit" disabled={isSubmitting}>
+            {mode === 'create' ? <Plus /> : <Save />}
+            {isSubmitting ? t('creating') : t('create')}
           </Button>
-        )}
-        <Button asChild variant="secondary">
-          <Link href={cancelHref}>
-            <ArrowLeft />
-            {t('cancel')}
-          </Link>
-        </Button>
-      </div>
-    </form>
+          {mode === 'edit' && onClone && (
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={isSubmitting}
+              onClick={handleSubmit(handleFormClone)}
+            >
+              <Copy />
+              {t('clone')}
+            </Button>
+          )}
+          {extraActions}
+          <Button asChild variant="secondary">
+            <Link href={cancelHref}>
+              <ArrowLeft />
+              {t('cancel')}
+            </Link>
+          </Button>
+        </div>
+      </form>
+      {cloneSource && (
+        <ContestCloneDialog
+          defaultValues={{
+            title: cloneSource.title,
+            beginAtDate: cloneSource.beginAtDate,
+            beginAtTime: cloneSource.beginAtTime,
+            duration: cloneSource.duration,
+          }}
+          onOpenChange={(open) => {
+            if (!open) setCloneSource(undefined);
+          }}
+          onConfirm={handleCloneConfirm}
+        />
+      )}
+    </>
   );
 }
 

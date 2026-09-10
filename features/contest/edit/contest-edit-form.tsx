@@ -1,6 +1,7 @@
 'use client';
 
 import ClientApis from '@/api/client/method';
+import ContestDeleteButton from '@/features/contest/edit/contest-delete-button';
 import ContestForm from '@/features/contest/form/contest-form';
 import {
   buildCreateContestPayload,
@@ -29,7 +30,7 @@ export default function ContestEditForm({
     const response = await ClientApis.Contest.createContest(
       buildCreateContestPayload(values)
     ).send();
-    if (!response?.tid) throw new Error(t('submitFailed'));
+    if (!response?.tid) throw new Error(t('cloneFailed'));
     return `/contest/${response.tid}`;
   };
 
@@ -49,6 +50,7 @@ export default function ContestEditForm({
         return `/contest/${response.tid}`;
       }}
       onClone={canClone ? handleClone : undefined}
+      extraActions={<ContestDeleteButton tid={tid} />}
     />
   );
 }

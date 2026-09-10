@@ -1,7 +1,11 @@
 'use client';
 
+import HomeworkCloneDialog from '@/features/homework/form/homework-clone-dialog';
 import {
+  datePattern,
   isPenaltyRuleMapping,
+  timePattern,
+  type HomeworkCloneValues,
   type HomeworkFormValues,
 } from '@/features/homework/form/homework-form-utils';
 import LanguageAutoComplete from '@/features/language/language-auto-complete';
@@ -25,6 +29,7 @@ import { ArrowLeft, Copy, Plus, Save } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useState, type ReactNode } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -37,10 +42,8 @@ type Props = {
   cancelHref: string;
   onSubmit: (values: HomeworkFormValues) => Promise<string>;
   onClone?: (values: HomeworkFormValues) => Promise<string>;
+  extraActions?: ReactNode;
 };
-
-const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-const timePattern = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
 
 export default function HomeworkForm({
   mode,
@@ -49,6 +52,7 @@ export default function HomeworkForm({
   cancelHref,
   onSubmit,
   onClone,
+  extraActions,
 }: Props) {
   const t = useTranslations(
     mode === 'create' ? 'homeworkCreate' : 'homeworkEdit'
@@ -100,6 +104,7 @@ export default function HomeworkForm({
     resolver: zodResolver(schema),
     defaultValues,
   });
+  const [cloneSource, setCloneSource] = useState<HomeworkFormValues>();
 
   const runSubmission = async (
     action: (values: HomeworkFormValues) => Promise<string>,
@@ -123,258 +128,286 @@ export default function HomeworkForm({
   const handleFormSubmit = (values: HomeworkFormValues) =>
     runSubmission(onSubmit, values);
 
-  const handleFormClone = async (values: HomeworkFormValues) => {
+  const handleFormClone = (values: HomeworkFormValues) => {
     if (!onClone) return;
-    await runSubmission(onClone, values);
+    setCloneSource(values);
+  };
+
+  const handleCloneConfirm = async (patch: HomeworkCloneValues) => {
+    if (!onClone || !cloneSource) return;
+    const path = await onClone({ ...cloneSource, ...patch });
+    setCloneSource(undefined);
+    router.push(path);
+    router.refresh();
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(handleFormSubmit)}
-      noValidate
-      className="space-y-5"
-      data-llm-visible="true"
-    >
-      <Field>
-        <FieldLabel htmlFor="title">{t('homeworkTitle')}</FieldLabel>
-        <FieldContent>
-          <Input
-            id="title"
-            autoFocus
-            placeholder={t('titlePlaceholder')}
-            disabled={isSubmitting}
-            aria-invalid={!!errors.title}
-            {...register('title')}
-          />
-          <FieldError errors={[errors.title]} />
-        </FieldContent>
-      </Field>
+    <>
+      <form
+        onSubmit={handleSubmit(handleFormSubmit)}
+        noValidate
+        className="space-y-5"
+        data-llm-visible="true"
+      >
+        <Field>
+          <FieldLabel htmlFor="title">{t('homeworkTitle')}</FieldLabel>
+          <FieldContent>
+            <Input
+              id="title"
+              autoFocus
+              placeholder={t('titlePlaceholder')}
+              disabled={isSubmitting}
+              aria-invalid={!!errors.title}
+              {...register('title')}
+            />
+            <FieldError errors={[errors.title]} />
+          </FieldContent>
+        </Field>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        <Field>
-          <FieldLabel htmlFor="beginAtDate">{t('beginDate')}</FieldLabel>
-          <FieldContent>
-            <Input
-              id="beginAtDate"
-              type="date"
-              disabled={isSubmitting}
-              aria-invalid={!!errors.beginAtDate}
-              {...register('beginAtDate')}
-            />
-            <FieldError errors={[errors.beginAtDate]} />
-          </FieldContent>
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="beginAtTime">{t('beginTime')}</FieldLabel>
-          <FieldContent>
-            <Input
-              id="beginAtTime"
-              type="time"
-              disabled={isSubmitting}
-              aria-invalid={!!errors.beginAtTime}
-              {...register('beginAtTime')}
-            />
-            <FieldError errors={[errors.beginAtTime]} />
-          </FieldContent>
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="penaltySinceDate">
-            {t('deadlineDate')}
-          </FieldLabel>
-          <FieldContent>
-            <Input
-              id="penaltySinceDate"
-              type="date"
-              disabled={isSubmitting}
-              aria-invalid={!!errors.penaltySinceDate}
-              {...register('penaltySinceDate')}
-            />
-            <FieldError errors={[errors.penaltySinceDate]} />
-          </FieldContent>
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="penaltySinceTime">
-            {t('deadlineTime')}
-          </FieldLabel>
-          <FieldContent>
-            <Input
-              id="penaltySinceTime"
-              type="time"
-              disabled={isSubmitting}
-              aria-invalid={!!errors.penaltySinceTime}
-              {...register('penaltySinceTime')}
-            />
-            <FieldError errors={[errors.penaltySinceTime]} />
-          </FieldContent>
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="extensionDays">{t('extensionDays')}</FieldLabel>
-          <FieldContent>
-            <Input
-              id="extensionDays"
-              type="number"
-              min="0"
-              step="0.01"
-              disabled={isSubmitting}
-              aria-invalid={!!errors.extensionDays}
-              {...register('extensionDays')}
-            />
-            <FieldError errors={[errors.extensionDays]} />
-          </FieldContent>
-        </Field>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <Field>
-          <FieldLabel htmlFor="assign">{t('assign')}</FieldLabel>
-          <FieldContent>
-            <Controller
-              control={control}
-              name="assign"
-              render={({ field }) => (
-                <AssignSelectAutoComplete
-                  id="assign"
-                  domainId={domainId}
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  onBlur={field.onBlur}
-                  placeholder={t('assignPlaceholder')}
-                  ariaLabel={t('assign')}
-                  disabled={isSubmitting}
-                />
-              )}
-            />
-            <FieldDescription>{t('assignHelp')}</FieldDescription>
-          </FieldContent>
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="maintainer">{t('maintainer')}</FieldLabel>
-          <FieldContent>
-            <Controller
-              control={control}
-              name="maintainer"
-              render={({ field }) => (
-                <UserAutoComplete
-                  multiple
-                  id="maintainer"
-                  domainId={domainId}
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  onBlur={field.onBlur}
-                  placeholder={t('maintainerPlaceholder')}
-                  ariaLabel={t('maintainer')}
-                  disabled={isSubmitting}
-                />
-              )}
-            />
-            <FieldDescription>{t('maintainerHelp')}</FieldDescription>
-            <FieldError errors={[errors.maintainer]} />
-          </FieldContent>
-        </Field>
-      </div>
-
-      <Field>
-        <FieldLabel htmlFor="penaltyRules">{t('penaltyRules')}</FieldLabel>
-        <FieldContent>
-          <Controller
-            control={control}
-            name="penaltyRules"
-            render={({ field }) => (
-              <CodeEditor
-                value={field.value}
-                onChange={field.onChange}
-                language="yaml"
-                height="192px"
-                readOnly={isSubmitting}
-                invalid={!!errors.penaltyRules}
-                ariaLabel={t('penaltyRules')}
-                path="penalty-rules.yaml"
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+          <Field>
+            <FieldLabel htmlFor="beginAtDate">{t('beginDate')}</FieldLabel>
+            <FieldContent>
+              <Input
+                id="beginAtDate"
+                type="date"
+                disabled={isSubmitting}
+                aria-invalid={!!errors.beginAtDate}
+                {...register('beginAtDate')}
               />
-            )}
-          />
-          <FieldDescription>{t('penaltyRulesHelp')}</FieldDescription>
-          <FieldError errors={[errors.penaltyRules]} />
-        </FieldContent>
-      </Field>
+              <FieldError errors={[errors.beginAtDate]} />
+            </FieldContent>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="beginAtTime">{t('beginTime')}</FieldLabel>
+            <FieldContent>
+              <Input
+                id="beginAtTime"
+                type="time"
+                disabled={isSubmitting}
+                aria-invalid={!!errors.beginAtTime}
+                {...register('beginAtTime')}
+              />
+              <FieldError errors={[errors.beginAtTime]} />
+            </FieldContent>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="penaltySinceDate">
+              {t('deadlineDate')}
+            </FieldLabel>
+            <FieldContent>
+              <Input
+                id="penaltySinceDate"
+                type="date"
+                disabled={isSubmitting}
+                aria-invalid={!!errors.penaltySinceDate}
+                {...register('penaltySinceDate')}
+              />
+              <FieldError errors={[errors.penaltySinceDate]} />
+            </FieldContent>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="penaltySinceTime">
+              {t('deadlineTime')}
+            </FieldLabel>
+            <FieldContent>
+              <Input
+                id="penaltySinceTime"
+                type="time"
+                disabled={isSubmitting}
+                aria-invalid={!!errors.penaltySinceTime}
+                {...register('penaltySinceTime')}
+              />
+              <FieldError errors={[errors.penaltySinceTime]} />
+            </FieldContent>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="extensionDays">
+              {t('extensionDays')}
+            </FieldLabel>
+            <FieldContent>
+              <Input
+                id="extensionDays"
+                type="number"
+                min="0"
+                step="0.01"
+                disabled={isSubmitting}
+                aria-invalid={!!errors.extensionDays}
+                {...register('extensionDays')}
+              />
+              <FieldError errors={[errors.extensionDays]} />
+            </FieldContent>
+          </Field>
+        </div>
 
-      <Field>
-        <Controller
-          control={control}
-          name="pids"
-          render={({ field }) => (
-            <ProblemListEditor
-              id="pids"
-              domainId={domainId}
-              value={field.value}
-              onValueChange={field.onChange}
-              onBlur={field.onBlur}
-              disabled={isSubmitting}
-              invalid={!!errors.pids}
+        <div className="grid gap-4 md:grid-cols-2">
+          <Field>
+            <FieldLabel htmlFor="assign">{t('assign')}</FieldLabel>
+            <FieldContent>
+              <Controller
+                control={control}
+                name="assign"
+                render={({ field }) => (
+                  <AssignSelectAutoComplete
+                    id="assign"
+                    domainId={domainId}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    onBlur={field.onBlur}
+                    placeholder={t('assignPlaceholder')}
+                    ariaLabel={t('assign')}
+                    disabled={isSubmitting}
+                  />
+                )}
+              />
+              <FieldDescription>{t('assignHelp')}</FieldDescription>
+            </FieldContent>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="maintainer">{t('maintainer')}</FieldLabel>
+            <FieldContent>
+              <Controller
+                control={control}
+                name="maintainer"
+                render={({ field }) => (
+                  <UserAutoComplete
+                    multiple
+                    id="maintainer"
+                    domainId={domainId}
+                    value={field.value}
+                    onValueChange={field.onChange}
+                    onBlur={field.onBlur}
+                    placeholder={t('maintainerPlaceholder')}
+                    ariaLabel={t('maintainer')}
+                    disabled={isSubmitting}
+                  />
+                )}
+              />
+              <FieldDescription>{t('maintainerHelp')}</FieldDescription>
+              <FieldError errors={[errors.maintainer]} />
+            </FieldContent>
+          </Field>
+        </div>
+
+        <Field>
+          <FieldLabel htmlFor="penaltyRules">{t('penaltyRules')}</FieldLabel>
+          <FieldContent>
+            <Controller
+              control={control}
+              name="penaltyRules"
+              render={({ field }) => (
+                <CodeEditor
+                  value={field.value}
+                  onChange={field.onChange}
+                  language="yaml"
+                  height="192px"
+                  readOnly={isSubmitting}
+                  invalid={!!errors.penaltyRules}
+                  ariaLabel={t('penaltyRules')}
+                  path="penalty-rules.yaml"
+                />
+              )}
             />
-          )}
-        />
-        <FieldError errors={[errors.pids]} />
-      </Field>
+            <FieldDescription>{t('penaltyRulesHelp')}</FieldDescription>
+            <FieldError errors={[errors.penaltyRules]} />
+          </FieldContent>
+        </Field>
 
-      <Field>
-        <FieldLabel htmlFor="content">{t('content')}</FieldLabel>
-        <FieldContent>
-          <MarkdownEditor
-            id="content"
-            defaultValue={defaultValues.content}
-            disabled={isSubmitting}
-            aria-invalid={!!errors.content}
-            {...register('content')}
-          />
-          <FieldError errors={[errors.content]} />
-        </FieldContent>
-      </Field>
-
-      <Field>
-        <FieldLabel htmlFor="langs">{t('languages')}</FieldLabel>
-        <FieldContent>
+        <Field>
           <Controller
             control={control}
-            name="langs"
+            name="pids"
             render={({ field }) => (
-              <LanguageAutoComplete
-                id="langs"
+              <ProblemListEditor
+                id="pids"
+                domainId={domainId}
                 value={field.value}
                 onValueChange={field.onChange}
                 onBlur={field.onBlur}
-                placeholder={t('languagesPlaceholder')}
-                ariaLabel={t('languages')}
                 disabled={isSubmitting}
+                invalid={!!errors.pids}
               />
             )}
           />
-          <FieldDescription>{t('languagesHelp')}</FieldDescription>
-        </FieldContent>
-      </Field>
-      <FieldError errors={[errors.root?.serverError]} />
-      <div className="flex flex-wrap gap-2">
-        <Button type="submit" disabled={isSubmitting}>
-          {mode === 'create' ? <Plus /> : <Save />}
-          {isSubmitting ? t('creating') : t('create')}
-        </Button>
-        {mode === 'edit' && onClone && (
-          <Button
-            type="button"
-            variant="secondary"
-            disabled={isSubmitting}
-            onClick={handleSubmit(handleFormClone)}
-          >
-            <Copy />
-            {t('clone')}
+          <FieldError errors={[errors.pids]} />
+        </Field>
+
+        <Field>
+          <FieldLabel htmlFor="content">{t('content')}</FieldLabel>
+          <FieldContent>
+            <MarkdownEditor
+              id="content"
+              defaultValue={defaultValues.content}
+              disabled={isSubmitting}
+              aria-invalid={!!errors.content}
+              {...register('content')}
+            />
+            <FieldError errors={[errors.content]} />
+          </FieldContent>
+        </Field>
+
+        <Field>
+          <FieldLabel htmlFor="langs">{t('languages')}</FieldLabel>
+          <FieldContent>
+            <Controller
+              control={control}
+              name="langs"
+              render={({ field }) => (
+                <LanguageAutoComplete
+                  id="langs"
+                  value={field.value}
+                  onValueChange={field.onChange}
+                  onBlur={field.onBlur}
+                  placeholder={t('languagesPlaceholder')}
+                  ariaLabel={t('languages')}
+                  disabled={isSubmitting}
+                />
+              )}
+            />
+            <FieldDescription>{t('languagesHelp')}</FieldDescription>
+          </FieldContent>
+        </Field>
+        <FieldError errors={[errors.root?.serverError]} />
+        <div className="flex flex-wrap gap-2">
+          <Button type="submit" disabled={isSubmitting}>
+            {mode === 'create' ? <Plus /> : <Save />}
+            {isSubmitting ? t('creating') : t('create')}
           </Button>
-        )}
-        <Button asChild variant="secondary">
-          <Link href={cancelHref}>
-            <ArrowLeft />
-            {t('cancel')}
-          </Link>
-        </Button>
-      </div>
-    </form>
+          {mode === 'edit' && onClone && (
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={isSubmitting}
+              onClick={handleSubmit(handleFormClone)}
+            >
+              <Copy />
+              {t('clone')}
+            </Button>
+          )}
+          {extraActions}
+          <Button asChild variant="secondary">
+            <Link href={cancelHref}>
+              <ArrowLeft />
+              {t('cancel')}
+            </Link>
+          </Button>
+        </div>
+      </form>
+      {cloneSource && (
+        <HomeworkCloneDialog
+          defaultValues={{
+            title: cloneSource.title,
+            beginAtDate: cloneSource.beginAtDate,
+            beginAtTime: cloneSource.beginAtTime,
+            penaltySinceDate: cloneSource.penaltySinceDate,
+            penaltySinceTime: cloneSource.penaltySinceTime,
+          }}
+          onOpenChange={(open) => {
+            if (!open) setCloneSource(undefined);
+          }}
+          onConfirm={handleCloneConfirm}
+        />
+      )}
+    </>
   );
 }

@@ -593,6 +593,14 @@
     "creating": "保存中...",
     "create": "保存修改",
     "clone": "复制",
+    "cloneTitle": "复制比赛",
+    "cloneDescription": "将基于当前比赛创建新比赛，可在复制前调整标题和开始时间。",
+    "cloning": "复制中...",
+    "cloneFailed": "复制比赛失败，请稍后重试。",
+    "delete": "删除",
+    "deleting": "删除中...",
+    "deleteConfirm": "确认删除该比赛？相关文件和成绩记录将一并删除。",
+    "deleteFailed": "删除失败，请稍后重试。",
     "cancel": "返回比赛"
   },
   "homeworkCreate": {
@@ -662,6 +670,14 @@
     "creating": "保存中...",
     "create": "保存修改",
     "clone": "复制",
+    "cloneTitle": "复制作业",
+    "cloneDescription": "将基于当前作业创建新作业，可在复制前调整标题和起止时间。",
+    "cloning": "复制中...",
+    "cloneFailed": "复制作业失败，请稍后重试。",
+    "delete": "删除",
+    "deleting": "删除中...",
+    "deleteConfirm": "确认删除该作业？相关文件和成绩记录将一并删除。",
+    "deleteFailed": "删除失败，请稍后重试。",
     "cancel": "返回作业"
   },
   "trainingForm": {

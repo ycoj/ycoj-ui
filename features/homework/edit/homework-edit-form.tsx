@@ -1,6 +1,7 @@
 'use client';
 
 import ClientApis from '@/api/client/method';
+import HomeworkDeleteButton from '@/features/homework/edit/homework-delete-button';
 import HomeworkForm from '@/features/homework/form/homework-form';
 import {
   buildCreateHomeworkPayload,
@@ -27,7 +28,7 @@ export default function HomeworkEditForm({
     const response = await ClientApis.Homework.createHomework(
       buildCreateHomeworkPayload(values)
     ).send();
-    if (!response?.tid) throw new Error(t('submitFailed'));
+    if (!response?.tid) throw new Error(t('cloneFailed'));
     return `/homework/${response.tid}`;
   };
 
@@ -46,6 +47,7 @@ export default function HomeworkEditForm({
         return `/homework/${response.tid}`;
       }}
       onClone={canClone ? handleClone : undefined}
+      extraActions={<HomeworkDeleteButton tid={tid} />}
     />
   );
 }
