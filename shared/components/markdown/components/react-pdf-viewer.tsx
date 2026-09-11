@@ -27,20 +27,27 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url
 ).toString();
 
-function PdfError() {
+function PdfError({ detail }: { detail: string | null }) {
   const t = useTranslations('pdf');
   const message = t('error');
 
   return (
     <div
-      className="flex min-h-48 items-center justify-center gap-3 p-6 text-sm text-destructive"
+      className="flex min-h-48 flex-col items-center justify-center gap-1 p-6 text-sm text-destructive"
       data-llm-visible="true"
       role="alert"
     >
-      <TriangleAlert className="size-4 shrink-0" aria-hidden="true" />
-      <p className="m-0!" data-llm-text={message}>
-        {message}
-      </p>
+      <div className="flex items-center gap-3">
+        <TriangleAlert className="size-4 shrink-0" aria-hidden="true" />
+        <p className="m-0!" data-llm-text={message}>
+          {message}
+        </p>
+      </div>
+      {detail && (
+        <p className="m-0! max-w-full break-all text-muted-foreground">
+          {detail}
+        </p>
+      )}
     </div>
   );
 }
@@ -124,6 +131,7 @@ export default function ReactPdfViewer({ src }: Props) {
   );
   const [pageCount, setPageCount] = useState(0);
   const [pageWidth, setPageWidth] = useState(0);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const renderedPageCount = Math.min(pageCount, MAX_PDF_PAGES);
 
   useEffect(() => {
@@ -149,7 +157,7 @@ export default function ReactPdfViewer({ src }: Props) {
       <div aria-label={t('document')} role="document">
         <Document
           className="flex flex-col items-center gap-3"
-          error={<PdfError />}
+          error={<PdfError detail={loadError} />}
           file={src}
           loading={
             <div
@@ -159,7 +167,9 @@ export default function ReactPdfViewer({ src }: Props) {
               {t('loading')}
             </div>
           }
+          onLoadError={(error) => setLoadError(error.message)}
           onLoadSuccess={({ numPages }) => setPageCount(numPages)}
+          onSourceError={(error) => setLoadError(error.message)}
           options={PDF_OPTIONS}
         >
           {pageCount > MAX_PDF_PAGES && (
