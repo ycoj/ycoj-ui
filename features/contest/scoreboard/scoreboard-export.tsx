@@ -1,6 +1,7 @@
 'use client';
 
 import { exportFilename } from './scoreboard-export-utils';
+import { DownloadResponseError } from '@/api/client/download';
 import ClientApis from '@/api/client/method';
 import { Button } from '@/shared/components/ui/button';
 import { Checkbox } from '@/shared/components/ui/checkbox';
@@ -34,11 +35,15 @@ export default function ScoreboardExport({
   const [details, setDetails] = useState(false);
   const [busy, setBusy] = useState(false);
 
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  function handleOpenChange(nextOpen: boolean) {
+    if (!nextOpen) setError(null);
+    setOpen(nextOpen);
+  }
   async function exportImage() {
     setOpen(false);
     setBusy(true);
-    setError(false);
+    setError(null);
     try {
       const blob = await ClientApis.Contest.downloadScoreboard(pageType, tid, {
         avatar,
@@ -51,9 +56,12 @@ export default function ScoreboardExport({
       link.href = url;
       link.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
-      setOpen(false);
-    } catch {
-      setError(true);
+    } catch (cause) {
+      setError(
+        cause instanceof DownloadResponseError
+          ? cause.message
+          : t('exportFailed')
+      );
       setOpen(true);
     } finally {
       setBusy(false);
@@ -62,7 +70,7 @@ export default function ScoreboardExport({
 
   return (
     <>
-      <Popover open={open} onOpenChange={setOpen}>
+      <Popover open={open} onOpenChange={handleOpenChange}>
         <PopoverTrigger asChild>
           <Button variant="outline" size="sm" disabled={busy}>
             {t('export')}
@@ -93,7 +101,7 @@ export default function ScoreboardExport({
             />
             {t('includeDetails')}
           </label>
-          {error && <p role="alert">{t('exportFailed')}</p>}
+          {error && <p role="alert">{error}</p>}
           <Button size="sm" disabled={busy} onClick={exportImage}>
             {busy ? t('exporting') : t('export')}
           </Button>

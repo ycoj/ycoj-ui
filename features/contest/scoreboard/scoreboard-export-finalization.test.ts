@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { renderScoreboardFile } from './scoreboard-export-renderer';
 import type { ExportLabels } from './scoreboard-export-svg';
-import type { ScoreboardImageData } from './scoreboard-export-utils';
+import type { ScoreboardExportData } from '@/shared/types/contest';
 import JSZip from 'jszip';
 import { PassThrough } from 'node:stream';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -10,8 +10,8 @@ vi.mock('@resvg/resvg-js', () => ({
   renderAsync: async () => ({ asPng: () => Buffer.from('rendered-png') }),
 }));
 
-const data: ScoreboardImageData = {
-  tdoc: { title: 'Contest' } as ScoreboardImageData['tdoc'],
+const data: ScoreboardExportData = {
+  tdoc: { title: 'Contest' } as ScoreboardExportData['tdoc'],
   rows: [[{ type: 'user', raw: 2, value: 'alice' }]],
   udict: { 2: { uname: 'alice', avatar: '', realName: 'Alice' } },
   pdict: {},

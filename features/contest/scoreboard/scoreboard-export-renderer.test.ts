@@ -1,15 +1,17 @@
 // @vitest-environment node
+import { ScoreboardExportLimitError } from './scoreboard-export-errors';
 import {
+  MAX_EXPORT_DETAIL_PARTICIPANTS,
   MAX_EXPORT_PARTICIPANTS,
   renderScoreboardFile,
 } from './scoreboard-export-renderer';
 import { buildScoreboardSvg, type ExportLabels } from './scoreboard-export-svg';
-import type { ScoreboardImageData } from './scoreboard-export-utils';
+import type { ScoreboardExportData } from '@/shared/types/contest';
 import JSZip from 'jszip';
 import { describe, expect, it, vi } from 'vitest';
 
-const data: ScoreboardImageData = {
-  tdoc: { title: '测试 <script> & contest' } as ScoreboardImageData['tdoc'],
+const data: ScoreboardExportData = {
+  tdoc: { title: '测试 <script> & contest' } as ScoreboardExportData['tdoc'],
   rows: [
     [{ type: 'string', value: 'User' }],
     [{ type: 'user', raw: 2, value: 'alice' }],
@@ -64,7 +66,7 @@ describe('server image renderer', () => {
   it.each([false, true])(
     'preserves problem titles, score colors and first solves with realName=%s',
     (realName) => {
-      const fixture: ScoreboardImageData = {
+      const fixture: ScoreboardExportData = {
         ...data,
         rows: [
           [
@@ -81,7 +83,7 @@ describe('server image renderer', () => {
         pdict: {
           1000: { title: '题目标题' },
           1001: { title: 'Second problem' },
-        } as unknown as ScoreboardImageData['pdict'],
+        } as unknown as ScoreboardExportData['pdict'],
       };
       const svg = buildScoreboardSvg(
         fixture,
@@ -99,6 +101,21 @@ describe('server image renderer', () => {
       expect(svg).not.toContain('record-one');
     }
   );
+  it('resolves problem titles for numeric string ids', () => {
+    const svg = buildScoreboardSvg(
+      {
+        ...data,
+        rows: [[{ type: 'problem', raw: '1000', value: 'A' }]],
+        pdict: {
+          1000: { title: '题目标题' },
+        } as unknown as ScoreboardExportData['pdict'],
+      },
+      options,
+      labels,
+      {}
+    );
+    expect(svg).toContain('题目标题');
+  });
   it('renders accepted and pending ICPC marks without literal backend HTML', () => {
     const svg = buildScoreboardSvg(
       {
@@ -197,14 +214,36 @@ describe('server image renderer', () => {
           { uname: `user-${index}`, avatar: '', realName: '' },
         ])
       ),
-    } as ScoreboardImageData;
-    await expect(
-      renderScoreboardFile(
-        oversizedData,
-        { ...options, details: false },
-        labels,
-        new AbortController().signal
-      )
-    ).rejects.toThrow('participant limit');
+    } as ScoreboardExportData;
+    const result = renderScoreboardFile(
+      oversizedData,
+      { ...options, details: false },
+      labels,
+      new AbortController().signal
+    );
+    await expect(result).rejects.toBeInstanceOf(ScoreboardExportLimitError);
+    await expect(result).rejects.toThrow('participant limit');
+  });
+  it('rejects detail exports above the detail participant limit before rasterizing', async () => {
+    const oversizedData = {
+      ...data,
+      udict: Object.fromEntries(
+        Array.from(
+          { length: MAX_EXPORT_DETAIL_PARTICIPANTS + 1 },
+          (_, index) => [
+            index,
+            { uname: `user-${index}`, avatar: '', realName: '' },
+          ]
+        )
+      ),
+    } as ScoreboardExportData;
+    const result = renderScoreboardFile(
+      oversizedData,
+      options,
+      labels,
+      new AbortController().signal
+    );
+    await expect(result).rejects.toBeInstanceOf(ScoreboardExportLimitError);
+    await expect(result).rejects.toThrow('participant limit');
   });
 });

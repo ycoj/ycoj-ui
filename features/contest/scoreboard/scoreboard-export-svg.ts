@@ -1,15 +1,17 @@
-import {
-  exportName,
-  type ScoreboardExportOptions,
-  type ScoreboardImageData,
-} from './scoreboard-export-utils';
+import { ScoreboardExportLimitError } from './scoreboard-export-errors';
+import { exportName } from './scoreboard-export-utils';
 import {
   getOwnedBalloonColors,
   getProblemBalloonColors,
   getScoreColor,
+  parseScoreboardRecord,
 } from './scoreboard-presentation';
 import { STATUS_TEXT_KEYS } from '@/shared/configs/status';
-import type { ScoreboardNode } from '@/shared/types/contest';
+import type {
+  ScoreboardExportData,
+  ScoreboardExportOptions,
+  ScoreboardNode,
+} from '@/shared/types/contest';
 
 export type ExportLabels = {
   details: string;
@@ -66,7 +68,7 @@ function wrap(text: string, width: number, fontSize = FONT_SIZE) {
 }
 
 export function buildScoreboardSvg(
-  data: ScoreboardImageData,
+  data: ScoreboardExportData,
   options: ScoreboardExportOptions,
   labels: ExportLabels,
   avatars: Record<number, string>,
@@ -100,28 +102,17 @@ export function buildScoreboardSvg(
     const color = getScoreColor(
       typeof node.value === 'number' ? node.value : (node.score ?? 0)
     ).color;
-    const text = String(node.value).replaceAll(
-      '<span class="icon icon-check"></span>',
-      '✓'
-    );
-    const runs: TextRun[] = [];
-    let offset = 0;
-    for (const match of text.matchAll(
-      /<span style="color:orange">([^<]*)<\/span>/g
-    )) {
-      runs.push({ text: text.slice(offset, match.index), color });
-      runs.push({ text: match[1], color: getScoreColor(60).color });
-      offset = match.index + match[0].length;
-    }
-    runs.push({ text: text.slice(offset), color });
-    return runs;
+    return parseScoreboardRecord(String(node.value)).map((run) => ({
+      text: run.text,
+      color: run.tone === 'partial' ? getScoreColor(60).color : color,
+    }));
   }
   const scoreboard: Cell[][] = rows.map((row, rowIndex) =>
     row.map((cell, columnIndex) => {
       if (rowIndex === 0 && cell.type === 'problem') {
         const problem =
           typeof cell.raw === 'number' || typeof cell.raw === 'string'
-            ? data.pdict[cell.raw as number]
+            ? data.pdict[Number(cell.raw)]
             : undefined;
         return {
           text: `${cell.value}${problem?.title ? `\n${problem.title}` : ''}`,
@@ -275,6 +266,8 @@ export function buildScoreboardSvg(
   }
   const height = y + MARGIN;
   if (width * height > 40_000_000)
-    throw new Error('Scoreboard image exceeds the rendering limit');
+    throw new ScoreboardExportLimitError(
+      'Scoreboard image exceeds the rendering limit'
+    );
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><rect width="100%" height="100%" fill="#fff"/><g font-family="Noto Sans CJK SC" font-size="${FONT_SIZE}" fill="#0f172a">${fragments.join('')}</g></svg>`;
 }

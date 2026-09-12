@@ -1,4 +1,5 @@
 import {
+  backendErrorStatus,
   backendPathname,
   isAuthSessionPath,
   isLoginRedirect,
@@ -93,6 +94,20 @@ describe('isAuthSessionPath', () => {
       expect(isAuthSessionPath(url)).toBe(false);
     }
   );
+});
+
+describe('backendErrorStatus', () => {
+  it.each([
+    ['NotFoundError', 404],
+    ['PermissionError', 403],
+    ['PrivilegeError', 403],
+    ['ForbiddenError', 403],
+    ['HiddenError', 403],
+    ['ServerError', 502],
+    ['', 502],
+  ] as const)('maps %s to %i', (name, status) => {
+    expect(backendErrorStatus(name)).toBe(status);
+  });
 });
 
 describe('throwBackendError', () => {

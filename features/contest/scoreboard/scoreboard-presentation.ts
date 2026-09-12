@@ -45,3 +45,29 @@ export function getScoreColor(score: number) {
   if (score >= 60) return { className: 'text-orange-500', color: '#f97316' };
   return { className: 'text-red-500', color: '#ef4444' };
 }
+
+export type ScoreboardRecordRun = {
+  text: string;
+  tone: 'normal' | 'partial';
+};
+
+const CHECK_ICON = '<span class="icon icon-check"></span>';
+const PARTIAL_SPAN = /<span style="color:orange">([^<]*)<\/span>/g;
+
+/**
+ * Interprets the small Hydro record markup subset the scoreboard uses:
+ * check icons become `✓` and orange spans mark partial scores. Stray HTML is
+ * left as literal text so unrecognized markup degrades to visible content.
+ */
+export function parseScoreboardRecord(value: string): ScoreboardRecordRun[] {
+  const text = value.replaceAll(CHECK_ICON, '✓');
+  const runs: ScoreboardRecordRun[] = [];
+  let offset = 0;
+  for (const match of text.matchAll(PARTIAL_SPAN)) {
+    runs.push({ text: text.slice(offset, match.index), tone: 'normal' });
+    runs.push({ text: match[1], tone: 'partial' });
+    offset = match.index + match[0].length;
+  }
+  runs.push({ text: text.slice(offset), tone: 'normal' });
+  return runs.filter((run) => run.text);
+}

@@ -10,9 +10,9 @@ const uploadBaseUrl =
 const nextConfig: NextConfig = {
   serverExternalPackages: ['@resvg/resvg-js'],
   outputFileTracingIncludes: {
-    '/api/scoreboard-export/*/*': [
-      './public/fonts/NotoSansCJKsc-Regular.otf',
-      './public/fonts/noto-sans-cjk-OFL.txt',
+    '/scoreboard-export/*/*': [
+      './assets/fonts/NotoSansCJKsc-Regular.otf',
+      './assets/fonts/noto-sans-cjk-OFL.txt',
     ],
   },
   env: {
@@ -22,24 +22,20 @@ const nextConfig: NextConfig = {
   assetPrefix:
     process.env.NODE_ENV === 'production' ? 'https://next-cdn.ycoj.cc' : '',
   async rewrites() {
-    return {
-      afterFiles: [
-        {
-          source: '/paste/:id/raw',
-          destination: `${backendBaseUrl}/paste/:id/raw`,
-        },
-        {
-          source: '/fs/:path*',
-          destination: `${backendBaseUrl}/fs/:path*`,
-        },
-      ],
-      fallback: [
-        {
-          source: '/api/:path*',
-          destination: `${backendBaseUrl}/:path*`,
-        },
-      ],
-    };
+    return [
+      {
+        source: '/paste/:id/raw',
+        destination: `${backendBaseUrl}/paste/:id/raw`,
+      },
+      {
+        source: '/api/:path*',
+        destination: `${backendBaseUrl}/:path*`,
+      },
+      {
+        source: '/fs/:path*',
+        destination: `${backendBaseUrl}/fs/:path*`,
+      },
+    ];
   },
 };
 

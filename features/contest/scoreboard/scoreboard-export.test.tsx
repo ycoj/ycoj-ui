@@ -1,4 +1,5 @@
 import ScoreboardExport from './scoreboard-export';
+import { DownloadResponseError } from '@/api/client/download';
 import ClientApis from '@/api/client/method';
 import messages from '@/messages/en.json';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -83,6 +84,34 @@ describe('server scoreboard downloads', () => {
     expect(
       screen.getByRole('checkbox', { name: 'Include submission details' })
     ).toBeDisabled();
+  });
+  it('shows the server-provided export error and clears it when the popover reopens', async () => {
+    vi.mocked(ClientApis.Contest.downloadScoreboard).mockRejectedValue(
+      new DownloadResponseError('This export is too large to generate.')
+    );
+    setup();
+    submit();
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'This export is too large to generate.'
+    );
+    expect(
+      screen.getAllByRole('button', { name: 'Export image' })[1]
+    ).toBeEnabled();
+
+    const trigger = screen.getAllByRole('button', { name: 'Export image' })[0];
+    fireEvent.click(trigger);
+    await waitFor(() =>
+      expect(
+        screen.getAllByRole('button', { name: 'Export image' })
+      ).toHaveLength(1)
+    );
+    fireEvent.click(trigger);
+    await waitFor(() =>
+      expect(
+        screen.getAllByRole('button', { name: 'Export image' })
+      ).toHaveLength(2)
+    );
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
   it('keeps controls busy while the server is generating the file and allows retry on failure', async () => {
     let rejectDownload: (error: Error) => void = () => {};

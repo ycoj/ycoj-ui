@@ -1,6 +1,7 @@
 'use client';
 
 import ScoreboardExport from './scoreboard-export';
+import { SCOREBOARD_EXPORT_DATA_VIEW } from './scoreboard-export-utils';
 import UnlockButton from './unlock-button';
 import { Button } from '@/shared/components/ui/button';
 import type { Contest } from '@/shared/types/contest';
@@ -26,7 +27,7 @@ export default function ScoreboardToolbar({
   const homeworkT = useTranslations('homework');
   const exportViews = availableViews
     ? Object.entries(availableViews).filter(
-        ([key]) => key !== 'default' && key !== 'export-data'
+        ([key]) => key !== 'default' && key !== SCOREBOARD_EXPORT_DATA_VIEW
       )
     : [];
 
@@ -61,7 +62,7 @@ export default function ScoreboardToolbar({
       ))}
       <ScoreboardExport
         title={tdoc.title}
-        canExportPrivate={!!availableViews?.['export-data']}
+        canExportPrivate={!!availableViews?.[SCOREBOARD_EXPORT_DATA_VIEW]}
         tid={tid}
         pageType={pageType}
       />

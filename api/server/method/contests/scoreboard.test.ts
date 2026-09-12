@@ -37,16 +37,38 @@ describe('server scoreboard authorization context', () => {
     );
   });
   it('uses the ordinary scoreboard for a public image, without requesting private fields', async () => {
-    const fetch = vi
-      .fn()
-      .mockResolvedValue(new Response(JSON.stringify({ rows: [] })));
+    const fetch = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          tdoc: { title: 'Contest' },
+          rows: [],
+          pdict: {},
+          udict: {
+            7: {
+              uname: 'alice',
+              avatar: '/avatar.png',
+              realName: 'Alice',
+              secret: 'ignored',
+            },
+          },
+        })
+      )
+    );
     vi.stubGlobal('fetch', fetch);
-    await getScoreboardExportData('homework', 'tid', {
+    const data = await getScoreboardExportData('homework', 'tid', {
       realName: false,
       details: false,
     });
     expect(String(fetch.mock.calls[0][0])).toMatch(
       /\/homework\/tid\/scoreboard$/
     );
+    expect(data).toEqual({
+      tdoc: { title: 'Contest' },
+      rows: [],
+      pdict: {},
+      udict: {
+        7: { uname: 'alice', avatar: '/avatar.png', realName: 'Alice' },
+      },
+    });
   });
 });

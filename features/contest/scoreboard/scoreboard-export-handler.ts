@@ -1,6 +1,11 @@
+import {
+  ScoreboardExportBusyError,
+  ScoreboardExportLimitError,
+} from './scoreboard-export-errors';
 import { renderScoreboardFile } from './scoreboard-export-renderer';
 import ServerApis from '@/api/server/method';
 import { STATUS_TEXT_KEYS } from '@/shared/configs/status';
+import { backendErrorStatus } from '@/shared/lib/backend-response';
 import { getTranslations } from 'next-intl/server';
 import 'server-only';
 import { z } from 'zod';
@@ -17,6 +22,16 @@ const requestSchema = z.object({
   details: flag,
 });
 const privateHeaders = { 'Cache-Control': 'private, no-store', Vary: 'Cookie' };
+
+function isAbortError(error: unknown) {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'name' in error &&
+    typeof error.name === 'string' &&
+    (error.name === 'TimeoutError' || error.name === 'AbortError')
+  );
+}
 
 export async function handleScoreboardExport(
   request: Request,
@@ -42,18 +57,14 @@ export async function handleScoreboardExport(
       tid,
       options
     );
-    if ('error' in data) {
-      const status = data.error.name.includes('NotFound')
-        ? 404
-        : data.error.name.includes('Permission') ||
-            data.error.name.includes('Hidden')
-          ? 403
-          : 502;
+    if ('error' in data)
       return Response.json(
-        { error: data.error },
-        { status, headers: privateHeaders }
+        { error: data.error.message },
+        {
+          status: backendErrorStatus(data.error.name),
+          headers: privateHeaders,
+        }
       );
-    }
     const statusT = await getTranslations('judgeStatus.label');
     const file = await renderScoreboardFile(
       data,
@@ -84,10 +95,23 @@ export async function handleScoreboardExport(
       },
     });
   } catch (error) {
+    if (error instanceof ScoreboardExportLimitError)
+      return Response.json(
+        { error: t('exportLimitExceeded') },
+        { status: 413, headers: privateHeaders }
+      );
+    if (error instanceof ScoreboardExportBusyError)
+      return Response.json(
+        { error: t('exportBusy') },
+        {
+          status: 503,
+          headers: { ...privateHeaders, 'Retry-After': '60' },
+        }
+      );
     console.error('Scoreboard export failed', error);
     return Response.json(
       { error: t('exportFailed') },
-      { status: 500, headers: privateHeaders }
+      { status: isAbortError(error) ? 504 : 500, headers: privateHeaders }
     );
   }
 }

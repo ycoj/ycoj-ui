@@ -1,4 +1,8 @@
 // @vitest-environment node
+import {
+  ScoreboardExportBusyError,
+  ScoreboardExportLimitError,
+} from './scoreboard-export-errors';
 import { handleScoreboardExport } from './scoreboard-export-handler';
 import { renderScoreboardFile } from './scoreboard-export-renderer';
 import ServerApis from '@/api/server/method';
@@ -16,7 +20,7 @@ vi.mock('next-intl/server', () => ({
 const params = { pageType: 'contest', tid: '665f00000000000000000001' };
 const request = (query = '') =>
   new Request(
-    `http://localhost/api/scoreboard-export/contest/${params.tid}${query}`
+    `http://localhost/scoreboard-export/contest/${params.tid}${query}`
   );
 beforeEach(() => {
   vi.mocked(ServerApis.Contests.getScoreboardExportData)
@@ -26,8 +30,6 @@ beforeEach(() => {
       udict: {},
       pdict: {},
       tdoc: { title: 'Contest' },
-      tsdoc: null,
-      groups: [],
     } as never);
   vi.mocked(renderScoreboardFile)
     .mockReset()
@@ -62,7 +64,46 @@ describe('Next export route', () => {
     );
     expect(response.status).toBe(403);
     expect(response.headers.get('cache-control')).toContain('no-store');
+    expect(await response.json()).toEqual({ error: 'Forbidden' });
     expect(renderScoreboardFile).not.toHaveBeenCalled();
+  });
+  it.each([
+    ['PrivilegeError', 403],
+    ['ForbiddenError', 403],
+    ['HiddenError', 403],
+    ['NotFoundError', 404],
+    ['ServerError', 502],
+  ])('maps the %s backend error to %i', async (name, status) => {
+    vi.mocked(ServerApis.Contests.getScoreboardExportData).mockResolvedValue({
+      error: { name, message: 'Denied' },
+    });
+    const response = await handleScoreboardExport(request(), params);
+    expect(response.status).toBe(status);
+    expect(await response.json()).toEqual({ error: 'Denied' });
+    expect(renderScoreboardFile).not.toHaveBeenCalled();
+  });
+  it('maps deterministic limit failures to a localized 413 response', async () => {
+    vi.mocked(renderScoreboardFile).mockRejectedValue(
+      new ScoreboardExportLimitError(
+        'Scoreboard export exceeds the participant limit'
+      )
+    );
+    const response = await handleScoreboardExport(
+      request('?details=true'),
+      params
+    );
+    expect(response.status).toBe(413);
+    expect(response.headers.get('cache-control')).toBe('private, no-store');
+    expect(await response.json()).toEqual({ error: 'exportLimitExceeded' });
+  });
+  it('maps saturated export capacity to a retryable 503 response', async () => {
+    vi.mocked(renderScoreboardFile).mockRejectedValue(
+      new ScoreboardExportBusyError()
+    );
+    const response = await handleScoreboardExport(request(), params);
+    expect(response.status).toBe(503);
+    expect(response.headers.get('retry-after')).toBe('60');
+    expect(await response.json()).toEqual({ error: 'exportBusy' });
   });
   it('maps backend transport failures to a private localized server error', async () => {
     vi.mocked(ServerApis.Contests.getScoreboardExportData).mockRejectedValue(
@@ -74,6 +115,23 @@ describe('Next export route', () => {
       expect(response.status).toBe(500);
       expect(response.headers.get('cache-control')).toBe('private, no-store');
       expect(response.headers.get('vary')).toBe('Cookie');
+      expect(await response.json()).toEqual({ error: 'exportFailed' });
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
+  it('distinguishes export deadline timeouts from unexpected failures', async () => {
+    vi.mocked(renderScoreboardFile).mockRejectedValue(
+      new DOMException(
+        'The operation was aborted due to timeout',
+        'TimeoutError'
+      )
+    );
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      const response = await handleScoreboardExport(request(), params);
+      expect(response.status).toBe(504);
+      expect(response.headers.get('cache-control')).toBe('private, no-store');
       expect(await response.json()).toEqual({ error: 'exportFailed' });
     } finally {
       errorSpy.mockRestore();

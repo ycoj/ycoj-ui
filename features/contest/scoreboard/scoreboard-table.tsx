@@ -16,11 +16,6 @@ import type { ScoreboardRow } from '@/shared/types/contest';
 import type { ProblemDict } from '@/shared/types/problem';
 import type { BaseUserDict } from '@/shared/types/user';
 
-export {
-  getOwnedBalloonColors,
-  getProblemBalloonColors,
-} from './scoreboard-presentation';
-
 type Props = {
   rows: ScoreboardRow[];
   udict: BaseUserDict;

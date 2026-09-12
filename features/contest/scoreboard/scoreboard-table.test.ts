@@ -1,7 +1,7 @@
 import {
   getOwnedBalloonColors,
   getProblemBalloonColors,
-} from '@/features/contest/scoreboard/scoreboard-table';
+} from '@/features/contest/scoreboard/scoreboard-presentation';
 import type { ScoreboardRow } from '@/shared/types/contest';
 import { describe, expect, it } from 'vitest';
 

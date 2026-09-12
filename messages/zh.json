@@ -1638,6 +1638,8 @@
     "language": "语言",
     "noUserSubmissions": "暂无提交记录。",
     "exportFailed": "导出失败，请重试。",
+    "exportLimitExceeded": "导出内容过大，服务器无法生成。请尝试不包含提交详情或缩小导出范围。",
+    "exportBusy": "服务器正在生成其他导出，请稍后重试。",
     "submissionDetails": "提交详情"
   },
   "solution": {

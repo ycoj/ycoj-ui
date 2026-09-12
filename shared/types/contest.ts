@@ -163,6 +163,22 @@ export type ScoreboardResponse = {
   availableViews?: Record<string, string>;
 };
 
+export type ScoreboardExportOptions = {
+  avatar: boolean;
+  realName: boolean;
+  details: boolean;
+};
+
+/** Normalized data shared by the export renderer and its callers. */
+export type ScoreboardExportData = Pick<
+  ScoreboardResponse,
+  'tdoc' | 'rows' | 'pdict'
+> & {
+  udict: Record<number, { uname: string; avatar: string; realName?: string }>;
+  submissions?: ScoreboardExportResponse['submissions'];
+};
+
+/** Raw payload of Hydro's permission-checked `scoreboard/export-data` view. */
 export type ScoreboardExportResponse = Pick<
   ScoreboardResponse,
   'tdoc' | 'rows' | 'pdict'
