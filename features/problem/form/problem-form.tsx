@@ -232,14 +232,14 @@ export default function ProblemForm({
                         0,
                         MAX_DIFFICULTY + 1
                       ).map((key, level) => (
-                        <SelectItem
-                          key={level}
-                          value={String(level)}
-                          style={{
-                            color: PROBLEMS_DIFFICULTY_TEXT_COLOR[level],
-                          }}
-                        >
-                          {difficulty(key)}
+                        <SelectItem key={level} value={String(level)}>
+                          <span
+                            style={{
+                              color: PROBLEMS_DIFFICULTY_TEXT_COLOR[level],
+                            }}
+                          >
+                            {difficulty(key)}
+                          </span>
                         </SelectItem>
                       ))}
                     </SelectContent>
