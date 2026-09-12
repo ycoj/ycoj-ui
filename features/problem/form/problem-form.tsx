@@ -30,7 +30,7 @@ import type { ReactNode } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { z } from 'zod';
 
-const MAX_DIFFICULTY = 7;
+const MAX_DIFFICULTY = 8;
 
 export type ProblemFormValues = {
   pid: string;

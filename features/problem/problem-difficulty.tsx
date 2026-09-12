@@ -12,7 +12,7 @@ export type Props = {
 export default function ProblemDifficulty({ difficulty }: Props) {
   const t = useTranslations('difficulty');
   if (!difficulty || typeof difficulty !== 'number') difficulty = 0;
-  if (difficulty < 0 || difficulty > 7) difficulty = 0;
+  if (difficulty < 0 || difficulty > 8) difficulty = 0;
   const bgColor = PROBLEMS_DIFFICULTY_COLOR[difficulty];
   const label = t(PROBLEMS_DIFFICULTY_KEYS[difficulty] ?? 'unrated');
 

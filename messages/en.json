@@ -1771,8 +1771,8 @@
     "none": "None",
     "beginner": "Beginner",
     "basicMinus": "Basic-",
-    "basicAdvancedMinus": "Basic/Advanced-",
-    "basicPlusAdvanced": "Basic+/Advanced",
+    "basic": "Basic",
+    "basicPlusAdvancedMinus": "Basic+/Advanced-",
     "advancedMinus": "Advanced-",
     "advanced": "Advanced",
     "advancedPlusProvincialMinus": "Advanced+/Provincial-",
@@ -1780,9 +1780,8 @@
     "provincial": "Provincial",
     "provincialNoiMinus": "Provincial/NOI-",
     "noi": "NOI",
-    "noiNoiPlus": "NOI/NOI+",
+    "noiNoiPlus": "NOI/NOI+/CTS",
     "noiPlus": "NOI+",
-    "noiPlusCstc": "NOI+/CSTC",
     "level": "Difficulty {level}"
   },
   "judgeStatus": {
