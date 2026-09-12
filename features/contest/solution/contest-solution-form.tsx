@@ -42,6 +42,7 @@ export default function ContestSolutionForm({
       buildContestSolutionSchema({
         titleRequired: t('titleRequired'),
         titleTooLong: t('titleTooLong'),
+        titleSingleLine: t('titleSingleLine'),
         contentRequired: t('contentRequired'),
         contentTooLong: t('contentTooLong'),
       })

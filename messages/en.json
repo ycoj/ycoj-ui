@@ -1828,6 +1828,7 @@
     "content": "Content",
     "titleRequired": "Enter a title.",
     "titleTooLong": "Title must be at most 64 characters.",
+    "titleSingleLine": "Title must be a single line.",
     "contentTooLong": "Content must be at most 65,535 characters, excluding leading and trailing whitespace.",
     "contentRequired": "Enter solution content.",
     "save": "Save",

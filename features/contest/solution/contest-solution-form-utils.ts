@@ -6,6 +6,7 @@ export const CONTEST_SOLUTION_CONTENT_MAX_LENGTH = 65535;
 export type ContestSolutionSchemaMessages = {
   titleRequired: string;
   titleTooLong: string;
+  titleSingleLine: string;
   contentRequired: string;
   contentTooLong: string;
 };
@@ -18,7 +19,9 @@ export function buildContestSolutionSchema(
       .string()
       .trim()
       .min(1, messages.titleRequired)
-      .max(CONTEST_SOLUTION_TITLE_MAX_LENGTH, messages.titleTooLong),
+      .max(CONTEST_SOLUTION_TITLE_MAX_LENGTH, messages.titleTooLong)
+      // Backend Types.Title uses /^.{1,64}$/, whose dot does not match newlines.
+      .regex(/^[^\n]+$/, messages.titleSingleLine),
     content: z
       .string()
       .trim()

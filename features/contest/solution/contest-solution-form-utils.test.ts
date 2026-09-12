@@ -8,6 +8,7 @@ import { describe, expect, it } from 'vitest';
 const messages = {
   titleRequired: 'titleRequired',
   titleTooLong: 'titleTooLong',
+  titleSingleLine: 'titleSingleLine',
   contentRequired: 'contentRequired',
   contentTooLong: 'contentTooLong',
 };
@@ -29,6 +30,8 @@ describe('contest solution schema', () => {
     },
     { title: 'Editorial', content: '', error: 'contentRequired' },
     { title: 'Editorial', content: '   \n  ', error: 'contentRequired' },
+    { title: 'Line\nBreak', content: 'Answer', error: 'titleSingleLine' },
+    { title: ' \n ', content: 'Answer', error: 'titleRequired' },
     {
       title: 'Editorial',
       content: 'a'.repeat(CONTEST_SOLUTION_CONTENT_MAX_LENGTH + 1),
