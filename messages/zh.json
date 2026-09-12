@@ -1771,8 +1771,8 @@
     "none": "无",
     "beginner": "入门",
     "basicMinus": "普及-",
-    "basicAdvancedMinus": "普及/提高-",
-    "basicPlusAdvanced": "普及+/提高",
+    "basic": "普及",
+    "basicPlusAdvancedMinus": "普及+/提高-",
     "advancedMinus": "提高-",
     "advanced": "提高",
     "advancedPlusProvincialMinus": "提高+/省选-",
@@ -1780,9 +1780,8 @@
     "provincial": "省选",
     "provincialNoiMinus": "省选/NOI-",
     "noi": "NOI",
-    "noiNoiPlus": "NOI/NOI+",
+    "noiNoiPlus": "NOI/NOI+/CTS",
     "noiPlus": "NOI+",
-    "noiPlusCstc": "NOI+/CSTC",
     "level": "难度 {level}"
   },
   "judgeStatus": {
