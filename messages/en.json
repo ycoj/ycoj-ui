@@ -1611,6 +1611,11 @@
     }
   },
   "scoreboard": {
+    "export": "Export image",
+    "exporting": "Exporting...",
+    "includeAvatar": "Include avatars",
+    "useRealName": "Use real names",
+    "includeDetails": "Include submission details",
     "noData": "No scoreboard data",
     "noSubmissions": "No one has submitted a problem in this event yet.",
     "unlock": "Unlock scoreboard",

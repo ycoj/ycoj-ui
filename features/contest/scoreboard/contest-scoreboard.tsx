@@ -34,6 +34,7 @@ export default function ContestScoreboard({
         pageType={pageType}
         availableViews={availableViews}
         tdoc={tdoc}
+        data={data}
       />
       {rows.length > 1 ? (
         <ScoreboardTable

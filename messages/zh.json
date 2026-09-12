@@ -1611,6 +1611,11 @@
     }
   },
   "scoreboard": {
+    "export": "导出图片",
+    "exporting": "正在导出...",
+    "includeAvatar": "包含头像",
+    "useRealName": "使用真实姓名",
+    "includeDetails": "包含提交详情",
     "noData": "暂无成绩数据",
     "noSubmissions": "目前还没有人在此活动中提交题目。",
     "unlock": "解锁成绩表",
