@@ -94,7 +94,20 @@ export default function ScoreboardExport({ data }: Props) {
         <h1 className="mb-4 text-2xl font-bold">{data.tdoc.title}</h1>
         <pre>
           {data.rows
-            .map((row) => row.map((cell) => String(cell.value)).join('\t'))
+            .map((row) =>
+              row
+                .map((cell) => {
+                  if (
+                    realName &&
+                    cell.type === 'user' &&
+                    typeof cell.raw === 'number'
+                  ) {
+                    return data.udict[cell.raw]?.realName || String(cell.value);
+                  }
+                  return String(cell.value);
+                })
+                .join('\t')
+            )
             .join('\n')}
         </pre>
       </div>
