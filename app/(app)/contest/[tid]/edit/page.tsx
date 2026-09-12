@@ -47,6 +47,10 @@ export default async function ContestEditPage({
 
   const pids = await resolveProblemListItems(homepage.domain._id, data.pids);
   const canAutoHide = hasPerm(user, PERM.PERM_EDIT_PROBLEM);
+  const canClone = hasPerm(user, PERM.PERM_CREATE_CONTEST);
+  // Deletion has no dedicated permission bit, so unlike cloning the delete
+  // button stays visible; the backend rejects unauthorized deletes with a
+  // Forbidden error, matching the legacy edit page behavior.
   const mapped = mapContestEditToFormValues(data, pids, user.timeZone);
 
   return (
@@ -58,6 +62,7 @@ export default async function ContestEditPage({
       }}
       canAutoHide={canAutoHide}
       domainId={homepage.domain._id}
+      canClone={canClone}
     />
   );
 }

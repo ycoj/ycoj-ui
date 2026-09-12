@@ -21,6 +21,9 @@ export const CONTEST_CREATE_RULES = [
 
 export const CONTEST_PERMISSIONS = ['public', 'invite', 'assign'] as const;
 
+export const datePattern = /^\d{4}-\d{2}-\d{2}$/;
+export const timePattern = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
+
 export type ContestCreateRule = (typeof CONTEST_CREATE_RULES)[number];
 export type ContestPermission = (typeof CONTEST_PERMISSIONS)[number];
 export type ContestFormValues = {
@@ -44,6 +47,11 @@ export type ContestFormValues = {
   lock: string;
   contestDuration: string;
 };
+
+export type ContestCloneValues = Pick<
+  ContestFormValues,
+  'title' | 'beginAtDate' | 'beginAtTime' | 'duration'
+>;
 
 export const contestRuleSupportsLock = (rule: ContestCreateRule) =>
   rule === 'acm' || rule === 'ioi';

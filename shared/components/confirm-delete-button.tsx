@@ -1,34 +1,47 @@
 'use client';
 
-import ClientApis from '@/api/client/method';
 import parseErrorMessage from '@/shared/components/errored/parse-message';
 import { Button } from '@/shared/components/ui/button';
 import { FieldError } from '@/shared/components/ui/field';
+import type { Errorable } from '@/shared/types/error';
 import { LoaderCircle, Trash } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { AlertDialog } from 'radix-ui';
 import { useState } from 'react';
 
-type Props = { id: string; disabled?: boolean };
+export type ConfirmDeleteButtonProps = {
+  id: string;
+  namespace: string;
+  listRoute: string;
+  onDelete: (id: string) => Promise<Errorable<{ url?: string }>>;
+  disabled?: boolean;
+};
 
-export default function PasteDeleteButton({ id, disabled }: Props) {
-  const t = useTranslations('paste');
+export default function ConfirmDeleteButton({
+  id,
+  namespace,
+  listRoute,
+  onDelete,
+  disabled,
+}: ConfirmDeleteButtonProps) {
+  const t = useTranslations(namespace);
+  const tCommon = useTranslations('common');
   const router = useRouter();
   const [deleting, setDeleting] = useState(false);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string>();
 
-  const onDelete = async () => {
+  const onDeleteClick = async () => {
     if (deleting) return;
     setError(undefined);
     setDeleting(true);
     try {
-      const response = await ClientApis.Paste.deletePaste(id).send();
+      const response = await onDelete(id);
       if ('error' in response)
         throw new Error(parseErrorMessage(response.error));
       setOpen(false);
-      router.push('/paste');
+      router.push(listRoute);
       router.refresh();
     } catch (caught) {
       setError(
@@ -84,14 +97,14 @@ export default function PasteDeleteButton({ id, disabled }: Props) {
           <div className="mt-5 flex justify-end gap-2">
             <AlertDialog.Cancel asChild>
               <Button type="button" variant="outline" disabled={deleting}>
-                {t('cancel')}
+                {tCommon('cancel')}
               </Button>
             </AlertDialog.Cancel>
             <Button
               type="button"
               variant="destructive"
               disabled={deleting}
-              onClick={() => void onDelete()}
+              onClick={() => void onDeleteClick()}
             >
               {deleting && <LoaderCircle className="animate-spin" />}
               {deleting ? t('deleting') : t('delete')}

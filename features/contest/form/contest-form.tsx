@@ -1,12 +1,16 @@
 'use client';
 
+import ContestCloneDialog from '@/features/contest/form/contest-clone-dialog';
 import {
   CONTEST_CREATE_RULES,
   CONTEST_PERMISSIONS,
   contestRuleSupportsFlexibleDuration,
   contestRuleSupportsHiddenScoreboard,
   contestRuleSupportsLock,
+  datePattern,
+  timePattern,
   resolveContestAutoHide,
+  type ContestCloneValues,
   type ContestFormValues,
 } from '@/features/contest/form/contest-form-utils';
 import LanguageAutoComplete from '@/features/language/language-auto-complete';
@@ -32,13 +36,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/components/ui/select';
+import { useCloneFlow } from '@/shared/hooks/use-clone-flow';
 import { cn } from '@/shared/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import dayjs from 'dayjs';
-import { ArrowLeft, Plus, Save } from 'lucide-react';
+import { ArrowLeft, Copy, Plus, Save } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { type ReactNode } from 'react';
 import {
   Controller,
   useForm,
@@ -58,10 +64,9 @@ type Props = {
   domainId: string;
   cancelHref: string;
   onSubmit: (values: ContestFormValues) => Promise<string>;
+  onClone?: (values: ContestFormValues) => Promise<string>;
+  extraActions?: ReactNode;
 };
-
-const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-const timePattern = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
 
 export default function ContestForm({
   mode,
@@ -70,6 +75,8 @@ export default function ContestForm({
   domainId,
   cancelHref,
   onSubmit,
+  onClone,
+  extraActions,
 }: Props) {
   const t = useTranslations(
     mode === 'create' ? 'contestCreate' : 'contestEdit'
@@ -133,6 +140,21 @@ export default function ContestForm({
   const [rule, permission] = useWatch({
     control,
     name: ['rule', 'permission'],
+  });
+  const cloneFlow = useCloneFlow<ContestFormValues, ContestCloneValues>({
+    onClone: onClone
+      ? (values) =>
+          onClone({
+            ...values,
+            autoHide: resolveContestAutoHide(canAutoHide, values.autoHide),
+          })
+      : undefined,
+    toCloneValues: ({ title, beginAtDate, beginAtTime, duration }) => ({
+      title,
+      beginAtDate,
+      beginAtTime,
+      duration,
+    }),
   });
   const supportsLock = contestRuleSupportsLock(rule);
   const supportsFlexibleDuration = contestRuleSupportsFlexibleDuration(rule);
@@ -481,6 +503,18 @@ export default function ContestForm({
           {mode === 'create' ? <Plus /> : <Save />}
           {isSubmitting ? t('creating') : t('create')}
         </Button>
+        {mode === 'edit' && onClone && (
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={isSubmitting}
+            onClick={handleSubmit(cloneFlow.openCloneDialog)}
+          >
+            <Copy />
+            {t('clone')}
+          </Button>
+        )}
+        {extraActions}
         <Button asChild variant="secondary">
           <Link href={cancelHref}>
             <ArrowLeft />
@@ -488,6 +522,15 @@ export default function ContestForm({
           </Link>
         </Button>
       </div>
+      {cloneFlow.cloneValues && (
+        <ContestCloneDialog
+          defaultValues={cloneFlow.cloneValues}
+          onOpenChange={(open) => {
+            if (!open) cloneFlow.closeCloneDialog();
+          }}
+          onConfirm={cloneFlow.confirmClone}
+        />
+      )}
     </form>
   );
 }

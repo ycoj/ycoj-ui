@@ -6,6 +6,7 @@ import {
   buildCreateContestPayload,
   type ContestFormValues,
 } from '@/features/contest/form/contest-form-utils';
+import parseErrorMessage from '@/shared/components/errored/parse-message';
 import { useTranslations } from 'next-intl';
 
 type Props = {
@@ -32,6 +33,8 @@ export default function ContestCreateForm({
         const response = await ClientApis.Contest.createContest(
           buildCreateContestPayload(values)
         ).send();
+        if ('error' in response)
+          throw new Error(parseErrorMessage(response.error));
         if (!response?.tid) throw new Error(t('submitFailed'));
         return `/contest/${response.tid}`;
       }}
