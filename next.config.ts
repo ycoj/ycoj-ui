@@ -8,6 +8,13 @@ const uploadBaseUrl =
   '';
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ['@resvg/resvg-js'],
+  outputFileTracingIncludes: {
+    '/api/scoreboard-export/*/*': [
+      './public/fonts/NotoSansCJKsc-Regular.otf',
+      './public/fonts/noto-sans-cjk-OFL.txt',
+    ],
+  },
   env: {
     NEXT_PUBLIC_UPLOAD_BASEURL: uploadBaseUrl,
     SITE_NAME: process.env.SITE_NAME ?? '',

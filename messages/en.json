@@ -1628,7 +1628,16 @@
       "loadError": "Failed to load the scoreboard",
       "checkNetwork": "Check your network connection and try again",
       "retry": "Retry"
-    }
+    },
+    "submissionId": "Submission ID",
+    "problem": "Problem",
+    "submittedAt": "Submitted at (UTC)",
+    "status": "Status",
+    "score": "Score",
+    "language": "Language",
+    "noUserSubmissions": "No submissions.",
+    "exportFailed": "Export failed. Please try again.",
+    "submissionDetails": "Submission details"
   },
   "solution": {
     "missingYours": "Missing your approach?",

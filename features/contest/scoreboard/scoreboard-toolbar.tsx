@@ -4,7 +4,6 @@ import ScoreboardExport from './scoreboard-export';
 import UnlockButton from './unlock-button';
 import { Button } from '@/shared/components/ui/button';
 import type { Contest } from '@/shared/types/contest';
-import type { ScoreboardResponse } from '@/shared/types/contest';
 import type { Homework } from '@/shared/types/homework';
 import { ArrowLeft } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -15,7 +14,6 @@ type Props = {
   pageType: 'contest' | 'homework';
   availableViews?: Record<string, string>;
   tdoc: Contest | Homework;
-  data: ScoreboardResponse;
 };
 
 export default function ScoreboardToolbar({
@@ -23,12 +21,13 @@ export default function ScoreboardToolbar({
   pageType,
   availableViews,
   tdoc,
-  data,
 }: Props) {
   const contestT = useTranslations('contest');
   const homeworkT = useTranslations('homework');
   const exportViews = availableViews
-    ? Object.entries(availableViews).filter(([key]) => key !== 'default')
+    ? Object.entries(availableViews).filter(
+        ([key]) => key !== 'default' && key !== 'export-data'
+      )
     : [];
 
   const showUnlock =
@@ -60,7 +59,12 @@ export default function ScoreboardToolbar({
           </a>
         </Button>
       ))}
-      <ScoreboardExport data={data} />
+      <ScoreboardExport
+        title={tdoc.title}
+        canExportPrivate={!!availableViews?.['export-data']}
+        tid={tid}
+        pageType={pageType}
+      />
 
       {showUnlock && <UnlockButton tid={tid} />}
     </div>

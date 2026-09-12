@@ -1628,7 +1628,16 @@
       "loadError": "加载成绩表时出错",
       "checkNetwork": "请检查网络连接后重试",
       "retry": "重试"
-    }
+    },
+    "submissionId": "提交编号",
+    "problem": "题目",
+    "submittedAt": "提交时间（UTC）",
+    "status": "状态",
+    "score": "分数",
+    "language": "语言",
+    "noUserSubmissions": "暂无提交记录。",
+    "exportFailed": "导出失败，请重试。",
+    "submissionDetails": "提交详情"
   },
   "solution": {
     "missingYours": "没有我的做法？",
