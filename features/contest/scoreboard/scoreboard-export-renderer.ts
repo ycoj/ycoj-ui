@@ -1,3 +1,4 @@
+import { finalizeScoreboardArchive } from './scoreboard-export-archive';
 import { loadExportAvatar } from './scoreboard-export-avatar';
 import { buildScoreboardSvg, type ExportLabels } from './scoreboard-export-svg';
 import {
@@ -80,7 +81,7 @@ export async function renderScoreboardFile(
     delete avatars[uid];
   }
   return {
-    body: await zip.generateAsync({ type: 'nodebuffer' }),
+    body: await finalizeScoreboardArchive(zip, exportSignal),
     contentType: 'application/zip',
     filename: `${exportFilename(data.tdoc.title)}.zip`,
   };

@@ -29,8 +29,8 @@ participant is rasterized sequentially to avoid simultaneous full-size canvases.
 Each individual image is limited to 40 million pixels. An export is limited to
 250 participants, detail ZIPs retain at most 64 MiB of PNG data, and the whole
 export has a 60-second deadline. Oversized or expired exports return 500.
-Request cancellation is checked between images and forwarded to rendering and
-avatar fetches.
+Request cancellation is checked between images and forwarded to rendering,
+avatar fetches, and ZIP finalization.
 
 Deploy with Node.js and the platform-specific optional dependency installed by
 pnpm. No Chromium installation is required. Keep
