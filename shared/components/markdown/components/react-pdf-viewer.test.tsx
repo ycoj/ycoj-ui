@@ -170,6 +170,24 @@ describe('ReactPdfViewer', () => {
     );
   });
 
+  it('shows the fetch error message when loading the document fails', () => {
+    render(<ReactPdfViewer src="/document.pdf" />, {
+      wrapper: IntlWrapper,
+    });
+    const documentProps = pdfMocks.documentProps as {
+      onLoadError: (error: Error) => void;
+    };
+
+    act(() => documentProps.onLoadError(new Error('Failed to fetch')));
+
+    const { error } = pdfMocks.documentProps as { error: React.ReactElement };
+    render(error, { wrapper: IntlWrapper });
+
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveTextContent('The PDF could not be displayed.');
+    expect(alert).toHaveTextContent('Failed to fetch');
+  });
+
   it('limits oversized documents before creating page placeholders', () => {
     const { container } = render(<ReactPdfViewer src="/large-document.pdf" />, {
       wrapper: IntlWrapper,
