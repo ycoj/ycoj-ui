@@ -1611,6 +1611,12 @@
     }
   },
   "scoreboard": {
+    "export": "Export image",
+    "exporting": "Exporting...",
+    "exportingDescription": "Generating scoreboard images. Please keep this page open until the download starts.",
+    "includeAvatar": "Include avatars",
+    "useRealName": "Use real names",
+    "includeDetails": "Include submission details",
     "noData": "No scoreboard data",
     "noSubmissions": "No one has submitted a problem in this event yet.",
     "unlock": "Unlock scoreboard",
@@ -1623,7 +1629,16 @@
       "loadError": "Failed to load the scoreboard",
       "checkNetwork": "Check your network connection and try again",
       "retry": "Retry"
-    }
+    },
+    "submissionId": "Submission ID",
+    "problem": "Problem",
+    "submittedAt": "Submitted at (UTC)",
+    "status": "Status",
+    "score": "Score",
+    "language": "Language",
+    "noUserSubmissions": "No submissions.",
+    "exportFailed": "Export failed. Please try again.",
+    "submissionDetails": "Submission details"
   },
   "solution": {
     "missingYours": "Missing your approach?",

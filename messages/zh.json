@@ -1611,6 +1611,12 @@
     }
   },
   "scoreboard": {
+    "export": "导出图片",
+    "exporting": "正在导出...",
+    "exportingDescription": "正在生成成绩表图片，请保持当前页面打开，完成后将自动下载。",
+    "includeAvatar": "包含头像",
+    "useRealName": "使用真实姓名",
+    "includeDetails": "包含提交详情",
     "noData": "暂无成绩数据",
     "noSubmissions": "目前还没有人在此活动中提交题目。",
     "unlock": "解锁成绩表",
@@ -1623,7 +1629,16 @@
       "loadError": "加载成绩表时出错",
       "checkNetwork": "请检查网络连接后重试",
       "retry": "重试"
-    }
+    },
+    "submissionId": "提交编号",
+    "problem": "题目",
+    "submittedAt": "提交时间（UTC）",
+    "status": "状态",
+    "score": "分数",
+    "language": "语言",
+    "noUserSubmissions": "暂无提交记录。",
+    "exportFailed": "导出失败，请重试。",
+    "submissionDetails": "提交详情"
   },
   "solution": {
     "missingYours": "没有我的做法？",

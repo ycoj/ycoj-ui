@@ -17,7 +17,10 @@ import {
 } from '@/api/client/method/contest/management-actions';
 import { getContestProblems } from '@/api/client/method/contest/problems';
 import { attendContest } from '@/api/client/method/contest/registration';
-import { unlockScoreboard } from '@/api/client/method/contest/scoreboard';
+import {
+  downloadScoreboard,
+  unlockScoreboard,
+} from '@/api/client/method/contest/scoreboard';
 import {
   deleteContestSolution,
   saveContestSolution,
@@ -30,6 +33,7 @@ const Contest = {
   attendContest,
   getContestProblems,
   unlockScoreboard,
+  downloadScoreboard,
   uploadContestFile,
   deleteContestFiles,
   setContestProblemScore,

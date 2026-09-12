@@ -162,3 +162,24 @@ export type ScoreboardResponse = {
   groups: GDoc[];
   availableViews?: Record<string, string>;
 };
+
+export type ScoreboardExportResponse = Pick<
+  ScoreboardResponse,
+  'tdoc' | 'rows' | 'pdict'
+> & {
+  udict: Record<
+    number,
+    { _id: number; uname: string; avatar: string; realName: string }
+  >;
+  submissions: Record<
+    number,
+    {
+      rid: string;
+      pid: number;
+      status: number;
+      score: number;
+      submittedAt: string;
+      lang?: string;
+    }[]
+  >;
+};
