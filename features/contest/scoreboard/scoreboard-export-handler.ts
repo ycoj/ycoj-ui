@@ -35,26 +35,26 @@ export async function handleScoreboardExport(
       { status: 400, headers: privateHeaders }
     );
   const { pageType, tid, ...options } = parsed.data;
-  const data = await ServerApis.Contests.getScoreboardExportData(
-    pageType,
-    tid,
-    options
-  );
-  if ('error' in data) {
-    const status = data.error.name.includes('NotFound')
-      ? 404
-      : data.error.name.includes('Permission') ||
-          data.error.name.includes('Hidden')
-        ? 403
-        : 502;
-    return Response.json(
-      { error: data.error },
-      { status, headers: privateHeaders }
-    );
-  }
   const t = await getTranslations('scoreboard');
-  const statusT = await getTranslations('judgeStatus.label');
   try {
+    const data = await ServerApis.Contests.getScoreboardExportData(
+      pageType,
+      tid,
+      options
+    );
+    if ('error' in data) {
+      const status = data.error.name.includes('NotFound')
+        ? 404
+        : data.error.name.includes('Permission') ||
+            data.error.name.includes('Hidden')
+          ? 403
+          : 502;
+      return Response.json(
+        { error: data.error },
+        { status, headers: privateHeaders }
+      );
+    }
+    const statusT = await getTranslations('judgeStatus.label');
     const file = await renderScoreboardFile(
       data,
       options,

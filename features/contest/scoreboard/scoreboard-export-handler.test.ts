@@ -64,6 +64,21 @@ describe('Next export route', () => {
     expect(response.headers.get('cache-control')).toContain('no-store');
     expect(renderScoreboardFile).not.toHaveBeenCalled();
   });
+  it('maps backend transport failures to a private localized server error', async () => {
+    vi.mocked(ServerApis.Contests.getScoreboardExportData).mockRejectedValue(
+      new Error('backend unavailable')
+    );
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      const response = await handleScoreboardExport(request(), params);
+      expect(response.status).toBe(500);
+      expect(response.headers.get('cache-control')).toBe('private, no-store');
+      expect(response.headers.get('vary')).toBe('Cookie');
+      expect(await response.json()).toEqual({ error: 'exportFailed' });
+    } finally {
+      errorSpy.mockRestore();
+    }
+  });
   it('returns an uncached attachment and passes export options to the backend and renderer', async () => {
     const response = await handleScoreboardExport(
       request('?realName=true&avatar=true'),

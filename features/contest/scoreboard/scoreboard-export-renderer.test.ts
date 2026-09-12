@@ -1,5 +1,8 @@
 // @vitest-environment node
-import { renderScoreboardFile } from './scoreboard-export-renderer';
+import {
+  MAX_EXPORT_PARTICIPANTS,
+  renderScoreboardFile,
+} from './scoreboard-export-renderer';
 import { buildScoreboardSvg, type ExportLabels } from './scoreboard-export-svg';
 import type { ScoreboardImageData } from './scoreboard-export-utils';
 import JSZip from 'jszip';
@@ -112,5 +115,24 @@ describe('server image renderer', () => {
     await expect(
       renderScoreboardFile(data, options, labels, controller.signal)
     ).rejects.toThrow();
+  });
+  it('rejects exports above the participant limit before rasterizing', async () => {
+    const oversizedData = {
+      ...data,
+      udict: Object.fromEntries(
+        Array.from({ length: MAX_EXPORT_PARTICIPANTS + 1 }, (_, index) => [
+          index,
+          { uname: `user-${index}`, avatar: '', realName: '' },
+        ])
+      ),
+    } as ScoreboardImageData;
+    await expect(
+      renderScoreboardFile(
+        oversizedData,
+        { ...options, details: false },
+        labels,
+        new AbortController().signal
+      )
+    ).rejects.toThrow('participant limit');
   });
 });
