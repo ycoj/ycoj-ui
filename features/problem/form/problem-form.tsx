@@ -12,7 +12,17 @@ import {
 } from '@/shared/components/ui/field';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
-import { PROBLEMS_DIFFICULTY_KEYS } from '@/shared/configs/difficulty';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/components/ui/select';
+import {
+  PROBLEMS_DIFFICULTY_KEYS,
+  PROBLEMS_DIFFICULTY_TEXT_COLOR,
+} from '@/shared/configs/difficulty';
 import { cn } from '@/shared/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
@@ -199,20 +209,43 @@ export default function ProblemForm({
             </Field>
             <Field>
               <FieldLabel htmlFor="difficulty">{t('difficulty')}</FieldLabel>
-              <select
-                id="difficulty"
-                className="border-input bg-background focus-visible:border-ring focus-visible:ring-ring/50 h-8 rounded-lg border px-2.5 text-sm outline-none focus-visible:ring-3"
-                disabled={isSubmitting}
-                {...register('difficulty', { valueAsNumber: true })}
-              >
-                {PROBLEMS_DIFFICULTY_KEYS.slice(0, MAX_DIFFICULTY + 1).map(
-                  (key, level) => (
-                    <option key={level} value={level}>
-                      {difficulty(key)}
-                    </option>
-                  )
+              <Controller
+                control={control}
+                name="difficulty"
+                render={({ field }) => (
+                  <Select
+                    value={String(field.value)}
+                    onValueChange={(value) => field.onChange(Number(value))}
+                    disabled={isSubmitting}
+                  >
+                    <SelectTrigger
+                      id="difficulty"
+                      className="w-full"
+                      style={{
+                        color: PROBLEMS_DIFFICULTY_TEXT_COLOR[field.value],
+                      }}
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {PROBLEMS_DIFFICULTY_KEYS.slice(
+                        0,
+                        MAX_DIFFICULTY + 1
+                      ).map((key, level) => (
+                        <SelectItem key={level} value={String(level)}>
+                          <span
+                            style={{
+                              color: PROBLEMS_DIFFICULTY_TEXT_COLOR[level],
+                            }}
+                          >
+                            {difficulty(key)}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 )}
-              </select>
+              />
             </Field>
           </div>
 
