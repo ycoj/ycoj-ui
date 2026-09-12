@@ -4,7 +4,14 @@ import { exportFilename } from './scoreboard-export-utils';
 import ClientApis from '@/api/client/method';
 import { Button } from '@/shared/components/ui/button';
 import { Checkbox } from '@/shared/components/ui/checkbox';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/shared/components/ui/popover';
+import { LoaderCircle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { Dialog } from 'radix-ui';
 import { useState } from 'react';
 
 type Props = {
@@ -29,6 +36,7 @@ export default function ScoreboardExport({
 
   const [error, setError] = useState(false);
   async function exportImage() {
+    setOpen(false);
     setBusy(true);
     setError(false);
     try {
@@ -46,6 +54,7 @@ export default function ScoreboardExport({
       setOpen(false);
     } catch {
       setError(true);
+      setOpen(true);
     } finally {
       setBusy(false);
     }
@@ -53,16 +62,13 @@ export default function ScoreboardExport({
 
   return (
     <>
-      <Button
-        variant="outline"
-        size="sm"
-        disabled={busy}
-        onClick={() => setOpen(!open)}
-      >
-        {t('export')}
-      </Button>
-      {open && (
-        <div className="absolute z-20 mt-2 space-y-3 rounded-md border bg-popover p-4 shadow-md">
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button variant="outline" size="sm" disabled={busy}>
+            {t('export')}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent align="end" className="w-max space-y-3 p-4">
           <label className="flex items-center gap-2">
             <Checkbox
               disabled={busy}
@@ -91,8 +97,29 @@ export default function ScoreboardExport({
           <Button size="sm" disabled={busy} onClick={exportImage}>
             {busy ? t('exporting') : t('export')}
           </Button>
-        </div>
-      )}
+        </PopoverContent>
+      </Popover>
+      <Dialog.Root open={busy}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="fixed inset-0 z-50 bg-black/30 backdrop-blur-xs" />
+          <Dialog.Content
+            className="fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-xl border bg-background p-6 outline-none"
+            onEscapeKeyDown={(event) => event.preventDefault()}
+            onInteractOutside={(event) => event.preventDefault()}
+          >
+            <Dialog.Title className="flex items-center gap-2 text-lg font-semibold">
+              <LoaderCircle
+                aria-hidden="true"
+                className="size-5 animate-spin"
+              />
+              {t('exporting')}
+            </Dialog.Title>
+            <Dialog.Description className="mt-2 text-sm text-muted-foreground">
+              {t('exportingDescription')}
+            </Dialog.Description>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
     </>
   );
 }

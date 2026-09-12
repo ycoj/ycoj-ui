@@ -1613,6 +1613,7 @@
   "scoreboard": {
     "export": "导出图片",
     "exporting": "正在导出...",
+    "exportingDescription": "正在生成成绩表图片，请保持当前页面打开，完成后将自动下载。",
     "includeAvatar": "包含头像",
     "useRealName": "使用真实姓名",
     "includeDetails": "包含提交详情",

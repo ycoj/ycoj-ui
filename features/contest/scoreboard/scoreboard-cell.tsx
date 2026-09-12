@@ -1,3 +1,4 @@
+import { getScoreColor } from './scoreboard-presentation';
 import UserSpan from '@/features/user/user-span';
 import {
   Tooltip,
@@ -34,12 +35,7 @@ type SerializedRecordNode = {
 };
 
 export function getScoreColorClass(score: number): string {
-  return cn(
-    'font-semibold',
-    score >= 100 && 'text-green-600',
-    score >= 60 && score < 100 && 'text-orange-500',
-    score < 60 && 'text-red-500'
-  );
+  return cn('font-semibold', getScoreColor(score).className);
 }
 
 function renderByType(

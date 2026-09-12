@@ -61,6 +61,74 @@ describe('server image renderer', () => {
     expect(empty).not.toContain('record-one');
     expect(empty).toContain('暂无提交记录');
   });
+  it.each([false, true])(
+    'preserves problem titles, score colors and first solves with realName=%s',
+    (realName) => {
+      const fixture: ScoreboardImageData = {
+        ...data,
+        rows: [
+          [
+            { type: 'user', value: 'User' },
+            { type: 'problem', raw: 1000, value: 'A' },
+            { type: 'problem', raw: 1001, value: 'B' },
+          ],
+          [
+            { type: 'user', raw: 2, value: 'alice' },
+            { type: 'record', value: '100', score: 100, first: true },
+            { type: 'records', value: '', raw: [{ value: 60 }, { value: 0 }] },
+          ],
+        ],
+        pdict: {
+          1000: { title: '题目标题' },
+          1001: { title: 'Second problem' },
+        } as unknown as ScoreboardImageData['pdict'],
+      };
+      const svg = buildScoreboardSvg(
+        fixture,
+        { ...options, realName },
+        labels,
+        {}
+      );
+      expect(svg).toContain('题目标题');
+      expect(svg).toContain('Second problem');
+      expect(svg).toContain(realName ? '张三' : 'alice');
+      expect(svg).toContain('<tspan fill="#16a34a">100</tspan>');
+      expect(svg).toContain('<tspan fill="#f97316">60</tspan>');
+      expect(svg).toContain('<tspan fill="#ef4444">0</tspan>');
+      expect(svg.match(/<ellipse /g)).toHaveLength(2);
+      expect(svg).not.toContain('record-one');
+    }
+  );
+  it('renders accepted and pending ICPC marks without literal backend HTML', () => {
+    const svg = buildScoreboardSvg(
+      {
+        ...data,
+        rows: [
+          data.rows[0],
+          [
+            {
+              type: 'record',
+              score: 100,
+              value: '<span class="icon icon-check"></span>\n00:12',
+            },
+          ],
+          [
+            {
+              type: 'record',
+              score: 0,
+              value: '-1 <span style="color:orange">+2</span>',
+            },
+          ],
+        ],
+      },
+      options,
+      labels,
+      {}
+    );
+    expect(svg).toContain('✓');
+    expect(svg).toContain('<tspan fill="#f97316">+2</tspan>');
+    expect(svg).not.toContain('&lt;span');
+  });
   it('uses usernames when real names are missing', () => {
     const svg = buildScoreboardSvg(
       { ...data, udict: { 2: { ...data.udict[2], realName: '' } } },
@@ -101,7 +169,11 @@ describe('server image renderer', () => {
       new AbortController().signal
     );
     const zip = await JSZip.loadAsync(file.body);
-    expect(Object.keys(zip.files)).toEqual(['2-张三.png', '3-张三.png']);
+    expect(Object.keys(zip.files)).toEqual([
+      'scoreboard.png',
+      '2-张三.png',
+      '3-张三.png',
+    ]);
     for (const entry of Object.values(zip.files)) {
       const png = await entry.async('nodebuffer');
       expect(png.subarray(0, 8)).toEqual(

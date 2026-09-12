@@ -49,6 +49,9 @@ describe('server scoreboard downloads', () => {
     const link = vi.mocked(HTMLAnchorElement.prototype.click).mock
       .instances[0] as HTMLAnchorElement;
     expect(link.download).toBe('Contest.png');
+    expect(
+      screen.queryByRole('dialog', { name: 'Exporting...' })
+    ).not.toBeInTheDocument();
   });
   it('passes real-name, avatar and detail options and downloads a ZIP for homework', async () => {
     setup(true, 'homework');
@@ -91,9 +94,15 @@ describe('server scoreboard downloads', () => {
     );
     setup();
     submit();
-    expect(screen.getByRole('button', { name: 'Exporting...' })).toBeDisabled();
+    const progress = screen.getByRole('dialog', { name: 'Exporting...' });
+    expect(progress).toHaveTextContent('Please keep this page open');
+    fireEvent.keyDown(progress, { key: 'Escape' });
+    expect(screen.getByRole('dialog', { name: 'Exporting...' })).toBeVisible();
     rejectDownload(new Error('failed'));
     expect(await screen.findByRole('alert')).toHaveTextContent('Export failed');
+    expect(
+      screen.queryByRole('dialog', { name: 'Exporting...' })
+    ).not.toBeInTheDocument();
     expect(URL.createObjectURL).not.toHaveBeenCalled();
     expect(
       screen.getAllByRole('button', { name: 'Export image' })[1]

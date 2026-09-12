@@ -1,3 +1,7 @@
+import {
+  getOwnedBalloonColors,
+  getProblemBalloonColors,
+} from './scoreboard-presentation';
 import ScoreboardCell from '@/features/contest/scoreboard/scoreboard-cell';
 import {
   Table,
@@ -12,6 +16,11 @@ import type { ScoreboardRow } from '@/shared/types/contest';
 import type { ProblemDict } from '@/shared/types/problem';
 import type { BaseUserDict } from '@/shared/types/user';
 
+export {
+  getOwnedBalloonColors,
+  getProblemBalloonColors,
+} from './scoreboard-presentation';
+
 type Props = {
   rows: ScoreboardRow[];
   udict: BaseUserDict;
@@ -20,46 +29,6 @@ type Props = {
   pageType: 'contest' | 'homework';
   currentUid?: number;
 };
-
-const ICPC_BALLOON_COLORS = [
-  '#dc2626',
-  '#2563eb',
-  '#facc15',
-  '#16a34a',
-  '#f97316',
-  '#9333ea',
-  '#ec4899',
-  '#06b6d4',
-  '#84cc16',
-  '#64748b',
-];
-
-export function getProblemBalloonColors(
-  headerRow: ScoreboardRow
-): Map<number, string> {
-  const colors = new Map<number, string>();
-  let problemIndex = 0;
-  headerRow.forEach((node, columnIndex) => {
-    if (node.type === 'problem') {
-      colors.set(
-        columnIndex,
-        ICPC_BALLOON_COLORS[problemIndex % ICPC_BALLOON_COLORS.length]
-      );
-      problemIndex += 1;
-    }
-  });
-  return colors;
-}
-
-export function getOwnedBalloonColors(
-  row: ScoreboardRow,
-  problemColors: Map<number, string>
-): string[] {
-  return row.flatMap((node, columnIndex) => {
-    const color = problemColors.get(columnIndex);
-    return node.first === true && color ? [color] : [];
-  });
-}
 
 export default function ScoreboardTable({
   rows,

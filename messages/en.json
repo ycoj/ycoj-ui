@@ -1613,6 +1613,7 @@
   "scoreboard": {
     "export": "Export image",
     "exporting": "Exporting...",
+    "exportingDescription": "Generating scoreboard images. Please keep this page open until the download starts.",
     "includeAvatar": "Include avatars",
     "useRealName": "Use real names",
     "includeDetails": "Include submission details",

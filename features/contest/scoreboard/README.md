@@ -11,10 +11,16 @@ exports load Hydro's permission-checked `scoreboard/export-data` view. The route
 never accepts a client-supplied user dictionary or submission history.
 
 The response is an `image/png` attachment, or an `application/zip` attachment
-containing one PNG per participant when `details=true`. Filenames include UID
+containing `scoreboard.png` for the complete standings plus one PNG per participant when `details=true`. Filenames include UID
 so participants with the same name have distinct files. Private responses use
 `Cache-Control: private, no-store`; backend permission failures do not render an
 image. Invalid parameters return 400; rendering failures return 500.
+
+Both data sources use the page scoreboard columns and score/first-solve metadata.
+Problem headers include their titles regardless of the real-name option. The image
+uses the page’s score colors, first-solve balloons, and horizontal row separators.
+The client anchors export options to the toolbar button and displays a modal until
+the download is ready, reopening the options with an error on failure.
 
 SVG layout and rasterization run on the server using `@resvg/resvg-js`, and
 JSZip packages the PNG buffers on the server. The client downloads the resulting

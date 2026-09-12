@@ -48,28 +48,27 @@ export async function renderScoreboardFile(
   const uids = Object.keys(data.udict).map(Number);
   if (uids.length > MAX_EXPORT_PARTICIPANTS)
     throw new Error('Scoreboard export exceeds the participant limit');
+  if (options.avatar)
+    for (const uid of uids)
+      avatars[uid] = await loadExportAvatar(
+        data.udict[uid].avatar,
+        exportSignal
+      );
+  const overview = await capture();
   if (!options.details) {
-    if (options.avatar)
-      for (const uid of uids)
-        avatars[uid] = await loadExportAvatar(
-          data.udict[uid].avatar,
-          exportSignal
-        );
     return {
-      body: await capture(),
+      body: overview,
       contentType: 'image/png',
       filename: `${exportFilename(data.tdoc.title)}.png`,
     };
   }
   const zip = new JSZip();
-  let pngBytes = 0;
+  let pngBytes = overview.byteLength;
+  if (pngBytes > MAX_EXPORT_PNG_BYTES)
+    throw new Error('Scoreboard export exceeds the PNG byte limit');
+  zip.file('scoreboard.png', overview);
   for (const uid of uids) {
     exportSignal.throwIfAborted();
-    if (options.avatar)
-      avatars[uid] = await loadExportAvatar(
-        data.udict[uid].avatar,
-        exportSignal
-      );
     const png = await capture(uid);
     pngBytes += png.byteLength;
     if (pngBytes > MAX_EXPORT_PNG_BYTES)
