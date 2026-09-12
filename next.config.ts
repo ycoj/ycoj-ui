@@ -22,20 +22,24 @@ const nextConfig: NextConfig = {
   assetPrefix:
     process.env.NODE_ENV === 'production' ? 'https://next-cdn.ycoj.cc' : '',
   async rewrites() {
-    return [
-      {
-        source: '/paste/:id/raw',
-        destination: `${backendBaseUrl}/paste/:id/raw`,
-      },
-      {
-        source: '/api/:path*',
-        destination: `${backendBaseUrl}/:path*`,
-      },
-      {
-        source: '/fs/:path*',
-        destination: `${backendBaseUrl}/fs/:path*`,
-      },
-    ];
+    return {
+      afterFiles: [
+        {
+          source: '/paste/:id/raw',
+          destination: `${backendBaseUrl}/paste/:id/raw`,
+        },
+        {
+          source: '/fs/:path*',
+          destination: `${backendBaseUrl}/fs/:path*`,
+        },
+      ],
+      fallback: [
+        {
+          source: '/api/:path*',
+          destination: `${backendBaseUrl}/:path*`,
+        },
+      ],
+    };
   },
 };
 
