@@ -43,7 +43,7 @@ vi.mock('@/features/homework/form/homework-form', () => ({
     cancelHref: string;
   }) => {
     mocks.onSubmit = onSubmit;
-    mocks.onClone = onClone;
+    mocks.onClone = onClone ?? null;
     return (
       <div>
         <a href={cancelHref}>Cancel</a>
@@ -53,9 +53,9 @@ vi.mock('@/features/homework/form/homework-form', () => ({
   },
 }));
 
-vi.mock('@/features/homework/edit/homework-delete-button', () => ({
-  default: ({ tid }: { tid: string }) => (
-    <button type="button">Delete {tid}</button>
+vi.mock('@/shared/components/confirm-delete-button', () => ({
+  default: ({ id }: { id: string }) => (
+    <button type="button">Delete {id}</button>
   ),
 }));
 
@@ -110,6 +110,16 @@ describe('homework edit form', () => {
     );
   });
 
+  it('throws the backend error message when the clone response is an error', async () => {
+    mocks.create.mockResolvedValue({
+      error: { name: 'ForbiddenError', message: 'Permission denied' },
+    });
+    renderEdit();
+    await expect(mocks.onClone!(getHomeworkCreateDefaults())).rejects.toThrow(
+      'Permission denied'
+    );
+  });
+
   it('saves with the edit payload for the current homework', async () => {
     const values = getHomeworkCreateDefaults();
     renderEdit();
@@ -119,5 +129,15 @@ describe('homework edit form', () => {
       buildCreateHomeworkPayload(values)
     );
     expect(mocks.create).not.toHaveBeenCalled();
+  });
+
+  it('throws the backend error message when saving fails', async () => {
+    mocks.edit.mockResolvedValue({
+      error: { name: 'ForbiddenError', message: 'Permission denied' },
+    });
+    renderEdit();
+    await expect(mocks.onSubmit!(getHomeworkCreateDefaults())).rejects.toThrow(
+      'Permission denied'
+    );
   });
 });

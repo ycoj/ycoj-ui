@@ -80,6 +80,19 @@ describe('homework clone dialog', () => {
     });
   });
 
+  it('shows clone failures inside the dialog and stays open', async () => {
+    const onConfirm = vi.fn().mockRejectedValue(new Error('Permission denied'));
+    renderDialog(undefined, onConfirm);
+    await userEvent.click(screen.getByRole('button', { name: 'Clone' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Permission denied'
+    );
+    expect(
+      screen.getByRole('dialog', { name: 'Clone homework' })
+    ).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Clone' })).toBeEnabled();
+  });
+
   it('cancels without confirming', async () => {
     const { onConfirm, onOpenChange } = renderDialog();
     await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));

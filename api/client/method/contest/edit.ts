@@ -10,7 +10,10 @@ export type EditContestResponse = CreateContestResponse;
 export type DeleteContestResponse = { url?: string };
 
 export const editContest = (tid: string, payload: EditContestRequest) =>
-  clientRequest.Post<EditContestResponse>(`/contest/${tid}/edit`, payload);
+  clientRequest.Post<Errorable<EditContestResponse>>(
+    `/contest/${tid}/edit`,
+    payload
+  );
 
 export const deleteContest = (tid: string) =>
   clientRequest.Post<Errorable<DeleteContestResponse>>(`/contest/${tid}/edit`, {

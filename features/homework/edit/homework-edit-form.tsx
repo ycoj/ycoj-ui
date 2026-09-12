@@ -1,12 +1,13 @@
 'use client';
 
 import ClientApis from '@/api/client/method';
-import HomeworkDeleteButton from '@/features/homework/edit/homework-delete-button';
 import HomeworkForm from '@/features/homework/form/homework-form';
 import {
   buildCreateHomeworkPayload,
   type HomeworkFormValues,
 } from '@/features/homework/form/homework-form-utils';
+import ConfirmDeleteButton from '@/shared/components/confirm-delete-button';
+import parseErrorMessage from '@/shared/components/errored/parse-message';
 import { useTranslations } from 'next-intl';
 
 type Props = {
@@ -28,6 +29,7 @@ export default function HomeworkEditForm({
     const response = await ClientApis.Homework.createHomework(
       buildCreateHomeworkPayload(values)
     ).send();
+    if ('error' in response) throw new Error(parseErrorMessage(response.error));
     if (!response?.tid) throw new Error(t('cloneFailed'));
     return `/homework/${response.tid}`;
   };
@@ -43,11 +45,20 @@ export default function HomeworkEditForm({
           tid,
           buildCreateHomeworkPayload(values)
         ).send();
+        if ('error' in response)
+          throw new Error(parseErrorMessage(response.error));
         if (!response?.tid) throw new Error(t('submitFailed'));
         return `/homework/${response.tid}`;
       }}
       onClone={canClone ? handleClone : undefined}
-      extraActions={<HomeworkDeleteButton tid={tid} />}
+      extraActions={
+        <ConfirmDeleteButton
+          id={tid}
+          namespace="homeworkEdit"
+          listRoute="/homework"
+          onDelete={(id) => ClientApis.Homework.deleteHomework(id).send()}
+        />
+      }
     />
   );
 }

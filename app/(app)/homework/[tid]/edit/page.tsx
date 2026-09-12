@@ -44,6 +44,9 @@ export default async function HomeworkEditPage({
 
   const pids = await resolveProblemListItems(homepage.domain._id, data.pids);
   const canClone = hasPerm(user, PERM.PERM_CREATE_HOMEWORK);
+  // Deletion has no dedicated permission bit, so unlike cloning the delete
+  // button stays visible; the backend rejects unauthorized deletes with a
+  // Forbidden error, matching the legacy edit page behavior.
 
   return (
     <HomeworkEditForm

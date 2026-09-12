@@ -10,7 +10,10 @@ export type EditHomeworkResponse = CreateHomeworkResponse;
 export type DeleteHomeworkResponse = { url?: string };
 
 export const editHomework = (tid: string, payload: EditHomeworkRequest) =>
-  clientRequest.Post<EditHomeworkResponse>(`/homework/${tid}/edit`, payload);
+  clientRequest.Post<Errorable<EditHomeworkResponse>>(
+    `/homework/${tid}/edit`,
+    payload
+  );
 
 export const deleteHomework = (tid: string) =>
   clientRequest.Post<Errorable<DeleteHomeworkResponse>>(

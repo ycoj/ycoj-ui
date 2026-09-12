@@ -1,5 +1,6 @@
 import { clientRequest } from '@/api/client';
 import type { ContestRule } from '@/shared/types/contest';
+import type { Errorable } from '@/shared/types/error';
 import type { ObjectId } from '@/shared/types/shared';
 
 export type CreateContestRequest = {
@@ -29,4 +30,7 @@ export type CreateContestResponse = {
 };
 
 export const createContest = (payload: CreateContestRequest) =>
-  clientRequest.Post<CreateContestResponse>('/contest/create', payload);
+  clientRequest.Post<Errorable<CreateContestResponse>>(
+    '/contest/create',
+    payload
+  );

@@ -43,7 +43,7 @@ vi.mock('@/features/contest/form/contest-form', () => ({
     cancelHref: string;
   }) => {
     mocks.onSubmit = onSubmit;
-    mocks.onClone = onClone;
+    mocks.onClone = onClone ?? null;
     return (
       <div>
         <a href={cancelHref}>Cancel</a>
@@ -53,9 +53,9 @@ vi.mock('@/features/contest/form/contest-form', () => ({
   },
 }));
 
-vi.mock('@/features/contest/edit/contest-delete-button', () => ({
-  default: ({ tid }: { tid: string }) => (
-    <button type="button">Delete {tid}</button>
+vi.mock('@/shared/components/confirm-delete-button', () => ({
+  default: ({ id }: { id: string }) => (
+    <button type="button">Delete {id}</button>
   ),
 }));
 
@@ -111,6 +111,16 @@ describe('contest edit form', () => {
     );
   });
 
+  it('throws the backend error message when the clone response is an error', async () => {
+    mocks.create.mockResolvedValue({
+      error: { name: 'ForbiddenError', message: 'Permission denied' },
+    });
+    renderEdit();
+    await expect(mocks.onClone!(getContestCreateDefaults())).rejects.toThrow(
+      'Permission denied'
+    );
+  });
+
   it('saves with the edit payload for the current contest', async () => {
     const values = getContestCreateDefaults();
     renderEdit();
@@ -120,5 +130,15 @@ describe('contest edit form', () => {
       buildCreateContestPayload(values)
     );
     expect(mocks.create).not.toHaveBeenCalled();
+  });
+
+  it('throws the backend error message when saving fails', async () => {
+    mocks.edit.mockResolvedValue({
+      error: { name: 'ForbiddenError', message: 'Permission denied' },
+    });
+    renderEdit();
+    await expect(mocks.onSubmit!(getContestCreateDefaults())).rejects.toThrow(
+      'Permission denied'
+    );
   });
 });

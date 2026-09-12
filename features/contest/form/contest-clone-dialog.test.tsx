@@ -82,6 +82,25 @@ describe('contest clone dialog', () => {
     });
   });
 
+  it('does not submit an outer form when confirming the clone', async () => {
+    const onConfirm = vi.fn().mockResolvedValue(undefined);
+    const onOuterSubmit = vi.fn();
+    render(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <form onSubmit={onOuterSubmit}>
+          <ContestCloneDialog
+            defaultValues={prefilled}
+            onOpenChange={vi.fn()}
+            onConfirm={onConfirm}
+          />
+        </form>
+      </NextIntlClientProvider>
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Clone' }));
+    expect(onConfirm).toHaveBeenCalledExactlyOnceWith(prefilled);
+    expect(onOuterSubmit).not.toHaveBeenCalled();
+  });
+
   it('shows clone failures inside the dialog and stays open', async () => {
     const onConfirm = vi.fn().mockRejectedValue(new Error('Permission denied'));
     renderDialog(undefined, onConfirm);

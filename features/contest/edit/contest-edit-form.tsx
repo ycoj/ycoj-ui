@@ -1,12 +1,13 @@
 'use client';
 
 import ClientApis from '@/api/client/method';
-import ContestDeleteButton from '@/features/contest/edit/contest-delete-button';
 import ContestForm from '@/features/contest/form/contest-form';
 import {
   buildCreateContestPayload,
   type ContestFormValues,
 } from '@/features/contest/form/contest-form-utils';
+import ConfirmDeleteButton from '@/shared/components/confirm-delete-button';
+import parseErrorMessage from '@/shared/components/errored/parse-message';
 import { useTranslations } from 'next-intl';
 
 type Props = {
@@ -30,6 +31,7 @@ export default function ContestEditForm({
     const response = await ClientApis.Contest.createContest(
       buildCreateContestPayload(values)
     ).send();
+    if ('error' in response) throw new Error(parseErrorMessage(response.error));
     if (!response?.tid) throw new Error(t('cloneFailed'));
     return `/contest/${response.tid}`;
   };
@@ -46,11 +48,20 @@ export default function ContestEditForm({
           tid,
           buildCreateContestPayload(values)
         ).send();
+        if ('error' in response)
+          throw new Error(parseErrorMessage(response.error));
         if (!response?.tid) throw new Error(t('submitFailed'));
         return `/contest/${response.tid}`;
       }}
       onClone={canClone ? handleClone : undefined}
-      extraActions={<ContestDeleteButton tid={tid} />}
+      extraActions={
+        <ConfirmDeleteButton
+          id={tid}
+          namespace="contestEdit"
+          listRoute="/contest"
+          onDelete={(id) => ClientApis.Contest.deleteContest(id).send()}
+        />
+      }
     />
   );
 }
