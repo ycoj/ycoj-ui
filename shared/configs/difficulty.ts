@@ -43,3 +43,19 @@ export const PROBLEMS_DIFFICULTY_COLOR = [
   rgb(14, 29, 105),
   rgb(14, 29, 105),
 ];
+
+// Text-friendly variants of PROBLEMS_DIFFICULTY_COLOR: same recognizable hue
+// per level, darkened where the badge color is too light to read as text.
+export const PROBLEMS_DIFFICULTY_TEXT_COLOR = [
+  rgb(140, 140, 140),
+  rgb(254, 76, 97),
+  rgb(194, 124, 14),
+  rgb(178, 135, 15),
+  rgb(62, 147, 20),
+  rgb(13, 135, 135),
+  rgb(42, 122, 175),
+  rgb(157, 61, 207),
+  rgb(33, 48, 140),
+  rgb(33, 48, 140),
+  rgb(33, 48, 140),
+];
