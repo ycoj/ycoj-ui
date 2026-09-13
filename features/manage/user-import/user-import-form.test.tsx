@@ -343,7 +343,6 @@ describe('user import workflow', () => {
     await user.click(screen.getByRole('button', { name: 'Add row' }));
     await user.click(screen.getAllByRole('button', { name: 'Add row' })[0]);
     await user.click(screen.getAllByRole('button', { name: 'Add row' })[0]);
-    // Row 1 stays empty; only the two later rows count as missing a username.
     await user.type(screen.getByLabelText('Row 2 Email'), 'a@b.c');
     await user.type(screen.getByLabelText('Row 3 Display name'), 'No email');
     await user.click(
@@ -384,7 +383,6 @@ describe('user import workflow', () => {
 
     await user.click(screen.getByRole('button', { name: 'Fill passwords' }));
     let dialog = await screen.findByRole('dialog');
-    // Random mode is the default and only fills empty password cells.
     await user.click(
       within(dialog).getByRole('button', { name: 'Fill passwords' })
     );
@@ -401,8 +399,6 @@ describe('user import workflow', () => {
     dialog = await screen.findByRole('dialog');
     await user.click(within(dialog).getByLabelText('Same password for all'));
     await user.type(within(dialog).getByLabelText('Password'), 'Same123!');
-    // Every row already has a password, so "empty only" defaults to off and
-    // the fixed value overwrites both rows.
     await user.click(
       within(dialog).getByRole('button', { name: 'Fill passwords' })
     );
@@ -427,7 +423,6 @@ describe('user import workflow', () => {
       'Enter a password between 6 and 255 characters.'
     );
     expect(screen.getByLabelText('Row 1 Password')).toHaveValue('');
-    // The dialog stays open so the input can be corrected in place.
     expect(dialog).toBeInTheDocument();
     await user.clear(within(dialog).getByLabelText('Password'));
     await user.type(within(dialog).getByLabelText('Password'), 'Valid123');

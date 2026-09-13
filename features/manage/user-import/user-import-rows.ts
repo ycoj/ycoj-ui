@@ -97,7 +97,7 @@ function parseExtra(cell: string, row: UserImportRow) {
       return;
     }
   } catch {
-    // Not JSON: treat the column as a plain group name.
+    // Not JSON: the column is a plain group name.
   }
   row.group = cell;
 }
@@ -127,7 +127,6 @@ export function cellsToRow(
     return row;
   }
   parseExtra(cells[4] ?? '', row);
-  // Positional values win over keys coming from the extra JSON object.
   if (cells[5]) row.school = cells[5];
   if (cells[6]) row.studentId = cells[6];
   const tail = cells.slice(7).join(',');

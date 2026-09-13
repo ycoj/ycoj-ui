@@ -80,8 +80,6 @@ export default function UserImportForm() {
     setError('');
     setRows(update);
   };
-  // Parsed input can contain delimiter-only lines that yield fully empty
-  // rows; those would show up as phantom blank rows and inflate counts.
   const addRows = (added: UserImportRow[]) => {
     const kept = added.filter((row) => !isRowEmpty(row));
     if (kept.length) mutate((current) => [...current, ...kept]);
@@ -137,7 +135,6 @@ export default function UserImportForm() {
     mutate((current) =>
       current.map((row) => {
         if (isRowEmpty(row)) return row;
-        // Rows that already have a username still get a generated email.
         if (row.username.trim()) {
           return row.email.trim()
             ? row
