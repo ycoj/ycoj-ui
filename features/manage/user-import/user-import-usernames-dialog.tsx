@@ -2,6 +2,7 @@
 
 import UserImportDialog from './user-import-dialog';
 import type { UsernamePattern } from './user-import-rows';
+import { generateUsernames } from './user-import-rows';
 import { Input } from '@/shared/components/ui/input';
 import { Label } from '@/shared/components/ui/label';
 import { useTranslations } from 'next-intl';
@@ -31,16 +32,23 @@ export default function UsernamesDialog({
   const [count, setCount] = useState('30');
   const [error, setError] = useState('');
 
+  const trimmed = prefix.trim();
+  const startNumber = Math.max(0, Math.floor(Number(start) || 0));
+  const pad = Math.min(10, Math.max(0, Math.floor(Number(digits) || 0)));
+  const amount =
+    target === 'fill' ? missingUsernames : Math.floor(Number(count) || 0);
+  const example = generateUsernames({
+    prefix: trimmed || t('prefixExample'),
+    start: startNumber,
+    count: 1,
+    digits: pad,
+  })[0];
+
   const apply = () => {
-    const trimmed = prefix.trim();
     if (!trimmed) {
       setError(t('prefixRequired'));
       return;
     }
-    const startNumber = Math.max(0, Math.floor(Number(start) || 0));
-    const pad = Math.min(10, Math.max(0, Math.floor(Number(digits) || 0)));
-    const amount =
-      target === 'fill' ? missingUsernames : Math.floor(Number(count) || 0);
     if (amount < 1 || amount > 1000) {
       setError(t('countInvalid'));
       return;
@@ -140,14 +148,7 @@ export default function UsernamesDialog({
         )}
       </div>
       <p className="text-muted-foreground text-sm">
-        {t('example', {
-          username: `${prefix.trim() || t('prefixExample')}${String(
-            Math.max(0, Math.floor(Number(start) || 0))
-          ).padStart(
-            Math.min(10, Math.max(0, Math.floor(Number(digits) || 0))),
-            '0'
-          )}`,
-        })}
+        {t('example', { username: example })}
       </p>
     </UserImportDialog>
   );

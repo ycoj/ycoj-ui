@@ -23,6 +23,15 @@ vi.mock('./user-import-xlsx', () => ({
   readXlsxTable: mocks.readXlsxTable,
 }));
 
+// Radix checkboxes mount a hidden form input inside the dialog <form>, which
+// measures the control with ResizeObserver.
+class ResizeObserverMock {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+vi.stubGlobal('ResizeObserver', ResizeObserverMock);
+
 const response = {
   users: [
     {
@@ -160,6 +169,37 @@ describe('user import workflow', () => {
     expect(mocks.send).not.toHaveBeenCalled();
   });
 
+  it('rejects a payload over the server limit before previewing', async () => {
+    const user = setup();
+    await user.click(screen.getByRole('button', { name: 'Add row' }));
+    fireEvent.change(screen.getByLabelText('Row 1 Email'), {
+      target: { value: `a${'b'.repeat(70000)}@c.d` },
+    });
+    await user.click(screen.getByRole('button', { name: 'Preview users' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('too large');
+    expect(mocks.send).not.toHaveBeenCalled();
+  });
+
+  it('downloads the table as a TSV file', async () => {
+    const user = setup();
+    await addAlice(user);
+    const createObjectURL = vi.fn<(blob: Blob) => string>(() => 'blob:users');
+    URL.createObjectURL = createObjectURL;
+    URL.revokeObjectURL = vi.fn();
+    const click = vi
+      .spyOn(HTMLAnchorElement.prototype, 'click')
+      .mockImplementation(() => {});
+    await user.click(screen.getByRole('button', { name: 'Download TSV' }));
+    expect(createObjectURL).toHaveBeenCalledOnce();
+    const blob = createObjectURL.mock.calls[0][0];
+    expect(blob.type).toBe('text/tab-separated-values;charset=utf-8');
+    const bytes = new Uint8Array(await blob.arrayBuffer());
+    expect(Array.from(bytes.slice(0, 3))).toEqual([0xef, 0xbb, 0xbf]);
+    expect(new TextDecoder().decode(bytes)).toBe(aliceSource);
+    const anchor = click.mock.contexts[0] as HTMLAnchorElement;
+    expect(anchor.download).toBe('users.tsv');
+  });
+
   it('loads rows from a CSV file', async () => {
     const user = setup();
     const file = new File([''], 'users.csv', { type: 'text/csv' });
@@ -238,6 +278,41 @@ describe('user import workflow', () => {
     expect(screen.getByLabelText('Row 2 Email')).toHaveValue('s002@ycoj.local');
   });
 
+  it('does not spend generated usernames on completely empty rows', async () => {
+    const user = setup();
+    await user.click(screen.getByRole('button', { name: 'Add row' }));
+    await user.click(screen.getAllByRole('button', { name: 'Add row' })[0]);
+    await user.click(screen.getAllByRole('button', { name: 'Add row' })[0]);
+    // Row 1 stays empty; only the two later rows count as missing a username.
+    await user.type(screen.getByLabelText('Row 2 Email'), 'a@b.c');
+    await user.type(screen.getByLabelText('Row 3 Display name'), 'No email');
+    await user.click(
+      screen.getByRole('button', { name: 'Generate usernames' })
+    );
+    const dialog = await screen.findByRole('dialog');
+    await user.type(within(dialog).getByLabelText('Prefix'), 's');
+    await user.click(within(dialog).getByRole('button', { name: 'Generate' }));
+    await waitFor(() =>
+      expect(screen.getByLabelText('Row 2 Username')).toHaveValue('s001')
+    );
+    expect(screen.getByLabelText('Row 3 Username')).toHaveValue('s002');
+    expect(screen.getByLabelText('Row 1 Username')).toHaveValue('');
+    expect(screen.getByLabelText('Row 1 Email')).toHaveValue('');
+  });
+
+  it('applies a dialog when Enter is pressed in a field', async () => {
+    const user = setup();
+    await user.click(
+      screen.getByRole('button', { name: 'Generate usernames' })
+    );
+    const dialog = await screen.findByRole('dialog');
+    await user.type(within(dialog).getByLabelText('Prefix'), 'team');
+    await user.keyboard('{Enter}');
+    await waitFor(() =>
+      expect(screen.getByLabelText('Row 1 Username')).toHaveValue('team001')
+    );
+  });
+
   it('fills passwords with a fixed value or random per-user values', async () => {
     const user = setup();
     await user.click(screen.getByRole('button', { name: 'Add row' }));
@@ -275,6 +350,23 @@ describe('user import workflow', () => {
       expect(screen.getByLabelText('Row 1 Password')).toHaveValue('Same123!')
     );
     expect(screen.getByLabelText('Row 2 Password')).toHaveValue('Same123!');
+  });
+
+  it('rejects a fixed password outside the 6–255 character range', async () => {
+    const user = setup();
+    await user.click(screen.getByRole('button', { name: 'Add row' }));
+    await user.type(screen.getByLabelText('Row 1 Username'), 'alice');
+    await user.click(screen.getByRole('button', { name: 'Fill passwords' }));
+    const dialog = await screen.findByRole('dialog');
+    await user.click(within(dialog).getByLabelText('Same password for all'));
+    await user.type(within(dialog).getByLabelText('Password'), 'abc');
+    await user.click(
+      within(dialog).getByRole('button', { name: 'Fill passwords' })
+    );
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent(
+      'Enter a password between 6 and 255 characters.'
+    );
+    expect(screen.getByLabelText('Row 1 Password')).toHaveValue('');
   });
 
   it('appends pasted rows from the paste dialog', async () => {

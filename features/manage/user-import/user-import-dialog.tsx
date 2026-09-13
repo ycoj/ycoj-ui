@@ -58,24 +58,46 @@ export default function UserImportDialog({
           </Dialog.Close>
           <div className="mt-4 space-y-4">
             {description && (
-              <p className="text-muted-foreground text-sm">{description}</p>
+              <Dialog.Description
+                className="text-muted-foreground text-sm"
+                data-llm-text={description}
+              >
+                {description}
+              </Dialog.Description>
             )}
-            {children}
-            {error && (
-              <p role="alert" className="text-destructive text-sm">
-                {error}
-              </p>
-            )}
-            <div className="flex justify-end gap-2">
-              <Dialog.Close asChild>
-                <Button type="button" variant="outline">
-                  {t('cancel')}
+            <form
+              className="space-y-4"
+              noValidate
+              onSubmit={(event) => {
+                event.preventDefault();
+                onApply();
+              }}
+            >
+              {children}
+              {error && (
+                <p
+                  role="alert"
+                  className="text-destructive text-sm"
+                  data-llm-text={error}
+                >
+                  {error}
+                </p>
+              )}
+              <div className="flex justify-end gap-2">
+                <Dialog.Close asChild>
+                  <Button type="button" variant="outline">
+                    {t('cancel')}
+                  </Button>
+                </Dialog.Close>
+                <Button
+                  type="submit"
+                  disabled={applyDisabled}
+                  data-llm-text={applyLabel}
+                >
+                  {applyLabel}
                 </Button>
-              </Dialog.Close>
-              <Button type="button" disabled={applyDisabled} onClick={onApply}>
-                {applyLabel}
-              </Button>
-            </div>
+              </div>
+            </form>
           </div>
         </Dialog.Content>
       </Dialog.Portal>

@@ -33,8 +33,10 @@ export default function PasswordsDialog({
 
   const apply = () => {
     if (mode === 'fixed') {
-      if (!password) {
-        setError(t('passwordRequired'));
+      // The server requires 6–255 characters and trims the stored value.
+      const size = password.trim().length;
+      if (size < 6 || size > 255) {
+        setError(t('passwordInvalid'));
         return;
       }
       onApply({ mode, password, emptyOnly });

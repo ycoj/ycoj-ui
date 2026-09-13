@@ -69,9 +69,17 @@ function sanitizeCell(value: string): string {
   return value.replace(/[\t\r\n]+/g, ' ').trim();
 }
 
-export function splitRowLine(line: string): string[] {
-  const cells = line.includes('\t') ? line.split('\t') : line.split(',');
-  return cells.map((cell) => sanitizeCell(cell));
+// Mirrors the backend: the line is tab-split first, and when any required
+// cell comes out empty it is retried with commas and that result is used
+// unconditionally (this also covers single-column lines, where the comma
+// split is identical).
+export function splitRowLine(line: string): {
+  cells: string[];
+  tabbed: boolean;
+} {
+  const cells = line.split('\t').map(sanitizeCell);
+  if (cells[0] && cells[1] && cells[2]) return { cells, tabbed: true };
+  return { cells: line.split(',').map(sanitizeCell), tabbed: false };
 }
 
 function parseExtra(cell: string, row: UserImportRow) {
@@ -96,7 +104,14 @@ function parseExtra(cell: string, row: UserImportRow) {
 
 // Positional columns: email, username, password, display name, extra details.
 // A single column is treated as a username list unless it looks like emails.
-export function cellsToRow(cells: string[]): UserImportRow {
+// Tab-split cells (TSV text, spreadsheet grids) keep extra columns positional:
+// group, school, student ID, then one last JSON extra object. Comma-split
+// cells follow the backend and join everything after the display name into a
+// single extra-details value.
+export function cellsToRow(
+  cells: string[],
+  { tabbed = false }: { tabbed?: boolean } = {}
+): UserImportRow {
   const row = emptyRow();
   if (cells.length === 1) {
     if (cells[0].includes('@')) row.email = cells[0];
@@ -107,30 +122,55 @@ export function cellsToRow(cells: string[]): UserImportRow {
   row.username = cells[1] ?? '';
   row.password = cells[2] ?? '';
   row.displayName = cells[3] ?? '';
-  parseExtra(cells.slice(4).join(','), row);
+  if (!tabbed) {
+    parseExtra(cells.slice(4).join(','), row);
+    return row;
+  }
+  parseExtra(cells[4] ?? '', row);
+  // Positional values win over keys coming from the extra JSON object.
+  if (cells[5]) row.school = cells[5];
+  if (cells[6]) row.studentId = cells[6];
+  const tail = cells.slice(7).join(',');
+  if (tail) {
+    try {
+      const parsed: unknown = JSON.parse(tail);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        row.extra = { ...row.extra, ...(parsed as Record<string, unknown>) };
+      }
+    } catch {
+      // A non-JSON tail is ignored, like the backend does for bad extras.
+    }
+  }
   return row;
 }
 
 export function parseUsersText(text: string): UserImportRow[] {
   return text
     .replace(/^\uFEFF/, '')
-    .split(/\r?\n/)
+    .replace(/\r\n?/g, '\n')
+    .split('\n')
     .filter((line) => line.trim())
-    .map((line) => cellsToRow(splitRowLine(line)));
+    .map((line) => {
+      const { cells, tabbed } = splitRowLine(line);
+      return cellsToRow(cells, { tabbed });
+    });
 }
 
 export function tableToRows(table: string[][]): UserImportRow[] {
   return table
     .map((cells) => cells.map((cell) => sanitizeCell(cell ?? '')))
     .filter((cells) => cells.some((cell) => cell))
-    .map(cellsToRow);
+    .map((cells) => cellsToRow(cells, { tabbed: true }));
 }
 
 function serializeExtra(row: UserImportRow): string {
   const extra = { ...row.extra };
-  if (row.group) extra.group = row.group;
-  if (row.school) extra.school = row.school;
-  if (row.studentId) extra.studentId = row.studentId;
+  const group = sanitizeCell(row.group);
+  const school = sanitizeCell(row.school);
+  const studentId = sanitizeCell(row.studentId);
+  if (group) extra.group = group;
+  if (school) extra.school = school;
+  if (studentId) extra.studentId = studentId;
   return Object.keys(extra).length ? JSON.stringify(extra) : '';
 }
 
@@ -141,7 +181,7 @@ export function rowsToSource(rows: UserImportRow[]): string {
       const cells = [
         sanitizeCell(row.email),
         sanitizeCell(row.username),
-        row.password.replace(/[\t\r\n]+/g, ' '),
+        sanitizeCell(row.password),
         sanitizeCell(row.displayName),
         serializeExtra(row),
       ];
@@ -190,28 +230,4 @@ export function randomPassword(length: number, symbols: boolean): string {
     }
   }
   return output.join('');
-}
-
-export function rowsToCsv(rows: UserImportRow[]): string {
-  const escape = (value: string) => `"${value.replace(/"/g, '""')}"`;
-  const lines = [
-    'email,username,password,displayName,group,school,studentId,extra',
-    ...rows
-      .filter((row) => !isRowEmpty(row))
-      .map((row) =>
-        [
-          row.email,
-          row.username,
-          row.password,
-          row.displayName,
-          row.group,
-          row.school,
-          row.studentId,
-          Object.keys(row.extra).length ? JSON.stringify(row.extra) : '',
-        ]
-          .map(escape)
-          .join(',')
-      ),
-  ];
-  return lines.join('\n');
 }

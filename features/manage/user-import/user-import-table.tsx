@@ -1,7 +1,7 @@
 'use client';
 
 import type { UserImportRow } from './user-import-rows';
-import { isRowEmpty, rowNeedsFields } from './user-import-rows';
+import { isRowEmpty, rowLineNumbers, rowNeedsFields } from './user-import-rows';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
 import {
@@ -37,7 +37,6 @@ const columns: { key: EditableField; required: boolean }[] = [
 
 type Props = {
   rows: UserImportRow[];
-  lineNumbers: (number | null)[];
   disabled: boolean;
   showPasswords: boolean;
   showValidation: boolean;
@@ -48,7 +47,6 @@ type Props = {
 
 export default function UserImportTable({
   rows,
-  lineNumbers,
   disabled,
   showPasswords,
   showValidation,
@@ -57,6 +55,7 @@ export default function UserImportTable({
   onRemove,
 }: Props) {
   const t = useTranslations('userImport');
+  const lineNumbers = rowLineNumbers(rows);
   return (
     <div
       className="max-h-[70vh] overflow-auto rounded-lg border"
@@ -120,7 +119,7 @@ export default function UserImportTable({
                     lineNumbers[index] === null && 'text-transparent'
                   )}
                 >
-                  {lineNumbers[index] ?? '·'}
+                  {lineNumbers[index] ?? <span aria-hidden="true">·</span>}
                 </TableCell>
                 {columns.map(({ key, required }) => {
                   const invalid = missing && required && !row[key].trim();

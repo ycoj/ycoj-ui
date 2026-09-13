@@ -12,9 +12,7 @@ import {
   isRowEmpty,
   parseUsersText,
   randomPassword,
-  rowLineNumbers,
   rowNeedsFields,
-  rowsToCsv,
   rowsToSource,
   tableToRows,
   type UserImportRow,
@@ -60,7 +58,7 @@ import { useTranslations } from 'next-intl';
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 
-type Preview = UserImportResult & { source: string; total: number };
+type Preview = UserImportResult & { total: number };
 
 type DialogKind = 'usernames' | 'passwords' | 'paste' | 'clear';
 
@@ -131,7 +129,7 @@ export default function UserImportForm() {
     const queue = [...names];
     mutate((current) =>
       current.map((row) => {
-        if (row.username.trim() || !queue.length) return row;
+        if (isRowEmpty(row) || row.username.trim() || !queue.length) return row;
         const username = queue.shift()!;
         return {
           ...row,
@@ -158,15 +156,15 @@ export default function UserImportForm() {
     );
   };
 
-  const downloadCsv = () => {
+  const downloadTsv = () => {
     const url = URL.createObjectURL(
-      new Blob(['\uFEFF' + rowsToCsv(rows)], {
-        type: 'text/csv;charset=utf-8',
+      new Blob(['\uFEFF' + rowsToSource(rows)], {
+        type: 'text/tab-separated-values;charset=utf-8',
       })
     );
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'users.csv';
+    link.download = 'users.tsv';
     link.click();
     setTimeout(() => URL.revokeObjectURL(url), 0);
   };
@@ -180,6 +178,10 @@ export default function UserImportForm() {
       setError(t('required'));
       return;
     }
+    if (source.length >= 65536) {
+      setError(t('tooLarge'));
+      return;
+    }
     setBusy('preview');
     setError('');
     try {
@@ -187,7 +189,6 @@ export default function UserImportForm() {
       throwBackendError(response);
       if (!('users' in response)) throw new Error(t('failed'));
       setPreview({
-        source,
         total: source.split('\n').length,
         users: response.users.map(({ email, username, displayName }) => ({
           email,
@@ -206,8 +207,8 @@ export default function UserImportForm() {
   };
 
   const runImport = async () => {
+    if (!preview) return;
     const source = rowsToSource(rows);
-    if (!preview || preview.source !== source) return;
     setBusy('import');
     setError('');
     try {
@@ -316,10 +317,10 @@ export default function UserImportForm() {
           type="button"
           variant="secondary"
           disabled={busy !== null || !rows.length}
-          onClick={downloadCsv}
+          onClick={downloadTsv}
         >
           <Download aria-hidden="true" />
-          {t('downloadCsv')}
+          {t('downloadTsv')}
         </Button>
         <Button
           type="button"
@@ -348,7 +349,6 @@ export default function UserImportForm() {
         <>
           <UserImportTable
             rows={rows}
-            lineNumbers={rowLineNumbers(rows)}
             disabled={busy !== null}
             showPasswords={showPasswords}
             showValidation={showValidation}
@@ -383,12 +383,20 @@ export default function UserImportForm() {
       )}
 
       {showValidation && incomplete > 0 && (
-        <p className="text-sm text-amber-600 dark:text-amber-400" role="status">
+        <p
+          className="text-sm text-amber-600 dark:text-amber-400"
+          role="status"
+          data-llm-text={t('missingFields', { count: incomplete })}
+        >
           {t('missingFields', { count: incomplete })}
         </p>
       )}
       {error && (
-        <p role="alert" className="text-sm text-destructive">
+        <p
+          role="alert"
+          className="text-sm text-destructive"
+          data-llm-text={error}
+        >
           {error}
         </p>
       )}
@@ -405,11 +413,7 @@ export default function UserImportForm() {
         </Button>
         <Button
           type="button"
-          disabled={
-            busy !== null ||
-            !preview?.users.length ||
-            preview.source !== rowsToSource(rows)
-          }
+          disabled={busy !== null || !preview?.users.length}
           onClick={() => void runImport()}
         >
           <UserPlus aria-hidden="true" />
