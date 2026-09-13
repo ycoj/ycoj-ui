@@ -3,6 +3,7 @@ import {
   nextNodeLabel,
   nodeMapOf,
   parseGraphText,
+  renumberGraph,
   serializeGraph,
 } from './graph-parse';
 import type { Graph } from './graph-types';
@@ -56,7 +57,7 @@ describe('parseGraphText', () => {
     first.nodes[0].x = 111;
     first.nodes[0].fixed = true;
     const second = parseGraphText('3\n1 2\n2 3', 'one', nodeMapOf(first));
-    const node1 = second.nodes.find((node) => node.id === '1');
+    const node1 = second.nodes.find((node) => node.label === '1');
     expect(node1?.x).toBe(111);
     expect(node1?.fixed).toBe(true);
   });
@@ -105,6 +106,61 @@ describe('serializeGraph', () => {
     expect(out).toBe('1 2\n3');
     const reparsed = parseGraphText(out, 'custom');
     expect(labels(reparsed)).toEqual(['1', '2', '3']);
+  });
+});
+
+describe('renumberGraph', () => {
+  it('maps custom labels to a dense 1-indexed range in serialize order', () => {
+    const graph = parseGraphText('b a\na c 9', 'custom');
+    const renumbered = renumberGraph(graph, 1);
+    expect(labels(renumbered)).toEqual(['2', '1', '3']);
+    expect(
+      renumbered.edges.map((edge) => `${edge.source} ${edge.target}`)
+    ).toEqual(['2 1', '1 3']);
+    // The renumbered graph serializes to text that parses back identically.
+    const text = serializeGraph(renumbered, 'one');
+    expect(text).toBe('3\n2 1\n1 3 9');
+    expect(labels(parseGraphText(text, 'one'))).toEqual(['1', '2', '3']);
+  });
+
+  it('shifts 1-indexed labels down to 0-indexed', () => {
+    const graph = parseGraphText('3\n1 2\n2 3', 'one');
+    const renumbered = renumberGraph(graph, 0);
+    expect(labels(renumbered)).toEqual(['0', '1', '2']);
+    expect(serializeGraph(renumbered, 'zero')).toBe('3\n0 1\n1 2');
+  });
+
+  it('shifts 0-indexed labels up to 1-indexed', () => {
+    const graph = parseGraphText('3\n0 1\n1 2', 'zero');
+    const renumbered = renumberGraph(graph, 1);
+    expect(labels(renumbered)).toEqual(['1', '2', '3']);
+    expect(serializeGraph(renumbered, 'one')).toBe('3\n1 2\n2 3');
+  });
+
+  it('densifies sparse integer labels', () => {
+    const graph = parseGraphText('0\n1\n3\n4\n3 4', 'one');
+    const renumbered = renumberGraph(graph, 0);
+    expect(labels(renumbered)).toEqual(['0', '1', '2']);
+    expect(
+      renumbered.edges.map((edge) => `${edge.source} ${edge.target}`)
+    ).toEqual(['1 2']);
+  });
+
+  it('preserves positions, velocities, and fixed flags', () => {
+    const graph = parseGraphText('2\n1 2', 'one');
+    graph.nodes[0].x = 42;
+    graph.nodes[0].y = -7;
+    graph.nodes[0].vx = 1.5;
+    graph.nodes[0].fixed = true;
+    const renumbered = renumberGraph(graph, 0);
+    expect(renumbered.nodes[0]).toMatchObject({
+      label: '0',
+      x: 42,
+      y: -7,
+      vx: 1.5,
+      fixed: true,
+    });
+    expect(renumbered.nodes[0]).not.toBe(graph.nodes[0]);
   });
 });
 

@@ -11,9 +11,13 @@ const SPRING_K = 0.02;
 const GRAVITY_K = 0.004;
 const REPULSION_RANGE = 3;
 const MAX_STEP = 8;
+// Speeds below this are treated as settled: the node snaps to rest.
+const REST_SPEED = 0.02;
 
-export function stepPhysics(graph: Graph, options: PhysicsOptions): void {
+// Returns whether any node is still moving; callers can skip work once settled.
+export function stepPhysics(graph: Graph, options: PhysicsOptions): boolean {
   const { edgeLength, width, height } = options;
+  if (graph.nodes.every((node) => node.fixed)) return false;
   const repulsion = edgeLength * edgeLength * 0.6;
   const cutoff = edgeLength * REPULSION_RANGE;
   const cx = width / 2;
@@ -43,10 +47,10 @@ export function stepPhysics(graph: Graph, options: PhysicsOptions): void {
     }
   }
 
-  const nodeById = new Map(graph.nodes.map((node) => [node.id, node]));
+  const nodeByLabel = new Map(graph.nodes.map((node) => [node.label, node]));
   for (const edge of graph.edges) {
-    const a = nodeById.get(edge.source);
-    const b = nodeById.get(edge.target);
+    const a = nodeByLabel.get(edge.source);
+    const b = nodeByLabel.get(edge.target);
     if (!a || !b || a === b) continue;
     const dx = b.x - a.x;
     const dy = b.y - a.y;
@@ -60,6 +64,7 @@ export function stepPhysics(graph: Graph, options: PhysicsOptions): void {
     b.vy -= fy;
   }
 
+  let moving = false;
   for (const node of graph.nodes) {
     if (node.fixed) {
       node.vx = 0;
@@ -74,8 +79,14 @@ export function stepPhysics(graph: Graph, options: PhysicsOptions): void {
     if (speed > MAX_STEP) {
       node.vx = (node.vx / speed) * MAX_STEP;
       node.vy = (node.vy / speed) * MAX_STEP;
+    } else if (speed < REST_SPEED) {
+      node.vx = 0;
+      node.vy = 0;
+      continue;
     }
+    moving = true;
     node.x += node.vx;
     node.y += node.vy;
   }
+  return moving;
 }

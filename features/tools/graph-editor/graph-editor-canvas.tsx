@@ -1,13 +1,12 @@
 'use client';
 
-import { edgeAt, edgeMidpoint, edgeShapes, nodeAt } from './graph-geometry';
+import { edgeAt, edgeMidpoint, nodeAt } from './graph-geometry';
 import { createEdgeId, isUsableLabel, nextNodeLabel } from './graph-parse';
 import { stepPhysics } from './graph-physics';
 import { drawGraph } from './graph-render';
 import type {
   EditorMode,
   Graph,
-  GraphEdge,
   GraphStyle,
   IndexScheme,
   ResolvedColors,
@@ -24,11 +23,11 @@ import {
 } from 'react';
 
 type EditingState =
-  | { kind: 'node'; nodeId: string; x: number; y: number; value: string }
+  | { kind: 'node'; nodeLabel: string; x: number; y: number; value: string }
   | { kind: 'edge'; edgeId: string; x: number; y: number; value: string };
 
 type DragState = {
-  nodeId: string;
+  nodeLabel: string;
   startX: number;
   startY: number;
   moved: boolean;
@@ -36,10 +35,13 @@ type DragState = {
 
 type Viewport = { width: number; height: number };
 
+// The graph behind graphRef is mutated in place by the physics loop and
+// drags; commits swap in a fresh object and re-render, so props act as
+// invalidation signals rather than the drawing source of truth.
 type Props = {
-  graph: Graph;
   graphRef: RefObject<Graph>;
   viewportRef: RefObject<Viewport>;
+  isEmpty: boolean;
   mode: EditorMode;
   directed: boolean;
   scheme: IndexScheme;
@@ -56,9 +58,9 @@ const CURSOR_BY_MODE: Record<EditorMode, string> = {
 };
 
 export default function GraphEditorCanvas({
-  graph,
   graphRef,
   viewportRef,
+  isEmpty,
   mode,
   directed,
   scheme,
@@ -73,10 +75,13 @@ export default function GraphEditorCanvas({
   const draftRef = useRef<string | null>(null);
   const dragRef = useRef<DragState | null>(null);
   const pointerRef = useRef({ x: 0, y: 0 });
+  const asleepRef = useRef(false);
 
   const live = useRef({ mode, directed, scheme, style, colors, onMutate });
   useEffect(() => {
     live.current = { mode, directed, scheme, style, colors, onMutate };
+    // Any commit or prop change re-wakes the settled simulation.
+    asleepRef.current = false;
   });
 
   const [prevMode, setPrevMode] = useState(mode);
@@ -100,6 +105,8 @@ export default function GraphEditorCanvas({
       viewportRef.current = { width: rect.width, height: rect.height };
       canvas.width = Math.max(1, Math.round(rect.width * dpr));
       canvas.height = Math.max(1, Math.round(rect.height * dpr));
+      // Resizing clears the bitmap; wake the loop to repaint once.
+      asleepRef.current = false;
     };
     resize();
     const observer = new ResizeObserver(resize);
@@ -119,30 +126,35 @@ export default function GraphEditorCanvas({
           style: currentStyle,
           colors: currentColors,
         } = live.current;
-        const dpr = window.devicePixelRatio || 1;
-        const width = canvas.width / dpr;
-        const height = canvas.height / dpr;
-        if (currentMode === 'force') {
-          stepPhysics(graphRef.current, {
-            edgeLength: currentStyle.edgeLength,
-            width,
-            height,
+        // Once the layout settles in force mode, stop stepping and redrawing
+        // until a commit or pointer interaction wakes the loop again.
+        const asleep = currentMode === 'force' && asleepRef.current;
+        if (!asleep) {
+          const dpr = window.devicePixelRatio || 1;
+          const width = canvas.width / dpr;
+          const height = canvas.height / dpr;
+          if (currentMode === 'force') {
+            asleepRef.current = !stepPhysics(graphRef.current, {
+              edgeLength: currentStyle.edgeLength,
+              width,
+              height,
+            });
+          }
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          ctx.clearRect(0, 0, width, height);
+          drawGraph(ctx, graphRef.current, {
+            directed: isDirected,
+            nodeRadius: currentStyle.nodeRadius,
+            colors: currentColors,
+            draft: draftRef.current
+              ? {
+                  sourceLabel: draftRef.current,
+                  x: pointerRef.current.x,
+                  y: pointerRef.current.y,
+                }
+              : null,
           });
         }
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        ctx.clearRect(0, 0, width, height);
-        drawGraph(ctx, graphRef.current, {
-          directed: isDirected,
-          nodeRadius: currentStyle.nodeRadius,
-          colors: currentColors,
-          draft: draftRef.current
-            ? {
-                sourceId: draftRef.current,
-                x: pointerRef.current.x,
-                y: pointerRef.current.y,
-              }
-            : null,
-        });
       }
       raf = requestAnimationFrame(tick);
     };
@@ -156,6 +168,7 @@ export default function GraphEditorCanvas({
   };
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLCanvasElement>) => {
+    asleepRef.current = false;
     const {
       mode: currentMode,
       scheme: currentScheme,
@@ -168,7 +181,7 @@ export default function GraphEditorCanvas({
     if (currentMode === 'force') {
       if (node) {
         dragRef.current = {
-          nodeId: node.id,
+          nodeLabel: node.label,
           startX: x,
           startY: y,
           moved: false,
@@ -182,7 +195,7 @@ export default function GraphEditorCanvas({
       if (node) {
         const pending = draftRef.current;
         if (pending === null) {
-          draftRef.current = node.id;
+          draftRef.current = node.label;
           return;
         }
         draftRef.current = null;
@@ -193,7 +206,7 @@ export default function GraphEditorCanvas({
             {
               id: createEdgeId(),
               source: pending,
-              target: node.id,
+              target: node.label,
               weight: '',
             },
           ],
@@ -207,10 +220,7 @@ export default function GraphEditorCanvas({
       const label = nextNodeLabel(current, currentScheme);
       onMutate((g) => ({
         ...g,
-        nodes: [
-          ...g.nodes,
-          { id: label, label, x, y, fixed: false, vx: 0, vy: 0 },
-        ],
+        nodes: [...g.nodes, { label, x, y, fixed: false, vx: 0, vy: 0 }],
       }));
       return;
     }
@@ -220,18 +230,19 @@ export default function GraphEditorCanvas({
     if (currentMode === 'delete') {
       if (node) {
         onMutate((g) => ({
-          nodes: g.nodes.filter((item) => item.id !== node.id),
+          nodes: g.nodes.filter((item) => item.label !== node.label),
           edges: g.edges.filter(
-            (item) => item.source !== node.id && item.target !== node.id
+            (item) => item.source !== node.label && item.target !== node.label
           ),
         }));
         return;
       }
-      const edge = edgeAt(current, x, y, currentStyle.nodeRadius);
-      if (edge) {
+      const hit = edgeAt(current, x, y, currentStyle.nodeRadius);
+      if (hit) {
+        const edgeId = hit.edge.id;
         onMutate((g) => ({
           ...g,
-          edges: g.edges.filter((item) => item.id !== edge.id),
+          edges: g.edges.filter((item) => item.id !== edgeId),
         }));
       }
     }
@@ -246,25 +257,22 @@ export default function GraphEditorCanvas({
     if (node) {
       setEditing({
         kind: 'node',
-        nodeId: node.id,
+        nodeLabel: node.label,
         x: node.x,
         y: node.y,
         value: node.label,
       });
       return;
     }
-    const edge = edgeAt(current, x, y, currentStyle.nodeRadius);
-    if (edge) {
-      const shape = edgeShapes(current, currentStyle.nodeRadius).find(
-        (item) => item.edge === edge
-      )?.shape;
-      const mid = shape ? edgeMidpoint(shape) : { x, y };
+    const hit = edgeAt(current, x, y, currentStyle.nodeRadius);
+    if (hit) {
+      const mid = edgeMidpoint(hit.shape);
       setEditing({
         kind: 'edge',
-        edgeId: edge.id,
+        edgeId: hit.edge.id,
         x: mid.x,
         y: mid.y,
-        value: edge.weight,
+        value: hit.edge.weight,
       });
     }
   };
@@ -274,12 +282,13 @@ export default function GraphEditorCanvas({
     pointerRef.current = { x, y };
     const drag = dragRef.current;
     if (!drag) return;
+    asleepRef.current = false;
     if (!drag.moved && Math.hypot(x - drag.startX, y - drag.startY) > 4) {
       drag.moved = true;
     }
     if (drag.moved) {
       const node = graphRef.current.nodes.find(
-        (item) => item.id === drag.nodeId
+        (item) => item.label === drag.nodeLabel
       );
       if (node) {
         node.x = x;
@@ -294,8 +303,11 @@ export default function GraphEditorCanvas({
     const drag = dragRef.current;
     if (!drag) return;
     dragRef.current = null;
+    asleepRef.current = false;
     event.currentTarget.releasePointerCapture(event.pointerId);
-    const node = graphRef.current.nodes.find((item) => item.id === drag.nodeId);
+    const node = graphRef.current.nodes.find(
+      (item) => item.label === drag.nodeLabel
+    );
     if (!node) return;
     node.fixed = drag.moved ? true : !node.fixed;
   };
@@ -304,19 +316,24 @@ export default function GraphEditorCanvas({
     if (!editing) return;
     const value = editing.value.trim();
     if (editing.kind === 'node') {
-      const previousId = editing.nodeId;
+      const previousLabel = editing.nodeLabel;
       if (
-        value !== previousId &&
-        isUsableLabel(graphRef.current, live.current.scheme, value, previousId)
+        value !== previousLabel &&
+        isUsableLabel(
+          graphRef.current,
+          live.current.scheme,
+          value,
+          previousLabel
+        )
       ) {
         onMutate((g) => ({
           nodes: g.nodes.map((node) =>
-            node.id === previousId ? { ...node, id: value, label: value } : node
+            node.label === previousLabel ? { ...node, label: value } : node
           ),
           edges: g.edges.map((edge) => ({
             ...edge,
-            source: edge.source === previousId ? value : edge.source,
-            target: edge.target === previousId ? value : edge.target,
+            source: edge.source === previousLabel ? value : edge.source,
+            target: edge.target === previousLabel ? value : edge.target,
           })),
         }));
       }
@@ -324,7 +341,7 @@ export default function GraphEditorCanvas({
       const edgeId = editing.edgeId;
       onMutate((g) => ({
         ...g,
-        edges: g.edges.map((edge: GraphEdge) =>
+        edges: g.edges.map((edge) =>
           edge.id === edgeId ? { ...edge, weight: value } : edge
         ),
       }));
@@ -369,7 +386,7 @@ export default function GraphEditorCanvas({
           }
         />
       )}
-      {graph.nodes.length === 0 && (
+      {isEmpty && (
         <div className="text-muted-foreground pointer-events-none absolute inset-0 grid place-content-center text-sm">
           {t('emptyHint')}
         </div>

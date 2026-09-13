@@ -6,7 +6,7 @@ describe('arrangeAsTree', () => {
   it('lays out a chain in increasing depth order', () => {
     const graph = parseGraphText('4\n1 2\n2 3\n3 4', 'one');
     arrangeAsTree(graph, { width: 600, edgeLength: 100 });
-    const byId = new Map(graph.nodes.map((node) => [node.id, node]));
+    const byId = new Map(graph.nodes.map((node) => [node.label, node]));
     expect(byId.get('1')!.y).toBeLessThan(byId.get('2')!.y);
     expect(byId.get('2')!.y).toBeLessThan(byId.get('3')!.y);
     expect(byId.get('3')!.y).toBeLessThan(byId.get('4')!.y);
@@ -21,7 +21,7 @@ describe('arrangeAsTree', () => {
   it('handles disconnected components and isolated nodes', () => {
     const graph = parseGraphText('5\n1 2\n3 4', 'one');
     arrangeAsTree(graph, { width: 600, edgeLength: 100 });
-    const byId = new Map(graph.nodes.map((node) => [node.id, node]));
+    const byId = new Map(graph.nodes.map((node) => [node.label, node]));
     expect(byId.get('5')!.y).toBeGreaterThan(byId.get('3')!.y);
     for (const node of graph.nodes) {
       expect(Number.isFinite(node.x)).toBe(true);

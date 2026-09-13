@@ -3,7 +3,6 @@ export type IndexScheme = 'zero' | 'one' | 'custom';
 export type EditorMode = 'force' | 'draw' | 'edit' | 'delete';
 
 export type GraphNode = {
-  id: string;
   label: string;
   x: number;
   y: number;
@@ -14,6 +13,7 @@ export type GraphNode = {
 
 export type GraphEdge = {
   id: string;
+  // source and target hold node labels; labels are unique within a graph
   source: string;
   target: string;
   weight: string;

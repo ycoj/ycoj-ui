@@ -14,13 +14,19 @@ export type EdgeShape =
 
 export type PositionedEdge = { edge: GraphEdge; shape: EdgeShape };
 
+export type Arrowhead = {
+  tip: { x: number; y: number };
+  left: { x: number; y: number };
+  right: { x: number; y: number };
+};
+
 const pairKey = (a: string, b: string) => (a < b ? `${a}→${b}` : `${b}→${a}`);
 
 const CURVE_STEP = 26;
 const LOOP_RADIUS_RATIO = 0.9;
 
 export function edgeShapes(graph: Graph, nodeRadius: number): PositionedEdge[] {
-  const nodes = new Map(graph.nodes.map((node) => [node.id, node]));
+  const nodes = new Map(graph.nodes.map((node) => [node.label, node]));
   const groups = new Map<string, GraphEdge[]>();
   for (const edge of graph.edges) {
     const key = pairKey(edge.source, edge.target);
@@ -35,7 +41,7 @@ export function edgeShapes(graph: Graph, nodeRadius: number): PositionedEdge[] {
     const target = nodes.get(edge.target);
     if (!source || !target) continue;
 
-    if (source.id === target.id) {
+    if (source.label === target.label) {
       shapes.push({
         edge,
         shape: {
@@ -126,6 +132,51 @@ const pointToQuadratic = (
   return min;
 };
 
+const ARROW_SIZE = 9;
+const ARROW_SPREAD = Math.PI * 0.82;
+const LOOP_ARROW_RATIO = 0.72;
+const LOOP_ARROW_ANGLE = Math.PI * 0.55;
+
+const arrowheadAt = (x: number, y: number, angle: number): Arrowhead => {
+  const a1 = angle + ARROW_SPREAD;
+  const a2 = angle - ARROW_SPREAD;
+  return {
+    tip: { x, y },
+    left: {
+      x: x + ARROW_SIZE * Math.cos(a1),
+      y: y + ARROW_SIZE * Math.sin(a1),
+    },
+    right: {
+      x: x + ARROW_SIZE * Math.cos(a2),
+      y: y + ARROW_SIZE * Math.sin(a2),
+    },
+  };
+};
+
+// Arrowhead placed at a fixed angle on a self-loop's circle.
+export function loopArrowhead(
+  shape: Extract<EdgeShape, { kind: 'loop' }>
+): Arrowhead {
+  return arrowheadAt(
+    shape.cx + shape.r * LOOP_ARROW_RATIO,
+    shape.cy + shape.r * LOOP_ARROW_RATIO,
+    LOOP_ARROW_ANGLE
+  );
+}
+
+// Arrowhead at the trimmed end of a line edge, following the curve tangent.
+export function lineArrowhead(
+  shape: Extract<EdgeShape, { kind: 'line' }>
+): Arrowhead {
+  const dx = shape.x2 - shape.cx;
+  const dy = shape.y2 - shape.cy;
+  const angle =
+    Math.hypot(dx, dy) < 0.001
+      ? Math.atan2(shape.y2 - shape.y1, shape.x2 - shape.x1)
+      : Math.atan2(dy, dx);
+  return arrowheadAt(shape.x2, shape.y2, angle);
+}
+
 export function edgeMidpoint(shape: EdgeShape): { x: number; y: number } {
   if (shape.kind === 'loop') {
     return { x: shape.cx, y: shape.cy - shape.r };
@@ -157,15 +208,16 @@ export function edgeAt(
   y: number,
   nodeRadius: number,
   threshold = 6
-): GraphEdge | null {
+): PositionedEdge | null {
   const positioned = edgeShapes(graph, nodeRadius);
   for (let i = positioned.length - 1; i >= 0; i--) {
-    const { edge, shape } = positioned[i];
+    const positionedEdge = positioned[i];
+    const { shape } = positionedEdge;
     if (shape.kind === 'loop') {
       const d = Math.abs(Math.hypot(x - shape.cx, y - shape.cy) - shape.r);
-      if (d <= threshold) return edge;
+      if (d <= threshold) return positionedEdge;
     } else if (pointToQuadratic(x, y, shape) <= threshold) {
-      return edge;
+      return positionedEdge;
     }
   }
   return null;

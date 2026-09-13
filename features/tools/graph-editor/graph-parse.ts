@@ -7,6 +7,9 @@ export type ParsedGraph = Graph & {
 
 export const MAX_NODE_COUNT = 500;
 
+// Fallback spawn origin when no viewport size is known yet.
+export const DEFAULT_ORIGIN = { x: 300, y: 220 };
+
 const INTEGER_RE = /^-?\d+$/;
 
 let edgeSeq = 0;
@@ -34,28 +37,36 @@ const makeNode = (
   const prev = previous?.get(label);
   if (prev) return { ...prev };
   const { x, y } = spawnPosition(index, origin);
-  return { id: label, label, x, y, fixed: false, vx: 0, vy: 0 };
+  return { label, x, y, fixed: false, vx: 0, vy: 0 };
 };
+
+// Mirrors the count-line rule of parseGraphText for already-serialized text.
+export function declaredCountIn(
+  text: string,
+  scheme: IndexScheme
+): number | null {
+  if (scheme === 'custom') return null;
+  const first = text
+    .split('\n')
+    .map((line) => line.trim())
+    .find((line) => line.length > 0);
+  if (first === undefined || !INTEGER_RE.test(first)) return null;
+  return Math.min(Math.max(parseInt(first, 10), 0), MAX_NODE_COUNT);
+}
 
 export function parseGraphText(
   text: string,
   scheme: IndexScheme,
   previous?: ReadonlyMap<string, GraphNode>,
-  origin: { x: number; y: number } = { x: 300, y: 220 }
+  origin: { x: number; y: number } = DEFAULT_ORIGIN
 ): ParsedGraph {
   const lines = text
     .split('\n')
     .map((line) => line.trim())
     .filter((line) => line.length > 0);
 
-  let declaredCount: number | null = null;
-  if (scheme !== 'custom' && lines.length > 0 && INTEGER_RE.test(lines[0])) {
-    declaredCount = Math.min(
-      Math.max(parseInt(lines[0], 10), 0),
-      MAX_NODE_COUNT
-    );
-    lines.shift();
-  }
+  const declaredCount = declaredCountIn(text, scheme);
+  if (declaredCount !== null) lines.shift();
 
   const nodeMap = new Map<string, GraphNode>();
   const edges: GraphEdge[] = [];
@@ -93,8 +104,8 @@ export function parseGraphText(
     const target = ensure(v);
     edges.push({
       id: createEdgeId(),
-      source: source.id,
-      target: target.id,
+      source: source.label,
+      target: target.label,
       weight: tokens.slice(2).join(' '),
     });
   }
@@ -116,22 +127,41 @@ export function serializeOrder(graph: Graph): GraphNode[] {
   });
 }
 
+// Relabels every node to a dense index range in serialize order, remapping
+// edge endpoints while keeping each node's position and fixed flag.
+export function renumberGraph(graph: Graph, offset: number): Graph {
+  const labelOf = new Map(
+    serializeOrder(graph).map((node, index) => [
+      node.label,
+      String(index + offset),
+    ])
+  );
+  const relabel = (label: string) => labelOf.get(label) ?? label;
+  return {
+    nodes: graph.nodes.map((node) => ({ ...node, label: relabel(node.label) })),
+    edges: graph.edges.map((edge) => ({
+      ...edge,
+      source: relabel(edge.source),
+      target: relabel(edge.target),
+    })),
+  };
+}
+
+const edgeLine = (source: string, target: string, weight: string): string =>
+  weight ? `${source} ${target} ${weight}` : `${source} ${target}`;
+
 export function serializeGraph(graph: Graph, scheme: IndexScheme): string {
   const lines: string[] = [];
 
   if (scheme === 'custom') {
     for (const edge of graph.edges) {
-      lines.push(
-        edge.weight
-          ? `${edge.source} ${edge.target} ${edge.weight}`
-          : `${edge.source} ${edge.target}`
-      );
+      lines.push(edgeLine(edge.source, edge.target, edge.weight));
     }
     const connected = new Set(
       graph.edges.flatMap((edge) => [edge.source, edge.target])
     );
     for (const node of graph.nodes) {
-      if (!connected.has(node.id)) lines.push(node.label);
+      if (!connected.has(node.label)) lines.push(node.label);
     }
     return lines.join('\n');
   }
@@ -157,17 +187,13 @@ export function serializeGraph(graph: Graph, scheme: IndexScheme): string {
       for (const node of graph.nodes) lines.push(node.label);
     }
     for (const edge of graph.edges) {
-      lines.push(
-        edge.weight
-          ? `${edge.source} ${edge.target} ${edge.weight}`
-          : `${edge.source} ${edge.target}`
-      );
+      lines.push(edgeLine(edge.source, edge.target, edge.weight));
     }
     return lines.join('\n');
   }
 
   const sorted = serializeOrder(graph);
-  const indexOf = new Map(sorted.map((node, index) => [node.id, index]));
+  const indexOf = new Map(sorted.map((node, index) => [node.label, index]));
 
   lines.push(String(sorted.length));
   for (const edge of graph.edges) {
@@ -176,7 +202,7 @@ export function serializeGraph(graph: Graph, scheme: IndexScheme): string {
     if (u === undefined || v === undefined) continue;
     const su = String(u + (scheme === 'zero' ? 0 : 1));
     const sv = String(v + (scheme === 'zero' ? 0 : 1));
-    lines.push(edge.weight ? `${su} ${sv} ${edge.weight}` : `${su} ${sv}`);
+    lines.push(edgeLine(su, sv, edge.weight));
   }
   return lines.join('\n');
 }
@@ -188,7 +214,7 @@ export function isUsableLabel(
   graph: Graph,
   scheme: IndexScheme,
   value: string,
-  excludeId?: string
+  excludeLabel?: string
 ): boolean {
   if (value.length === 0) return false;
   if (scheme === 'custom') {
@@ -197,12 +223,12 @@ export function isUsableLabel(
     return false;
   }
   return !graph.nodes.some(
-    (node) => node.id === value && node.id !== excludeId
+    (node) => node.label === value && node.label !== excludeLabel
   );
 }
 
 export function nodeMapOf(graph: Graph): Map<string, GraphNode> {
-  return new Map(graph.nodes.map((node) => [node.id, node]));
+  return new Map(graph.nodes.map((node) => [node.label, node]));
 }
 
 export function nextNodeLabel(graph: Graph, scheme: IndexScheme): string {
