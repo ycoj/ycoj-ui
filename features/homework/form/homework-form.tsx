@@ -1,7 +1,9 @@
 'use client';
 
+import HomeworkCloneDialog from '@/features/homework/form/homework-clone-dialog';
 import {
   isPenaltyRuleMapping,
+  type HomeworkCloneValues,
   type HomeworkFormValues,
 } from '@/features/homework/form/homework-form-utils';
 import LanguageAutoComplete from '@/features/language/language-auto-complete';
@@ -19,12 +21,15 @@ import {
   FieldLabel,
 } from '@/shared/components/ui/field';
 import { Input } from '@/shared/components/ui/input';
+import { useCloneFlow } from '@/shared/hooks/use-clone-flow';
+import { datePattern, timePattern } from '@/shared/lib/date-patterns';
 import { zodResolver } from '@hookform/resolvers/zod';
 import dayjs from 'dayjs';
-import { ArrowLeft, Plus, Save } from 'lucide-react';
+import { ArrowLeft, Copy, Plus, Save } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { type ReactNode } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
@@ -36,10 +41,9 @@ type Props = {
   domainId: string;
   cancelHref: string;
   onSubmit: (values: HomeworkFormValues) => Promise<string>;
+  onClone?: (values: HomeworkFormValues) => Promise<string>;
+  extraActions?: (isSubmitting: boolean) => ReactNode;
 };
-
-const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-const timePattern = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
 
 export default function HomeworkForm({
   mode,
@@ -47,6 +51,8 @@ export default function HomeworkForm({
   domainId,
   cancelHref,
   onSubmit,
+  onClone,
+  extraActions,
 }: Props) {
   const t = useTranslations(
     mode === 'create' ? 'homeworkCreate' : 'homeworkEdit'
@@ -97,6 +103,22 @@ export default function HomeworkForm({
   } = useForm<HomeworkFormValues>({
     resolver: zodResolver(schema),
     defaultValues,
+  });
+  const cloneFlow = useCloneFlow<HomeworkFormValues, HomeworkCloneValues>({
+    onClone,
+    toCloneValues: ({
+      title,
+      beginAtDate,
+      beginAtTime,
+      penaltySinceDate,
+      penaltySinceTime,
+    }) => ({
+      title,
+      beginAtDate,
+      beginAtTime,
+      penaltySinceDate,
+      penaltySinceTime,
+    }),
   });
 
   const handleFormSubmit = async (values: HomeworkFormValues) => {
@@ -344,6 +366,18 @@ export default function HomeworkForm({
           {mode === 'create' ? <Plus /> : <Save />}
           {isSubmitting ? t('creating') : t('create')}
         </Button>
+        {mode === 'edit' && onClone && (
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={isSubmitting}
+            onClick={handleSubmit(cloneFlow.openCloneDialog)}
+          >
+            <Copy />
+            {t('clone')}
+          </Button>
+        )}
+        {extraActions?.(isSubmitting)}
         <Button asChild variant="secondary">
           <Link href={cancelHref}>
             <ArrowLeft />
@@ -351,6 +385,13 @@ export default function HomeworkForm({
           </Link>
         </Button>
       </div>
+      {cloneFlow.cloneValues && (
+        <HomeworkCloneDialog
+          defaultValues={cloneFlow.cloneValues}
+          onClose={cloneFlow.closeCloneDialog}
+          onConfirm={cloneFlow.confirmClone}
+        />
+      )}
     </form>
   );
 }

@@ -151,10 +151,12 @@ export function buildPreliminaryPayload(
   // normalizeScoreInput) and are guarded again here.
   //
   // Draft saving bypasses the publish schema, but the backend always rejects
-  // scores outside 1..1000 (int) and true/false answers outside true/false,
+  // scores outside 0.5..1000 (in 0.5 increments) and true/false answers
+  // outside true/false,
   // even for drafts (see normalizePreliminaryDefinition). Coerce both here so
   // a draft can never emit a payload the backend always rejects: scores are
-  // truncated into 1..1000, and an empty true/false answer defaults to true.
+  // truncated into 0.5..1000 in half-point increments, and an empty
+  // true/false answer defaults to true.
   return {
     title: values.title.trim(),
     content: values.content.trim(),
@@ -189,14 +191,14 @@ export function buildPreliminaryPayload(
 }
 
 // Coerces draft scores the publish schema never sees into the backend's
-// always-enforced 1..1000 integer range.
+// always-enforced 0.5..1000 half-point range.
 export function normalizePayloadScore(score: unknown): number {
   const parsed = typeof score === 'number' ? score : Number(score);
   if (!Number.isFinite(parsed)) return PRELIMINARY_DEFAULT_SCORE;
-  const int = Math.trunc(parsed);
-  if (int < 1) return 1;
-  if (int > 1000) return 1000;
-  return int;
+  const halfPoint = Math.trunc(parsed * 2) / 2;
+  if (halfPoint < 0.5) return 0.5;
+  if (halfPoint > 1000) return 1000;
+  return halfPoint;
 }
 
 export function mapPreliminaryEditToFormValues(

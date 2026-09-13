@@ -3,7 +3,7 @@ import ObjectiveNavigation from './navigation';
 import ObjectiveProvider, { useObjective } from './provider';
 import type { ObjectiveQuestion } from './question-schema';
 import messages from '@/messages/en';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import { useEffect } from 'react';
@@ -46,14 +46,16 @@ describe('ObjectiveNavigation', () => {
     vi.stubGlobal('indexedDB', {});
   });
 
-  it('shows Clear answers for writable users and clears the draft', async () => {
-    const confirmSpy = vi.fn(() => true);
-    vi.stubGlobal('confirm', confirmSpy);
+  it('shows Clear answers for writable users and clears the draft after confirming', async () => {
     renderNavigation(false);
     const clearButton = await screen.findByText('Clear answers');
     await userEvent.click(clearButton);
-    expect(confirmSpy).toHaveBeenCalled();
-    expect(mockedClearDraft).toHaveBeenCalledWith('d1');
+    expect(mockedClearDraft).not.toHaveBeenCalled();
+    const dialog = await screen.findByRole('alertdialog');
+    await userEvent.click(
+      within(dialog).getByRole('button', { name: 'Clear answers' })
+    );
+    await waitFor(() => expect(mockedClearDraft).toHaveBeenCalledWith('d1'));
   });
 
   it('hides Clear answers for read-only users but keeps navigation', async () => {
@@ -72,13 +74,16 @@ describe('ObjectiveNavigation', () => {
   });
 
   it('does not clear when the user cancels the confirmation', async () => {
-    vi.stubGlobal(
-      'confirm',
-      vi.fn(() => false)
-    );
     renderNavigation(false);
     const clearButton = await screen.findByText('Clear answers');
     await userEvent.click(clearButton);
-    await waitFor(() => expect(mockedClearDraft).not.toHaveBeenCalled());
+    const dialog = await screen.findByRole('alertdialog');
+    await userEvent.click(
+      within(dialog).getByRole('button', { name: 'Cancel' })
+    );
+    await waitFor(() =>
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+    );
+    expect(mockedClearDraft).not.toHaveBeenCalled();
   });
 });

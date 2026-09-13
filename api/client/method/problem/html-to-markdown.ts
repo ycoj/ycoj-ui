@@ -1,11 +1,25 @@
 import { clientRequest } from '@/api/client';
 import type { Errorable } from '@/shared/types/error';
 
-export type HtmlToMarkdownResponse = Errorable<{
-  markdown: string;
+export type HtmlToMarkdownSubmitResponse = Errorable<{
+  jobId: string;
+  status: 'pending';
 }>;
 
-export const htmlToMarkdown = (pid: string) =>
-  clientRequest.Post<HtmlToMarkdownResponse>(`/p/${pid}`, {
-    operation: 'html_to_markdown',
-  });
+export type HtmlToMarkdownPollResponse = Errorable<
+  | { jobId: string; status: 'pending' | 'running' }
+  | { jobId: string; status: 'completed'; markdown: string }
+  | { jobId: string; status: 'failed'; error: string }
+>;
+
+export const submitHtmlToMarkdown = (pid: string, profileId?: string) =>
+  clientRequest.Post<HtmlToMarkdownSubmitResponse>(
+    `/p/${pid}/html-to-markdown`,
+    { ...(profileId && { profileId }) }
+  );
+
+export const pollHtmlToMarkdown = (pid: string, jobId: string) =>
+  clientRequest.Get<HtmlToMarkdownPollResponse>(
+    `/p/${pid}/html-to-markdown/${jobId}`,
+    { cacheFor: 0, timeout: 10_000 }
+  );

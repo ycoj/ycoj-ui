@@ -18,7 +18,7 @@
   "promptRequired": "Enter the question.",
   "promptTooLong": "Keep questions within 16384 characters.",
   "score": "Points",
-  "scoreInvalid": "Points must be an integer between 1 and 1000.",
+  "scoreInvalid": "Points must be a multiple of 0.5 between 0.5 and 1000.",
   "options": "Options",
   "optionPlaceholder": "Option text. Markdown is supported.",
   "optionTextRequired": "Enter option text.",

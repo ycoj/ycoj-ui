@@ -7,10 +7,12 @@ import common from './common.json';
 import contestCreate from './contest-create.json';
 import contestEdit from './contest-edit.json';
 import contestManagement from './contest-management.json';
+import contestSolution from './contest-solution.json';
 import contest from './contest.json';
 import difficulty from './difficulty.json';
 import discussion from './discussion.json';
 import error from './error.json';
+import graphEditor from './graph-editor.json';
 import homepage from './homepage.json';
 import homeworkCreate from './homework-create.json';
 import homeworkEdit from './homework-edit.json';
@@ -88,6 +90,8 @@ const catalog = {
   difficulty,
   judgeStatus,
   problemType,
+  contestSolution,
+  graphEditor,
 };
 
 export default catalog;

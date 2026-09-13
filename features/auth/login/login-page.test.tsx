@@ -10,7 +10,6 @@ vi.mock('@/api/client/method', () => ({
 vi.mock('next/navigation', () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
-vi.mock('@/shared/components/site-footer', () => ({ default: () => null }));
 vi.mock('@/shared/components/ui/checkbox', () => ({ Checkbox: () => null }));
 
 describe('LoginPage', () => {
@@ -27,5 +26,17 @@ describe('LoginPage', () => {
       expect(image).toHaveAttribute('loading', 'lazy');
       expect(image).toHaveAttribute('fetchpriority', 'high');
     }
+  });
+
+  it('does not show the language switch', () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <LoginPage />
+      </NextIntlClientProvider>
+    );
+
+    expect(
+      screen.queryByLabelText(messages.common.language)
+    ).not.toBeInTheDocument();
   });
 });

@@ -3,6 +3,7 @@ export type BaseUser = {
   uname: string;
   mail: string;
   avatar: string;
+  ccfLevel?: number;
   /** Optional fields that may be present depending on settings/context */
   school?: string;
   displayName?: string;
@@ -41,7 +42,6 @@ export type User = BaseUser & {
   loginat: string;
   tfa: boolean;
   authn: boolean;
-  ccfLevel?: number;
   modType?: 'su' | 'mod' | null;
   timeZone?: string;
   backgroundImage?: string;

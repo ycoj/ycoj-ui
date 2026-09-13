@@ -5,8 +5,11 @@ export default function parseErrorMessage(err: string | HydroError) {
     return err;
   }
 
-  if (err.params) {
-    return err.message.replace(/{(\d+)}/g, (match, p1) => err.params![p1]);
+  const { message, name, params } = err;
+  if (params && message) {
+    return message.replace(/{(\d+)}/g, (match, p1) =>
+      String(params[Number(p1)] ?? match)
+    );
   }
-  return err.message;
+  return message || name || 'Error';
 }

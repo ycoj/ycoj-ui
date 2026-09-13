@@ -45,6 +45,11 @@ export type ContestFormValues = {
   contestDuration: string;
 };
 
+export type ContestCloneValues = Pick<
+  ContestFormValues,
+  'title' | 'beginAtDate' | 'beginAtTime' | 'duration'
+>;
+
 export const contestRuleSupportsLock = (rule: ContestCreateRule) =>
   rule === 'acm' || rule === 'ioi';
 
@@ -126,6 +131,18 @@ export function formatHours(value: number): string {
   return String(rounded);
 }
 
+export function formatContestEndAt(
+  beginAtDate: string,
+  beginAtTime: string,
+  duration: string
+): string {
+  const hours = Number(duration);
+  if (!beginAtDate || !beginAtTime || !Number.isFinite(hours)) return '';
+  return dayjs(`${beginAtDate}T${beginAtTime}`)
+    .add(hours, 'hour')
+    .format('YYYY-MM-DD HH:mm');
+}
+
 export function resolveContestAutoHide(
   canAutoHide: boolean,
   submitted: boolean
@@ -133,12 +150,12 @@ export function resolveContestAutoHide(
   return canAutoHide && submitted;
 }
 
-export function contestPermissionFromTdoc(tdoc: {
-  assign?: string[];
-  _code?: string;
-}): ContestPermission {
+export function contestPermissionFromTdoc(
+  tdoc: { assign?: string[] },
+  code?: string
+): ContestPermission {
   if (tdoc.assign?.length) return 'assign';
-  if (tdoc._code) return 'invite';
+  if (code) return 'invite';
   return 'public';
 }
 
@@ -146,7 +163,7 @@ export function isContestCreateRule(rule: string): rule is ContestCreateRule {
   return (CONTEST_CREATE_RULES as readonly string[]).includes(rule);
 }
 
-type ContestEditSource = Pick<ContestEditData, 'tdoc' | 'duration'>;
+type ContestEditSource = Pick<ContestEditData, 'tdoc' | 'duration' | 'code'>;
 
 export function mapContestEditToFormValues(
   data: ContestEditSource,
@@ -172,9 +189,9 @@ export function mapContestEditToFormValues(
     pids,
     content: tdoc.content ?? '',
     maintainer: (tdoc.maintainer ?? []).map(String),
-    permission: contestPermissionFromTdoc(tdoc),
+    permission: contestPermissionFromTdoc(tdoc, data.code),
     assign: tdoc.assign ?? [],
-    code: tdoc._code ?? '',
+    code: data.code ?? '',
     langs: tdoc.langs ?? [],
     rated: Boolean(tdoc.rated),
     autoHide: Boolean(tdoc.autoHide),

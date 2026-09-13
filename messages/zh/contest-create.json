@@ -40,6 +40,7 @@
   "keepScoreboardHiddenHelp": "比赛结束后仍不公开成绩表。",
   "optional": "选填",
   "positiveNumber": "请输入正数，或将此项留空。",
+  "nonNegativeInteger": "请输入非负整数，或将此项留空。",
   "titleRequired": "请输入比赛标题。",
   "invalidDate": "请输入有效日期。",
   "invalidTime": "请输入有效时间。",

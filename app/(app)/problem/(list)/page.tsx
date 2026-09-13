@@ -32,7 +32,10 @@ export default async function ProblemListPage({
 
   return (
     <div className="space-y-4">
-      <ProblemSearch canCreate={hasPerm(user, PERM.PERM_CREATE_PROBLEM)} />
+      <ProblemSearch
+        canCreate={hasPerm(user, PERM.PERM_CREATE_PROBLEM)}
+        canReview={hasPerm(user, PERM.PERM_DELETE_PROBLEM_SOLUTION)}
+      />
       <ProblemList
         data={data}
         showTags={showTags === 'true'}

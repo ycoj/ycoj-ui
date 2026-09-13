@@ -1,7 +1,6 @@
 'use client';
 
 import ClientApis from '@/api/client/method';
-import SiteFooter from '@/shared/components/site-footer';
 import ThemeLogo from '@/shared/components/theme-logo';
 import { Button } from '@/shared/components/ui/button';
 import {
@@ -202,9 +201,6 @@ export function LoginPage() {
             </form>
           </CardContent>
         </Card>
-      </div>
-      <div className="fixed inset-x-0 bottom-2">
-        <SiteFooter />
       </div>
     </div>
   );

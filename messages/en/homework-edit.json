@@ -30,5 +30,14 @@
   "submitFailed": "Failed to save the homework. Please try again later.",
   "creating": "Saving...",
   "create": "Save changes",
+  "clone": "Clone",
+  "cloneTitle": "Clone homework",
+  "cloneDescription": "Creates a new homework from this one. You can adjust the title and schedule before cloning.",
+  "cloning": "Cloning...",
+  "cloneFailed": "Failed to clone the homework. Please try again later.",
+  "delete": "Delete",
+  "deleting": "Deleting...",
+  "deleteConfirm": "Confirm deleting this homework? Its files and status will be deleted as well.",
+  "deleteFailed": "Deletion failed. Please try again later.",
   "cancel": "Back to homework"
 }

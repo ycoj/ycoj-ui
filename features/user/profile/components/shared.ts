@@ -10,8 +10,6 @@ export type ProfileExtras = {
   avatar?: string;
   bio?: string;
   rp?: number;
-  nAccept?: number;
-  nSubmit?: number;
 };
 
 export function formatTime(value: string | Date | null | undefined): string {
@@ -39,8 +37,6 @@ export function getProfileExtras(data: UserDetailResponse): ProfileExtras {
     avatar: readStringField(data.udoc, 'avatar'),
     bio: readStringField(data.udoc, 'bio'),
     rp: readNumberField(data.udoc, 'rp'),
-    nAccept: readNumberField(data.udoc, 'nAccept'),
-    nSubmit: readNumberField(data.udoc, 'nSubmit'),
   };
 }
 
@@ -52,5 +48,6 @@ export function getProfileUser(data: UserDetailResponse): BaseUser {
     uname: data.udoc.uname,
     mail: data.udoc.mail,
     avatar: extras.avatar ?? '',
+    ccfLevel: data.udoc.ccfLevel,
   };
 }

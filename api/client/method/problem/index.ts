@@ -12,12 +12,16 @@ import {
   uploadProblemConfig,
   uploadProblemFile,
 } from './files';
-import { htmlToMarkdown } from './html-to-markdown';
+import { pollHtmlToMarkdown, submitHtmlToMarkdown } from './html-to-markdown';
 import { importProblems } from './import';
 import { searchOmnibarProblems } from './omnibar-search';
 import { deleteProblemSolution } from './solution-delete';
 import { editProblemSolution } from './solution-edit';
 import { replyProblemSolution } from './solution-reply';
+import {
+  reviewProblemSolution,
+  unblockSolutionAuthor,
+} from './solution-review';
 import { submitProblemSolution } from './solution-submit';
 import { voteSolution } from './solution-vote';
 import { submitProblem } from './submit';
@@ -27,7 +31,8 @@ const Problem = {
   searchOmnibarProblems,
   createProblem,
   editProblem,
-  htmlToMarkdown,
+  submitHtmlToMarkdown,
+  pollHtmlToMarkdown,
   generateAiTestdata,
   getProblemFileLinks,
   getProblemFileDownloadUrl,
@@ -44,6 +49,8 @@ const Problem = {
   editProblemSolution,
   replyProblemSolution,
   deleteProblemSolution,
+  reviewProblemSolution,
+  unblockSolutionAuthor,
 };
 
 export default Problem;

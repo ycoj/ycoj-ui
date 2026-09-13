@@ -6,6 +6,7 @@ import {
   buildCreateContestPayload,
   type ContestFormValues,
 } from '@/features/contest/form/contest-form-utils';
+import { requireTid } from '@/shared/lib/backend-response';
 import { useTranslations } from 'next-intl';
 
 type Props = {
@@ -32,8 +33,7 @@ export default function ContestCreateForm({
         const response = await ClientApis.Contest.createContest(
           buildCreateContestPayload(values)
         ).send();
-        if (!response?.tid) throw new Error(t('submitFailed'));
-        return `/contest/${response.tid}`;
+        return `/contest/${requireTid(response, t('submitFailed'))}`;
       }}
     />
   );

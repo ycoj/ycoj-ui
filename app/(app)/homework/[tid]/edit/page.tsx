@@ -5,6 +5,7 @@ import { mapHomeworkEditToFormValues } from '@/features/homework/form/homework-f
 import { canEditHomework } from '@/features/homework/lib/can-edit-homework';
 import { resolveProblemListItems } from '@/features/problem/resolve-problem-list-items';
 import { getUser } from '@/features/user/lib/get-user';
+import { hasPerm, PERM } from '@/features/user/lib/priv';
 import { Errored } from '@/shared/components/errored';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
@@ -42,12 +43,17 @@ export default async function HomeworkEditPage({
     return <Errored title={t('unavailable')} error={t('unavailable')} />;
 
   const pids = await resolveProblemListItems(homepage.domain._id, data.pids);
+  const canClone = hasPerm(user, PERM.PERM_CREATE_HOMEWORK);
+  // Deletion has no dedicated permission bit, so unlike cloning the delete
+  // button stays visible; the backend rejects unauthorized deletes with a
+  // Forbidden error, matching the legacy edit page behavior.
 
   return (
     <HomeworkEditForm
       tid={tid}
       defaultValues={mapHomeworkEditToFormValues(data, pids)}
       domainId={homepage.domain._id}
+      canClone={canClone}
     />
   );
 }

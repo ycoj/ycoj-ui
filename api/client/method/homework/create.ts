@@ -1,4 +1,5 @@
 import { clientRequest } from '@/api/client';
+import type { Errorable } from '@/shared/types/error';
 import type { ObjectId } from '@/shared/types/shared';
 
 export type CreateHomeworkRequest = {
@@ -23,4 +24,7 @@ export type CreateHomeworkResponse = {
 };
 
 export const createHomework = (payload: CreateHomeworkRequest) =>
-  clientRequest.Post<CreateHomeworkResponse>('/homework/create', payload);
+  clientRequest.Post<Errorable<CreateHomeworkResponse>>(
+    '/homework/create',
+    payload
+  );

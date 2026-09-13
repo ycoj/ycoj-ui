@@ -1,9 +1,11 @@
 import {
+  backendErrorStatus,
   backendPathname,
   isAuthSessionPath,
   isLoginRedirect,
   isSudoRequired,
   matchesBackendPath,
+  requireTid,
   throwBackendError,
 } from './backend-response';
 import { describe, expect, it } from 'vitest';
@@ -95,6 +97,20 @@ describe('isAuthSessionPath', () => {
   );
 });
 
+describe('backendErrorStatus', () => {
+  it.each([
+    ['NotFoundError', 404],
+    ['PermissionError', 403],
+    ['PrivilegeError', 403],
+    ['ForbiddenError', 403],
+    ['HiddenError', 403],
+    ['ServerError', 502],
+    ['', 502],
+  ] as const)('maps %s to %i', (name, status) => {
+    expect(backendErrorStatus(name)).toBe(status);
+  });
+});
+
 describe('throwBackendError', () => {
   it('interpolates Hydro error params', () => {
     expect(() =>
@@ -111,5 +127,25 @@ describe('throwBackendError', () => {
   });
   it('ignores responses without an error field', () => {
     expect(() => throwBackendError({ url: '/home' })).not.toThrow();
+  });
+});
+
+describe('requireTid', () => {
+  it('returns the tid for a successful response', () => {
+    expect(requireTid({ tid: 'abc123' }, 'fallback')).toBe('abc123');
+  });
+  it.each([undefined, null, {}, { tid: '' }])(
+    'throws the fallback message when tid is missing: %j',
+    (response) => {
+      expect(() => requireTid(response, 'fallback')).toThrow('fallback');
+    }
+  );
+  it('throws the parsed backend error', () => {
+    expect(() =>
+      requireTid(
+        { error: { name: 'ForbiddenError', message: 'Permission denied' } },
+        'fallback'
+      )
+    ).toThrow('Permission denied');
   });
 });

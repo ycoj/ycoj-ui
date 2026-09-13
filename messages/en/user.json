@@ -13,7 +13,8 @@
   "myProfile": "My profile",
   "registeredAt": "Registered: {time}",
   "lastLogin": "Last login: {time}",
-  "acceptanceRate": "Acceptance rate: {value}",
+  "expiresAt": "Expires: {date}",
+  "neverExpires": "Never expires",
   "participationOverview": "Participation overview",
   "noParticipation": "No participation records",
   "contests": "Contests",
@@ -28,5 +29,15 @@
   "totalVotes": "Total votes",
   "averageVotes": "Average votes",
   "problemFallback": "Problem #{id}",
-  "sendMessage": "Send message"
+  "sendMessage": "Send message",
+  "awards": "Awards",
+  "noCertifiedAwards": "No certified awards yet.",
+  "awardCertification": "Award certification",
+  "awardContest": "Contest",
+  "awardLevel": "Award",
+  "awardScore": "Score",
+  "awardRank": "Rank",
+  "awardSchool": "School",
+  "awardProvince": "Province",
+  "awardGrade": "Grade"
 }

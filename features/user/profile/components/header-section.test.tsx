@@ -19,6 +19,8 @@ const data: UserDetailResponse = {
   pdocs: [],
   tags: [],
   tdocs: [],
+  awardRecords: [],
+  accountExpireDate: null,
   checkinHistory: {
     timezone: 'UTC+08:00',
     from: '',
@@ -43,4 +45,37 @@ describe('profile editing entry', () => {
       else expect(link).not.toBeInTheDocument();
     }
   );
+});
+
+describe('account expiration', () => {
+  const renderSection = (accountExpireDate: string | null | undefined) =>
+    render(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <HeaderSection data={{ ...data, accountExpireDate }} />
+      </NextIntlClientProvider>
+    );
+
+  it('hides the expiration for viewers without access', () => {
+    renderSection(null);
+    expect(
+      screen.queryByText(/Never expires|Expires:/)
+    ).not.toBeInTheDocument();
+  });
+
+  it('hides the expiration when the field is absent (older backend)', () => {
+    renderSection(undefined);
+    expect(
+      screen.queryByText(/Never expires|Expires:/)
+    ).not.toBeInTheDocument();
+  });
+
+  it('shows the expiration date when set', () => {
+    renderSection('2099-01-01');
+    expect(screen.getByText('Expires: 2099-01-01')).toBeInTheDocument();
+  });
+
+  it('shows never-expire when no expiration is set', () => {
+    renderSection('');
+    expect(screen.getByText('Never expires')).toBeInTheDocument();
+  });
 });

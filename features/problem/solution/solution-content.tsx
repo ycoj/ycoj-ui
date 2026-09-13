@@ -29,7 +29,12 @@ export default async function SolutionContent({ data }: Props) {
 
   return (
     <div className="space-y-4">
-      {allowCreate && (
+      {data.solutionBlocked && (
+        <p role="status" className="text-sm text-destructive">
+          {t('errors.blocked')}
+        </p>
+      )}
+      {allowCreate && !data.solutionBlocked && (
         <div className="text-foreground flex items-center">
           <span className="text-muted-foreground">{t('missingYours')}</span>
           <Button variant="outline" size="sm" asChild>

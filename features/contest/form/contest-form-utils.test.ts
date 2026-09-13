@@ -2,6 +2,7 @@ import type { ContestEditData } from '@/api/server/method/contests/edit';
 import {
   buildCreateContestPayload,
   contestPermissionFromTdoc,
+  formatContestEndAt,
   formatHours,
   getContestCreateDefaults,
   mapContestEditToFormValues,
@@ -132,6 +133,17 @@ describe('contest form utilities', () => {
     expect(formatHours(1.999)).toBe('2');
   });
 
+  it('computes the end time and stays blank on incomplete input', () => {
+    expect(formatContestEndAt('2026-09-01', '10:00', '3')).toBe(
+      '2026-09-01 13:00'
+    );
+    expect(formatContestEndAt('2026-09-01', '10:00', '1.5')).toBe(
+      '2026-09-01 11:30'
+    );
+    expect(formatContestEndAt('', '10:00', '3')).toBe('');
+    expect(formatContestEndAt('2026-09-01', '10:00', 'abc')).toBe('');
+  });
+
   it('turns auto-hide off when the editor cannot hide problems', () => {
     expect(resolveContestAutoHide(true, true)).toBe(true);
     expect(resolveContestAutoHide(true, false)).toBe(false);
@@ -141,16 +153,15 @@ describe('contest form utilities', () => {
 
   it('derives participation access from assign and invitation code', () => {
     expect(contestPermissionFromTdoc({ assign: ['class-a'] })).toBe('assign');
-    expect(contestPermissionFromTdoc({ _code: 'secret' })).toBe('invite');
+    expect(contestPermissionFromTdoc({}, 'secret')).toBe('invite');
     expect(contestPermissionFromTdoc({})).toBe('public');
   });
 
   it('maps edit GET data into form values without using create defaults', () => {
     const values = mapContestEditToFormValues(
       makeEditData(
-        {},
+        { code: 'secret' },
         {
-          _code: 'secret',
           allowViewCode: false,
           allowPrint: true,
           autoHide: true,
@@ -190,11 +201,10 @@ describe('contest form utilities', () => {
   it('prefers assigned access over an invitation code and maps flexible duration', () => {
     const values = mapContestEditToFormValues(
       makeEditData(
-        { duration: 5 },
+        { duration: 5, code: 'secret' },
         {
           rule: 'oi',
           assign: ['class-a'],
-          _code: 'secret',
           duration: 3.5,
           keepScoreboardHidden: true,
         }

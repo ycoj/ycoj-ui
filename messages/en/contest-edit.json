@@ -40,6 +40,7 @@
   "keepScoreboardHiddenHelp": "Do not reveal the scoreboard after the contest ends.",
   "optional": "Optional",
   "positiveNumber": "Enter a positive number or leave this field empty.",
+  "nonNegativeInteger": "Enter a non-negative integer or leave this field empty.",
   "titleRequired": "Enter a contest title.",
   "invalidDate": "Enter a valid date.",
   "invalidTime": "Enter a valid time.",
@@ -50,5 +51,14 @@
   "submitFailed": "Failed to save the contest. Please try again later.",
   "creating": "Saving...",
   "create": "Save changes",
+  "clone": "Clone",
+  "cloneTitle": "Clone contest",
+  "cloneDescription": "Creates a new contest from this one. You can adjust the title and schedule before cloning.",
+  "cloning": "Cloning...",
+  "cloneFailed": "Failed to clone the contest. Please try again later.",
+  "delete": "Delete",
+  "deleting": "Deleting...",
+  "deleteConfirm": "Confirm deleting this contest? Its files and status will be deleted as well.",
+  "deleteFailed": "Deletion failed. Please try again later.",
   "cancel": "Back to contest"
 }

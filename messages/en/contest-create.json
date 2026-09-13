@@ -40,6 +40,7 @@
   "keepScoreboardHiddenHelp": "Do not reveal the scoreboard after the contest ends.",
   "optional": "Optional",
   "positiveNumber": "Enter a positive number or leave this field empty.",
+  "nonNegativeInteger": "Enter a non-negative integer or leave this field empty.",
   "titleRequired": "Enter a contest title.",
   "invalidDate": "Enter a valid date.",
   "invalidTime": "Enter a valid time.",
