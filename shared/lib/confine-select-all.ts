@@ -1,5 +1,6 @@
 type SelectAllHotkeyEvent = {
-  key: string;
+  // Synthetic keydown events may omit `key`.
+  key?: string;
   ctrlKey: boolean;
   metaKey: boolean;
   altKey: boolean;
@@ -13,7 +14,7 @@ type ConfineSelectAllKeyDownEvent = SelectAllHotkeyEvent & {
 
 export function isSelectAllHotkey(event: SelectAllHotkeyEvent): boolean {
   return (
-    event.key.toLowerCase() === 'a' &&
+    event.key?.toLowerCase() === 'a' &&
     (event.ctrlKey || event.metaKey) &&
     !event.altKey &&
     !event.shiftKey

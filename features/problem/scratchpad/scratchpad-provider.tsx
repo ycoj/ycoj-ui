@@ -51,7 +51,7 @@ export default function ScratchpadProvider({
   useEffect(() => {
     if (isOpen) return;
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.altKey && event.key.toLowerCase() === 'e') {
+      if (event.altKey && event.key?.toLowerCase() === 'e') {
         event.preventDefault();
         open();
       }
