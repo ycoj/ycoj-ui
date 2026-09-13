@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/components/ui/table';
+import { getProblemDifficultyTextColor } from '@/shared/configs/difficulty';
 import { STATUS_BACKGROUND_COLOR } from '@/shared/configs/status';
 import { formatMemory, formatTime } from '@/shared/lib/format-units';
 import oid2ts from '@/shared/lib/oid2ts';
@@ -110,7 +111,15 @@ export default function RecordList({ data, languages }: Props) {
                 </Link>
               </TableCell>
               <TableCell>
-                {pdoc ? <ProblemLink problem={pdoc} showId /> : record.pid}
+                {pdoc ? (
+                  <ProblemLink
+                    problem={pdoc}
+                    showId
+                    idColor={getProblemDifficultyTextColor(pdoc.difficulty)}
+                  />
+                ) : (
+                  record.pid
+                )}
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end">

@@ -59,3 +59,16 @@ export const PROBLEMS_DIFFICULTY_TEXT_COLOR = [
   rgb(33, 48, 140),
   rgb(33, 48, 140),
 ];
+
+const MAX_PROBLEM_DIFFICULTY = 8;
+
+export function getProblemDifficultyTextColor(difficulty?: number): string {
+  if (
+    typeof difficulty !== 'number' ||
+    difficulty < 0 ||
+    difficulty > MAX_PROBLEM_DIFFICULTY
+  ) {
+    return PROBLEMS_DIFFICULTY_TEXT_COLOR[0];
+  }
+  return PROBLEMS_DIFFICULTY_TEXT_COLOR[difficulty];
+}
