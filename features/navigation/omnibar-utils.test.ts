@@ -45,6 +45,8 @@ describe('isOmnibarHotkey', () => {
     [{ key: 'k', ctrlKey: true, metaKey: false, shiftKey: true }, false],
     [{ key: 'b', ctrlKey: true, metaKey: false }, false],
     [{ key: 'k', ctrlKey: true, metaKey: false, repeat: true }, false],
+    // Synthetic keydown events may carry no `key` at all.
+    [{ ctrlKey: true, metaKey: false }, false],
   ] as const)('maps %j to %s', (partial, expected) => {
     expect(
       isOmnibarHotkey({
