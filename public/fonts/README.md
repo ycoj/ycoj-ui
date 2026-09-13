@@ -11,3 +11,6 @@ Source: [Google Fonts, revision 5e35378e6bda803962ee6fd257e444a7d459660d](https:
 
 All three fonts use the SIL Open Font License 1.1. Keep the corresponding license
 files when redistributing or updating the fonts.
+
+The server-side scoreboard export font is not web-served; see
+`assets/fonts/README.md`.

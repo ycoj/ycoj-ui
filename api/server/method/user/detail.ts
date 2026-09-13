@@ -9,10 +9,24 @@ import type {
 } from '@/shared/types/problem';
 import type { User } from '@/shared/types/user';
 
+export type AwardRecord = {
+  _id: string;
+  oierId: number;
+  contestName: string;
+  contestType: string;
+  year: number;
+  award: string;
+  score: number | null;
+  rank: number;
+  school: string;
+  province: string;
+  grade: string;
+};
+
 /** User document as returned by the user detail API. */
 export type Udoc = Pick<
   User,
-  '_id' | 'mail' | 'uname' | 'priv' | 'regat' | 'loginat'
+  '_id' | 'mail' | 'uname' | 'priv' | 'regat' | 'loginat' | 'ccfLevel'
 >;
 
 /** Recent session info (login/refresh time). */
@@ -40,6 +54,8 @@ export type UserDetailResponse = {
   tags: [string, number][];
   /** Contests/homework the user has participated in. */
   tdocs: (Contest | Homework)[];
+  /** Certified competition awards associated with this account. */
+  awardRecords: AwardRecord[];
   /** User's published problem solutions. Requires PERM_VIEW_PROBLEM_SOLUTION. */
   psdocs?: SolutionDocumentDoc[];
   /** Problem dict for solutions. Requires PERM_VIEW_PROBLEM_SOLUTION and PERM_VIEW_PROBLEM. */

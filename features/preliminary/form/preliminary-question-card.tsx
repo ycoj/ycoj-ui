@@ -151,9 +151,9 @@ export default function PreliminaryQuestionCard({
             <Input
               id={`${base}.score`}
               type="number"
-              min={1}
+              min={0.5}
               max={1000}
-              step={1}
+              step={0.5}
               disabled={disabled}
               aria-invalid={!!questionErrors?.score}
               // Coerces cleared/invalid input to the default score at the
