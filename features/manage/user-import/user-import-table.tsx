@@ -70,9 +70,17 @@ export default function UserImportTable({
             </TableHead>
             {columns.map(({ key, required }) => (
               <TableHead key={key} className="min-w-36">
-                {key === 'password' ? (
-                  <span className="flex items-center gap-1">
+                <span className="inline-flex items-center gap-1">
+                  <span>
                     {t(key)}
+                    {required && (
+                      <span className="text-destructive" aria-hidden="true">
+                        {' '}
+                        *
+                      </span>
+                    )}
+                  </span>
+                  {key === 'password' && (
                     <Button
                       type="button"
                       variant="ghost"
@@ -84,16 +92,8 @@ export default function UserImportTable({
                     >
                       {showPasswords ? <EyeOff /> : <Eye />}
                     </Button>
-                  </span>
-                ) : (
-                  t(key)
-                )}
-                {required && (
-                  <span className="text-destructive" aria-hidden="true">
-                    {' '}
-                    *
-                  </span>
-                )}
+                  )}
+                </span>
               </TableHead>
             ))}
             <TableHead className="w-12" aria-label={t('removeColumn')} />
