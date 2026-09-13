@@ -1,4 +1,5 @@
 import ServerApis from '@/api/server/method';
+import { parseSolutionReviewFilter } from '@/api/server/method/problems/solution-review';
 import SolutionReviewWorkspace from '@/features/problem/solution/review/solution-review-workspace';
 import { getUser } from '@/features/user/lib/get-user';
 import { hasPerm, PERM } from '@/features/user/lib/priv';
@@ -20,8 +21,7 @@ export default async function SolutionReviewPage({
   const user = await getUser();
   if (!hasPerm(user, PERM.PERM_DELETE_PROBLEM_SOLUTION)) redirect('/problem');
 
-  const status =
-    (await searchParams).status === 'authors' ? 'authors' : 'pending';
+  const status = parseSolutionReviewFilter((await searchParams).status);
   const data = await ServerApis.Problems.getSolutionReview(status);
   if ('error' in data) {
     const t = await getTranslations('solution.review');

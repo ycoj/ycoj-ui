@@ -39,6 +39,7 @@ export type ScratchpadSettings = {
   fontSize: number;
   tabSize: number;
   theme: ScratchpadEditorTheme;
+  clangd: boolean;
 };
 
 export type ScratchpadConfig = {

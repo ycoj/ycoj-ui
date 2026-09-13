@@ -5,7 +5,8 @@
     "1": "Unreviewed",
     "2": "Approved",
     "3": "Featured solution",
-    "-1": "Rejected and author blocked"
+    "-1": "Rejected and author blocked",
+    "unknown": "Review status unknown"
   },
   "errors": {
     "blocked": "Your solution submissions are blocked in this domain.",
@@ -16,6 +17,9 @@
     "title": "Solution review",
     "queue": "Review queue",
     "authors": "Blocked solution authors",
+    "authorsCount": "Blocked solution authors ({count})",
+    "filter": "Filter by review status",
+    "all": "All solutions",
     "back": "Back to problems",
     "totalSolutions": "Total solutions",
     "newToday": "New solutions today",

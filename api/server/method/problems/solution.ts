@@ -1,6 +1,10 @@
 import { alova } from '@/api/server';
 import type { Errorable } from '@/shared/types/error';
-import type { ProblemDoc, SolutionDoc } from '@/shared/types/problem';
+import type {
+  ProblemDoc,
+  SolutionDoc,
+  SolutionReviewLabels,
+} from '@/shared/types/problem';
 import type { ObjectId } from '@/shared/types/shared';
 import type { BaseUserDict } from '@/shared/types/user';
 
@@ -13,6 +17,7 @@ export type ProblemSolutionResponse = {
   pssdict: Record<string, { docId: ObjectId; vote: number }>;
   pdoc: ProblemDoc;
   sid?: string;
+  reviewLabels: SolutionReviewLabels;
   solutionBlocked: boolean;
 };
 

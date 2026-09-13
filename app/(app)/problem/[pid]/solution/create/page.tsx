@@ -46,14 +46,19 @@ export default async function ProblemSolutionCreatePage({
   const user = await getUser();
   if (!hasPerm(user, PERM.PERM_CREATE_PROBLEM_SOLUTION))
     redirect(`/problem/${pid}/solution`);
-  const data = await getProblemSolution(pid);
+  const [data, solutions] = await Promise.all([
+    getProblemDetail(pid),
+    getProblemSolution(pid),
+  ]);
   const t = await getTranslations('problem');
 
   if ('error' in data) {
     return <Errored title={t('unavailable')} error={data.error} />;
   }
 
-  if (data.solutionBlocked) {
+  // Blocked authors are rejected by the create request itself, so the notice is
+  // only shown when the solution list happens to be readable for this viewer.
+  if (!('error' in solutions) && solutions.solutionBlocked) {
     const solutionT = await getTranslations('solution');
     return (
       <div className="space-y-6" data-llm-visible="true">
@@ -72,7 +77,7 @@ function SolutionCreateContent({
   data,
   pid,
 }: {
-  data: Pick<ProblemDetailData, 'pdoc'>;
+  data: ProblemDetailData;
   pid: string;
 }) {
   return (

@@ -30,6 +30,14 @@ const installDependencies = async () => {
   if (result.code !== 0) throw new Error('Failed to install dependencies');
 };
 
+const pullGitLfsObjects = async () => {
+  const result = await ssh.execCommand(
+    `cd ${FRONTEND_DIR} && git lfs install --local && git lfs pull`
+  );
+  console.log(result.stdout);
+  if (result.code !== 0) throw new Error('Failed to pull Git LFS objects');
+};
+
 const build = async () => {
   const result = await ssh.execCommand(`cd ${FRONTEND_DIR} && pnpm build`);
   console.log(result.stdout);
@@ -42,7 +50,13 @@ const restartService = async () => {
   if (result.code !== 0) throw new Error('Failed to restart service');
 };
 
-const steps = [pullChanges, installDependencies, build, restartService];
+const steps = [
+  pullChanges,
+  pullGitLfsObjects,
+  installDependencies,
+  build,
+  restartService,
+];
 
 for (const step of steps) {
   console.time(step.name);

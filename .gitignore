@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/.pnpm-store/
 /.pnp
 .pnp.*
 .yarn/*
@@ -45,5 +46,8 @@ next-env.d.ts
 .idea/
 .claude/
 .kiro/
+
+# Temporary files generated while verifying the Clangd runtime
+/public/clangd/v2/*.tmp
 .vscode/
 opencode.json

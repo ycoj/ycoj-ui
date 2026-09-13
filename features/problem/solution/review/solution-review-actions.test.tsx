@@ -34,11 +34,12 @@ function mount(
     kind: 'solution',
     psid: 'solution-id',
     revision: 7,
-  }
+  },
+  showReload = true
 ) {
   return render(
     <NextIntlClientProvider locale="en" messages={messages}>
-      <SolutionReviewActions target={target} />
+      <SolutionReviewActions target={target} showReload={showReload} />
     </NextIntlClientProvider>
   );
 }
@@ -158,5 +159,15 @@ describe('solution review actions', () => {
     );
     expect(mocks.refresh).toHaveBeenCalledOnce();
     expect(mocks.send).not.toHaveBeenCalled();
+  });
+
+  it('hides its reload control when the surrounding view already has one', () => {
+    mount({ kind: 'author', uid: 42 }, false);
+    expect(
+      screen.getByRole('button', { name: 'Unblock author' })
+    ).toBeVisible();
+    expect(
+      screen.queryByRole('button', { name: 'Reload review queue' })
+    ).not.toBeInTheDocument();
   });
 });

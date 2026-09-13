@@ -1,5 +1,6 @@
 'use client';
 
+import { SCRATCHPAD_OPEN_PARAM } from '@/features/problem/scratchpad/clangd/clangd-support';
 import type { ScratchpadConfig } from '@/features/problem/scratchpad/scratchpad-types';
 import ScratchpadWorkspace from '@/features/problem/scratchpad/scratchpad-workspace';
 import {
@@ -47,6 +48,17 @@ export default function ScratchpadProvider({
     setIsOpen(false);
     window.requestAnimationFrame(() => returnFocusRef.current?.focus());
   }, []);
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get(SCRATCHPAD_OPEN_PARAM) !== '1') return;
+    const frame = window.requestAnimationFrame(() => {
+      url.searchParams.delete(SCRATCHPAD_OPEN_PARAM);
+      window.history.replaceState(window.history.state, '', url);
+      open();
+    });
+    return () => window.cancelAnimationFrame(frame);
+  }, [open]);
 
   useEffect(() => {
     if (isOpen) return;
