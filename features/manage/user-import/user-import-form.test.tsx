@@ -210,12 +210,20 @@ describe('user import workflow', () => {
       expect(screen.getByLabelText('Row 1 Username')).toHaveValue('team001')
     );
     expect(screen.getByLabelText('Row 2 Username')).toHaveValue('team002');
+    expect(screen.getByLabelText('Row 1 Email')).toHaveValue(
+      'team001@ycoj.local'
+    );
+    expect(screen.getByLabelText('Row 2 Email')).toHaveValue(
+      'team002@ycoj.local'
+    );
   });
 
-  it('fills empty usernames of existing rows from the dialog', async () => {
+  it('fills empty usernames of existing rows without overwriting a set email', async () => {
     const user = setup();
     await user.click(screen.getByRole('button', { name: 'Add row' }));
+    await user.click(screen.getAllByRole('button', { name: 'Add row' })[0]);
     await user.type(screen.getByLabelText('Row 1 Email'), 'a@b.c');
+    await user.type(screen.getByLabelText('Row 2 Display name'), 'No email');
     await user.click(
       screen.getByRole('button', { name: 'Generate usernames' })
     );
@@ -225,6 +233,9 @@ describe('user import workflow', () => {
     await waitFor(() =>
       expect(screen.getByLabelText('Row 1 Username')).toHaveValue('s001')
     );
+    expect(screen.getByLabelText('Row 1 Email')).toHaveValue('a@b.c');
+    expect(screen.getByLabelText('Row 2 Username')).toHaveValue('s002');
+    expect(screen.getByLabelText('Row 2 Email')).toHaveValue('s002@ycoj.local');
   });
 
   it('fills passwords with a fixed value or random per-user values', async () => {

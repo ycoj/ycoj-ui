@@ -1941,7 +1941,7 @@
     "resultHelp": "The import request finished. Review the server messages for skipped rows or creation errors. The “users found” count describes validated entries, not confirmed account creations.",
     "usernames": {
       "title": "Generate usernames",
-      "description": "Create usernames from a prefix plus a running number, for example team001, team002, …",
+      "description": "Create usernames from a prefix plus a running number, for example team001, team002, … Rows without an email get <username>@ycoj.local.",
       "target": "Apply to",
       "targetAppend": "Add new rows",
       "targetFill": "Rows missing a username",

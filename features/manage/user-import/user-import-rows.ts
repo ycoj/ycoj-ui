@@ -151,6 +151,12 @@ export function rowsToSource(rows: UserImportRow[]): string {
     .join('\n');
 }
 
+export const GENERATED_EMAIL_DOMAIN = 'ycoj.local';
+
+export function generatedEmail(username: string): string {
+  return `${username}@${GENERATED_EMAIL_DOMAIN}`;
+}
+
 export type UsernamePattern = {
   prefix: string;
   start: number;

@@ -1941,7 +1941,7 @@
     "resultHelp": "导入请求已完成，请检查服务器提示中是否存在跳过的行或创建失败的账号。“users found” 表示通过检查的条目数，并非确认创建成功的账号数。",
     "usernames": {
       "title": "生成用户名",
-      "description": "由前缀加连续数字生成用户名，例如 team001、team002……",
+      "description": "由前缀加连续数字生成用户名，例如 team001、team002……没有邮箱的行会自动填入 <用户名>@ycoj.local。",
       "target": "应用到",
       "targetAppend": "新增行",
       "targetFill": "缺少用户名的行",

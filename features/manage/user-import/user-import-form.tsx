@@ -7,6 +7,7 @@ import PasswordsDialog, {
 import PasteDialog from './user-import-paste-dialog';
 import {
   emptyRow,
+  generatedEmail,
   generateUsernames,
   isRowEmpty,
   parseUsersText,
@@ -118,16 +119,26 @@ export default function UserImportForm() {
   const applyUsernames = (pattern: UsernamePattern, target: UsernameTarget) => {
     const names = generateUsernames(pattern);
     if (target === 'append') {
-      addRows(names.map((username) => ({ ...emptyRow(), username })));
+      addRows(
+        names.map((username) => ({
+          ...emptyRow(),
+          username,
+          email: generatedEmail(username),
+        }))
+      );
       return;
     }
     const queue = [...names];
     mutate((current) =>
-      current.map((row) =>
-        !row.username.trim() && queue.length
-          ? { ...row, username: queue.shift()! }
-          : row
-      )
+      current.map((row) => {
+        if (row.username.trim() || !queue.length) return row;
+        const username = queue.shift()!;
+        return {
+          ...row,
+          username,
+          email: row.email.trim() ? row.email : generatedEmail(username),
+        };
+      })
     );
   };
 
