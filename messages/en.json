@@ -1251,7 +1251,17 @@
     "totalVotes": "Total votes",
     "averageVotes": "Average votes",
     "problemFallback": "Problem #{id}",
-    "sendMessage": "Send message"
+    "sendMessage": "Send message",
+    "awards": "Awards",
+    "noCertifiedAwards": "No certified awards yet.",
+    "awardCertification": "Award certification",
+    "awardContest": "Contest",
+    "awardLevel": "Award",
+    "awardScore": "Score",
+    "awardRank": "Rank",
+    "awardSchool": "School",
+    "awardProvince": "Province",
+    "awardGrade": "Grade"
   },
   "accountSettings": {
     "navigation": "Settings",
