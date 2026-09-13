@@ -31,6 +31,9 @@ describe('contest solution schema', () => {
     { title: 'Editorial', content: '', error: 'contentRequired' },
     { title: 'Editorial', content: '   \n  ', error: 'contentRequired' },
     { title: 'Line\nBreak', content: 'Answer', error: 'titleSingleLine' },
+    { title: 'Line\rBreak', content: 'Answer', error: 'titleSingleLine' },
+    { title: 'Line\u2028Break', content: 'Answer', error: 'titleSingleLine' },
+    { title: 'Line\u2029Break', content: 'Answer', error: 'titleSingleLine' },
     { title: ' \n ', content: 'Answer', error: 'titleRequired' },
     {
       title: 'Editorial',

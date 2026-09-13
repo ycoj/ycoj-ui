@@ -40,6 +40,11 @@ export default function DeleteConfirmPopover({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen);
+    if (!nextOpen) setError('');
+  };
+
   const handleDelete = async () => {
     if (submitting) return;
 
@@ -52,7 +57,7 @@ export default function DeleteConfirmPopover({
         setError(parseErrorMessage(result.error) || deleteFailedLabel);
         return;
       }
-      setOpen(false);
+      handleOpenChange(false);
       // Push navigates and revalidates the destination; refresh only when
       // staying on the same page (no successHref).
       if (successHref) router.push(successHref);
@@ -67,7 +72,7 @@ export default function DeleteConfirmPopover({
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <Button
           type="button"
@@ -102,7 +107,7 @@ export default function DeleteConfirmPopover({
             type="button"
             variant="secondary"
             size="xs"
-            onClick={() => setOpen(false)}
+            onClick={() => handleOpenChange(false)}
             disabled={submitting}
           >
             <span data-llm-text={cancelLabel}>{cancelLabel}</span>

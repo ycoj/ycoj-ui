@@ -20,8 +20,8 @@ export function buildContestSolutionSchema(
       .trim()
       .min(1, messages.titleRequired)
       .max(CONTEST_SOLUTION_TITLE_MAX_LENGTH, messages.titleTooLong)
-      // Backend Types.Title uses /^.{1,64}$/, whose dot does not match newlines.
-      .regex(/^[^\n]+$/, messages.titleSingleLine),
+      // Backend Types.Title uses /^.{1,64}$/, whose dot rejects line terminators.
+      .regex(/^[^\n\r\u2028\u2029]+$/, messages.titleSingleLine),
     content: z
       .string()
       .trim()

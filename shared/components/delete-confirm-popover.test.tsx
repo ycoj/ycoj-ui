@@ -70,6 +70,26 @@ describe('delete confirm popover', () => {
     expect(mocks.push).not.toHaveBeenCalled();
   });
 
+  it('clears a deletion error after closing and reopening', async () => {
+    const onDelete = vi.fn().mockResolvedValue({
+      error: { name: 'PermissionError', message: 'Permission denied' },
+    });
+    renderPopover(onDelete, '/contest/contest');
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Delete solution' })
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'Confirm' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Permission denied'
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Delete solution' })
+    );
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
   it('navigates to the success href without an extra refresh', async () => {
     const onDelete = vi.fn().mockResolvedValue({});
     renderPopover(onDelete, '/contest/contest');
