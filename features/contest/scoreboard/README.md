@@ -55,9 +55,10 @@ images inside one export stay sequential.
 The limits are sized from measurements on a 2-core i5-6200U laptop with
 `assets/fonts/NotoSansCJKsc-Regular.otf` and representative 12-column data
 (colored, multi-line record cells, 20 submissions per participant). The
-committed bench reproduces the overview sizes and the single participant image:
+committed bench builds the SVG layout for the 120-participant, 10-problem
+overview:
 
-`SCOREBOARD_EXPORT_BENCH=1 pnpm exec vitest bench --run features/contest/scoreboard/scoreboard-export-renderer.bench.ts`
+`pnpm exec vitest bench --run features/contest/scoreboard/scoreboard-export-renderer.bench.ts`
 
 | workload                              | time  | peak RSS |
 | ------------------------------------- | ----- | -------- |
@@ -68,8 +69,8 @@ committed bench reproduces the overview sizes and the single participant image:
 | 12-participant detail set, 13 images  | ~107s | ~305MiB  |
 | same detail set, 4-way concurrency    | ~86s  | ~394MiB  |
 
-Peak RSS and the sequential-versus-concurrent detail-set comparison come from a
-one-off measurement script, not the committed bench, which reports timings only.
+The rasterization timings, peak-RSS figures, and the sequential-versus-concurrent
+comparison come from one-off measurement scripts, not the committed bench.
 
 The per-image cost is dominated by text shaping (~30ms per text run), so detail
 ZIPs are the expensive path: each participant adds one image. The export
