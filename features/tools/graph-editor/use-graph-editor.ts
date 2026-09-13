@@ -18,6 +18,7 @@ import type {
   IndexScheme,
   ResolvedColors,
 } from './graph-types';
+import { useTheme } from 'next-themes';
 import { useEffect, useRef, useState } from 'react';
 
 const DEFAULT_TEXT = '5\n1 2\n2 3\n3 4\n4 5\n5 1\n2 4';
@@ -140,16 +141,16 @@ export function useGraphEditor() {
       'image/svg+xml'
     );
 
+  // resolvedTheme covers explicit theme switches and system-theme flips;
+  // the frame delay lets the new theme's CSS variables land before they
+  // are read back through getComputedStyle.
+  const { resolvedTheme } = useTheme();
   useEffect(() => {
-    const update = () => setColors(resolveColors(style.colors));
-    update();
-    const observer = new MutationObserver(update);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['class', 'data-theme', 'style'],
+    const raf = requestAnimationFrame(() => {
+      setColors(resolveColors(style.colors));
     });
-    return () => observer.disconnect();
-  }, [style.colors]);
+    return () => cancelAnimationFrame(raf);
+  }, [style.colors, resolvedTheme]);
 
   return {
     text,
@@ -158,6 +159,7 @@ export function useGraphEditor() {
     mode,
     style,
     colors,
+    parsed,
     nodeCount: parsed.nodes.length,
     isEmpty: parsed.nodes.length === 0,
     skipped: parsed.skipped,

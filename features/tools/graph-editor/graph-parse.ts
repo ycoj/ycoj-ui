@@ -72,9 +72,12 @@ export function parseGraphText(
   const edges: GraphEdge[] = [];
   let skipped = 0;
 
-  const ensure = (label: string): GraphNode => {
+  const ensure = (label: string): GraphNode | null => {
     const existing = nodeMap.get(label);
     if (existing) return existing;
+    // The declared-count line is clamped already; this caps nodes created
+    // implicitly by edge and label lines.
+    if (nodeMap.size >= MAX_NODE_COUNT) return null;
     const node = makeNode(label, nodeMap.size, previous, origin);
     nodeMap.set(label, node);
     return node;
@@ -89,7 +92,7 @@ export function parseGraphText(
     const tokens = line.split(/\s+/);
     if (tokens.length === 1) {
       if (scheme === 'custom' || INTEGER_RE.test(tokens[0])) {
-        ensure(tokens[0]);
+        if (ensure(tokens[0]) === null) skipped += 1;
       } else {
         skipped += 1;
       }
@@ -102,6 +105,10 @@ export function parseGraphText(
     }
     const source = ensure(u);
     const target = ensure(v);
+    if (source === null || target === null) {
+      skipped += 1;
+      continue;
+    }
     edges.push({
       id: createEdgeId(),
       source: source.label,
@@ -183,6 +190,8 @@ export function serializeGraph(graph: Graph, scheme: IndexScheme): string {
     if (dense) {
       lines.push(String(sortedValues.length));
     } else {
+      // A count line forces labels 0..n-1 or 1..n on re-parse, so sparse
+      // label sets declare 0 and list each label on its own line instead.
       lines.push('0');
       for (const node of graph.nodes) lines.push(node.label);
     }
@@ -207,8 +216,7 @@ export function serializeGraph(graph: Graph, scheme: IndexScheme): string {
   return lines.join('\n');
 }
 
-export const isIntegerLabel = (label: string): boolean =>
-  INTEGER_RE.test(label);
+const isIntegerLabel = (label: string): boolean => INTEGER_RE.test(label);
 
 export function isUsableLabel(
   graph: Graph,

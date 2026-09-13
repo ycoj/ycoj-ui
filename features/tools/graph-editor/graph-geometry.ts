@@ -111,6 +111,17 @@ const pointToSegment = (
   return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
 };
 
+const quadPoint = (
+  shape: Extract<EdgeShape, { kind: 'line' }>,
+  t: number
+): { x: number; y: number } => {
+  const mt = 1 - t;
+  return {
+    x: mt * mt * shape.x1 + 2 * mt * t * shape.cx + t * t * shape.x2,
+    y: mt * mt * shape.y1 + 2 * mt * t * shape.cy + t * t * shape.y2,
+  };
+};
+
 const pointToQuadratic = (
   px: number,
   py: number,
@@ -121,13 +132,10 @@ const pointToQuadratic = (
   let prevX = shape.x1;
   let prevY = shape.y1;
   for (let i = 1; i <= steps; i++) {
-    const t = i / steps;
-    const mt = 1 - t;
-    const x = mt * mt * shape.x1 + 2 * mt * t * shape.cx + t * t * shape.x2;
-    const y = mt * mt * shape.y1 + 2 * mt * t * shape.cy + t * t * shape.y2;
-    min = Math.min(min, pointToSegment(px, py, prevX, prevY, x, y));
-    prevX = x;
-    prevY = y;
+    const point = quadPoint(shape, i / steps);
+    min = Math.min(min, pointToSegment(px, py, prevX, prevY, point.x, point.y));
+    prevX = point.x;
+    prevY = point.y;
   }
   return min;
 };
@@ -181,12 +189,7 @@ export function edgeMidpoint(shape: EdgeShape): { x: number; y: number } {
   if (shape.kind === 'loop') {
     return { x: shape.cx, y: shape.cy - shape.r };
   }
-  const t = 0.5;
-  const mt = 1 - t;
-  return {
-    x: mt * mt * shape.x1 + 2 * mt * t * shape.cx + t * t * shape.x2,
-    y: mt * mt * shape.y1 + 2 * mt * t * shape.cy + t * t * shape.y2,
-  };
+  return quadPoint(shape, 0.5);
 }
 
 export function nodeAt(

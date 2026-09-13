@@ -1,5 +1,6 @@
 import {
   isUsableLabel,
+  MAX_NODE_COUNT,
   nextNodeLabel,
   nodeMapOf,
   parseGraphText,
@@ -50,6 +51,30 @@ describe('parseGraphText', () => {
     expect(parsed.edges).toHaveLength(2);
     expect(parsed.edges[0].weight).toBe('3');
     expect(parsed.declaredCount).toBeNull();
+  });
+
+  it('caps implicitly created nodes at MAX_NODE_COUNT', () => {
+    // Each edge introduces two fresh labels, so only the first 250 lines
+    // fit under the cap; the rest are skipped without dangling edges.
+    const lines = Array.from({ length: 300 }, (_, i) => `a${i} b${i}`);
+    const parsed = parseGraphText(lines.join('\n'), 'custom');
+    expect(parsed.nodes).toHaveLength(MAX_NODE_COUNT);
+    expect(parsed.edges).toHaveLength(MAX_NODE_COUNT / 2);
+    expect(parsed.skipped).toBe(50);
+  });
+
+  it('rejects lone label lines beyond the node cap', () => {
+    const lines = Array.from({ length: MAX_NODE_COUNT + 5 }, (_, i) => `n${i}`);
+    const parsed = parseGraphText(lines.join('\n'), 'custom');
+    expect(parsed.nodes).toHaveLength(MAX_NODE_COUNT);
+    expect(parsed.skipped).toBe(5);
+  });
+
+  it('skips edges whose endpoints exceed the cap', () => {
+    const parsed = parseGraphText(`${MAX_NODE_COUNT}\n1 9999`, 'one');
+    expect(parsed.nodes).toHaveLength(MAX_NODE_COUNT);
+    expect(parsed.edges).toHaveLength(0);
+    expect(parsed.skipped).toBe(1);
   });
 
   it('preserves positions of previously known labels', () => {

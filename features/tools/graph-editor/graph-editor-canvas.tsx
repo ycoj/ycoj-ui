@@ -1,7 +1,13 @@
 'use client';
 
 import { edgeAt, edgeMidpoint, nodeAt } from './graph-geometry';
-import { createEdgeId, isUsableLabel, nextNodeLabel } from './graph-parse';
+import {
+  createEdgeId,
+  isUsableLabel,
+  MAX_NODE_COUNT,
+  nextNodeLabel,
+  type ParsedGraph,
+} from './graph-parse';
 import { stepPhysics } from './graph-physics';
 import { drawGraph } from './graph-render';
 import type {
@@ -39,7 +45,11 @@ type Viewport = { width: number; height: number };
 // drags; commits swap in a fresh object and re-render, so props act as
 // invalidation signals rather than the drawing source of truth.
 type Props = {
-  graphRef: RefObject<Graph>;
+  // The committed graph, passed purely as the wake token for the render
+  // loop: a fresh object per commit even when no other prop value
+  // changes. Never read for drawing — the canvas draws from graphRef.
+  graph: ParsedGraph;
+  graphRef: RefObject<ParsedGraph>;
   viewportRef: RefObject<Viewport>;
   isEmpty: boolean;
   mode: EditorMode;
@@ -58,6 +68,7 @@ const CURSOR_BY_MODE: Record<EditorMode, string> = {
 };
 
 export default function GraphEditorCanvas({
+  graph,
   graphRef,
   viewportRef,
   isEmpty,
@@ -77,12 +88,15 @@ export default function GraphEditorCanvas({
   const pointerRef = useRef({ x: 0, y: 0 });
   const asleepRef = useRef(false);
 
-  const live = useRef({ mode, directed, scheme, style, colors, onMutate });
+  // Only the rAF loop reads through this ref; React event handlers use
+  // props directly so they never observe pre-effect values.
+  const live = useRef({ mode, directed, style, colors });
   useEffect(() => {
-    live.current = { mode, directed, scheme, style, colors, onMutate };
-    // Any commit or prop change re-wakes the settled simulation.
+    live.current = { mode, directed, style, colors };
+    // Any commit (new `graph` token) or prop change re-wakes the settled
+    // simulation.
     asleepRef.current = false;
-  });
+  }, [graph, mode, directed, style, colors]);
 
   const [prevMode, setPrevMode] = useState(mode);
   if (prevMode !== mode) {
@@ -126,10 +140,10 @@ export default function GraphEditorCanvas({
           style: currentStyle,
           colors: currentColors,
         } = live.current;
-        // Once the layout settles in force mode, stop stepping and redrawing
-        // until a commit or pointer interaction wakes the loop again.
-        const asleep = currentMode === 'force' && asleepRef.current;
-        if (!asleep) {
+        // Once the layout settles in force mode — or after a single paint
+        // in the other modes — stop redrawing until a commit or pointer
+        // interaction wakes the loop again.
+        if (!asleepRef.current) {
           const dpr = window.devicePixelRatio || 1;
           const width = canvas.width / dpr;
           const height = canvas.height / dpr;
@@ -139,6 +153,8 @@ export default function GraphEditorCanvas({
               width,
               height,
             });
+          } else {
+            asleepRef.current = true;
           }
           ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
           ctx.clearRect(0, 0, width, height);
@@ -169,16 +185,11 @@ export default function GraphEditorCanvas({
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLCanvasElement>) => {
     asleepRef.current = false;
-    const {
-      mode: currentMode,
-      scheme: currentScheme,
-      style: currentStyle,
-    } = live.current;
     const { x, y } = canvasPoint(event);
     const current = graphRef.current;
-    const node = nodeAt(current, x, y, currentStyle.nodeRadius);
+    const node = nodeAt(current, x, y, style.nodeRadius);
 
-    if (currentMode === 'force') {
+    if (mode === 'force') {
       if (node) {
         dragRef.current = {
           nodeLabel: node.label,
@@ -191,7 +202,7 @@ export default function GraphEditorCanvas({
       return;
     }
 
-    if (currentMode === 'draw') {
+    if (mode === 'draw') {
       if (node) {
         const pending = draftRef.current;
         if (pending === null) {
@@ -217,7 +228,8 @@ export default function GraphEditorCanvas({
         draftRef.current = null;
         return;
       }
-      const label = nextNodeLabel(current, currentScheme);
+      if (current.nodes.length >= MAX_NODE_COUNT) return;
+      const label = nextNodeLabel(current, scheme);
       onMutate((g) => ({
         ...g,
         nodes: [...g.nodes, { label, x, y, fixed: false, vx: 0, vy: 0 }],
@@ -225,9 +237,9 @@ export default function GraphEditorCanvas({
       return;
     }
 
-    if (currentMode === 'edit') return;
+    if (mode === 'edit') return;
 
-    if (currentMode === 'delete') {
+    if (mode === 'delete') {
       if (node) {
         onMutate((g) => ({
           nodes: g.nodes.filter((item) => item.label !== node.label),
@@ -237,7 +249,7 @@ export default function GraphEditorCanvas({
         }));
         return;
       }
-      const hit = edgeAt(current, x, y, currentStyle.nodeRadius);
+      const hit = edgeAt(current, x, y, style.nodeRadius);
       if (hit) {
         const edgeId = hit.edge.id;
         onMutate((g) => ({
@@ -249,11 +261,10 @@ export default function GraphEditorCanvas({
   };
 
   const handleClick = (event: ReactMouseEvent<HTMLCanvasElement>) => {
-    const { mode: currentMode, style: currentStyle } = live.current;
-    if (currentMode !== 'edit') return;
+    if (mode !== 'edit') return;
     const { x, y } = canvasPoint(event);
     const current = graphRef.current;
-    const node = nodeAt(current, x, y, currentStyle.nodeRadius);
+    const node = nodeAt(current, x, y, style.nodeRadius);
     if (node) {
       setEditing({
         kind: 'node',
@@ -264,7 +275,7 @@ export default function GraphEditorCanvas({
       });
       return;
     }
-    const hit = edgeAt(current, x, y, currentStyle.nodeRadius);
+    const hit = edgeAt(current, x, y, style.nodeRadius);
     if (hit) {
       const mid = edgeMidpoint(hit.shape);
       setEditing({
@@ -280,9 +291,11 @@ export default function GraphEditorCanvas({
   const handlePointerMove = (event: ReactPointerEvent<HTMLCanvasElement>) => {
     const { x, y } = canvasPoint(event);
     pointerRef.current = { x, y };
+    // Wake even without an active drag: the draw-mode draft edge follows
+    // the cursor, and every other mode may sleep between paints.
+    asleepRef.current = false;
     const drag = dragRef.current;
     if (!drag) return;
-    asleepRef.current = false;
     if (!drag.moved && Math.hypot(x - drag.startX, y - drag.startY) > 4) {
       drag.moved = true;
     }
@@ -304,7 +317,11 @@ export default function GraphEditorCanvas({
     if (!drag) return;
     dragRef.current = null;
     asleepRef.current = false;
-    event.currentTarget.releasePointerCapture(event.pointerId);
+    // pointercancel reaches here after the capture was already released;
+    // releasing an inactive capture throws NotFoundError.
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
     const node = graphRef.current.nodes.find(
       (item) => item.label === drag.nodeLabel
     );
@@ -319,12 +336,7 @@ export default function GraphEditorCanvas({
       const previousLabel = editing.nodeLabel;
       if (
         value !== previousLabel &&
-        isUsableLabel(
-          graphRef.current,
-          live.current.scheme,
-          value,
-          previousLabel
-        )
+        isUsableLabel(graphRef.current, scheme, value, previousLabel)
       ) {
         onMutate((g) => ({
           nodes: g.nodes.map((node) =>

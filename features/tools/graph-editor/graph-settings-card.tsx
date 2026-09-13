@@ -33,6 +33,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 
 const MODES: { value: EditorMode; icon: LucideIcon }[] = [
   { value: 'force', icon: Hand },
@@ -69,6 +70,10 @@ export default function GraphSettingsCard({ editor }: Props) {
     onExportPng,
     onExportSvg,
   } = editor;
+
+  // Local draft lets the field be cleared or hold partial input; only
+  // valid digit strings commit, and blur reverts to the actual count.
+  const [nodeCountDraft, setNodeCountDraft] = useState<string | null>(null);
 
   const setColor = (key: keyof ColorOverrides, value: string) => {
     onStyleChange({
@@ -139,10 +144,13 @@ export default function GraphSettingsCard({ editor }: Props) {
                 type="number"
                 min={0}
                 max={MAX_NODE_COUNT}
-                value={nodeCount}
-                onChange={(event) =>
-                  onNodeCountChange(Number(event.target.value))
-                }
+                value={nodeCountDraft ?? String(nodeCount)}
+                onChange={(event) => {
+                  const draft = event.target.value;
+                  setNodeCountDraft(draft);
+                  if (/^\d+$/.test(draft)) onNodeCountChange(Number(draft));
+                }}
+                onBlur={() => setNodeCountDraft(null)}
               />
             </div>
           )}

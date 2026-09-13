@@ -16,6 +16,7 @@ export default function GraphEditor() {
         <h1 className="text-xl font-semibold">{t('name')}</h1>
         <p className="text-muted-foreground text-sm">{t('description')}</p>
         <GraphEditorCanvas
+          graph={editor.parsed}
           graphRef={editor.graphRef}
           viewportRef={editor.viewportRef}
           isEmpty={editor.isEmpty}
