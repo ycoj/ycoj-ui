@@ -1,6 +1,9 @@
 import SolutionStatus from '../solution-status';
 import SolutionReviewActions from './solution-review-actions';
-import type { SolutionReviewData } from '@/api/server/method/problems/solution-review';
+import {
+  SOLUTION_REVIEW_STATUSES,
+  type SolutionReviewData,
+} from '@/api/server/method/problems/solution-review';
 import UserSpan from '@/features/user/user-span';
 import Markdown from '@/shared/components/markdown';
 import { Button } from '@/shared/components/ui/button';
@@ -11,11 +14,22 @@ import Link from 'next/link';
 
 type Props = { data: SolutionReviewData };
 
+/** Keys under the `solution` namespace so filters reuse the status badge labels. */
+const filterLabelKeys = {
+  pending: 'status.1',
+  featured: 'status.3',
+  approved: 'status.2',
+  rejected: 'status.0',
+  blocked: 'status.-1',
+  all: 'review.all',
+} as const;
+
 export default async function SolutionReviewWorkspace({ data }: Props) {
   const t = await getTranslations('solution.review');
+  const solutionT = await getTranslations('solution');
   const format = await getFormatter();
-  const solution = data.status === 'pending' ? data.docs[0] : undefined;
-  const author = data.status === 'authors' ? data.docs[0] : undefined;
+  const solution = data.status === 'authors' ? undefined : data.docs[0];
+  const authors = data.status === 'authors' ? data.docs : [];
   const problem = solution ? data.pdict[solution.parentId] : undefined;
   const renderUser = (uid: number) =>
     data.udict[uid] ? (
@@ -28,20 +42,20 @@ export default async function SolutionReviewWorkspace({ data }: Props) {
       dateStyle: 'medium',
       timeStyle: 'short',
     });
+  // The backend only offers a direct review for solutions whose author is not
+  // blocked yet; a blocked author can only be unblocked.
   const target = solution
-    ? {
-        kind: 'solution' as const,
-        psid: solution.docId,
-        revision: solution.revision,
-      }
-    : author
-      ? { kind: 'author' as const, uid: author.uid }
-      : null;
+    ? solution.reviewStatus === -1
+      ? { kind: 'author' as const, uid: solution.owner }
+      : {
+          kind: 'solution' as const,
+          psid: solution.docId,
+          revision: solution.revision,
+        }
+    : null;
   const actionKey = solution
     ? `${solution.docId}:${solution.revision}:${solution.reviewLockUntil}`
-    : author
-      ? `author:${author.uid}`
-      : data.status;
+    : data.status;
 
   return (
     <div className="min-w-0 space-y-6" data-llm-visible="true">
@@ -86,11 +100,33 @@ export default async function SolutionReviewWorkspace({ data }: Props) {
           )
         )}
       </dl>
+      {data.status !== 'authors' && (
+        <nav aria-label={t('filter')} className="flex flex-wrap gap-1.5">
+          {SOLUTION_REVIEW_STATUSES.map((status) => (
+            <Button
+              key={status}
+              asChild
+              size="sm"
+              variant={data.status === status ? 'secondary' : 'ghost'}
+            >
+              <Link
+                href={`/problem/solution-review?status=${status}`}
+                prefetch={false}
+                aria-current={data.status === status ? 'page' : undefined}
+              >
+                {solutionT(filterLabelKeys[status])}
+              </Link>
+            </Button>
+          ))}
+        </nav>
+      )}
       <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_17rem]">
         <section className="min-w-0 space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 className="text-lg font-semibold">
-              {data.status === 'authors' ? t('authors') : t('content')}
+              {data.status === 'authors'
+                ? t('authorsCount', { count: data.count })
+                : t('content')}
             </h2>
             {solution && (
               <Button
@@ -109,23 +145,65 @@ export default async function SolutionReviewWorkspace({ data }: Props) {
               </Button>
             )}
           </div>
-          {solution ? (
+          {data.status === 'authors' ? (
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                {t('unblockConsequences')}
+              </p>
+              {authors.length > 0 ? (
+                <ul className="divide-y rounded-md border">
+                  {authors.map((author) => (
+                    <li
+                      key={author.uid}
+                      className="flex flex-wrap items-start justify-between gap-4 p-4"
+                    >
+                      <div className="min-w-0 space-y-3">
+                        <div>{renderUser(author.uid)}</div>
+                        {(author.solutionBlockedBy ||
+                          author.solutionBlockedAt) && (
+                          <dl className="space-y-3 text-sm [&_dt]:text-muted-foreground [&_dd]:mt-1 [&_dd]:break-words">
+                            {author.solutionBlockedBy && (
+                              <div>
+                                <dt>{t('blockedBy')}</dt>
+                                <dd>{renderUser(author.solutionBlockedBy)}</dd>
+                              </div>
+                            )}
+                            {author.solutionBlockedAt && (
+                              <div>
+                                <dt>{t('blockedAt')}</dt>
+                                <dd>{renderDate(author.solutionBlockedAt)}</dd>
+                              </div>
+                            )}
+                          </dl>
+                        )}
+                      </div>
+                      <SolutionReviewActions
+                        key={`author:${author.uid}`}
+                        target={{ kind: 'author', uid: author.uid }}
+                        showReload={false}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  {t('noAuthors')}
+                </p>
+              )}
+            </div>
+          ) : solution ? (
             <Markdown>{solution.content}</Markdown>
           ) : (
-            <p className="text-sm text-muted-foreground">
-              {author
-                ? t('unblockConsequences')
-                : data.status === 'authors'
-                  ? t('noAuthors')
-                  : t('empty')}
-            </p>
+            <p className="text-sm text-muted-foreground">{t('empty')}</p>
           )}
         </section>
         <aside className="min-w-0 space-y-6">
-          {(solution || author) && (
-            <dl className="space-y-3 text-sm [&_dt]:text-muted-foreground [&_dd]:mt-1 [&_dd]:break-words">
+          {data.status === 'authors' ? (
+            <SolutionReviewActions target={null} />
+          ) : (
+            <>
               {solution && (
-                <>
+                <dl className="space-y-3 text-sm [&_dt]:text-muted-foreground [&_dd]:mt-1 [&_dd]:break-words">
                   <div>
                     <dt>{t('problem')}</dt>
                     <dd>
@@ -144,7 +222,10 @@ export default async function SolutionReviewWorkspace({ data }: Props) {
                   <div>
                     <dt>{t('status')}</dt>
                     <dd>
-                      <SolutionStatus status={solution.reviewStatus} />
+                      <SolutionStatus
+                        status={solution.reviewStatus}
+                        fallbackLabel={data.reviewLabels[solution.reviewStatus]}
+                      />
                     </dd>
                   </div>
                   <div>
@@ -167,31 +248,11 @@ export default async function SolutionReviewWorkspace({ data }: Props) {
                       <dd>{renderDate(solution.reviewedAt)}</dd>
                     </div>
                   )}
-                </>
+                </dl>
               )}
-              {author && (
-                <>
-                  <div>
-                    <dt>{t('author')}</dt>
-                    <dd>{renderUser(author.uid)}</dd>
-                  </div>
-                  {author.solutionBlockedBy && (
-                    <div>
-                      <dt>{t('blockedBy')}</dt>
-                      <dd>{renderUser(author.solutionBlockedBy)}</dd>
-                    </div>
-                  )}
-                  {author.solutionBlockedAt && (
-                    <div>
-                      <dt>{t('blockedAt')}</dt>
-                      <dd>{renderDate(author.solutionBlockedAt)}</dd>
-                    </div>
-                  )}
-                </>
-              )}
-            </dl>
+              <SolutionReviewActions key={actionKey} target={target} />
+            </>
           )}
-          <SolutionReviewActions key={actionKey} target={target} />
         </aside>
       </div>
     </div>

@@ -8,15 +8,18 @@ export const reviewProblemSolution = (
   revision: number,
   status: Exclude<SolutionReviewStatus, 1>
 ) =>
-  clientRequest.Post<Errorable<{ psdoc: SolutionDoc }>>('/p/solution-review', {
-    operation: 'review',
-    psid,
-    revision,
-    status,
-  });
+  clientRequest.Post<Errorable<{ psdoc: SolutionDoc; url?: string }>>(
+    '/p/solution-review',
+    {
+      operation: 'review',
+      psid,
+      revision,
+      status,
+    }
+  );
 
 export const unblockSolutionAuthor = (uid: number) =>
-  clientRequest.Post<Errorable<Record<string, never>>>('/p/solution-review', {
+  clientRequest.Post<Errorable<{ url?: string }>>('/p/solution-review', {
     operation: 'unblock',
     uid,
   });

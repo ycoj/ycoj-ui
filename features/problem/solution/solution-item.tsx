@@ -23,6 +23,8 @@ type Props = {
   allowEditSelf: boolean;
   allowDeleteAny: boolean;
   allowDeleteSelf: boolean;
+  /** Backend label for `solution.reviewStatus`, forwarded to the status badge. */
+  reviewLabel?: string;
 };
 
 export default function SolutionItem({
@@ -35,6 +37,7 @@ export default function SolutionItem({
   allowEditSelf,
   allowDeleteAny,
   allowDeleteSelf,
+  reviewLabel,
 }: Props) {
   const t = useTranslations('solution');
   const user = udict[solution.owner];
@@ -60,7 +63,10 @@ export default function SolutionItem({
             initialUserVote={userVote}
           />
           {user && <UserSpan user={user} showAvatar />}
-          <SolutionStatus status={solution.reviewStatus} />
+          <SolutionStatus
+            status={solution.reviewStatus}
+            fallbackLabel={reviewLabel}
+          />
         </div>
         <div className="flex items-center gap-x-1">
           <span className="flex items-center text-sm">{createdAt}</span>

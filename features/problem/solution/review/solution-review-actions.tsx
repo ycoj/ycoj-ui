@@ -21,9 +21,14 @@ type Props = {
     | { kind: 'solution'; psid: string; revision: number }
     | { kind: 'author'; uid: number }
     | null;
+  /** Set to false when a parent view already renders its own reload control. */
+  showReload?: boolean;
 };
 
-export default function SolutionReviewActions({ target }: Props) {
+export default function SolutionReviewActions({
+  target,
+  showReload = true,
+}: Props) {
   const t = useTranslations('solution.review');
   const solutionT = useTranslations('solution');
   const router = useRouter();
@@ -149,16 +154,18 @@ export default function SolutionReviewActions({ target }: Props) {
           {t('unblock')}
         </Button>
       )}
-      <Button
-        variant="ghost"
-        size="icon"
-        disabled={busy}
-        onClick={reload}
-        aria-label={t('reload')}
-        title={t('reload')}
-      >
-        <RefreshCw className={refreshing ? 'animate-spin' : undefined} />
-      </Button>
+      {showReload && (
+        <Button
+          variant="ghost"
+          size="icon"
+          disabled={busy}
+          onClick={reload}
+          aria-label={t('reload')}
+          title={t('reload')}
+        >
+          <RefreshCw className={refreshing ? 'animate-spin' : undefined} />
+        </Button>
+      )}
     </div>
   );
 }

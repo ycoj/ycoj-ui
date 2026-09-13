@@ -6,15 +6,16 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
   user: vi.fn(),
-  get: vi.fn(),
+  detail: vi.fn(),
+  solutions: vi.fn(),
   redirect: vi.fn(),
 }));
 vi.mock('@/features/user/lib/get-user', () => ({ getUser: mocks.user }));
 vi.mock('@/features/problem/detail/get-problem-detail', () => ({
-  getProblemDetail: vi.fn(),
+  getProblemDetail: mocks.detail,
 }));
 vi.mock('@/features/problem/solution/get-problem-solution', () => ({
-  getProblemSolution: mocks.get,
+  getProblemSolution: mocks.solutions,
 }));
 vi.mock('next/navigation', () => ({ redirect: mocks.redirect }));
 vi.mock('next-intl/server', () => ({
@@ -33,11 +34,19 @@ vi.mock('@/shared/components/errored', () => ({
   ),
 }));
 
+function renderPage() {
+  return ProblemSolutionCreatePage({
+    params: Promise.resolve({ pid: 'P1' }),
+  });
+}
+
 beforeEach(() => {
   vi.resetAllMocks();
   mocks.user.mockResolvedValue({
     perm: `BigInt::${PERM.PERM_CREATE_PROBLEM_SOLUTION}`,
   });
+  mocks.detail.mockResolvedValue({ pdoc: { docId: 1 } });
+  mocks.solutions.mockResolvedValue({ solutionBlocked: false });
   mocks.redirect.mockImplementation(() => {
     throw new Error('redirect');
   });
@@ -45,12 +54,8 @@ beforeEach(() => {
 
 describe('direct solution creation', () => {
   it('shows the block notice instead of an editor for a blocked author', async () => {
-    mocks.get.mockResolvedValue({ pdoc: { docId: 1 }, solutionBlocked: true });
-    render(
-      await ProblemSolutionCreatePage({
-        params: Promise.resolve({ pid: 'P1' }),
-      })
-    );
+    mocks.solutions.mockResolvedValue({ solutionBlocked: true });
+    render(await renderPage());
     expect(screen.getByRole('status')).toHaveTextContent(
       messages.solution.errors.blocked
     );
@@ -58,22 +63,27 @@ describe('direct solution creation', () => {
   });
 
   it('allows an unblocked author to create a solution', async () => {
-    mocks.get.mockResolvedValue({ pdoc: { docId: 1 }, solutionBlocked: false });
-    render(
-      await ProblemSolutionCreatePage({
-        params: Promise.resolve({ pid: 'P1' }),
-      })
-    );
+    render(await renderPage());
     expect(
       screen.getByRole('form', { name: 'Create solution' })
     ).toBeInTheDocument();
   });
 
-  it('rejects authors without creation permission before loading solution data', async () => {
+  it('keeps the editor when the solution list is not readable', async () => {
+    mocks.solutions.mockResolvedValue({
+      error: { name: 'PermissionError', message: 'Permission denied' },
+    });
+    render(await renderPage());
+    expect(
+      screen.getByRole('form', { name: 'Create solution' })
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  });
+
+  it('rejects authors without creation permission before loading problem data', async () => {
     mocks.user.mockResolvedValue({ perm: 'BigInt::0' });
-    await expect(
-      ProblemSolutionCreatePage({ params: Promise.resolve({ pid: 'P1' }) })
-    ).rejects.toThrow('redirect');
-    expect(mocks.get).not.toHaveBeenCalled();
+    await expect(renderPage()).rejects.toThrow('redirect');
+    expect(mocks.detail).not.toHaveBeenCalled();
+    expect(mocks.solutions).not.toHaveBeenCalled();
   });
 });
