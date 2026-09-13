@@ -22,6 +22,29 @@ type Props = {
   disabled?: boolean;
 };
 
+type PollOutcome<T> = { status: 'settled'; value: T } | { status: 'timeout' };
+
+async function settleWithinDeadline<T>(
+  request: () => Promise<T>,
+  abort: () => void,
+  timeoutMs: number
+): Promise<PollOutcome<T>> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      request().then((value) => ({ status: 'settled' as const, value })),
+      new Promise<PollOutcome<T>>((resolve) => {
+        timer = setTimeout(() => {
+          abort();
+          resolve({ status: 'timeout' });
+        }, timeoutMs);
+      }),
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export default function HtmlToMarkdownSection({
   pid,
   originalContent,
@@ -48,19 +71,74 @@ export default function HtmlToMarkdownSection({
     const contentWhenStarted = getContent();
     setIsConverting(true);
     try {
-      const response = await ClientApis.Problem.htmlToMarkdown(pid).send();
-      if ('error' in response) {
-        toast.error(parseErrorMessage(response.error));
+      const submitResponse =
+        await ClientApis.Problem.submitHtmlToMarkdown(pid).send();
+      if ('error' in submitResponse) {
+        toast.error(parseErrorMessage(submitResponse.error));
         return;
       }
-      if (getContent() !== contentWhenStarted) {
-        toast.error(t('contentChangedDuringConversion'));
-        return;
+
+      const { jobId } = submitResponse;
+
+      const maxPollAttempts = 60;
+      const pollInterval = 1000;
+      const pollDeadline = Date.now() + maxPollAttempts * pollInterval;
+
+      while (Date.now() < pollDeadline) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, Math.min(pollInterval, pollDeadline - Date.now()))
+        );
+
+        const remaining = pollDeadline - Date.now();
+        if (remaining <= 0) break;
+
+        const pollMethod = ClientApis.Problem.pollHtmlToMarkdown(pid, jobId);
+        const pollOutcome = await settleWithinDeadline(
+          () => pollMethod.send(),
+          () => pollMethod.abort(),
+          remaining
+        );
+
+        if (pollOutcome.status === 'timeout') {
+          toast.error(t('timeout'));
+          return;
+        }
+
+        const pollResponse = pollOutcome.value;
+
+        if ('error' in pollResponse && typeof pollResponse.error === 'object') {
+          toast.error(parseErrorMessage(pollResponse.error));
+          return;
+        }
+
+        const response = pollResponse as Exclude<
+          typeof pollResponse,
+          { error: { name: string } }
+        >;
+
+        if (response.status === 'completed') {
+          if (getContent() !== contentWhenStarted) {
+            toast.error(t('contentChangedDuringConversion'));
+            return;
+          }
+          onApply(response.markdown);
+          setMode('closed');
+          toast.success(t('success'));
+          return;
+        }
+
+        if (response.status === 'failed') {
+          toast.error((response as { error: string }).error || t('failed'));
+          return;
+        }
       }
-      onApply(response.markdown);
-      setMode('closed');
-      toast.success(t('success'));
+
+      toast.error(t('timeout'));
     } catch (err) {
+      if (err instanceof Error && /timeout/i.test(err.message)) {
+        toast.error(t('timeout'));
+        return;
+      }
       toast.error(
         err instanceof Error && err.message ? err.message : t('failed')
       );

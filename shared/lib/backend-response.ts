@@ -16,6 +16,21 @@ export class BackendResponseError extends Error {
   }
 }
 
+const BACKEND_ERROR_STATUSES: [token: string, status: number][] = [
+  ['NotFound', 404],
+  ['Permission', 403],
+  ['Privilege', 403],
+  ['Forbidden', 403],
+  ['Hidden', 403],
+];
+
+/** Maps a Hydro error name to the HTTP status a route should return. */
+export function backendErrorStatus(name: string) {
+  return (
+    BACKEND_ERROR_STATUSES.find(([token]) => name.includes(token))?.[1] ?? 502
+  );
+}
+
 export function throwBackendError(response: object) {
   if (!('error' in response)) return;
   const error = (response as { error: unknown }).error;

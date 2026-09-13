@@ -14,6 +14,24 @@ describe('ProblemDifficulty', () => {
     expect(screen.getByText('Basic-')).toBeInTheDocument();
   });
 
+  it('renders the label for the cyan difficulty', () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <ProblemDifficulty difficulty={5} />
+      </NextIntlClientProvider>
+    );
+    expect(screen.getByText('Advanced')).toBeInTheDocument();
+  });
+
+  it('renders the label for the highest difficulty', () => {
+    render(
+      <NextIntlClientProvider locale="en" messages={messages}>
+        <ProblemDifficulty difficulty={8} />
+      </NextIntlClientProvider>
+    );
+    expect(screen.getByText('NOI/NOI+/CTS')).toBeInTheDocument();
+  });
+
   it('falls back to Unrated for missing or invalid difficulty', () => {
     const { rerender } = render(
       <NextIntlClientProvider locale="en" messages={messages}>
