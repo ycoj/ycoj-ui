@@ -59,17 +59,23 @@ export default function UserImportTable({
   const t = useTranslations('userImport');
   return (
     <div
-      className="max-h-105 overflow-auto rounded-lg border"
+      className="max-h-[70vh] overflow-auto rounded-lg border"
       data-llm-visible="true"
     >
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-12" aria-label={t('line')}>
+            <TableHead
+              className="bg-background sticky top-0 z-10 w-12"
+              aria-label={t('line')}
+            >
               #
             </TableHead>
             {columns.map(({ key, required }) => (
-              <TableHead key={key} className="min-w-36">
+              <TableHead
+                key={key}
+                className="bg-background sticky top-0 z-10 min-w-36"
+              >
                 <span className="inline-flex items-center gap-1">
                   <span>
                     {t(key)}
@@ -96,7 +102,10 @@ export default function UserImportTable({
                 </span>
               </TableHead>
             ))}
-            <TableHead className="w-12" aria-label={t('removeColumn')} />
+            <TableHead
+              className="bg-background sticky top-0 z-10 w-12"
+              aria-label={t('removeColumn')}
+            />
           </TableRow>
         </TableHeader>
         <TableBody>
