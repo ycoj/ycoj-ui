@@ -25,9 +25,9 @@ const BACKEND_ERROR_STATUSES: [token: string, status: number][] = [
 ];
 
 /** Maps a Hydro error name to the HTTP status a route should return. */
-export function backendErrorStatus(name: string) {
+export function backendErrorStatus(name?: string) {
   return (
-    BACKEND_ERROR_STATUSES.find(([token]) => name.includes(token))?.[1] ?? 502
+    BACKEND_ERROR_STATUSES.find(([token]) => name?.includes(token))?.[1] ?? 502
   );
 }
 
