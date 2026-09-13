@@ -68,7 +68,10 @@ export default function UsernamesDialog({
   return (
     <UserImportDialog
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={(next) => {
+        setError('');
+        onOpenChange(next);
+      }}
       title={t('title')}
       description={t('description')}
       applyLabel={t('apply')}

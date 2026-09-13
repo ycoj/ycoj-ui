@@ -59,7 +59,10 @@ export default function PasswordsDialog({
   return (
     <UserImportDialog
       open={open}
-      onOpenChange={onOpenChange}
+      onOpenChange={(next) => {
+        setError('');
+        onOpenChange(next);
+      }}
       title={t('title')}
       description={t('description')}
       applyLabel={t('apply')}
@@ -131,9 +134,7 @@ export default function PasswordsDialog({
           checked={emptyOnly}
           onCheckedChange={(checked) => setEmptyOnlyChoice(!!checked)}
         />
-        <Label htmlFor={`${uid}-empty-only`}>
-          {t('emptyOnly', { count: missingPasswords })}
-        </Label>
+        <Label htmlFor={`${uid}-empty-only`}>{t('emptyOnly')}</Label>
       </div>
     </UserImportDialog>
   );
