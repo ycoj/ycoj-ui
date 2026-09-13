@@ -38,7 +38,7 @@ type Props = {
   publishIcon: ReactNode;
   defaultValues: PreliminaryFormValues;
   cancelHref: string;
-  extraActions?: ReactNode;
+  extraActions?: (busy: boolean) => ReactNode;
   onSave: (
     values: PreliminaryFormValues,
     published: boolean
@@ -199,7 +199,7 @@ export default function PreliminaryForm({
             {publishIcon}
             {publishLabel}
           </Button>
-          {extraActions}
+          {extraActions?.(busy)}
           <Button asChild type="button" variant="secondary">
             <Link href={cancelHref}>
               <ArrowLeft />

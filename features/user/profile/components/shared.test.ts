@@ -23,6 +23,8 @@ function makeUserDetail(
     pdocs: [],
     tags: [],
     tdocs: [],
+    awardRecords: [],
+    accountExpireDate: null,
   };
 }
 
@@ -53,16 +55,12 @@ describe('getProfileExtras', () => {
       avatar: '  gravatar:a@b.com  ',
       bio: '  hello  ',
       rp: 12.5,
-      nAccept: 10,
-      nSubmit: 20,
     } as UserDetailResponse['udoc']);
 
     expect(getProfileExtras(data)).toEqual({
       avatar: 'gravatar:a@b.com',
       bio: 'hello',
       rp: 12.5,
-      nAccept: 10,
-      nSubmit: 20,
     });
   });
 
@@ -83,8 +81,6 @@ describe('getProfileExtras', () => {
       avatar: undefined,
       bio: undefined,
       rp: undefined,
-      nAccept: undefined,
-      nSubmit: undefined,
     });
   });
 });
@@ -98,6 +94,7 @@ describe('getProfileUser', () => {
       priv: 0,
       regat: '2020-01-01T00:00:00.000Z',
       loginat: '2020-01-02T00:00:00.000Z',
+      ccfLevel: 7,
     });
 
     expect(getProfileUser(data)).toEqual({
@@ -105,6 +102,7 @@ describe('getProfileUser', () => {
       uname: 'profile',
       mail: 'p@example.com',
       avatar: '',
+      ccfLevel: 7,
     });
   });
 

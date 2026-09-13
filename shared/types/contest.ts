@@ -51,8 +51,6 @@ export type Contest = {
   maxRating?: number;
   /** 比赛结束后是否允许查看他人代码 */
   allowViewCode?: boolean;
-  /** Invitation code required to attend. */
-  _code?: string;
   keepScoreboardHidden?: boolean;
   allowPrint?: boolean;
 } & BaseContest; // 比赛
@@ -161,4 +159,41 @@ export type ScoreboardResponse = {
   pdict: ProblemDict;
   groups: GDoc[];
   availableViews?: Record<string, string>;
+};
+
+export type ScoreboardExportOptions = {
+  avatar: boolean;
+  realName: boolean;
+  details: boolean;
+};
+
+/** Normalized data shared by the export renderer and its callers. */
+export type ScoreboardExportData = Pick<
+  ScoreboardResponse,
+  'tdoc' | 'rows' | 'pdict'
+> & {
+  udict: Record<number, { uname: string; avatar: string; realName?: string }>;
+  submissions?: ScoreboardExportResponse['submissions'];
+};
+
+/** Raw payload of Hydro's permission-checked `scoreboard/export-data` view. */
+export type ScoreboardExportResponse = Pick<
+  ScoreboardResponse,
+  'tdoc' | 'rows' | 'pdict'
+> & {
+  udict: Record<
+    number,
+    { _id: number; uname: string; avatar: string; realName: string }
+  >;
+  submissions: Record<
+    number,
+    {
+      rid: string;
+      pid: number;
+      status: number;
+      score: number;
+      submittedAt: string;
+      lang?: string;
+    }[]
+  >;
 };

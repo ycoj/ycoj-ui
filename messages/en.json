@@ -528,6 +528,7 @@
     "keepScoreboardHiddenHelp": "Do not reveal the scoreboard after the contest ends.",
     "optional": "Optional",
     "positiveNumber": "Enter a positive number or leave this field empty.",
+    "nonNegativeInteger": "Enter a non-negative integer or leave this field empty.",
     "titleRequired": "Enter a contest title.",
     "invalidDate": "Enter a valid date.",
     "invalidTime": "Enter a valid time.",
@@ -582,6 +583,7 @@
     "keepScoreboardHiddenHelp": "Do not reveal the scoreboard after the contest ends.",
     "optional": "Optional",
     "positiveNumber": "Enter a positive number or leave this field empty.",
+    "nonNegativeInteger": "Enter a non-negative integer or leave this field empty.",
     "titleRequired": "Enter a contest title.",
     "invalidDate": "Enter a valid date.",
     "invalidTime": "Enter a valid time.",
@@ -592,6 +594,15 @@
     "submitFailed": "Failed to save the contest. Please try again later.",
     "creating": "Saving...",
     "create": "Save changes",
+    "clone": "Clone",
+    "cloneTitle": "Clone contest",
+    "cloneDescription": "Creates a new contest from this one. You can adjust the title and schedule before cloning.",
+    "cloning": "Cloning...",
+    "cloneFailed": "Failed to clone the contest. Please try again later.",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "deleteConfirm": "Confirm deleting this contest? Its files and status will be deleted as well.",
+    "deleteFailed": "Deletion failed. Please try again later.",
     "cancel": "Back to contest"
   },
   "homeworkCreate": {
@@ -660,6 +671,15 @@
     "submitFailed": "Failed to save the homework. Please try again later.",
     "creating": "Saving...",
     "create": "Save changes",
+    "clone": "Clone",
+    "cloneTitle": "Clone homework",
+    "cloneDescription": "Creates a new homework from this one. You can adjust the title and schedule before cloning.",
+    "cloning": "Cloning...",
+    "cloneFailed": "Failed to clone the homework. Please try again later.",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "deleteConfirm": "Confirm deleting this homework? Its files and status will be deleted as well.",
+    "deleteFailed": "Deletion failed. Please try again later.",
     "cancel": "Back to homework"
   },
   "trainingForm": {
@@ -723,7 +743,7 @@
     "promptRequired": "Enter the question.",
     "promptTooLong": "Keep questions within 16384 characters.",
     "score": "Points",
-    "scoreInvalid": "Points must be an integer between 1 and 1000.",
+    "scoreInvalid": "Points must be a multiple of 0.5 between 0.5 and 1000.",
     "options": "Options",
     "optionPlaceholder": "Option text. Markdown is supported.",
     "optionTextRequired": "Enter option text.",
@@ -1182,7 +1202,8 @@
       "confirm": "Convert",
       "cancel": "Cancel",
       "success": "Converted to Markdown. Review and save.",
-      "failed": "Conversion failed. Please try again."
+      "failed": "Conversion failed. Please try again.",
+      "timeout": "Conversion timed out. Please try again."
     }
   },
   "problemImport": {
@@ -1253,7 +1274,8 @@
     "myProfile": "My profile",
     "registeredAt": "Registered: {time}",
     "lastLogin": "Last login: {time}",
-    "acceptanceRate": "Acceptance rate: {value}",
+    "expiresAt": "Expires: {date}",
+    "neverExpires": "Never expires",
     "participationOverview": "Participation overview",
     "noParticipation": "No participation records",
     "contests": "Contests",
@@ -1268,7 +1290,17 @@
     "totalVotes": "Total votes",
     "averageVotes": "Average votes",
     "problemFallback": "Problem #{id}",
-    "sendMessage": "Send message"
+    "sendMessage": "Send message",
+    "awards": "Awards",
+    "noCertifiedAwards": "No certified awards yet.",
+    "awardCertification": "Award certification",
+    "awardContest": "Contest",
+    "awardLevel": "Award",
+    "awardScore": "Score",
+    "awardRank": "Rank",
+    "awardSchool": "School",
+    "awardProvince": "Province",
+    "awardGrade": "Grade"
   },
   "accountSettings": {
     "navigation": "Settings",
@@ -1628,6 +1660,12 @@
     }
   },
   "scoreboard": {
+    "export": "Export image",
+    "exporting": "Exporting...",
+    "exportingDescription": "Generating scoreboard images. Please keep this page open until the download starts.",
+    "includeAvatar": "Include avatars",
+    "useRealName": "Use real names",
+    "includeDetails": "Include submission details",
     "noData": "No scoreboard data",
     "noSubmissions": "No one has submitted a problem in this event yet.",
     "unlock": "Unlock scoreboard",
@@ -1640,7 +1678,18 @@
       "loadError": "Failed to load the scoreboard",
       "checkNetwork": "Check your network connection and try again",
       "retry": "Retry"
-    }
+    },
+    "submissionId": "Submission ID",
+    "problem": "Problem",
+    "submittedAt": "Submitted at (UTC)",
+    "status": "Status",
+    "score": "Score",
+    "language": "Language",
+    "noUserSubmissions": "No submissions.",
+    "exportFailed": "Export failed. Please try again.",
+    "exportLimitExceeded": "This export is too large for the server to generate. Try again without submission details or for a smaller event.",
+    "exportBusy": "The server is already generating another export. Please try again shortly.",
+    "submissionDetails": "Submission details"
   },
   "solution": {
     "missingYours": "Missing your approach?",
@@ -1788,8 +1837,8 @@
     "none": "None",
     "beginner": "Beginner",
     "basicMinus": "Basic-",
-    "basicAdvancedMinus": "Basic/Advanced-",
-    "basicPlusAdvanced": "Basic+/Advanced",
+    "basic": "Basic",
+    "basicPlusAdvancedMinus": "Basic+/Advanced-",
     "advancedMinus": "Advanced-",
     "advanced": "Advanced",
     "advancedPlusProvincialMinus": "Advanced+/Provincial-",
@@ -1797,9 +1846,8 @@
     "provincial": "Provincial",
     "provincialNoiMinus": "Provincial/NOI-",
     "noi": "NOI",
-    "noiNoiPlus": "NOI/NOI+",
+    "noiNoiPlus": "NOI/NOI+/CTS",
     "noiPlus": "NOI+",
-    "noiPlusCstc": "NOI+/CSTC",
     "level": "Difficulty {level}"
   },
   "judgeStatus": {
@@ -1833,5 +1881,76 @@
     "interactive": "Interactive",
     "communication": "Communication",
     "remoteJudge": "Remote judge"
+  },
+  "contestSolution": {
+    "heading": "Contest solutions",
+    "create": "Create solution",
+    "edit": "Edit solution",
+    "empty": "No solutions yet",
+    "emptyDescription": "Click the button in the upper right to create a solution.",
+    "title": "Title",
+    "author": "Author",
+    "time": "Time",
+    "content": "Content",
+    "titleRequired": "Enter a title.",
+    "titleTooLong": "Title must be at most 64 characters.",
+    "titleSingleLine": "Title must be a single line.",
+    "contentTooLong": "Content must be at most 65,535 characters, excluding leading and trailing whitespace.",
+    "contentRequired": "Enter solution content.",
+    "save": "Save",
+    "saving": "Saving…",
+    "saveFailed": "Could not save the solution.",
+    "delete": "Delete solution",
+    "confirmDelete": "Delete this solution?",
+    "deleteFailed": "Could not delete the solution.",
+    "cancel": "Cancel",
+    "deleting": "Deleting…",
+    "confirm": "Confirm",
+    "back": "Back to contest"
+  },
+  "graphEditor": {
+    "name": "Graph Editor",
+    "description": "Type an edge list or draw on the canvas — both stay in sync. Drag nodes in Force mode to arrange the layout.",
+    "inputTitle": "Graph input",
+    "inputPlaceholder": "First line: node count\nFollowing lines: u v [weight]",
+    "inputHintIndexed": "The first line is the node count. Each following line is an edge: \"u v\" or \"u v weight\". A lone index adds an isolated node.",
+    "inputHintCustom": "Each line is an edge \"a b\" or \"a b weight\". A single label on a line adds an isolated node.",
+    "skippedLines": "{count, plural, one {# line was} other {# lines were}} skipped because they could not be parsed.",
+    "settingsTitle": "Display & tools",
+    "mode": {
+      "force": "Force",
+      "draw": "Draw",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "modeHint": {
+      "force": "Drag nodes to move and pin them. Click a node to toggle its pinned state.",
+      "draw": "Click empty space to add a node. Click a node, then a second node, to connect them.",
+      "edit": "Click a node to rename it, or click an edge to edit its weight.",
+      "delete": "Click a node to remove it with its edges, or click an edge to remove it."
+    },
+    "directed": "Directed edges",
+    "indexing": "Indexing",
+    "scheme": {
+      "zero": "0-indexed",
+      "one": "1-indexed",
+      "custom": "Custom labels"
+    },
+    "nodeCount": "Nodes",
+    "nodeRadius": "Node radius",
+    "edgeLength": "Edge length",
+    "color": {
+      "node": "Nodes",
+      "label": "Labels",
+      "edge": "Edges"
+    },
+    "fixAll": "Fix all",
+    "unfixAll": "Unfix all",
+    "treeLayout": "Tree layout",
+    "exportPng": "Export PNG",
+    "exportSvg": "Export SVG",
+    "renameNode": "Rename node",
+    "editWeight": "Edit edge weight",
+    "emptyHint": "Type an edge list, or click the canvas in Draw mode to begin."
   }
 }

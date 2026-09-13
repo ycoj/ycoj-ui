@@ -1,13 +1,13 @@
 'use client';
 
 import ClientApis from '@/api/client/method';
-import PasteDeleteButton from '@/features/paste/edit/paste-delete-button';
 import PasteForm from '@/features/paste/form/paste-form';
 import {
   buildPastePayload,
   getPasteDefaults,
   type PasteFormValues,
 } from '@/features/paste/form/paste-form-utils';
+import ConfirmDeleteButton from '@/shared/components/confirm-delete-button';
 import parseErrorMessage from '@/shared/components/errored/parse-message';
 import type { PasteDoc, PasteFormOptions } from '@/shared/types/paste';
 
@@ -31,7 +31,13 @@ export default function PasteEditForm({ options, paste }: Props) {
       options={options}
       defaultValues={getPasteDefaults(options, paste)}
       extraActions={(isSubmitting) => (
-        <PasteDeleteButton id={paste._id} disabled={isSubmitting} />
+        <ConfirmDeleteButton
+          id={paste._id}
+          namespace="paste"
+          listRoute="/paste"
+          disabled={isSubmitting}
+          onDelete={(id) => ClientApis.Paste.deletePaste(id).send()}
+        />
       )}
       cancelHref={href}
       onSubmit={onSubmit}

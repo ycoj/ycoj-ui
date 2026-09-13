@@ -13,7 +13,8 @@ export const getAccountSettings = cache(async () => {
   if (
     'url' in data ||
     ('error' in data &&
-      ['PermissionError', 'PrivilegeError'].includes(data.error.name))
+      (data.error.name === 'PermissionError' ||
+        data.error.name === 'PrivilegeError'))
   )
     redirect('/login');
   return data;

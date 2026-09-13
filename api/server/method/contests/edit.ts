@@ -6,6 +6,8 @@ export type ContestEditTdoc = Contest;
 
 export type ContestEditData = {
   tdoc: ContestEditTdoc;
+  /** Invitation code; `tdoc._code` is stripped by backend serialization. */
+  code?: string;
   duration: number;
   pids: string;
   page_name: string;
