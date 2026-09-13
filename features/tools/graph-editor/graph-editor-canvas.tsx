@@ -191,7 +191,8 @@ export default function GraphEditorCanvas({
     const node = nodeAt(current, x, y, style.nodeRadius);
 
     if (mode === 'force') {
-      if (node) {
+      // A second pointerdown must not steal the in-flight drag.
+      if (node && !dragRef.current) {
         dragRef.current = {
           nodeLabel: node.label,
           pointerId: event.pointerId,
@@ -212,18 +213,23 @@ export default function GraphEditorCanvas({
           return;
         }
         draftRef.current = null;
-        onMutate((g) => ({
-          ...g,
-          edges: [
-            ...g.edges,
-            {
-              id: createEdgeId(),
-              source: pending,
-              target: node.label,
-              weight: '',
-            },
-          ],
-        }));
+        onMutate((g) =>
+          // A text edit may have removed or renamed the source mid-gesture.
+          g.nodes.some((item) => item.label === pending)
+            ? {
+                ...g,
+                edges: [
+                  ...g.edges,
+                  {
+                    id: createEdgeId(),
+                    source: pending,
+                    target: node.label,
+                    weight: '',
+                  },
+                ],
+              }
+            : g
+        );
         return;
       }
       if (draftRef.current !== null) {
@@ -297,7 +303,8 @@ export default function GraphEditorCanvas({
     // the cursor, and every other mode may sleep between paints.
     asleepRef.current = false;
     const drag = dragRef.current;
-    if (!drag) return;
+    // Only the pointer that owns the drag may move it.
+    if (!drag || drag.pointerId !== event.pointerId) return;
     if (!drag.moved && Math.hypot(x - drag.startX, y - drag.startY) > 4) {
       drag.moved = true;
     }
@@ -314,7 +321,10 @@ export default function GraphEditorCanvas({
     }
   };
 
-  const handlePointerUp = (event: ReactPointerEvent<HTMLCanvasElement>) => {
+  const endDrag = (
+    event: ReactPointerEvent<HTMLCanvasElement>,
+    canceled: boolean
+  ) => {
     const drag = dragRef.current;
     // A second pointer's release must not end the drag or toggle `fixed`.
     if (!drag || drag.pointerId !== event.pointerId) return;
@@ -325,12 +335,20 @@ export default function GraphEditorCanvas({
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
+    // A canceled gesture is aborted, not clicked: leave `fixed` alone.
+    if (canceled) return;
     const node = graphRef.current.nodes.find(
       (item) => item.label === drag.nodeLabel
     );
     if (!node) return;
     node.fixed = drag.moved ? true : !node.fixed;
   };
+
+  const handlePointerUp = (event: ReactPointerEvent<HTMLCanvasElement>) =>
+    endDrag(event, false);
+
+  const handlePointerCancel = (event: ReactPointerEvent<HTMLCanvasElement>) =>
+    endDrag(event, true);
 
   const commitEditing = () => {
     if (!editing) return;
@@ -380,7 +398,7 @@ export default function GraphEditorCanvas({
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerUp}
+        onPointerCancel={handlePointerCancel}
       />
       {editing && (
         <input
