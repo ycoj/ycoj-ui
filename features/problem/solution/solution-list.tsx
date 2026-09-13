@@ -34,6 +34,10 @@ export default function SolutionList({
 }: Props) {
   const t = useTranslations('solution');
   const pid = data.pdoc.pid ?? data.pdoc.docId;
+  const approved = data.psdocs.filter((solution) => solution.reviewStatus >= 2);
+  const unapproved = data.psdocs.filter(
+    (solution) => solution.reviewStatus < 2
+  );
 
   if (!data.psdocs.length) {
     return (
@@ -63,9 +67,9 @@ export default function SolutionList({
     );
   }
 
-  return (
-    <div className="space-y-6" data-llm-visible="true">
-      {data.psdocs.map((solution, index) => (
+  const renderSolutions = (solutions: typeof data.psdocs) => (
+    <div className="space-y-6">
+      {solutions.map((solution, index) => (
         <Fragment key={solution.docId}>
           <SolutionItem
             solution={solution}
@@ -78,9 +82,23 @@ export default function SolutionList({
             allowDeleteAny={allowDeleteAny}
             allowDeleteSelf={allowDeleteSelf}
           />
-          {index < data.psdocs.length - 1 && <Separator className="mt-6" />}
+          {index < solutions.length - 1 && <Separator className="mt-6" />}
         </Fragment>
       ))}
+    </div>
+  );
+
+  return (
+    <div className="space-y-6" data-llm-visible="true">
+      {approved.length > 0 && renderSolutions(approved)}
+      {unapproved.length > 0 && (
+        <details className="border-t pt-4">
+          <summary className="cursor-pointer text-sm font-medium">
+            {t('unapproved', { count: unapproved.length })}
+          </summary>
+          <div className="mt-6">{renderSolutions(unapproved)}</div>
+        </details>
+      )}
     </div>
   );
 }

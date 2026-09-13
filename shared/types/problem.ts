@@ -82,6 +82,12 @@ export type SolutionDoc = {
   parentType: number;
   reply: DiscussionReplyDoc[];
   vote: number;
+  reviewStatus: SolutionReviewStatus;
+  revision: number;
+  reviewedBy?: number;
+  reviewedAt?: string;
 };
+
+export type SolutionReviewStatus = -1 | 0 | 1 | 2 | 3;
 
 export type ProblemDict = Record<number, ProblemDoc>;
