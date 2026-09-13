@@ -24,7 +24,11 @@ export function SidebarUser({ user }: { user: User | null | undefined }) {
     <SidebarMenu>
       <SidebarMenuItem>
         <SidebarUserMenu
-          user={{ _id: user._id, uname: user.uname }}
+          user={{
+            _id: user._id,
+            uname: user.uname,
+            ccfLevel: user.ccfLevel,
+          }}
           roleKey={getRoleKey(user)}
           avatarSrc={avatarUrl(user.avatar)}
           canUsePaste={hasPriv(user, PRIV.PRIV_USER_PROFILE)}

@@ -37,6 +37,9 @@ function toUserSpanNode(user: BaseUser): HastNode {
       'data-uname': user.uname,
       'data-mail': user.mail,
       'data-avatar': user.avatar,
+      ...(user.ccfLevel !== undefined && {
+        'data-ccf-level': String(user.ccfLevel),
+      }),
     },
     children: [],
   };

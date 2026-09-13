@@ -52,5 +52,6 @@ export function getProfileUser(data: UserDetailResponse): BaseUser {
     uname: data.udoc.uname,
     mail: data.udoc.mail,
     avatar: extras.avatar ?? '',
+    ccfLevel: data.udoc.ccfLevel,
   };
 }

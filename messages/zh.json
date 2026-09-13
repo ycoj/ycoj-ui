@@ -1253,7 +1253,17 @@
     "totalVotes": "总投票",
     "averageVotes": "平均投票",
     "problemFallback": "题目 #{id}",
-    "sendMessage": "发送私信"
+    "sendMessage": "发送私信",
+    "awards": "奖项",
+    "noCertifiedAwards": "暂无认证奖项。",
+    "awardCertification": "奖项认证",
+    "awardContest": "比赛",
+    "awardLevel": "奖项",
+    "awardScore": "分数",
+    "awardRank": "排名",
+    "awardSchool": "学校",
+    "awardProvince": "省份",
+    "awardGrade": "年级"
   },
   "accountSettings": {
     "navigation": "设置",
