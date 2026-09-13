@@ -15,7 +15,7 @@ const escapeXml = (value: string): string =>
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 
-export function graphBounds(
+function graphBounds(
   graph: Graph,
   nodeRadius: number
 ): { x: number; y: number; width: number; height: number } {
@@ -125,7 +125,8 @@ export function downloadText(
   anchor.href = url;
   anchor.download = filename;
   anchor.click();
-  URL.revokeObjectURL(url);
+  // Revoking synchronously can abort the download in some browsers.
+  setTimeout(() => URL.revokeObjectURL(url));
 }
 
 export function exportPng(
@@ -152,6 +153,7 @@ export function exportPng(
     anchor.href = url;
     anchor.download = filename;
     anchor.click();
-    URL.revokeObjectURL(url);
+    // Revoking synchronously can abort the download in some browsers.
+    setTimeout(() => URL.revokeObjectURL(url));
   }, 'image/png');
 }

@@ -20,7 +20,10 @@ export type Arrowhead = {
   right: { x: number; y: number };
 };
 
-const pairKey = (a: string, b: string) => (a < b ? `${a}→${b}` : `${b}→${a}`);
+// JSON-encode the unordered pair: labels may contain '→' themselves, so a
+// plain string separator could merge distinct pairs into one edge group.
+const pairKey = (a: string, b: string) =>
+  JSON.stringify(a < b ? [a, b] : [b, a]);
 
 const CURVE_STEP = 26;
 const LOOP_RADIUS_RATIO = 0.9;

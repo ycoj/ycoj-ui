@@ -34,6 +34,7 @@ type EditingState =
 
 type DragState = {
   nodeLabel: string;
+  pointerId: number;
   startX: number;
   startY: number;
   moved: boolean;
@@ -45,9 +46,10 @@ type Viewport = { width: number; height: number };
 // drags; commits swap in a fresh object and re-render, so props act as
 // invalidation signals rather than the drawing source of truth.
 type Props = {
-  // The committed graph, passed purely as the wake token for the render
-  // loop: a fresh object per commit even when no other prop value
-  // changes. Never read for drawing — the canvas draws from graphRef.
+  // Commit token, never read: a fresh object per commit guarantees a
+  // re-render even for in-place commits like setAllFixed — and keeps
+  // doing so if the canvas is ever wrapped in React.memo. The dep-less
+  // effect below then turns each render into a wake for the rAF loop.
   graph: ParsedGraph;
   graphRef: RefObject<ParsedGraph>;
   viewportRef: RefObject<Viewport>;
@@ -68,7 +70,6 @@ const CURSOR_BY_MODE: Record<EditorMode, string> = {
 };
 
 export default function GraphEditorCanvas({
-  graph,
   graphRef,
   viewportRef,
   isEmpty,
@@ -91,12 +92,12 @@ export default function GraphEditorCanvas({
   // Only the rAF loop reads through this ref; React event handlers use
   // props directly so they never observe pre-effect values.
   const live = useRef({ mode, directed, style, colors });
+  // Dep-less on purpose: `graph` guarantees a render per commit and every
+  // render re-wakes the settled loop, so no dep list can miss a field.
   useEffect(() => {
     live.current = { mode, directed, style, colors };
-    // Any commit (new `graph` token) or prop change re-wakes the settled
-    // simulation.
     asleepRef.current = false;
-  }, [graph, mode, directed, style, colors]);
+  });
 
   const [prevMode, setPrevMode] = useState(mode);
   if (prevMode !== mode) {
@@ -193,6 +194,7 @@ export default function GraphEditorCanvas({
       if (node) {
         dragRef.current = {
           nodeLabel: node.label,
+          pointerId: event.pointerId,
           startX: x,
           startY: y,
           moved: false,
@@ -314,7 +316,8 @@ export default function GraphEditorCanvas({
 
   const handlePointerUp = (event: ReactPointerEvent<HTMLCanvasElement>) => {
     const drag = dragRef.current;
-    if (!drag) return;
+    // A second pointer's release must not end the drag or toggle `fixed`.
+    if (!drag || drag.pointerId !== event.pointerId) return;
     dragRef.current = null;
     asleepRef.current = false;
     // pointercancel reaches here after the capture was already released;

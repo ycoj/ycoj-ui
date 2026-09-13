@@ -123,7 +123,7 @@ export function parseGraphText(
 const numericLabel = (label: string): number | null =>
   INTEGER_RE.test(label) ? Number(label) : null;
 
-export function serializeOrder(graph: Graph): GraphNode[] {
+function serializeOrder(graph: Graph): GraphNode[] {
   return [...graph.nodes].sort((a, b) => {
     const na = numericLabel(a.label);
     const nb = numericLabel(b.label);
@@ -216,8 +216,6 @@ export function serializeGraph(graph: Graph, scheme: IndexScheme): string {
   return lines.join('\n');
 }
 
-const isIntegerLabel = (label: string): boolean => INTEGER_RE.test(label);
-
 export function isUsableLabel(
   graph: Graph,
   scheme: IndexScheme,
@@ -227,7 +225,7 @@ export function isUsableLabel(
   if (value.length === 0) return false;
   if (scheme === 'custom') {
     if (/\s/.test(value)) return false;
-  } else if (!isIntegerLabel(value)) {
+  } else if (!INTEGER_RE.test(value)) {
     return false;
   }
   return !graph.nodes.some(
