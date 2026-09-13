@@ -13,6 +13,7 @@ export type Props = {
   openInNewTab?: boolean;
   showId?: boolean;
   prefetch?: LinkProps['prefetch'];
+  idColor?: string;
 };
 
 export default function ProblemLink({
@@ -21,6 +22,7 @@ export default function ProblemLink({
   openInNewTab,
   showId,
   prefetch = false,
+  idColor,
 }: Props) {
   const t = useTranslations('misc');
   const hrefPid = problem.pid || problem.docId;
@@ -38,14 +40,16 @@ export default function ProblemLink({
         })}
       >
         <span className="space-x-1">
-          <span
-            data-llm-text={
-              showId ? `${displayPid}. ${problem.title}` : problem.title
-            }
-          >
-            {showId && `${displayPid}. `}
-            {problem.title}
-          </span>
+          {showId && (
+            <span
+              className="dark:brightness-150"
+              style={idColor ? { color: idColor } : undefined}
+              data-llm-text={`${displayPid}.`}
+            >
+              {displayPid}.
+            </span>
+          )}
+          <span data-llm-text={problem.title}>{problem.title}</span>
           {(problem as PublicProjectionProblem).hidden && (
             <span className="text-primary" data-llm-text={t('hidden')}>
               {t('hidden')}
