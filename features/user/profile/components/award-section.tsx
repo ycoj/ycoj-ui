@@ -20,32 +20,34 @@ export default function AwardSection({ data }: UserProfileProps) {
 
   return (
     <section className="space-y-3" data-llm-visible="true">
-      <h2 className="inline-flex items-center gap-2 text-base font-medium">
-        <Award className="size-4 text-muted-foreground" />
-        <span data-llm-text={t('awards')}>{t('awards')}</span>
-      </h2>
-
-      {!records.length ? (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border px-4 py-3">
-          <p
-            className="text-sm text-muted-foreground"
-            data-llm-text={t('noCertifiedAwards')}
-          >
-            {t('noCertifiedAwards')}
-          </p>
-          <Button asChild size="sm">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="inline-flex items-center gap-2 text-base font-medium">
+          <Award className="size-4 text-muted-foreground" />
+          <span data-llm-text={t('awards')}>{t('awards')}</span>
+        </h2>
+        {data.isSelfProfile && (
+          <Button asChild size="sm" variant="outline">
             <Link href="/home/award" data-llm-text={t('awardCertification')}>
               {t('awardCertification')}
             </Link>
           </Button>
-        </div>
+        )}
+      </div>
+
+      {!records.length ? (
+        <p
+          className="text-sm text-muted-foreground"
+          data-llm-text={t('noCertifiedAwards')}
+        >
+          {t('noCertifiedAwards')}
+        </p>
       ) : (
         <div className="overflow-hidden rounded-lg border">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>{t('awardContest')}</TableHead>
-                <TableHead>{t('award')}</TableHead>
+                <TableHead>{t('awardLevel')}</TableHead>
                 <TableHead className="text-right">{t('awardScore')}</TableHead>
                 <TableHead className="text-right">{t('awardRank')}</TableHead>
                 <TableHead>{t('awardSchool')}</TableHead>
@@ -56,25 +58,46 @@ export default function AwardSection({ data }: UserProfileProps) {
             <TableBody>
               {records.map((record) => (
                 <TableRow key={record._id}>
-                  <TableCell className="font-medium whitespace-nowrap">
+                  <TableCell
+                    className="font-medium whitespace-nowrap"
+                    data-llm-text={record.contestName}
+                  >
                     {record.contestName}
                   </TableCell>
-                  <TableCell className="whitespace-nowrap">
+                  <TableCell
+                    className="whitespace-nowrap"
+                    data-llm-text={record.award}
+                  >
                     {record.award}
                   </TableCell>
-                  <TableCell className="text-right tabular-nums">
+                  <TableCell
+                    className="text-right tabular-nums"
+                    data-llm-text={String(record.score ?? '-')}
+                  >
                     {record.score ?? '-'}
                   </TableCell>
-                  <TableCell className="text-right tabular-nums">
+                  <TableCell
+                    className="text-right tabular-nums"
+                    data-llm-text={String(record.rank)}
+                  >
                     {record.rank}
                   </TableCell>
-                  <TableCell className="whitespace-nowrap">
+                  <TableCell
+                    className="whitespace-nowrap"
+                    data-llm-text={record.school}
+                  >
                     {record.school}
                   </TableCell>
-                  <TableCell className="whitespace-nowrap">
+                  <TableCell
+                    className="whitespace-nowrap"
+                    data-llm-text={record.province}
+                  >
                     {record.province}
                   </TableCell>
-                  <TableCell className="whitespace-nowrap">
+                  <TableCell
+                    className="whitespace-nowrap"
+                    data-llm-text={record.grade}
+                  >
                     {record.grade}
                   </TableCell>
                 </TableRow>

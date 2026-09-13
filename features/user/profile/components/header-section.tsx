@@ -44,7 +44,7 @@ export default function HeaderSection({ data }: UserProfileProps) {
                   data-llm-text={data.udoc.uname}
                 >
                   <span className="truncate">{data.udoc.uname}</span>
-                  <CcfHook level={data.udoc.ccfLevel} />
+                  <CcfHook level={profileUser.ccfLevel} />
                 </h1>
                 <p
                   className="text-sm text-muted-foreground"

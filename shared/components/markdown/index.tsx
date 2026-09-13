@@ -61,7 +61,6 @@ export const markdownSanitizeSchema: Schema = {
       'data-uname',
       'data-mail',
       'data-avatar',
-      'data-ccf-level',
     ],
   },
 };

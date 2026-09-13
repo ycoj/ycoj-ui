@@ -34,6 +34,20 @@ function makeData(
   };
 }
 
+const certifiedRecord = {
+  _id: 'record-1',
+  oierId: 10,
+  contestName: 'NOI 2026',
+  contestType: 'NOI',
+  year: 2026,
+  award: 'Gold',
+  score: null,
+  rank: 1,
+  school: 'Example School',
+  province: 'Hunan',
+  grade: 'Senior 2',
+};
+
 function renderSection(data: UserDetailResponse) {
   return render(
     <NextIntlClientProvider locale="en" messages={messages}>
@@ -58,29 +72,29 @@ describe('AwardSection', () => {
   });
 
   it('renders certified award records', () => {
-    renderSection(
-      makeData({
-        awardRecords: [
-          {
-            _id: 'record-1',
-            oierId: 10,
-            contestName: 'NOI 2026',
-            contestType: 'NOI',
-            year: 2026,
-            award: 'Gold',
-            score: null,
-            rank: 1,
-            school: 'Example School',
-            province: 'Hunan',
-            grade: 'Senior 2',
-          },
-        ],
-      })
-    );
+    renderSection(makeData({ awardRecords: [certifiedRecord] }));
 
     expect(screen.getByText('NOI 2026')).toBeInTheDocument();
     expect(screen.getByText('Gold')).toBeInTheDocument();
     expect(screen.getByText('Example School')).toBeInTheDocument();
     expect(screen.getByRole('cell', { name: '-' })).toBeInTheDocument();
+  });
+
+  it('keeps the certification link on a self profile with records', () => {
+    renderSection(
+      makeData({ isSelfProfile: true, awardRecords: [certifiedRecord] })
+    );
+
+    expect(
+      screen.getByRole('link', { name: 'Award certification' })
+    ).toHaveAttribute('href', '/home/award');
+  });
+
+  it('hides the certification link on another user profile with records', () => {
+    renderSection(makeData({ awardRecords: [certifiedRecord] }));
+
+    expect(
+      screen.queryByRole('link', { name: 'Award certification' })
+    ).not.toBeInTheDocument();
   });
 });

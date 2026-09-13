@@ -99,6 +99,7 @@ describe('getProfileUser', () => {
       priv: 0,
       regat: '2020-01-01T00:00:00.000Z',
       loginat: '2020-01-02T00:00:00.000Z',
+      ccfLevel: 7,
     });
 
     expect(getProfileUser(data)).toEqual({
@@ -106,6 +107,7 @@ describe('getProfileUser', () => {
       uname: 'profile',
       mail: 'p@example.com',
       avatar: '',
+      ccfLevel: 7,
     });
   });
 

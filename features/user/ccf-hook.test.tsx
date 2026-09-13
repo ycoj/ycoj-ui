@@ -5,8 +5,11 @@ import { describe, expect, it } from 'vitest';
 describe('CcfHook', () => {
   it.each([
     [3, 'green'],
+    [4, 'green'],
     [6, 'blue'],
+    [7, 'blue'],
     [9, 'gold'],
+    [10, 'gold'],
   ])('renders the %s-level hook with the %s asset', (level, color) => {
     render(<CcfHook level={level} />);
 
