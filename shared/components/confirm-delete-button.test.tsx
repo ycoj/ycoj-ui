@@ -135,6 +135,21 @@ describe.each(cases)(
       expect(mocks.refresh).toHaveBeenCalled();
     });
 
+    it('honors a backend redirect instead of faking a deletion', async () => {
+      mock.mockResolvedValue({ url: '/login?redirect=%2Fhome' });
+      renderButton(props);
+      await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
+      await userEvent.click(
+        within(screen.getByRole('alertdialog')).getByRole('button', {
+          name: 'Delete',
+        })
+      );
+      await waitFor(() =>
+        expect(mocks.push).toHaveBeenCalledWith('/login?redirect=%2Fhome')
+      );
+      expect(mocks.push).not.toHaveBeenCalledWith(props.listRoute);
+    });
+
     it('shows deletion permission errors without navigating', async () => {
       mock.mockResolvedValue({
         error: { name: 'ForbiddenError', message: 'Permission denied' },

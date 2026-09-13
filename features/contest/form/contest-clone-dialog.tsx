@@ -1,8 +1,7 @@
 'use client';
 
 import {
-  datePattern,
-  timePattern,
+  formatContestEndAt,
   type ContestCloneValues,
 } from '@/features/contest/form/contest-form-utils';
 import CloneDialog from '@/shared/components/clone-dialog';
@@ -13,21 +12,21 @@ import {
   FieldLabel,
 } from '@/shared/components/ui/field';
 import { Input } from '@/shared/components/ui/input';
+import { datePattern, timePattern } from '@/shared/lib/date-patterns';
 import { zodResolver } from '@hookform/resolvers/zod';
-import dayjs from 'dayjs';
 import { useTranslations } from 'next-intl';
 import { useWatch, type Control } from 'react-hook-form';
 import { z } from 'zod';
 
 export type ContestCloneDialogProps = {
   defaultValues: ContestCloneValues;
-  onOpenChange: (open: boolean) => void;
+  onClose: () => void;
   onConfirm: (values: ContestCloneValues) => Promise<void>;
 };
 
 export default function ContestCloneDialog({
   defaultValues,
-  onOpenChange,
+  onClose,
   onConfirm,
 }: ContestCloneDialogProps) {
   const t = useTranslations('contestEdit');
@@ -49,7 +48,7 @@ export default function ContestCloneDialog({
       failedLabel={t('cloneFailed')}
       resolver={zodResolver(schema)}
       defaultValues={defaultValues}
-      onOpenChange={onOpenChange}
+      onClose={onClose}
       onConfirm={onConfirm}
     >
       {({ control, register, errors, isSubmitting }) => (
@@ -133,13 +132,7 @@ function ContestCloneEndAt({
     control,
     name: ['beginAtDate', 'beginAtTime', 'duration'],
   });
-  const parsedDuration = Number(duration);
-  const endAt =
-    beginAtDate && beginAtTime && Number.isFinite(parsedDuration)
-      ? dayjs(`${beginAtDate}T${beginAtTime}`)
-          .add(parsedDuration, 'hour')
-          .format('YYYY-MM-DD HH:mm')
-      : '';
+  const endAt = formatContestEndAt(beginAtDate, beginAtTime, duration);
 
   return <Input id="clone-endAt" value={endAt} disabled readOnly />;
 }

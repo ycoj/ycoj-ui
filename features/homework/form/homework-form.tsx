@@ -2,9 +2,7 @@
 
 import HomeworkCloneDialog from '@/features/homework/form/homework-clone-dialog';
 import {
-  datePattern,
   isPenaltyRuleMapping,
-  timePattern,
   type HomeworkCloneValues,
   type HomeworkFormValues,
 } from '@/features/homework/form/homework-form-utils';
@@ -24,6 +22,7 @@ import {
 } from '@/shared/components/ui/field';
 import { Input } from '@/shared/components/ui/input';
 import { useCloneFlow } from '@/shared/hooks/use-clone-flow';
+import { datePattern, timePattern } from '@/shared/lib/date-patterns';
 import { zodResolver } from '@hookform/resolvers/zod';
 import dayjs from 'dayjs';
 import { ArrowLeft, Copy, Plus, Save } from 'lucide-react';
@@ -43,7 +42,7 @@ type Props = {
   cancelHref: string;
   onSubmit: (values: HomeworkFormValues) => Promise<string>;
   onClone?: (values: HomeworkFormValues) => Promise<string>;
-  extraActions?: ReactNode;
+  extraActions?: (isSubmitting: boolean) => ReactNode;
 };
 
 export default function HomeworkForm({
@@ -378,7 +377,7 @@ export default function HomeworkForm({
             {t('clone')}
           </Button>
         )}
-        {extraActions}
+        {extraActions?.(isSubmitting)}
         <Button asChild variant="secondary">
           <Link href={cancelHref}>
             <ArrowLeft />
@@ -389,9 +388,7 @@ export default function HomeworkForm({
       {cloneFlow.cloneValues && (
         <HomeworkCloneDialog
           defaultValues={cloneFlow.cloneValues}
-          onOpenChange={(open) => {
-            if (!open) cloneFlow.closeCloneDialog();
-          }}
+          onClose={cloneFlow.closeCloneDialog}
           onConfirm={cloneFlow.confirmClone}
         />
       )}

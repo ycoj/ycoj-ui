@@ -39,7 +39,7 @@ vi.mock('@/features/homework/form/homework-form', () => ({
   }: {
     onSubmit: (values: HomeworkFormValues) => Promise<string>;
     onClone?: (values: HomeworkFormValues) => Promise<string>;
-    extraActions?: ReactNode;
+    extraActions?: (isSubmitting: boolean) => ReactNode;
     cancelHref: string;
   }) => {
     mocks.onSubmit = onSubmit;
@@ -47,7 +47,7 @@ vi.mock('@/features/homework/form/homework-form', () => ({
     return (
       <div>
         <a href={cancelHref}>Cancel</a>
-        {extraActions}
+        {extraActions?.(false)}
       </div>
     );
   },

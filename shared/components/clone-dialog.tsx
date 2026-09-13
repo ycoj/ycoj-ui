@@ -31,7 +31,7 @@ type Props<TValues extends FieldValues> = {
   failedLabel: string;
   resolver: Resolver<TValues, unknown, TValues>;
   defaultValues: DefaultValues<TValues>;
-  onOpenChange: (open: boolean) => void;
+  onClose: () => void;
   onConfirm: (values: TValues) => Promise<void>;
   children: (helpers: CloneDialogHelpers<TValues>) => ReactNode;
 };
@@ -44,7 +44,7 @@ export default function CloneDialog<TValues extends FieldValues>({
   failedLabel,
   resolver,
   defaultValues,
-  onOpenChange,
+  onClose,
   onConfirm,
   children,
 }: Props<TValues>) {
@@ -76,8 +76,8 @@ export default function CloneDialog<TValues extends FieldValues>({
     <Dialog.Root
       open
       onOpenChange={(open) => {
-        if (!open && isSubmitting) return;
-        onOpenChange(open);
+        if (open || isSubmitting) return;
+        onClose();
       }}
     >
       <Dialog.Portal>
@@ -110,7 +110,7 @@ export default function CloneDialog<TValues extends FieldValues>({
                 type="button"
                 variant="secondary"
                 disabled={isSubmitting}
-                onClick={() => onOpenChange(false)}
+                onClick={() => onClose()}
               >
                 <X aria-hidden="true" />
                 {tCommon('cancel')}

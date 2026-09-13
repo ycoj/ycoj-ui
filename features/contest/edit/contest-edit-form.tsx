@@ -7,7 +7,7 @@ import {
   type ContestFormValues,
 } from '@/features/contest/form/contest-form-utils';
 import ConfirmDeleteButton from '@/shared/components/confirm-delete-button';
-import parseErrorMessage from '@/shared/components/errored/parse-message';
+import { requireTid } from '@/shared/lib/backend-response';
 import { useTranslations } from 'next-intl';
 
 type Props = {
@@ -31,9 +31,7 @@ export default function ContestEditForm({
     const response = await ClientApis.Contest.createContest(
       buildCreateContestPayload(values)
     ).send();
-    if ('error' in response) throw new Error(parseErrorMessage(response.error));
-    if (!response?.tid) throw new Error(t('cloneFailed'));
-    return `/contest/${response.tid}`;
+    return `/contest/${requireTid(response, t('cloneFailed'))}`;
   };
 
   return (
@@ -48,20 +46,18 @@ export default function ContestEditForm({
           tid,
           buildCreateContestPayload(values)
         ).send();
-        if ('error' in response)
-          throw new Error(parseErrorMessage(response.error));
-        if (!response?.tid) throw new Error(t('submitFailed'));
-        return `/contest/${response.tid}`;
+        return `/contest/${requireTid(response, t('submitFailed'))}`;
       }}
       onClone={canClone ? handleClone : undefined}
-      extraActions={
+      extraActions={(isSubmitting) => (
         <ConfirmDeleteButton
           id={tid}
           namespace="contestEdit"
           listRoute="/contest"
+          disabled={isSubmitting}
           onDelete={(id) => ClientApis.Contest.deleteContest(id).send()}
         />
-      }
+      )}
     />
   );
 }

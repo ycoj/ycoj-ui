@@ -2,6 +2,7 @@ import type { ContestEditData } from '@/api/server/method/contests/edit';
 import {
   buildCreateContestPayload,
   contestPermissionFromTdoc,
+  formatContestEndAt,
   formatHours,
   getContestCreateDefaults,
   mapContestEditToFormValues,
@@ -130,6 +131,17 @@ describe('contest form utilities', () => {
     expect(formatHours(4)).toBe('4');
     expect(formatHours(3.5)).toBe('3.5');
     expect(formatHours(1.999)).toBe('2');
+  });
+
+  it('computes the end time and stays blank on incomplete input', () => {
+    expect(formatContestEndAt('2026-09-01', '10:00', '3')).toBe(
+      '2026-09-01 13:00'
+    );
+    expect(formatContestEndAt('2026-09-01', '10:00', '1.5')).toBe(
+      '2026-09-01 11:30'
+    );
+    expect(formatContestEndAt('', '10:00', '3')).toBe('');
+    expect(formatContestEndAt('2026-09-01', '10:00', 'abc')).toBe('');
   });
 
   it('turns auto-hide off when the editor cannot hide problems', () => {

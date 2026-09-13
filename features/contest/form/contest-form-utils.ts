@@ -21,9 +21,6 @@ export const CONTEST_CREATE_RULES = [
 
 export const CONTEST_PERMISSIONS = ['public', 'invite', 'assign'] as const;
 
-export const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-export const timePattern = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
-
 export type ContestCreateRule = (typeof CONTEST_CREATE_RULES)[number];
 export type ContestPermission = (typeof CONTEST_PERMISSIONS)[number];
 export type ContestFormValues = {
@@ -132,6 +129,18 @@ export function buildCreateContestPayload(
 export function formatHours(value: number): string {
   const rounded = Math.round(value * 100) / 100;
   return String(rounded);
+}
+
+export function formatContestEndAt(
+  beginAtDate: string,
+  beginAtTime: string,
+  duration: string
+): string {
+  const hours = Number(duration);
+  if (!beginAtDate || !beginAtTime || !Number.isFinite(hours)) return '';
+  return dayjs(`${beginAtDate}T${beginAtTime}`)
+    .add(hours, 'hour')
+    .format('YYYY-MM-DD HH:mm');
 }
 
 export function resolveContestAutoHide(

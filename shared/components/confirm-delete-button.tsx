@@ -3,6 +3,10 @@
 import parseErrorMessage from '@/shared/components/errored/parse-message';
 import { Button } from '@/shared/components/ui/button';
 import { FieldError } from '@/shared/components/ui/field';
+import {
+  matchesBackendPath,
+  normalizeBackendPathname,
+} from '@/shared/lib/backend-response';
 import type { Errorable } from '@/shared/types/error';
 import { LoaderCircle, Trash } from 'lucide-react';
 import { useTranslations } from 'next-intl';
@@ -41,7 +45,15 @@ export default function ConfirmDeleteButton({
       if ('error' in response)
         throw new Error(parseErrorMessage(response.error));
       setOpen(false);
-      router.push(listRoute);
+      // A denied delete can come back as a redirect (e.g. to the login or
+      // domain-join page) instead of an error payload; honor it instead of
+      // treating the response as a successful deletion.
+      const target =
+        typeof response?.url === 'string' &&
+        !matchesBackendPath(response.url, listRoute)
+          ? normalizeBackendPathname(response.url)
+          : listRoute;
+      router.push(target);
       router.refresh();
     } catch (caught) {
       setError(

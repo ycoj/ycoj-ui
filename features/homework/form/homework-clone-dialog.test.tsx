@@ -18,17 +18,17 @@ function renderDialog(
   defaultValues: HomeworkCloneValues = prefilled,
   onConfirm = vi.fn().mockResolvedValue(undefined)
 ) {
-  const onOpenChange = vi.fn();
+  const onClose = vi.fn();
   render(
     <NextIntlClientProvider locale="en" messages={messages}>
       <HomeworkCloneDialog
         defaultValues={defaultValues}
-        onOpenChange={onOpenChange}
+        onClose={onClose}
         onConfirm={onConfirm}
       />
     </NextIntlClientProvider>
   );
-  return { onConfirm, onOpenChange };
+  return { onConfirm, onClose };
 }
 
 beforeEach(() => {
@@ -94,9 +94,9 @@ describe('homework clone dialog', () => {
   });
 
   it('cancels without confirming', async () => {
-    const { onConfirm, onOpenChange } = renderDialog();
+    const { onConfirm, onClose } = renderDialog();
     await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(onConfirm).not.toHaveBeenCalled();
-    expect(onOpenChange).toHaveBeenCalledWith(false);
+    expect(onClose).toHaveBeenCalledExactlyOnceWith();
   });
 });

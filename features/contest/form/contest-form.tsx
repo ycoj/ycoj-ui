@@ -7,8 +7,7 @@ import {
   contestRuleSupportsFlexibleDuration,
   contestRuleSupportsHiddenScoreboard,
   contestRuleSupportsLock,
-  datePattern,
-  timePattern,
+  formatContestEndAt,
   resolveContestAutoHide,
   type ContestCloneValues,
   type ContestFormValues,
@@ -37,9 +36,9 @@ import {
   SelectValue,
 } from '@/shared/components/ui/select';
 import { useCloneFlow } from '@/shared/hooks/use-clone-flow';
+import { datePattern, timePattern } from '@/shared/lib/date-patterns';
 import { cn } from '@/shared/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import dayjs from 'dayjs';
 import { ArrowLeft, Copy, Plus, Save } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
@@ -65,7 +64,7 @@ type Props = {
   cancelHref: string;
   onSubmit: (values: ContestFormValues) => Promise<string>;
   onClone?: (values: ContestFormValues) => Promise<string>;
-  extraActions?: ReactNode;
+  extraActions?: (isSubmitting: boolean) => ReactNode;
 };
 
 export default function ContestForm({
@@ -468,7 +467,7 @@ export default function ContestForm({
                 <Input
                   id="lock"
                   type="number"
-                  min="1"
+                  min="0"
                   placeholder={t('optional')}
                   disabled={isSubmitting}
                   aria-invalid={!!errors.lock}
@@ -520,7 +519,7 @@ export default function ContestForm({
             {t('clone')}
           </Button>
         )}
-        {extraActions}
+        {extraActions?.(isSubmitting)}
         <Button asChild variant="secondary">
           <Link href={cancelHref}>
             <ArrowLeft />
@@ -531,9 +530,7 @@ export default function ContestForm({
       {cloneFlow.cloneValues && (
         <ContestCloneDialog
           defaultValues={cloneFlow.cloneValues}
-          onOpenChange={(open) => {
-            if (!open) cloneFlow.closeCloneDialog();
-          }}
+          onClose={cloneFlow.closeCloneDialog}
           onConfirm={cloneFlow.confirmClone}
         />
       )}
@@ -563,13 +560,7 @@ function ContestTimingFields({
     control,
     name: ['beginAtDate', 'beginAtTime', 'duration'],
   });
-  const parsedDuration = Number(duration);
-  const endAt =
-    beginAtDate && beginAtTime && Number.isFinite(parsedDuration)
-      ? dayjs(`${beginAtDate}T${beginAtTime}`)
-          .add(parsedDuration, 'hour')
-          .format('YYYY-MM-DD HH:mm')
-      : '';
+  const endAt = formatContestEndAt(beginAtDate, beginAtTime, duration);
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  datePattern,
-  timePattern,
-  type HomeworkCloneValues,
-} from '@/features/homework/form/homework-form-utils';
+import { type HomeworkCloneValues } from '@/features/homework/form/homework-form-utils';
 import CloneDialog from '@/shared/components/clone-dialog';
 import {
   Field,
@@ -13,6 +9,7 @@ import {
   FieldLabel,
 } from '@/shared/components/ui/field';
 import { Input } from '@/shared/components/ui/input';
+import { datePattern, timePattern } from '@/shared/lib/date-patterns';
 import { zodResolver } from '@hookform/resolvers/zod';
 import dayjs from 'dayjs';
 import { useTranslations } from 'next-intl';
@@ -20,13 +17,13 @@ import { z } from 'zod';
 
 export type HomeworkCloneDialogProps = {
   defaultValues: HomeworkCloneValues;
-  onOpenChange: (open: boolean) => void;
+  onClose: () => void;
   onConfirm: (values: HomeworkCloneValues) => Promise<void>;
 };
 
 export default function HomeworkCloneDialog({
   defaultValues,
-  onOpenChange,
+  onClose,
   onConfirm,
 }: HomeworkCloneDialogProps) {
   const t = useTranslations('homeworkEdit');
@@ -55,7 +52,7 @@ export default function HomeworkCloneDialog({
       failedLabel={t('cloneFailed')}
       resolver={zodResolver(schema)}
       defaultValues={defaultValues}
-      onOpenChange={onOpenChange}
+      onClose={onClose}
       onConfirm={onConfirm}
     >
       {({ register, errors, isSubmitting }) => (

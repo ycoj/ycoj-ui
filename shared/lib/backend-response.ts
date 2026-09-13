@@ -1,4 +1,5 @@
 import parseErrorMessage from '@/shared/components/errored/parse-message';
+import type { Errorable } from '@/shared/types/error';
 
 const DOMAIN_PREFIX = /^\/d\/[^/]+(?=\/)/;
 const AUTH_SESSION_PATHS = new Set([
@@ -91,4 +92,16 @@ export function isLoginRedirect(url: string) {
 export function isAuthSessionPath(url: string) {
   const pathname = backendPathname(url);
   return pathname !== null && AUTH_SESSION_PATHS.has(pathname);
+}
+
+/** Unwraps an Errorable mutation response that must carry the document id. */
+export function requireTid(
+  response: Errorable<{ tid?: string }> | null | undefined,
+  fallbackMessage: string
+): string {
+  if (response && 'error' in response) {
+    throw new Error(parseErrorMessage(response.error));
+  }
+  if (!response?.tid) throw new Error(fallbackMessage);
+  return response.tid;
 }

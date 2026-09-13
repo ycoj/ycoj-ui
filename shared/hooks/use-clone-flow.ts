@@ -1,12 +1,12 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-type UseCloneFlowOptions<TSource, TCloneValues> = {
+type UseCloneFlowOptions<TSource, TCloneValues extends Partial<TSource>> = {
   onClone?: (values: TSource) => Promise<string>;
   toCloneValues: (source: TSource) => TCloneValues;
 };
 
-export function useCloneFlow<TSource, TCloneValues>({
+export function useCloneFlow<TSource, TCloneValues extends Partial<TSource>>({
   onClone,
   toCloneValues,
 }: UseCloneFlowOptions<TSource, TCloneValues>) {

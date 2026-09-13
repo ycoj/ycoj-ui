@@ -6,7 +6,7 @@ import {
   buildCreateHomeworkPayload,
   type HomeworkFormValues,
 } from '@/features/homework/form/homework-form-utils';
-import parseErrorMessage from '@/shared/components/errored/parse-message';
+import { requireTid } from '@/shared/lib/backend-response';
 import { useTranslations } from 'next-intl';
 
 type Props = {
@@ -27,10 +27,7 @@ export default function HomeworkCreateForm({ defaultValues, domainId }: Props) {
         const response = await ClientApis.Homework.createHomework(
           buildCreateHomeworkPayload(values)
         ).send();
-        if ('error' in response)
-          throw new Error(parseErrorMessage(response.error));
-        if (!response?.tid) throw new Error(t('submitFailed'));
-        return `/homework/${response.tid}`;
+        return `/homework/${requireTid(response, t('submitFailed'))}`;
       }}
     />
   );

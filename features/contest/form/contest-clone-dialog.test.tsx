@@ -17,17 +17,17 @@ function renderDialog(
   defaultValues: ContestCloneValues = prefilled,
   onConfirm = vi.fn().mockResolvedValue(undefined)
 ) {
-  const onOpenChange = vi.fn();
+  const onClose = vi.fn();
   render(
     <NextIntlClientProvider locale="en" messages={messages}>
       <ContestCloneDialog
         defaultValues={defaultValues}
-        onOpenChange={onOpenChange}
+        onClose={onClose}
         onConfirm={onConfirm}
       />
     </NextIntlClientProvider>
   );
-  return { onConfirm, onOpenChange };
+  return { onConfirm, onClose };
 }
 
 beforeEach(() => {
@@ -90,7 +90,7 @@ describe('contest clone dialog', () => {
         <form onSubmit={onOuterSubmit}>
           <ContestCloneDialog
             defaultValues={prefilled}
-            onOpenChange={vi.fn()}
+            onClose={vi.fn()}
             onConfirm={onConfirm}
           />
         </form>
@@ -113,9 +113,9 @@ describe('contest clone dialog', () => {
   });
 
   it('cancels without confirming', async () => {
-    const { onConfirm, onOpenChange } = renderDialog();
+    const { onConfirm, onClose } = renderDialog();
     await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(onConfirm).not.toHaveBeenCalled();
-    expect(onOpenChange).toHaveBeenCalledWith(false);
+    expect(onClose).toHaveBeenCalledExactlyOnceWith();
   });
 });
