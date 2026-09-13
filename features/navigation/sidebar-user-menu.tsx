@@ -112,7 +112,7 @@ export default function SidebarUserMenu({
             </AvatarFallback>
           </Avatar>
           <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="flex min-w-0 items-center gap-1 font-semibold">
+            <span className="flex min-w-0 items-center gap-0.5 font-semibold">
               <span className="truncate">{user.uname}</span>
               <CcfHook level={user.ccfLevel} />
             </span>

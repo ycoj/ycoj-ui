@@ -14,13 +14,15 @@ export default function UserSpan({ user, showAvatar = true }: Props) {
     <Link href={`/user/${user._id}`} prefetch={false} className="no-underline">
       <span className="inline-flex items-center gap-2 align-middle text-sm text-gray-500">
         {showAvatar && <UserAvatar user={user} size="sm" />}
-        <span
-          className="text-foreground font-medium"
-          style={{ color: getUsernameColor(user) }}
-        >
-          {user.uname}
+        <span className="inline-flex min-w-0 items-center gap-0.5">
+          <span
+            className="text-foreground font-medium"
+            style={{ color: getUsernameColor(user) }}
+          >
+            {user.uname}
+          </span>
+          <CcfHook level={user.ccfLevel} />
         </span>
-        <CcfHook level={user.ccfLevel} />
       </span>
     </Link>
   );

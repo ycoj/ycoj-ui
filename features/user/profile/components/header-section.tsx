@@ -40,7 +40,7 @@ export default function HeaderSection({ data }: UserProfileProps) {
               <UserAvatar user={profileUser} className="size-16 border" />
               <div className="min-w-0">
                 <h1
-                  className="flex min-w-0 items-center gap-1.5 text-2xl leading-snug font-medium"
+                  className="flex min-w-0 items-center gap-0.5 text-2xl leading-snug font-medium"
                   data-llm-text={data.udoc.uname}
                 >
                   <span className="truncate">{data.udoc.uname}</span>
