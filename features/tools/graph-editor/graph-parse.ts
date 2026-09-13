@@ -76,12 +76,12 @@ export function parseGraphText(
 
   for (const line of lines) {
     const tokens = line.split(/\s+/);
-    if (scheme === 'custom' && tokens.length === 1) {
-      ensure(tokens[0]);
-      continue;
-    }
-    if (tokens.length < 2) {
-      skipped += 1;
+    if (tokens.length === 1) {
+      if (scheme === 'custom' || INTEGER_RE.test(tokens[0])) {
+        ensure(tokens[0]);
+      } else {
+        skipped += 1;
+      }
       continue;
     }
     const [u, v] = tokens;
@@ -136,6 +136,36 @@ export function serializeGraph(graph: Graph, scheme: IndexScheme): string {
     return lines.join('\n');
   }
 
+  const allInteger = graph.nodes.every(
+    (node) => numericLabel(node.label) !== null
+  );
+
+  if (allInteger) {
+    const offset = scheme === 'zero' ? 0 : 1;
+    const sortedValues = graph.nodes
+      .map((node) => Number(node.label))
+      .sort((a, b) => a - b);
+    const dense =
+      sortedValues.length === 0 ||
+      (sortedValues[0] === offset &&
+        sortedValues[sortedValues.length - 1] ===
+          offset + sortedValues.length - 1);
+    if (dense) {
+      lines.push(String(sortedValues.length));
+    } else {
+      lines.push('0');
+      for (const node of graph.nodes) lines.push(node.label);
+    }
+    for (const edge of graph.edges) {
+      lines.push(
+        edge.weight
+          ? `${edge.source} ${edge.target} ${edge.weight}`
+          : `${edge.source} ${edge.target}`
+      );
+    }
+    return lines.join('\n');
+  }
+
   const sorted = serializeOrder(graph);
   const indexOf = new Map(sorted.map((node, index) => [node.id, index]));
 
@@ -149,6 +179,26 @@ export function serializeGraph(graph: Graph, scheme: IndexScheme): string {
     lines.push(edge.weight ? `${su} ${sv} ${edge.weight}` : `${su} ${sv}`);
   }
   return lines.join('\n');
+}
+
+export const isIntegerLabel = (label: string): boolean =>
+  INTEGER_RE.test(label);
+
+export function isUsableLabel(
+  graph: Graph,
+  scheme: IndexScheme,
+  value: string,
+  excludeId?: string
+): boolean {
+  if (value.length === 0) return false;
+  if (scheme === 'custom') {
+    if (/\s/.test(value)) return false;
+  } else if (!isIntegerLabel(value)) {
+    return false;
+  }
+  return !graph.nodes.some(
+    (node) => node.id === value && node.id !== excludeId
+  );
 }
 
 export function nodeMapOf(graph: Graph): Map<string, GraphNode> {

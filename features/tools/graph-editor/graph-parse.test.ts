@@ -1,4 +1,5 @@
 import {
+  isUsableLabel,
   nextNodeLabel,
   nodeMapOf,
   parseGraphText,
@@ -69,7 +70,7 @@ describe('serializeGraph', () => {
     expect(out).toBe(text);
   });
 
-  it('renumbers nodes after deletions in indexed modes', () => {
+  it('preserves sparse labels after deletions in indexed modes', () => {
     const parsed = parseGraphText('4\n1 2\n2 3\n3 4', 'one');
     const remaining: Graph = {
       nodes: parsed.nodes.filter((node) => node.label !== '2'),
@@ -77,7 +78,20 @@ describe('serializeGraph', () => {
         (edge) => edge.source !== '2' && edge.target !== '2'
       ),
     };
-    expect(serializeGraph(remaining, 'one')).toBe('3\n2 3');
+    expect(serializeGraph(remaining, 'one')).toBe('0\n1\n3\n4\n3 4');
+  });
+
+  it('round-trips sparse label sets exactly', () => {
+    const text = '0\n1\n3\n4\n3 4';
+    const parsed = parseGraphText(text, 'one');
+    expect(labels(parsed)).toEqual(['1', '3', '4']);
+    expect(parsed.declaredCount).toBe(0);
+    expect(serializeGraph(parsed, 'one')).toBe(text);
+  });
+
+  it('treats lone integer lines as isolated nodes in indexed modes', () => {
+    const parsed = parseGraphText('1 2\n7', 'one');
+    expect(labels(parsed)).toEqual(['1', '2', '7']);
   });
 
   it('lists isolated nodes as lone labels in custom mode', () => {
@@ -107,5 +121,21 @@ describe('nextNodeLabel', () => {
   it('returns a v-prefixed label for custom scheme', () => {
     const graph = parseGraphText('v1 v2', 'custom');
     expect(nextNodeLabel(graph, 'custom')).toBe('v3');
+  });
+});
+
+describe('isUsableLabel', () => {
+  it('accepts a free integer label in indexed modes', () => {
+    const graph = parseGraphText('3\n1 2', 'one');
+    expect(isUsableLabel(graph, 'one', '9', '2')).toBe(true);
+    expect(isUsableLabel(graph, 'one', '3', '2')).toBe(false);
+    expect(isUsableLabel(graph, 'one', 'x', '2')).toBe(false);
+  });
+
+  it('rejects whitespace and duplicates in custom mode', () => {
+    const graph = parseGraphText('a b', 'custom');
+    expect(isUsableLabel(graph, 'custom', 'c d', 'a')).toBe(false);
+    expect(isUsableLabel(graph, 'custom', 'b', 'a')).toBe(false);
+    expect(isUsableLabel(graph, 'custom', 'c', 'a')).toBe(true);
   });
 });

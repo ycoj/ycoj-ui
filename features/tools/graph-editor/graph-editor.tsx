@@ -4,6 +4,7 @@ import GraphEditorCanvas from './graph-editor-canvas';
 import GraphEditorControls from './graph-editor-controls';
 import { arrangeAsTree } from './graph-layout';
 import {
+  isIntegerLabel,
   MAX_NODE_COUNT,
   nodeMapOf,
   parseGraphText,
@@ -84,15 +85,19 @@ export default function GraphEditor() {
 
   const handleSchemeChange = (next: IndexScheme) => {
     setScheme(next);
-    const value = serializeGraph(graphRef.current, next);
+    const current = graphRef.current;
+    const value = serializeGraph(current, next);
     setText(value);
-    if (next === 'custom') {
+    const renumbered =
+      next !== 'custom' &&
+      current.nodes.some((node) => !isIntegerLabel(node.label));
+    if (!renumbered) {
       applyParse(value, next);
       return;
     }
     const offset = next === 'zero' ? 0 : 1;
     const remapped = new Map(
-      serializeOrder(graphRef.current).map((node, index) => [
+      serializeOrder(current).map((node, index) => [
         String(index + offset),
         node,
       ])
@@ -120,19 +125,10 @@ export default function GraphEditor() {
   const mutateGraph = (recipe: (current: Graph) => Graph) => {
     const next = recipe(graphRef.current);
     graphRef.current = next;
-    const serialized = serializeGraph(next, scheme);
-    setText(serialized);
-    if (scheme === 'custom') {
-      setGraph(next);
-      setDeclaredCount(null);
-      setSkipped(0);
-      return;
-    }
-    const offset = scheme === 'zero' ? 0 : 1;
-    const previous = new Map(
-      serializeOrder(next).map((node, index) => [String(index + offset), node])
-    );
-    applyParse(serialized, scheme, previous);
+    setGraph(next);
+    setText(serializeGraph(next, scheme));
+    setDeclaredCount(scheme === 'custom' ? null : next.nodes.length);
+    setSkipped(0);
   };
 
   const setAllFixed = (fixed: boolean) => {
@@ -188,7 +184,7 @@ export default function GraphEditor() {
         style={style}
         onStyleChange={setStyle}
         colors={colors}
-        nodeCount={declaredCount ?? graph.nodes.length}
+        nodeCount={graph.nodes.length}
         onNodeCountChange={handleNodeCountChange}
         skipped={skipped}
         onFixAll={() => setAllFixed(true)}

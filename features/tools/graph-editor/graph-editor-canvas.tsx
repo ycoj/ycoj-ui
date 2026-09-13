@@ -1,7 +1,7 @@
 'use client';
 
 import { edgeAt, edgeMidpoint, edgeShapes, nodeAt } from './graph-geometry';
-import { createEdgeId, nextNodeLabel } from './graph-parse';
+import { createEdgeId, isUsableLabel, nextNodeLabel } from './graph-parse';
 import { stepPhysics } from './graph-physics';
 import { drawGraph } from './graph-render';
 import type {
@@ -216,15 +216,13 @@ export default function GraphEditorCanvas({
 
     if (currentMode === 'edit') {
       if (node) {
-        if (currentScheme === 'custom') {
-          setEditing({
-            kind: 'node',
-            nodeId: node.id,
-            x: node.x,
-            y: node.y,
-            value: node.label,
-          });
-        }
+        setEditing({
+          kind: 'node',
+          nodeId: node.id,
+          x: node.x,
+          y: node.y,
+          value: node.label,
+        });
         return;
       }
       const edge = edgeAt(current, x, y, currentStyle.nodeRadius);
@@ -301,9 +299,8 @@ export default function GraphEditorCanvas({
     if (editing.kind === 'node') {
       const previousId = editing.nodeId;
       if (
-        value.length > 0 &&
         value !== previousId &&
-        !graphRef.current.nodes.some((node) => node.id === value)
+        isUsableLabel(graphRef.current, live.current.scheme, value, previousId)
       ) {
         onMutate((g) => ({
           nodes: g.nodes.map((node) =>

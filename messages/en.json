@@ -1838,7 +1838,7 @@
     "description": "Type an edge list or draw on the canvas — both stay in sync. Drag nodes in Force mode to arrange the layout.",
     "inputTitle": "Graph input",
     "inputPlaceholder": "First line: node count\nFollowing lines: u v [weight]",
-    "inputHintIndexed": "The first line is the node count. Each following line is an edge: \"u v\" or \"u v weight\".",
+    "inputHintIndexed": "The first line is the node count. Each following line is an edge: \"u v\" or \"u v weight\". A lone index adds an isolated node.",
     "inputHintCustom": "Each line is an edge \"a b\" or \"a b weight\". A single label on a line adds an isolated node.",
     "skippedLines": "{count, plural, one {# line was} other {# lines were}} skipped because they could not be parsed.",
     "settingsTitle": "Display & tools",
@@ -1851,7 +1851,7 @@
     "modeHint": {
       "force": "Drag nodes to move and pin them. Click a node to toggle its pinned state.",
       "draw": "Click empty space to add a node. Click a node, then a second node, to connect them.",
-      "edit": "Click a node to rename it (custom labels), or click an edge to edit its weight.",
+      "edit": "Click a node to rename it, or click an edge to edit its weight.",
       "delete": "Click a node to remove it with its edges, or click an edge to remove it."
     },
     "directed": "Directed edges",

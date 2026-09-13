@@ -9,8 +9,7 @@ export type RenderOptions = {
 };
 
 const ARROW_SIZE = 9;
-const FONT_FAMILY =
-  'ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif';
+const FONT_FAMILY = 'ui-sans-serif, system-ui, sans-serif';
 
 const lineEndAngle = (shape: Extract<EdgeShape, { kind: 'line' }>): number => {
   const dx = shape.x2 - shape.cx;
@@ -43,7 +42,7 @@ export function drawGraph(
   options: RenderOptions
 ): void {
   const { directed, nodeRadius, colors, draft } = options;
-  const fontSize = Math.max(11, nodeRadius * 0.62);
+  const fontSize = Math.max(14, nodeRadius * 0.85);
 
   ctx.lineWidth = 1.6;
   ctx.strokeStyle = colors.edge;
@@ -191,7 +190,7 @@ export function buildSvg(
 ): string {
   const { directed, nodeRadius, colors } = options;
   const bounds = graphBounds(graph, nodeRadius);
-  const fontSize = Math.max(11, nodeRadius * 0.62);
+  const fontSize = Math.max(14, nodeRadius * 0.85);
   const parts: string[] = [];
 
   parts.push(
