@@ -1,0 +1,172 @@
+import type { Graph, GraphEdge, GraphNode } from './graph-types';
+
+export type EdgeShape =
+  | {
+      kind: 'line';
+      x1: number;
+      y1: number;
+      cx: number;
+      cy: number;
+      x2: number;
+      y2: number;
+    }
+  | { kind: 'loop'; node: GraphNode; cx: number; cy: number; r: number };
+
+export type PositionedEdge = { edge: GraphEdge; shape: EdgeShape };
+
+const pairKey = (a: string, b: string) => (a < b ? `${a}→${b}` : `${b}→${a}`);
+
+const CURVE_STEP = 26;
+const LOOP_RADIUS_RATIO = 0.9;
+
+export function edgeShapes(graph: Graph, nodeRadius: number): PositionedEdge[] {
+  const nodes = new Map(graph.nodes.map((node) => [node.id, node]));
+  const groups = new Map<string, GraphEdge[]>();
+  for (const edge of graph.edges) {
+    const key = pairKey(edge.source, edge.target);
+    const group = groups.get(key) ?? [];
+    group.push(edge);
+    groups.set(key, group);
+  }
+
+  const shapes: PositionedEdge[] = [];
+  for (const edge of graph.edges) {
+    const source = nodes.get(edge.source);
+    const target = nodes.get(edge.target);
+    if (!source || !target) continue;
+
+    if (source.id === target.id) {
+      shapes.push({
+        edge,
+        shape: {
+          kind: 'loop',
+          node: source,
+          cx: source.x,
+          cy: source.y - nodeRadius * (1 + LOOP_RADIUS_RATIO),
+          r: nodeRadius * LOOP_RADIUS_RATIO,
+        },
+      });
+      continue;
+    }
+
+    const group = groups.get(pairKey(edge.source, edge.target)) ?? [edge];
+    const index = group.indexOf(edge);
+    const offset = (index - (group.length - 1) / 2) * CURVE_STEP;
+
+    const dx = target.x - source.x;
+    const dy = target.y - source.y;
+    const dist = Math.hypot(dx, dy) || 1;
+    const nx = -dy / dist;
+    const ny = dx / dist;
+    const mx = (source.x + target.x) / 2 + nx * offset;
+    const my = (source.y + target.y) / 2 + ny * offset;
+
+    const trim = (px: number, py: number, qx: number, qy: number) => {
+      const ddx = qx - px;
+      const ddy = qy - py;
+      const d = Math.hypot(ddx, ddy) || 1;
+      const t = nodeRadius / d;
+      return { x: px + ddx * t, y: py + ddy * t };
+    };
+    const p1 = trim(source.x, source.y, mx, my);
+    const p2 = trim(target.x, target.y, mx, my);
+
+    shapes.push({
+      edge,
+      shape: {
+        kind: 'line',
+        x1: p1.x,
+        y1: p1.y,
+        cx: mx,
+        cy: my,
+        x2: p2.x,
+        y2: p2.y,
+      },
+    });
+  }
+  return shapes;
+}
+
+const pointToSegment = (
+  px: number,
+  py: number,
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number
+): number => {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const len2 = dx * dx + dy * dy;
+  const t =
+    len2 === 0
+      ? 0
+      : Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / len2));
+  return Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
+};
+
+const pointToQuadratic = (
+  px: number,
+  py: number,
+  shape: Extract<EdgeShape, { kind: 'line' }>
+): number => {
+  const steps = 12;
+  let min = Infinity;
+  let prevX = shape.x1;
+  let prevY = shape.y1;
+  for (let i = 1; i <= steps; i++) {
+    const t = i / steps;
+    const mt = 1 - t;
+    const x = mt * mt * shape.x1 + 2 * mt * t * shape.cx + t * t * shape.x2;
+    const y = mt * mt * shape.y1 + 2 * mt * t * shape.cy + t * t * shape.y2;
+    min = Math.min(min, pointToSegment(px, py, prevX, prevY, x, y));
+    prevX = x;
+    prevY = y;
+  }
+  return min;
+};
+
+export function edgeMidpoint(shape: EdgeShape): { x: number; y: number } {
+  if (shape.kind === 'loop') {
+    return { x: shape.cx, y: shape.cy - shape.r };
+  }
+  const t = 0.5;
+  const mt = 1 - t;
+  return {
+    x: mt * mt * shape.x1 + 2 * mt * t * shape.cx + t * t * shape.x2,
+    y: mt * mt * shape.y1 + 2 * mt * t * shape.cy + t * t * shape.y2,
+  };
+}
+
+export function nodeAt(
+  graph: Graph,
+  x: number,
+  y: number,
+  nodeRadius: number
+): GraphNode | null {
+  for (let i = graph.nodes.length - 1; i >= 0; i--) {
+    const node = graph.nodes[i];
+    if (Math.hypot(node.x - x, node.y - y) <= nodeRadius) return node;
+  }
+  return null;
+}
+
+export function edgeAt(
+  graph: Graph,
+  x: number,
+  y: number,
+  nodeRadius: number,
+  threshold = 6
+): GraphEdge | null {
+  const positioned = edgeShapes(graph, nodeRadius);
+  for (let i = positioned.length - 1; i >= 0; i--) {
+    const { edge, shape } = positioned[i];
+    if (shape.kind === 'loop') {
+      const d = Math.abs(Math.hypot(x - shape.cx, y - shape.cy) - shape.r);
+      if (d <= threshold) return edge;
+    } else if (pointToQuadratic(x, y, shape) <= threshold) {
+      return edge;
+    }
+  }
+  return null;
+}

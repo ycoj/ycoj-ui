@@ -1832,5 +1832,50 @@
     "interactive": "交互题",
     "communication": "通信题",
     "remoteJudge": "远端评测题"
+  },
+  "graphEditor": {
+    "name": "图编辑器",
+    "description": "输入边列表或在画布上绘制，两边会实时同步。在“力学”模式下拖动节点可以调整布局。",
+    "inputTitle": "图输入",
+    "inputPlaceholder": "第一行：节点数\n之后每行：u v [边权]",
+    "inputHintIndexed": "第一行为节点数，之后每行表示一条边：“u v” 或 “u v 边权”。",
+    "inputHintCustom": "每行表示一条边 “a b” 或 “a b 边权”。单独一行标签可添加孤立节点。",
+    "skippedLines": "有 {count} 行无法解析，已跳过。",
+    "settingsTitle": "显示与工具",
+    "mode": {
+      "force": "力学",
+      "draw": "绘制",
+      "edit": "编辑",
+      "delete": "删除"
+    },
+    "modeHint": {
+      "force": "拖动节点可移动并固定其位置，点击节点可切换固定状态。",
+      "draw": "点击空白处添加节点；先点击一个节点，再点击另一个节点即可连边。",
+      "edit": "点击节点可重命名（自定义标签），点击边可修改边权。",
+      "delete": "点击节点会删除它及其关联的边，点击边仅删除该边。"
+    },
+    "directed": "有向边",
+    "indexing": "编号方式",
+    "scheme": {
+      "zero": "从 0 开始",
+      "one": "从 1 开始",
+      "custom": "自定义标签"
+    },
+    "nodeCount": "节点数",
+    "nodeRadius": "节点半径",
+    "edgeLength": "边长",
+    "color": {
+      "node": "节点",
+      "label": "标签",
+      "edge": "边"
+    },
+    "fixAll": "全部固定",
+    "unfixAll": "全部取消",
+    "treeLayout": "树形布局",
+    "exportPng": "导出 PNG",
+    "exportSvg": "导出 SVG",
+    "renameNode": "重命名节点",
+    "editWeight": "编辑边权",
+    "emptyHint": "输入边列表，或在“绘制”模式下点击画布开始。"
   }
 }
