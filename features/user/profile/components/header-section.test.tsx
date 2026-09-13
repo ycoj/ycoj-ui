@@ -19,6 +19,7 @@ const data: UserDetailResponse = {
   pdocs: [],
   tags: [],
   tdocs: [],
+  awardRecords: [],
   checkinHistory: {
     timezone: 'UTC+08:00',
     from: '',

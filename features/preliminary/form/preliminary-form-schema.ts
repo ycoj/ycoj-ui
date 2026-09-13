@@ -57,9 +57,11 @@ export function buildPreliminarySchema(messages: PreliminarySchemaMessages) {
         .max(16384, messages.promptTooLong),
       score: z
         .number({ invalid_type_error: messages.scoreInvalid })
-        .int(messages.scoreInvalid)
-        .min(1, messages.scoreInvalid)
-        .max(1000, messages.scoreInvalid),
+        .min(0.5, messages.scoreInvalid)
+        .max(1000, messages.scoreInvalid)
+        .refine((score) => Number.isSafeInteger(score * 2), {
+          message: messages.scoreInvalid,
+        }),
       explanation: z.string().max(32768, messages.explanationTooLong),
       answer: z.string().trim().min(1, messages.answerRequired),
       options: z.array(optionSchema).max(26, messages.tooManyOptions),

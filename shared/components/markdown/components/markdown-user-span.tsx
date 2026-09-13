@@ -15,6 +15,7 @@ export default function MarkdownUserSpan(props: Props) {
   const unameRaw = getPropValue(props, 'data-uname', 'dataUname');
   const mailRaw = getPropValue(props, 'data-mail', 'dataMail');
   const avatarRaw = getPropValue(props, 'data-avatar', 'dataAvatar');
+  const ccfLevelRaw = getPropValue(props, 'data-ccf-level', 'dataCcfLevel');
 
   const uid =
     typeof uidRaw === 'string' && /^\d+$/.test(uidRaw)
@@ -37,6 +38,10 @@ export default function MarkdownUserSpan(props: Props) {
         uname: unameRaw,
         mail: mailRaw,
         avatar: avatarRaw,
+        ccfLevel:
+          typeof ccfLevelRaw === 'string' && /^\d+$/.test(ccfLevelRaw)
+            ? Number.parseInt(ccfLevelRaw, 10)
+            : undefined,
       }}
       showAvatar={false}
     />
