@@ -16,6 +16,9 @@ export type RenderOptions = {
 
 export const FONT_FAMILY = 'ui-sans-serif, system-ui, sans-serif';
 
+export const graphFontSize = (nodeRadius: number) =>
+  Math.max(14, nodeRadius * 0.85);
+
 const fillArrowhead = (ctx: CanvasRenderingContext2D, arrow: Arrowhead) => {
   ctx.beginPath();
   ctx.moveTo(arrow.tip.x, arrow.tip.y);
@@ -31,7 +34,7 @@ export function drawGraph(
   options: RenderOptions
 ): void {
   const { directed, nodeRadius, colors, draft } = options;
-  const fontSize = Math.max(14, nodeRadius * 0.85);
+  const fontSize = graphFontSize(nodeRadius);
 
   ctx.lineWidth = 1.6;
   ctx.strokeStyle = colors.edge;

@@ -1,5 +1,6 @@
 import {
   isUsableLabel,
+  MAX_EDGE_COUNT,
   MAX_NODE_COUNT,
   nextNodeLabel,
   nodeMapOf,
@@ -77,6 +78,23 @@ describe('parseGraphText', () => {
     expect(parsed.skipped).toBe(1);
   });
 
+  it('does not strand a node when the second endpoint hits the cap', () => {
+    const lines = Array.from({ length: MAX_NODE_COUNT - 1 }, (_, i) => `n${i}`);
+    lines.push('u v');
+    const parsed = parseGraphText(lines.join('\n'), 'custom');
+    expect(parsed.nodes).toHaveLength(MAX_NODE_COUNT - 1);
+    expect(labels(parsed)).not.toContain('u');
+    expect(parsed.edges).toHaveLength(0);
+    expect(parsed.skipped).toBe(1);
+  });
+
+  it('caps parsed edges at MAX_EDGE_COUNT', () => {
+    const lines = Array.from({ length: MAX_EDGE_COUNT + 3 }, () => 'a b');
+    const parsed = parseGraphText(lines.join('\n'), 'custom');
+    expect(parsed.edges).toHaveLength(MAX_EDGE_COUNT);
+    expect(parsed.skipped).toBe(3);
+  });
+
   it('preserves positions of previously known labels', () => {
     const first = parseGraphText('2\n1 2', 'one');
     first.nodes[0].x = 111;
@@ -142,7 +160,6 @@ describe('renumberGraph', () => {
     expect(
       renumbered.edges.map((edge) => `${edge.source} ${edge.target}`)
     ).toEqual(['2 1', '1 3']);
-    // The renumbered graph serializes to text that parses back identically.
     const text = serializeGraph(renumbered, 'one');
     expect(text).toBe('3\n2 1\n1 3 9');
     expect(labels(parseGraphText(text, 'one'))).toEqual(['1', '2', '3']);

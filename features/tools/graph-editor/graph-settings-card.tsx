@@ -82,6 +82,17 @@ export default function GraphSettingsCard({ editor }: Props) {
     });
   };
 
+  const setNodeCount = (value: string) => {
+    if (!/^\d+$/.test(value)) {
+      setNodeCountDraft(value);
+      return;
+    }
+    // Clamp the draft too so the field shows what was applied.
+    const clamped = Math.min(Number(value), MAX_NODE_COUNT);
+    setNodeCountDraft(String(clamped));
+    onNodeCountChange(clamped);
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -145,11 +156,7 @@ export default function GraphSettingsCard({ editor }: Props) {
                 min={0}
                 max={MAX_NODE_COUNT}
                 value={nodeCountDraft ?? String(nodeCount)}
-                onChange={(event) => {
-                  const draft = event.target.value;
-                  setNodeCountDraft(draft);
-                  if (/^\d+$/.test(draft)) onNodeCountChange(Number(draft));
-                }}
+                onChange={(event) => setNodeCount(event.target.value)}
                 onBlur={() => setNodeCountDraft(null)}
               />
             </div>

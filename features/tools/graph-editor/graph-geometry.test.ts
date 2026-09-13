@@ -71,7 +71,7 @@ describe('edgeShapes', () => {
     expect(lineShapeOf(positioned, 'e2')).toMatchObject({ cx: 50, cy: 100 });
   });
 
-  it('still groups anti-parallel edges onto shared curves', () => {
+  it('separates anti-parallel edges onto opposite curves', () => {
     const nodes = [makeNode('a', 0, 0), makeNode('b', 100, 0)];
     const edges: GraphEdge[] = [
       { id: 'e1', source: 'a', target: 'b', weight: '' },
@@ -80,8 +80,27 @@ describe('edgeShapes', () => {
     const positioned = edgeShapes({ nodes, edges }, 18);
     const first = lineShapeOf(positioned, 'e1');
     const second = lineShapeOf(positioned, 'e2');
-    // Both bulge off the straight line to the same side.
-    expect(first.cy).not.toBeCloseTo(0);
-    expect(second.cy).toBeCloseTo(first.cy);
+    expect(first.cy).toBeCloseTo(-13);
+    expect(second.cy).toBeCloseTo(13);
+  });
+
+  it('gives multiple loops on one node distinct radii', () => {
+    const nodes = [makeNode('a', 0, 0)];
+    const edges: GraphEdge[] = [
+      { id: 'e1', source: 'a', target: 'a', weight: '' },
+      { id: 'e2', source: 'a', target: 'a', weight: '' },
+      { id: 'e3', source: 'a', target: 'a', weight: '' },
+    ];
+    const positioned = edgeShapes({ nodes, edges }, 18);
+    const loops = positioned.map((item) => {
+      if (item.shape.kind !== 'loop') throw new Error('expected loop');
+      return item.shape;
+    });
+    // Nested circles tangent at the node top: each radius grows by one
+    // LOOP_RADIUS_RATIO step so arcs, arrows, and labels stay apart.
+    expect(loops[0].r).toBeCloseTo(16.2);
+    expect(loops[1].r).toBeCloseTo(32.4);
+    expect(loops[2].r).toBeCloseTo(48.6);
+    expect(loops[1].cy - loops[0].cy).toBeCloseTo(loops[0].r - loops[1].r);
   });
 });

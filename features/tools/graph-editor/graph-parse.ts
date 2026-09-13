@@ -6,6 +6,7 @@ export type ParsedGraph = Graph & {
 };
 
 export const MAX_NODE_COUNT = 500;
+export const MAX_EDGE_COUNT = 2000;
 
 // Fallback spawn origin when no viewport size is known yet.
 export const DEFAULT_ORIGIN = { x: 300, y: 220 };
@@ -103,9 +104,17 @@ export function parseGraphText(
       skipped += 1;
       continue;
     }
+    const hadU = nodeMap.has(u);
     const source = ensure(u);
     const target = ensure(v);
     if (source === null || target === null) {
+      // Roll back an endpoint created for a line that cannot complete;
+      // otherwise the skipped edge would leave a stray isolated node.
+      if (!hadU) nodeMap.delete(u);
+      skipped += 1;
+      continue;
+    }
+    if (edges.length >= MAX_EDGE_COUNT) {
       skipped += 1;
       continue;
     }

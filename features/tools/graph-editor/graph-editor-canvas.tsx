@@ -38,6 +38,7 @@ type DragState = {
   startX: number;
   startY: number;
   moved: boolean;
+  wasFixed: boolean;
 };
 
 type Viewport = { width: number; height: number };
@@ -106,9 +107,17 @@ export default function GraphEditorCanvas({
   }
 
   useEffect(() => {
+    const drag = dragRef.current;
+    if (drag) {
+      // A mid-drag mode switch abandons the gesture: undo the pin.
+      const node = graphRef.current.nodes.find(
+        (item) => item.label === drag.nodeLabel
+      );
+      if (node) node.fixed = drag.wasFixed;
+    }
     draftRef.current = null;
     dragRef.current = null;
-  }, [mode]);
+  }, [mode, graphRef]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -187,6 +196,9 @@ export default function GraphEditorCanvas({
   const handlePointerDown = (event: ReactPointerEvent<HTMLCanvasElement>) => {
     asleepRef.current = false;
     const { x, y } = canvasPoint(event);
+    // Touch and pen taps can arrive without a prior move; keep the draft
+    // edge endpoint at the real position instead of a stale one.
+    pointerRef.current = { x, y };
     const current = graphRef.current;
     const node = nodeAt(current, x, y, style.nodeRadius);
 
@@ -199,7 +211,11 @@ export default function GraphEditorCanvas({
           startX: x,
           startY: y,
           moved: false,
+          wasFixed: node.fixed,
         };
+        // Pin while dragging so physics stops pulling the node off the
+        // cursor between move events; endDrag restores or toggles it.
+        node.fixed = true;
         event.currentTarget.setPointerCapture(event.pointerId);
       }
       return;
@@ -303,7 +319,6 @@ export default function GraphEditorCanvas({
     // the cursor, and every other mode may sleep between paints.
     asleepRef.current = false;
     const drag = dragRef.current;
-    // Only the pointer that owns the drag may move it.
     if (!drag || drag.pointerId !== event.pointerId) return;
     if (!drag.moved && Math.hypot(x - drag.startX, y - drag.startY) > 4) {
       drag.moved = true;
@@ -326,7 +341,6 @@ export default function GraphEditorCanvas({
     canceled: boolean
   ) => {
     const drag = dragRef.current;
-    // A second pointer's release must not end the drag or toggle `fixed`.
     if (!drag || drag.pointerId !== event.pointerId) return;
     dragRef.current = null;
     asleepRef.current = false;
@@ -335,13 +349,16 @@ export default function GraphEditorCanvas({
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
-    // A canceled gesture is aborted, not clicked: leave `fixed` alone.
-    if (canceled) return;
     const node = graphRef.current.nodes.find(
       (item) => item.label === drag.nodeLabel
     );
     if (!node) return;
-    node.fixed = drag.moved ? true : !node.fixed;
+    // A canceled gesture is aborted, not clicked: restore the pre-drag pin.
+    if (canceled) {
+      node.fixed = drag.wasFixed;
+      return;
+    }
+    node.fixed = drag.moved ? true : !drag.wasFixed;
   };
 
   const handlePointerUp = (event: ReactPointerEvent<HTMLCanvasElement>) =>

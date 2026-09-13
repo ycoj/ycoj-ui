@@ -5,7 +5,12 @@ import {
   loopArrowhead,
   type Arrowhead,
 } from './graph-geometry';
-import { drawGraph, FONT_FAMILY, type RenderOptions } from './graph-render';
+import {
+  drawGraph,
+  FONT_FAMILY,
+  graphFontSize,
+  type RenderOptions,
+} from './graph-render';
 import type { Graph } from './graph-types';
 
 const escapeXml = (value: string): string =>
@@ -15,6 +20,12 @@ const escapeXml = (value: string): string =>
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 
+// Rough per-glyph width relative to font size; deliberately generous so
+// wide glyphs and CJK labels stay inside the bounds.
+const LABEL_CHAR_WIDTH = 0.6;
+// Stroke width plus arrowhead reach beyond an edge shape's anchors.
+const EDGE_MARGIN = 12;
+
 function graphBounds(
   graph: Graph,
   nodeRadius: number
@@ -23,15 +34,47 @@ function graphBounds(
   if (graph.nodes.length === 0) {
     return { x: 0, y: 0, width: 2 * pad, height: 2 * pad };
   }
+  const fontSize = graphFontSize(nodeRadius);
   let minX = Infinity;
   let minY = Infinity;
   let maxX = -Infinity;
   let maxY = -Infinity;
+  const expand = (cx: number, cy: number, hw: number, hh: number) => {
+    minX = Math.min(minX, cx - hw);
+    minY = Math.min(minY, cy - hh);
+    maxX = Math.max(maxX, cx + hw);
+    maxY = Math.max(maxY, cy + hh);
+  };
   for (const node of graph.nodes) {
-    minX = Math.min(minX, node.x);
-    minY = Math.min(minY, node.y);
-    maxX = Math.max(maxX, node.x);
-    maxY = Math.max(maxY, node.y);
+    expand(
+      node.x,
+      node.y,
+      Math.max(
+        nodeRadius + 4,
+        (node.label.length * fontSize * LABEL_CHAR_WIDTH) / 2
+      ),
+      Math.max(nodeRadius + 4, fontSize / 2)
+    );
+  }
+  for (const { edge, shape } of edgeShapes(graph, nodeRadius)) {
+    if (shape.kind === 'loop') {
+      expand(shape.cx, shape.cy, shape.r + EDGE_MARGIN, shape.r + EDGE_MARGIN);
+    } else {
+      // A quadratic curve stays inside the hull of its three anchors.
+      expand(shape.x1, shape.y1, EDGE_MARGIN, EDGE_MARGIN);
+      expand(shape.cx, shape.cy, EDGE_MARGIN, EDGE_MARGIN);
+      expand(shape.x2, shape.y2, EDGE_MARGIN, EDGE_MARGIN);
+    }
+    if (edge.weight) {
+      // Same estimate buildSvg uses for the weight label's background.
+      const mid = edgeMidpoint(shape);
+      expand(
+        mid.x,
+        mid.y,
+        (edge.weight.length * fontSize * 0.5 + 8) / 2,
+        (fontSize * 0.85 + 4) / 2
+      );
+    }
   }
   return {
     x: minX - pad,
@@ -52,7 +95,7 @@ export function buildSvg(
 ): string {
   const { directed, nodeRadius, colors } = options;
   const bounds = graphBounds(graph, nodeRadius);
-  const fontSize = Math.max(14, nodeRadius * 0.85);
+  const fontSize = graphFontSize(nodeRadius);
   const parts: string[] = [];
 
   parts.push(

@@ -44,26 +44,35 @@ export function edgeShapes(graph: Graph, nodeRadius: number): PositionedEdge[] {
     const target = nodes.get(edge.target);
     if (!source || !target) continue;
 
+    const group = groups.get(pairKey(edge.source, edge.target)) ?? [edge];
+    const index = group.indexOf(edge);
+
     if (source.label === target.label) {
+      // Each loop on a node gets its own radius so stacked loops stay
+      // distinguishable for rendering, labels, and hit-testing.
+      const r = nodeRadius * LOOP_RADIUS_RATIO * (index + 1);
       shapes.push({
         edge,
         shape: {
           kind: 'loop',
           node: source,
           cx: source.x,
-          cy: source.y - nodeRadius * (1 + LOOP_RADIUS_RATIO),
-          r: nodeRadius * LOOP_RADIUS_RATIO,
+          cy: source.y - nodeRadius - r,
+          r,
         },
       });
       continue;
     }
 
-    const group = groups.get(pairKey(edge.source, edge.target)) ?? [edge];
-    const index = group.indexOf(edge);
     const offset = (index - (group.length - 1) / 2) * CURVE_STEP;
 
-    const dx = target.x - source.x;
-    const dy = target.y - source.y;
+    // The normal follows the same canonical endpoint order as pairKey, so
+    // a reversed edge in the same group curves to the opposite side
+    // instead of retracing its twin.
+    const [from, to] =
+      source.label < target.label ? [source, target] : [target, source];
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
     const dist = Math.hypot(dx, dy) || 1;
     const nx = -dy / dist;
     const ny = dx / dist;
