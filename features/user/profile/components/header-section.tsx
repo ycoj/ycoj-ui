@@ -13,7 +13,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/shared/components/ui/tooltip';
-import { AtSign, BarChart3, Calendar, Clock3, Send } from 'lucide-react';
+import {
+  AtSign,
+  BarChart3,
+  Calendar,
+  CalendarClock,
+  Clock3,
+  Send,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
@@ -119,6 +126,18 @@ export default function HeaderSection({ data }: UserProfileProps) {
                 {t('acceptanceRate', { value: acceptanceRate })}
               </span>
             </div>
+            {typeof data.accountExpireDate === 'string' && (
+              <div className="inline-flex items-center gap-2">
+                <CalendarClock className="size-4" />
+                <span
+                  data-llm-text={data.accountExpireDate || t('neverExpires')}
+                >
+                  {data.accountExpireDate
+                    ? t('expiresAt', { date: data.accountExpireDate })
+                    : t('neverExpires')}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>

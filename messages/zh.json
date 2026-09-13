@@ -1236,6 +1236,8 @@
     "myProfile": "我的主页",
     "registeredAt": "注册：{time}",
     "lastLogin": "最近登录：{time}",
+    "expiresAt": "有效期至：{date}",
+    "neverExpires": "永久有效",
     "acceptanceRate": "通过率：{value}",
     "participationOverview": "参赛概览",
     "noParticipation": "暂无参与记录",

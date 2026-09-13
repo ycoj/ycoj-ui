@@ -1236,6 +1236,8 @@
     "myProfile": "My profile",
     "registeredAt": "Registered: {time}",
     "lastLogin": "Last login: {time}",
+    "expiresAt": "Expires: {date}",
+    "neverExpires": "Never expires",
     "acceptanceRate": "Acceptance rate: {value}",
     "participationOverview": "Participation overview",
     "noParticipation": "No participation records",
