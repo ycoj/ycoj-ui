@@ -1,10 +1,12 @@
 'use client';
 
 import ClientApis from '@/api/client/method';
+import { getClangdReloadUrl } from '@/features/problem/scratchpad/clangd/clangd-support';
 import {
   getScratchpadDraft,
   saveScratchpadDraft,
 } from '@/features/problem/scratchpad/draft-storage';
+import ScratchpadEditor from '@/features/problem/scratchpad/scratchpad-editor';
 import ScratchpadPretest from '@/features/problem/scratchpad/scratchpad-pretest';
 import ScratchpadRecords from '@/features/problem/scratchpad/scratchpad-records';
 import ScratchpadSettingsPanel from '@/features/problem/scratchpad/scratchpad-settings';
@@ -26,7 +28,6 @@ import {
   parseScratchpadRecords,
   resolveScratchpadLanguage,
 } from '@/features/problem/scratchpad/scratchpad-utils';
-import CodeEditor from '@/shared/components/code/code-editor';
 import parseErrorMessage from '@/shared/components/errored/parse-message';
 import { ProblemSampleActionProvider } from '@/shared/components/markdown/components/problem-sample';
 import { Button } from '@/shared/components/ui/button';
@@ -76,6 +77,7 @@ const DEFAULT_SETTINGS: ScratchpadSettings = {
   fontSize: 14,
   tabSize: 4,
   theme: 'system',
+  clangd: false,
 };
 
 type Props = {
@@ -104,6 +106,7 @@ function readSettings(): ScratchpadSettings {
       theme: ['light', 'dark', 'system'].includes(value.theme ?? '')
         ? (value.theme as ScratchpadSettings['theme'])
         : DEFAULT_SETTINGS.theme,
+      clangd: value.clangd === true,
     };
   } catch {
     return DEFAULT_SETTINGS;
@@ -219,6 +222,7 @@ export default function ScratchpadWorkspace({
   const [language, setLanguage] = useState(defaultLanguage);
   const [draftLoaded, setDraftLoaded] = useState(false);
   const [settings, setSettings] = useState(readSettings);
+  const [clangdReloading, setClangdReloading] = useState(false);
   const [pretestVisible, setPretestVisible] = useState(
     () => defaultCanPretest && readVisibility(PRETEST_VISIBLE_KEY)
   );
@@ -507,6 +511,22 @@ export default function ScratchpadWorkspace({
     t,
   ]);
 
+  const handleReloadClangd = useCallback(async () => {
+    if (!draftLoaded || clangdReloading) return;
+    setClangdReloading(true);
+    try {
+      await saveScratchpadDraft({ id: draftId, code, language });
+      window.localStorage.setItem(
+        SETTINGS_KEY,
+        JSON.stringify({ ...settings, clangd: true })
+      );
+      window.location.assign(getClangdReloadUrl(window.location.href));
+    } catch {
+      setClangdReloading(false);
+      toast.error(t('clangd.saveFailed'));
+    }
+  }, [clangdReloading, code, draftId, draftLoaded, language, settings, t]);
+
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.isComposing) return;
@@ -536,7 +556,13 @@ export default function ScratchpadWorkspace({
   }, [canPretest, onClose, runPretest, submit, togglePretest, toggleRecords]);
 
   const editor = (
-    <CodeEditor
+    <ScratchpadEditor
+      clangdEnabled={settings.clangd && draftLoaded}
+      compilerLanguage={language}
+      onDisableClangd={() =>
+        setSettings((previous) => ({ ...previous, clangd: false }))
+      }
+      readOnly={clangdReloading}
       value={code}
       onChange={setCode}
       language={getSyntaxLanguage(familyKey) || undefined}
@@ -564,7 +590,13 @@ export default function ScratchpadWorkspace({
     />
   );
   const settingsPanel = (
-    <ScratchpadSettingsPanel settings={settings} onChange={setSettings} />
+    <ScratchpadSettingsPanel
+      settings={settings}
+      onChange={setSettings}
+      clangdReloading={clangdReloading}
+      clangdDraftPending={!draftLoaded}
+      onReloadClangd={handleReloadClangd}
+    />
   );
   const problemStatement = canPretest ? (
     <ProblemSampleActionProvider action={sampleAction}>
