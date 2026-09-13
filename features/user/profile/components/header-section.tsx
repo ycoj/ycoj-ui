@@ -14,7 +14,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/shared/components/ui/tooltip';
-import { AtSign, BarChart3, Calendar, Clock3, Send } from 'lucide-react';
+import { AtSign, Calendar, CalendarClock, Clock3, Send } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
@@ -22,13 +22,6 @@ export default function HeaderSection({ data }: UserProfileProps) {
   const t = useTranslations('user');
   const profileUser = getProfileUser(data);
   const extras = getProfileExtras(data);
-
-  const acceptCount = extras.nAccept ?? data.pdocs.length;
-  const submitCount = extras.nSubmit;
-  const acceptanceRate =
-    submitCount && submitCount > 0
-      ? `${Math.round((acceptCount * 100) / submitCount)}%`
-      : '-';
 
   return (
     <section className="border-b pb-6" data-llm-visible="true">
@@ -115,12 +108,18 @@ export default function HeaderSection({ data }: UserProfileProps) {
                 {t('lastLogin', { time: formatTime(data.udoc.loginat) })}
               </span>
             </div>
-            <div className="inline-flex items-center gap-2">
-              <BarChart3 className="size-4" />
-              <span data-llm-text={acceptanceRate}>
-                {t('acceptanceRate', { value: acceptanceRate })}
-              </span>
-            </div>
+            {typeof data.accountExpireDate === 'string' && (
+              <div className="inline-flex items-center gap-2">
+                <CalendarClock className="size-4" />
+                <span
+                  data-llm-text={data.accountExpireDate || t('neverExpires')}
+                >
+                  {data.accountExpireDate
+                    ? t('expiresAt', { date: data.accountExpireDate })
+                    : t('neverExpires')}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>

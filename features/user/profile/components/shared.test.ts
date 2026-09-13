@@ -24,6 +24,7 @@ function makeUserDetail(
     tags: [],
     tdocs: [],
     awardRecords: [],
+    accountExpireDate: null,
   };
 }
 

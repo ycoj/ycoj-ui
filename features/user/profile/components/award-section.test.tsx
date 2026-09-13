@@ -23,6 +23,7 @@ function makeData(
     tags: [],
     tdocs: [],
     awardRecords: [],
+    accountExpireDate: null,
     checkinHistory: {
       timezone: 'UTC+08:00',
       from: '',
