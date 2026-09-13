@@ -43,6 +43,7 @@ import solution from './solution.json';
 import sudo from './sudo.json';
 import trainingForm from './training-form.json';
 import training from './training.json';
+import userImport from './user-import.json';
 import user from './user.json';
 
 const catalog = {
@@ -92,6 +93,7 @@ const catalog = {
   problemType,
   contestSolution,
   graphEditor,
+  userImport,
 };
 
 export default catalog;

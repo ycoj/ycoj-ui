@@ -6,7 +6,8 @@ import type {
 } from '@/shared/types/problem';
 
 export type OmnibarHotkeyEvent = {
-  key: string;
+  // Synthetic keydown events (extensions, autofill probes) may omit `key`.
+  key?: string;
   metaKey: boolean;
   ctrlKey: boolean;
   altKey: boolean;
@@ -34,7 +35,7 @@ export type OmnibarHit = OmnibarProblemHit | OmnibarUserHit;
 export function isOmnibarHotkey(event: OmnibarHotkeyEvent): boolean {
   if (event.repeat) return false;
   if (event.altKey || event.shiftKey) return false;
-  if (event.key.toLowerCase() !== 'k') return false;
+  if (event.key?.toLowerCase() !== 'k') return false;
   if (isEditableHotkeyTarget(event.target)) return false;
   return event.metaKey || event.ctrlKey;
 }

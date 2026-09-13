@@ -530,7 +530,7 @@ export default function ScratchpadWorkspace({
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.isComposing) return;
-      const key = event.key.toLowerCase();
+      const key = event.key?.toLowerCase();
       if (event.altKey && key === 'q') {
         event.preventDefault();
         onClose();
