@@ -34,6 +34,15 @@ export type HomeworkFormValues = {
   langs: string[];
 };
 
+export type HomeworkCloneValues = Pick<
+  HomeworkFormValues,
+  | 'title'
+  | 'beginAtDate'
+  | 'beginAtTime'
+  | 'penaltySinceDate'
+  | 'penaltySinceTime'
+>;
+
 export function getHomeworkCreateDefaults(
   timeZone?: string,
   now: Dayjs = dayjs()

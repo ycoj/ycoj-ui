@@ -51,8 +51,6 @@ export type Contest = {
   maxRating?: number;
   /** 比赛结束后是否允许查看他人代码 */
   allowViewCode?: boolean;
-  /** Invitation code required to attend. */
-  _code?: string;
   keepScoreboardHidden?: boolean;
   allowPrint?: boolean;
 } & BaseContest; // 比赛

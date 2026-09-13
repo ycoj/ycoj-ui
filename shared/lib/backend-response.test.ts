@@ -5,6 +5,7 @@ import {
   isLoginRedirect,
   isSudoRequired,
   matchesBackendPath,
+  requireTid,
   throwBackendError,
 } from './backend-response';
 import { describe, expect, it } from 'vitest';
@@ -126,5 +127,25 @@ describe('throwBackendError', () => {
   });
   it('ignores responses without an error field', () => {
     expect(() => throwBackendError({ url: '/home' })).not.toThrow();
+  });
+});
+
+describe('requireTid', () => {
+  it('returns the tid for a successful response', () => {
+    expect(requireTid({ tid: 'abc123' }, 'fallback')).toBe('abc123');
+  });
+  it.each([undefined, null, {}, { tid: '' }])(
+    'throws the fallback message when tid is missing: %j',
+    (response) => {
+      expect(() => requireTid(response, 'fallback')).toThrow('fallback');
+    }
+  );
+  it('throws the parsed backend error', () => {
+    expect(() =>
+      requireTid(
+        { error: { name: 'ForbiddenError', message: 'Permission denied' } },
+        'fallback'
+      )
+    ).toThrow('Permission denied');
   });
 });

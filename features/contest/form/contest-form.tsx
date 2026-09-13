@@ -1,12 +1,15 @@
 'use client';
 
+import ContestCloneDialog from '@/features/contest/form/contest-clone-dialog';
 import {
   CONTEST_CREATE_RULES,
   CONTEST_PERMISSIONS,
   contestRuleSupportsFlexibleDuration,
   contestRuleSupportsHiddenScoreboard,
   contestRuleSupportsLock,
+  formatContestEndAt,
   resolveContestAutoHide,
+  type ContestCloneValues,
   type ContestFormValues,
 } from '@/features/contest/form/contest-form-utils';
 import LanguageAutoComplete from '@/features/language/language-auto-complete';
@@ -32,13 +35,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/components/ui/select';
+import { useCloneFlow } from '@/shared/hooks/use-clone-flow';
+import { datePattern, timePattern } from '@/shared/lib/date-patterns';
 import { cn } from '@/shared/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
-import dayjs from 'dayjs';
-import { ArrowLeft, Plus, Save } from 'lucide-react';
+import { ArrowLeft, Copy, Plus, Save } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { type ReactNode } from 'react';
 import {
   Controller,
   useForm,
@@ -58,10 +63,9 @@ type Props = {
   domainId: string;
   cancelHref: string;
   onSubmit: (values: ContestFormValues) => Promise<string>;
+  onClone?: (values: ContestFormValues) => Promise<string>;
+  extraActions?: (isSubmitting: boolean) => ReactNode;
 };
-
-const datePattern = /^\d{4}-\d{2}-\d{2}$/;
-const timePattern = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
 
 export default function ContestForm({
   mode,
@@ -70,6 +74,8 @@ export default function ContestForm({
   domainId,
   cancelHref,
   onSubmit,
+  onClone,
+  extraActions,
 }: Props) {
   const t = useTranslations(
     mode === 'create' ? 'contestCreate' : 'contestEdit'
@@ -79,6 +85,12 @@ export default function ContestForm({
   const optionalPositiveNumber = z
     .string()
     .refine((value) => !value.trim() || Number(value) > 0, t('positiveNumber'));
+  const optionalNonNegativeInteger = z
+    .string()
+    .refine(
+      (value) => !value.trim() || /^\d+$/.test(value.trim()),
+      t('nonNegativeInteger')
+    );
   const schema = z
     .object({
       rule: z.enum(CONTEST_CREATE_RULES),
@@ -108,7 +120,7 @@ export default function ContestForm({
       allowViewCode: z.boolean(),
       allowPrint: z.boolean(),
       keepScoreboardHidden: z.boolean(),
-      lock: optionalPositiveNumber,
+      lock: optionalNonNegativeInteger,
       contestDuration: optionalPositiveNumber,
     })
     .refine(
@@ -133,6 +145,21 @@ export default function ContestForm({
   const [rule, permission] = useWatch({
     control,
     name: ['rule', 'permission'],
+  });
+  const cloneFlow = useCloneFlow<ContestFormValues, ContestCloneValues>({
+    onClone: onClone
+      ? (values) =>
+          onClone({
+            ...values,
+            autoHide: resolveContestAutoHide(canAutoHide, values.autoHide),
+          })
+      : undefined,
+    toCloneValues: ({ title, beginAtDate, beginAtTime, duration }) => ({
+      title,
+      beginAtDate,
+      beginAtTime,
+      duration,
+    }),
   });
   const supportsLock = contestRuleSupportsLock(rule);
   const supportsFlexibleDuration = contestRuleSupportsFlexibleDuration(rule);
@@ -440,7 +467,7 @@ export default function ContestForm({
                 <Input
                   id="lock"
                   type="number"
-                  min="1"
+                  min="0"
                   placeholder={t('optional')}
                   disabled={isSubmitting}
                   aria-invalid={!!errors.lock}
@@ -481,6 +508,18 @@ export default function ContestForm({
           {mode === 'create' ? <Plus /> : <Save />}
           {isSubmitting ? t('creating') : t('create')}
         </Button>
+        {mode === 'edit' && onClone && (
+          <Button
+            type="button"
+            variant="secondary"
+            disabled={isSubmitting}
+            onClick={handleSubmit(cloneFlow.openCloneDialog)}
+          >
+            <Copy />
+            {t('clone')}
+          </Button>
+        )}
+        {extraActions?.(isSubmitting)}
         <Button asChild variant="secondary">
           <Link href={cancelHref}>
             <ArrowLeft />
@@ -488,6 +527,13 @@ export default function ContestForm({
           </Link>
         </Button>
       </div>
+      {cloneFlow.cloneValues && (
+        <ContestCloneDialog
+          defaultValues={cloneFlow.cloneValues}
+          onClose={cloneFlow.closeCloneDialog}
+          onConfirm={cloneFlow.confirmClone}
+        />
+      )}
     </form>
   );
 }
@@ -514,13 +560,7 @@ function ContestTimingFields({
     control,
     name: ['beginAtDate', 'beginAtTime', 'duration'],
   });
-  const parsedDuration = Number(duration);
-  const endAt =
-    beginAtDate && beginAtTime && Number.isFinite(parsedDuration)
-      ? dayjs(`${beginAtDate}T${beginAtTime}`)
-          .add(parsedDuration, 'hour')
-          .format('YYYY-MM-DD HH:mm')
-      : '';
+  const endAt = formatContestEndAt(beginAtDate, beginAtTime, duration);
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

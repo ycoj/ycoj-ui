@@ -51,7 +51,7 @@ vi.mock('@/features/paste/form/paste-form', () => ({
     );
   },
 }));
-vi.mock('@/features/paste/edit/paste-delete-button', () => ({
+vi.mock('@/shared/components/confirm-delete-button', () => ({
   default: ({ id }: { id: string }) => (
     <button type="button">Delete {id}</button>
   ),

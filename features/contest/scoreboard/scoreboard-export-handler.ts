@@ -4,6 +4,7 @@ import {
 } from './scoreboard-export-errors';
 import { renderScoreboardFile } from './scoreboard-export-renderer';
 import ServerApis from '@/api/server/method';
+import parseErrorMessage from '@/shared/components/errored/parse-message';
 import { STATUS_TEXT_KEYS } from '@/shared/configs/status';
 import { backendErrorStatus } from '@/shared/lib/backend-response';
 import { getTranslations } from 'next-intl/server';
@@ -59,7 +60,7 @@ export async function handleScoreboardExport(
     );
     if ('error' in data)
       return Response.json(
-        { error: data.error.message },
+        { error: parseErrorMessage(data.error) },
         {
           status: backendErrorStatus(data.error.name),
           headers: privateHeaders,
