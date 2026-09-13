@@ -59,8 +59,9 @@ export type UserDetailResponse = {
   /**
    * Account's last valid day (YYYY-MM-DD), or '' when it never expires.
    * Null unless the viewer is the account owner or holds PRIV_EDIT_SYSTEM.
+   * May be absent on older backends.
    */
-  accountExpireDate: string | null;
+  accountExpireDate?: string | null;
   /** User's published problem solutions. Requires PERM_VIEW_PROBLEM_SOLUTION. */
   psdocs?: SolutionDocumentDoc[];
   /** Problem dict for solutions. Requires PERM_VIEW_PROBLEM_SOLUTION and PERM_VIEW_PROBLEM. */

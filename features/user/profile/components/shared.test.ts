@@ -55,16 +55,12 @@ describe('getProfileExtras', () => {
       avatar: '  gravatar:a@b.com  ',
       bio: '  hello  ',
       rp: 12.5,
-      nAccept: 10,
-      nSubmit: 20,
     } as UserDetailResponse['udoc']);
 
     expect(getProfileExtras(data)).toEqual({
       avatar: 'gravatar:a@b.com',
       bio: 'hello',
       rp: 12.5,
-      nAccept: 10,
-      nSubmit: 20,
     });
   });
 
@@ -85,8 +81,6 @@ describe('getProfileExtras', () => {
       avatar: undefined,
       bio: undefined,
       rp: undefined,
-      nAccept: undefined,
-      nSubmit: undefined,
     });
   });
 });

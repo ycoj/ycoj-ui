@@ -48,7 +48,7 @@ describe('profile editing entry', () => {
 });
 
 describe('account expiration', () => {
-  const renderSection = (accountExpireDate: string | null) =>
+  const renderSection = (accountExpireDate: string | null | undefined) =>
     render(
       <NextIntlClientProvider locale="en" messages={messages}>
         <HeaderSection data={{ ...data, accountExpireDate }} />
@@ -57,6 +57,13 @@ describe('account expiration', () => {
 
   it('hides the expiration for viewers without access', () => {
     renderSection(null);
+    expect(
+      screen.queryByText(/Never expires|Expires:/)
+    ).not.toBeInTheDocument();
+  });
+
+  it('hides the expiration when the field is absent (older backend)', () => {
+    renderSection(undefined);
     expect(
       screen.queryByText(/Never expires|Expires:/)
     ).not.toBeInTheDocument();
