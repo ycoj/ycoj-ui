@@ -1,6 +1,6 @@
 import ContestSolutionEditForm from './contest-solution-edit-form';
 import type { ContestSolutionFormValues } from './contest-solution-form-utils';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { render, screen } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import type { ReactNode } from 'react';

@@ -1,5 +1,5 @@
 import ExpirationPage from './expiration-page';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { SudoRedirectError } from '@/shared/lib/sudo-navigation';
 import type { AccountExpirationData } from '@/shared/types/account-expiration';
 import {

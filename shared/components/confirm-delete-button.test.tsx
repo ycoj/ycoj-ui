@@ -2,7 +2,7 @@ import ConfirmDeleteButton, {
   type ConfirmDeleteButtonProps,
 } from './confirm-delete-button';
 import ClientApis from '@/api/client/method';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';

@@ -1,0 +1,12 @@
+{
+  "placeholder": "Search problems and users",
+  "openLabel": "Search",
+  "loading": "Searching...",
+  "noResults": "No matches found",
+  "loadFailed": "Could not load results. Try again.",
+  "problems": "Problems",
+  "users": "Users",
+  "shortcut": "Ctrl+K",
+  "shortcutMac": "⌘K",
+  "acceptance": "{accepted}/{submitted}"
+}

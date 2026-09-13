@@ -1,5 +1,5 @@
 import ProblemAutoComplete from './problem-auto-complete';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';

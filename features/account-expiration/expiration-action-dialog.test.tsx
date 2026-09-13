@@ -1,6 +1,6 @@
 import ExpirationActionDialog from '@/features/account-expiration/expiration-action-dialog';
 import { submitExpiration } from '@/features/account-expiration/submit-expiration';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import type { AccountExpirationAction } from '@/shared/types/account-expiration';
 import {
   fireEvent,

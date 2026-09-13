@@ -1,7 +1,7 @@
 import ProblemFilesManager from './problem-files-manager';
 import { uploadClientRequest } from '@/api/client';
 import ClientApis from '@/api/client/method';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { createAlovaMockAdapter, defineMock } from '@alova/mock';
 import {
   act,

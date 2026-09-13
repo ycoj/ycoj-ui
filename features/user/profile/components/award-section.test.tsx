@@ -1,6 +1,6 @@
 import AwardSection from './award-section';
 import type { UserDetailResponse } from '@/api/server/method/user/detail';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { render, screen } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { describe, expect, it } from 'vitest';

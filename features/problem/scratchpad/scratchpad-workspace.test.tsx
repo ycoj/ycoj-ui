@@ -1,6 +1,6 @@
 import { getScratchpadDraft } from './draft-storage';
 import ScratchpadWorkspace from './scratchpad-workspace';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import ProblemSample from '@/shared/components/markdown/components/problem-sample';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';

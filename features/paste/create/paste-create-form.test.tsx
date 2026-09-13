@@ -5,7 +5,7 @@ import {
   type PasteFormValues,
 } from '@/features/paste/form/paste-form-utils';
 import { pasteOptions } from '@/features/paste/paste.test-utils';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { render, screen } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

@@ -1,6 +1,6 @@
 import ProblemList from './problem-list';
 import type { ProblemListResponse } from '@/api/server/method/problems/list';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { render, screen } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { describe, expect, it } from 'vitest';

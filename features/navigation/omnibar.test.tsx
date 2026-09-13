@@ -1,5 +1,5 @@
 import OmnibarProvider, { useOmnibar } from './omnibar-provider';
-import en from '@/messages/en.json';
+import en from '@/messages/en';
 import { STATUS } from '@/shared/configs/status';
 import type { ListProjectionProblem } from '@/shared/types/problem';
 import { act, fireEvent, render, screen } from '@testing-library/react';

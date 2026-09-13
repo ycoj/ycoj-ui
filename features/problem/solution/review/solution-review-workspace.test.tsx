@@ -1,6 +1,6 @@
 import SolutionReviewWorkspace from './solution-review-workspace';
 import type { SolutionReviewData } from '@/api/server/method/problems/solution-review';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { render, screen, within } from '@testing-library/react';
 import {
   NextIntlClientProvider,

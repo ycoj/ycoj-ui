@@ -1,7 +1,7 @@
 import ScoreboardExport from './scoreboard-export';
 import { DownloadResponseError } from '@/api/client/download';
 import ClientApis from '@/api/client/method';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

@@ -1,5 +1,5 @@
 import UserImportForm from './user-import-form';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import {
   fireEvent,
   render,

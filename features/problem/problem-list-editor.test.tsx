@@ -1,6 +1,6 @@
 import ProblemListEditor, { problemListDragType } from './problem-list-editor';
 import type { ProblemAutoCompleteItem } from '@/api/client/method/problem/auto-complete';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { useState } from 'react';

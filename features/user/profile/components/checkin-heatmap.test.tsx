@@ -1,5 +1,5 @@
 import CheckinHeatmap from './checkin-heatmap';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import type { CheckinHistory } from '@/shared/types/checkin';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';

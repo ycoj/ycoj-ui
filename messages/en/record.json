@@ -1,0 +1,79 @@
+{
+  "submitterPlaceholder": "Submitter UID / username",
+  "allStatuses": "All statuses",
+  "codeLength": "Length",
+  "rejudge": "Rejudge",
+  "cancelResult": "Cancel result",
+  "subtask": "Subtask {id}",
+  "testcaseDetails": "Testcase details",
+  "judgeVersion": "Judge version",
+  "latestVersion": "Latest",
+  "historicalVersion": "Historical version",
+  "judgedAt": "Judged at {time}",
+  "aiGeneration": {
+    "title": "AI test-data generation",
+    "pageTitle": "Data generation - {title}",
+    "stages": {
+      "waiting": "Waiting",
+      "preparing": "Preparing",
+      "agent": "Agent working",
+      "validating": "Validating",
+      "replacing": "Installing test data",
+      "completed": "Completed",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    },
+    "progress": "Generation progress",
+    "model": "Model",
+    "testcaseTarget": "Target testcases",
+    "testcaseCount": "Installed testcases",
+    "judgeLimits": "Time / memory limits",
+    "checker": "Checker",
+    "checkerModes": {
+      "default": "Standard comparison",
+      "provided": "Provided Testlib checker",
+      "generated": "AI-generated Testlib checker"
+    },
+    "problem": "Problem",
+    "startedAt": "Started",
+    "finishedAt": "Finished",
+    "recordId": "Record ID",
+    "instructions": "Instructions",
+    "report": "Generation report",
+    "timeline": "Run timeline",
+    "noEvents": "No trace events have been recorded yet.",
+    "events": {
+      "generation": "Generation",
+      "preparation": "Preparation",
+      "agentTurn": "Agent turn",
+      "validation": "Validation",
+      "replacement": "Replacement"
+    },
+    "states": {
+      "running": "Running",
+      "completed": "Completed",
+      "failed": "Failed",
+      "cancelled": "Cancelled",
+      "timedOut": "Timed out"
+    },
+    "tools": {
+      "reading": "Reading",
+      "read": "Read",
+      "editing": "Editing",
+      "edited": "Edited",
+      "readFile": "{action} {path}",
+      "editFile": "{action} {path}",
+      "runningCommand": "Running Command",
+      "runningCommandSingle": "Running {names}",
+      "runningCommandMultiple": "Running {names} ({count} commands)",
+      "ranCommand": "Ran Command",
+      "ranCommandSingle": "Ran {names}",
+      "ranCommandMultiple": "Ran {names} ({count} commands)",
+      "call": "Tool call"
+    },
+    "cancel": "Cancel generation",
+    "cancelling": "Cancelling...",
+    "caseCount": "Installed cases: {count}",
+    "totalBytes": "Total size: {size}"
+  }
+}

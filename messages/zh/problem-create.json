@@ -1,0 +1,22 @@
+{
+  "title": "创建题目",
+  "description": "填写题目的基本信息和题面，创建后可继续配置测试数据。",
+  "problemId": "题目 ID",
+  "problemTitle": "标题",
+  "titlePlaceholder": "请输入清晰的题目标题",
+  "tags": "标签",
+  "tagsPlaceholder": "动态规划, 图结构",
+  "tagsHelp": "多个标签请用逗号分隔。",
+  "difficulty": "难度",
+  "hidden": "隐藏此题目",
+  "statement": "题目描述",
+  "suggestedTags": "分类标签",
+  "suggestedTagsDescription": "点击即可添加或移除分类。",
+  "invalidPid": "请使用字母和数字，并以字母开头（例如 P1000）。",
+  "titleRequired": "请输入题目标题。",
+  "contentRequired": "请输入题目描述。",
+  "submitFailed": "创建题目失败，请稍后重试。",
+  "submitting": "创建中...",
+  "submit": "创建题目",
+  "cancel": "返回题目列表"
+}

@@ -1,5 +1,5 @@
 import ContestTimer from '@/features/contest/contest-timer';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import type { Contest } from '@/shared/types/contest';
 import { act, render, screen } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';

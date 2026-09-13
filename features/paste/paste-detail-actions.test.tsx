@@ -1,5 +1,5 @@
 import PasteDetailActions from './paste-detail-actions';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';

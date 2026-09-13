@@ -1,7 +1,7 @@
 import PreliminaryMobileNavigation from './preliminary-mobile-navigation';
 import type { PreliminaryDetailData } from '@/api/server/method/preliminary/detail';
 import { getPreliminaryQuestionAnchorId } from '@/features/preliminary/lib/preliminary-utils';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';

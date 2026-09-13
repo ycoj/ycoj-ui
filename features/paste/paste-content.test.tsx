@@ -1,5 +1,5 @@
 import PasteContent from './paste-content';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import Markdown from '@/shared/components/markdown';
 import { createEvent, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';

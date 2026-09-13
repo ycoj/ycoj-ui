@@ -1,7 +1,7 @@
 import SolutionContent from './solution-content';
 import type { ProblemSolutionResponse } from '@/api/server/method/problems/solution';
 import { PERM } from '@/features/user/lib/priv';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { render, screen } from '@testing-library/react';
 import { createTranslator } from 'next-intl';
 import { beforeEach, describe, expect, it, vi } from 'vitest';

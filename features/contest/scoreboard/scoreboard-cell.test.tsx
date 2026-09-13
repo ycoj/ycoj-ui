@@ -1,7 +1,7 @@
 import ScoreboardCell, {
   getScoreColorClass,
 } from '@/features/contest/scoreboard/scoreboard-cell';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import type { ScoreboardNode } from '@/shared/types/contest';
 import type { ProblemDict, ProblemDoc } from '@/shared/types/problem';
 import { render, screen } from '@testing-library/react';

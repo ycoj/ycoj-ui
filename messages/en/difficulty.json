@@ -1,0 +1,18 @@
+{
+  "unrated": "Unrated",
+  "none": "None",
+  "beginner": "Beginner",
+  "basicMinus": "Basic-",
+  "basic": "Basic",
+  "basicPlusAdvancedMinus": "Basic+/Advanced-",
+  "advancedMinus": "Advanced-",
+  "advanced": "Advanced",
+  "advancedPlusProvincialMinus": "Advanced+/Provincial-",
+  "provincialMinus": "Provincial-",
+  "provincial": "Provincial",
+  "provincialNoiMinus": "Provincial/NOI-",
+  "noi": "NOI",
+  "noiNoiPlus": "NOI/NOI+/CTS",
+  "noiPlus": "NOI+",
+  "level": "Difficulty {level}"
+}

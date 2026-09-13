@@ -1,6 +1,6 @@
 import ClangdSettings from './clangd-settings';
 import type { ClangdSupport } from './clangd-support';
-import en from '@/messages/en.json';
+import en from '@/messages/en';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';

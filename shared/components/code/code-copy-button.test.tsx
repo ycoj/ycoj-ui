@@ -1,5 +1,5 @@
 import CodeCopyButton from './code-copy-button';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
 import { describe, expect, it, vi } from 'vitest';

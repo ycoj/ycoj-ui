@@ -1,6 +1,6 @@
 import SolutionList from './solution-list';
 import type { ProblemSolutionResponse } from '@/api/server/method/problems/solution';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import type { SolutionDoc } from '@/shared/types/problem';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';

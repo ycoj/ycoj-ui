@@ -1,5 +1,5 @@
 import ProblemTitle from '@/features/problem/detail/problem-title';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import type { Contest } from '@/shared/types/contest';
 import type {
   ProblemConfig,

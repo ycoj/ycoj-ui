@@ -1,6 +1,6 @@
 import ProblemSolutionCreatePage from './page';
 import { PERM } from '@/features/user/lib/priv';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 

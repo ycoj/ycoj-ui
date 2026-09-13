@@ -1,5 +1,5 @@
 import SolutionStatus from './solution-status';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import type { SolutionReviewStatus } from '@/shared/types/problem';
 import { render, screen } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';

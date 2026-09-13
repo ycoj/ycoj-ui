@@ -1,5 +1,5 @@
 import RealnameReviewFilter from '@/features/realname/manage/realname-review-filter';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';

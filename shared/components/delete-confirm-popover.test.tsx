@@ -1,5 +1,5 @@
 import DeleteConfirmPopover from './delete-confirm-popover';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import type { Errorable } from '@/shared/types/error';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';

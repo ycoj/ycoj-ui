@@ -1,6 +1,6 @@
 import ContestCloneDialog from './contest-clone-dialog';
 import type { ContestCloneValues } from '@/features/contest/form/contest-form-utils';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';

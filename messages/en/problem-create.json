@@ -1,0 +1,22 @@
+{
+  "title": "Create problem",
+  "description": "Add the basic information and statement. Test data can be configured after creation.",
+  "problemId": "Problem ID",
+  "problemTitle": "Title",
+  "titlePlaceholder": "Enter a clear problem title",
+  "tags": "Tags",
+  "tagsPlaceholder": "dynamic programming, graph theory",
+  "tagsHelp": "Separate tags with commas.",
+  "difficulty": "Difficulty",
+  "hidden": "Keep this problem hidden",
+  "statement": "Problem statement",
+  "suggestedTags": "Suggested tags",
+  "suggestedTagsDescription": "Click to add or remove a category.",
+  "invalidPid": "Use letters and numbers, starting with a letter (for example, P1000).",
+  "titleRequired": "Enter a problem title.",
+  "contentRequired": "Enter the problem statement.",
+  "submitFailed": "Failed to create the problem. Please try again later.",
+  "submitting": "Creating...",
+  "submit": "Create problem",
+  "cancel": "Back to problems"
+}
