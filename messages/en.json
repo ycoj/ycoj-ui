@@ -723,7 +723,7 @@
     "promptRequired": "Enter the question.",
     "promptTooLong": "Keep questions within 16384 characters.",
     "score": "Points",
-    "scoreInvalid": "Points must be an integer between 1 and 1000.",
+    "scoreInvalid": "Points must be a multiple of 0.5 between 0.5 and 1000.",
     "options": "Options",
     "optionPlaceholder": "Option text. Markdown is supported.",
     "optionTextRequired": "Enter option text.",
@@ -1832,5 +1832,50 @@
     "interactive": "Interactive",
     "communication": "Communication",
     "remoteJudge": "Remote judge"
+  },
+  "graphEditor": {
+    "name": "Graph Editor",
+    "description": "Type an edge list or draw on the canvas — both stay in sync. Drag nodes in Force mode to arrange the layout.",
+    "inputTitle": "Graph input",
+    "inputPlaceholder": "First line: node count\nFollowing lines: u v [weight]",
+    "inputHintIndexed": "The first line is the node count. Each following line is an edge: \"u v\" or \"u v weight\". A lone index adds an isolated node.",
+    "inputHintCustom": "Each line is an edge \"a b\" or \"a b weight\". A single label on a line adds an isolated node.",
+    "skippedLines": "{count, plural, one {# line was} other {# lines were}} skipped because they could not be parsed.",
+    "settingsTitle": "Display & tools",
+    "mode": {
+      "force": "Force",
+      "draw": "Draw",
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "modeHint": {
+      "force": "Drag nodes to move and pin them. Click a node to toggle its pinned state.",
+      "draw": "Click empty space to add a node. Click a node, then a second node, to connect them.",
+      "edit": "Click a node to rename it, or click an edge to edit its weight.",
+      "delete": "Click a node to remove it with its edges, or click an edge to remove it."
+    },
+    "directed": "Directed edges",
+    "indexing": "Indexing",
+    "scheme": {
+      "zero": "0-indexed",
+      "one": "1-indexed",
+      "custom": "Custom labels"
+    },
+    "nodeCount": "Nodes",
+    "nodeRadius": "Node radius",
+    "edgeLength": "Edge length",
+    "color": {
+      "node": "Nodes",
+      "label": "Labels",
+      "edge": "Edges"
+    },
+    "fixAll": "Fix all",
+    "unfixAll": "Unfix all",
+    "treeLayout": "Tree layout",
+    "exportPng": "Export PNG",
+    "exportSvg": "Export SVG",
+    "renameNode": "Rename node",
+    "editWeight": "Edit edge weight",
+    "emptyHint": "Type an edge list, or click the canvas in Draw mode to begin."
   }
 }

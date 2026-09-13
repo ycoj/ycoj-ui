@@ -71,6 +71,9 @@ describe('getPreliminaryCreateDefaults', () => {
 describe('normalizeScoreInput', () => {
   it.each([
     { value: 5, expected: 5 },
+    { value: 0.5, expected: 0.5 },
+    { value: 1.5, expected: 1.5 },
+    { value: '2.5', expected: 2.5 },
     { value: '5', expected: 5 },
     { value: '', expected: 2 },
     { value: '   ', expected: 2 },
@@ -87,11 +90,12 @@ describe('normalizeScoreInput', () => {
 describe('normalizePayloadScore', () => {
   it.each([
     { value: 5, expected: 5 },
-    { value: 1, expected: 1 },
+    { value: 0.5, expected: 0.5 },
+    { value: 1.5, expected: 1.5 },
     { value: 1000, expected: 1000 },
-    { value: 2.5, expected: 2 },
-    { value: 0, expected: 1 },
-    { value: -3, expected: 1 },
+    { value: 2.75, expected: 2.5 },
+    { value: 0, expected: 0.5 },
+    { value: -3, expected: 0.5 },
     { value: 1001, expected: 1000 },
     { value: NaN, expected: 2 },
     { value: Infinity, expected: 2 },
@@ -193,9 +197,9 @@ describe('buildPreliminaryPayload', () => {
         },
       ],
     });
-    expect(payload.sections[0].questions[0].score).toBe(1);
+    expect(payload.sections[0].questions[0].score).toBe(0.5);
     expect(payload.sections[0].questions[0].answer).toBe('true');
-    expect(payload.sections[0].questions[1].score).toBe(2);
+    expect(payload.sections[0].questions[1].score).toBe(2.5);
     expect(payload.sections[0].questions[1].answer).toBe('');
     expect(payload.sections[0].questions[2].score).toBe(1000);
   });

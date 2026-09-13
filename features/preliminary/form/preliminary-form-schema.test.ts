@@ -78,6 +78,30 @@ describe('buildPreliminarySchema', () => {
     ).toBe(true);
   });
 
+  it.each([0.5, 1.5, 1000])('accepts a score of %s', (score) => {
+    const values = validValues();
+    values.sections[0].questions[0].score = score;
+    expect(buildPreliminarySchema(messages).safeParse(values).success).toBe(
+      true
+    );
+  });
+
+  it.each([0.25, 1.25, 1000.5])('rejects a score of %s', (score) => {
+    const values = validValues();
+    values.sections[0].questions[0].score = score;
+    const result = buildPreliminarySchema(messages).safeParse(values);
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(
+      result.error.issues.some(
+        (issue) =>
+          issue.message === 'scoreInvalid' &&
+          JSON.stringify(issue.path) ===
+            JSON.stringify(['sections', 0, 'questions', 0, 'score'])
+      )
+    ).toBe(true);
+  });
+
   it.each([
     {
       name: 'missing title',
