@@ -723,7 +723,7 @@
     "promptRequired": "请输入题干。",
     "promptTooLong": "题干不能超过 16384 个字符。",
     "score": "分值",
-    "scoreInvalid": "分值必须为 1 到 1000 的整数。",
+    "scoreInvalid": "分值必须为 0.5 到 1000 之间且是 0.5 的倍数。",
     "options": "选项",
     "optionPlaceholder": "选项内容，支持 Markdown",
     "optionTextRequired": "请输入选项内容。",
