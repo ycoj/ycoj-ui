@@ -77,7 +77,17 @@ deadline is 300 seconds. Detail exports accept at most 20 participants
 (overview plus 20 images is roughly three minutes measured). Plain PNG
 overviews accept up to 250 participants; the 40-million-pixel cap rejects
 extremely large tables sooner. Request cancellation is checked between images
-and forwarded to rendering, avatar fetches, and ZIP finalization.
+and forwarded to rendering, avatar fetches, and ZIP finalization. Avatar
+responses are read incrementally and capped at 2 MiB of raw response bytes per
+avatar (`MAX_EXPORT_AVATAR_BYTES`) and 32 MiB of embedded data-URI bytes per
+export (`MAX_EXPORT_AVATAR_TOTAL_BYTES`), so retained base64 data cannot exceed
+the export budget. Embedded images are also capped at 2048 px per side
+(`MAX_EXPORT_AVATAR_DIMENSION`), 1,000,000 pixels per image
+(`MAX_EXPORT_AVATAR_PIXELS`), and 8,000,000 pixels across an export
+(`MAX_EXPORT_AVATAR_TOTAL_PIXELS`), since a small compressed file can otherwise
+expand into hundreds of MiB of raster memory. GIF dimensions come from the
+first frame rect rather than the logical screen. Avatars beyond any of these
+limits are omitted like failed fetches.
 
 ### Proxy timeouts
 

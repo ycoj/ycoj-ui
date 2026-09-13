@@ -1,5 +1,12 @@
 import { finalizeScoreboardArchive } from './scoreboard-export-archive';
-import { loadExportAvatar } from './scoreboard-export-avatar';
+import {
+  MAX_AVATAR_DATA_URI_PREFIX,
+  MAX_EXPORT_AVATAR_BYTES,
+  MAX_EXPORT_AVATAR_PIXELS,
+  MAX_EXPORT_AVATAR_TOTAL_BYTES,
+  MAX_EXPORT_AVATAR_TOTAL_PIXELS,
+  loadExportAvatar,
+} from './scoreboard-export-avatar';
 import {
   ScoreboardExportBusyError,
   ScoreboardExportLimitError,
@@ -22,6 +29,45 @@ export const EXPORT_DEADLINE_MS = 300_000;
 export const MAX_CONCURRENT_EXPORTS = 2;
 
 let activeExports = 0;
+
+function rawBytesForEmbeddedBudget(embeddedBytes: number) {
+  return Math.max(
+    0,
+    Math.floor((embeddedBytes - MAX_AVATAR_DATA_URI_PREFIX) / 4) * 3
+  );
+}
+
+export async function loadExportAvatars(
+  uids: number[],
+  udict: ScoreboardExportData['udict'],
+  signal: AbortSignal
+) {
+  const avatars: Record<number, string> = {};
+  let retainedBytes = 0;
+  let retainedPixels = 0;
+  for (const uid of uids) {
+    const byteAllowance = Math.min(
+      MAX_EXPORT_AVATAR_BYTES,
+      rawBytesForEmbeddedBudget(MAX_EXPORT_AVATAR_TOTAL_BYTES - retainedBytes)
+    );
+    const pixelAllowance = Math.min(
+      MAX_EXPORT_AVATAR_PIXELS,
+      MAX_EXPORT_AVATAR_TOTAL_PIXELS - retainedPixels
+    );
+    if (byteAllowance <= 0 || pixelAllowance <= 0) break;
+    const avatar = await loadExportAvatar(
+      udict[uid].avatar,
+      signal,
+      byteAllowance,
+      pixelAllowance
+    );
+    if (!avatar) continue;
+    avatars[uid] = avatar.dataUri;
+    retainedBytes += avatar.dataUri.length;
+    retainedPixels += avatar.pixels;
+  }
+  return avatars;
+}
 
 export async function renderScoreboardFile(
   data: ScoreboardExportData,
@@ -49,7 +95,7 @@ async function renderScoreboardFileContents(
     signal,
     AbortSignal.timeout(EXPORT_DEADLINE_MS),
   ]);
-  const avatars: Record<number, string> = {};
+  let avatars: Record<number, string> = {};
   const capture = async (uid?: number) => {
     exportSignal.throwIfAborted();
     const svg = buildScoreboardSvg(data, options, labels, avatars, uid);
@@ -78,11 +124,7 @@ async function renderScoreboardFileContents(
       'Scoreboard export exceeds the participant limit'
     );
   if (options.avatar)
-    for (const uid of uids)
-      avatars[uid] = await loadExportAvatar(
-        data.udict[uid].avatar,
-        exportSignal
-      );
+    avatars = await loadExportAvatars(uids, data.udict, exportSignal);
   const overview = await capture();
   if (!options.details) {
     return {

@@ -1,14 +1,30 @@
 // @vitest-environment node
+import {
+  MAX_AVATAR_DATA_URI_PREFIX,
+  MAX_EXPORT_AVATAR_BYTES,
+  MAX_EXPORT_AVATAR_PIXELS,
+  MAX_EXPORT_AVATAR_TOTAL_BYTES,
+  MAX_EXPORT_AVATAR_TOTAL_PIXELS,
+} from './scoreboard-export-avatar';
 import { ScoreboardExportLimitError } from './scoreboard-export-errors';
 import {
   MAX_EXPORT_DETAIL_PARTICIPANTS,
   MAX_EXPORT_PARTICIPANTS,
+  loadExportAvatars,
   renderScoreboardFile,
 } from './scoreboard-export-renderer';
 import { buildScoreboardSvg, type ExportLabels } from './scoreboard-export-svg';
 import type { ScoreboardExportData } from '@/shared/types/contest';
 import JSZip from 'jszip';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+
+const loadExportAvatar = vi.hoisted(() => vi.fn());
+vi.mock('./scoreboard-export-avatar', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('./scoreboard-export-avatar')>()),
+  loadExportAvatar,
+}));
+
+afterEach(() => loadExportAvatar.mockReset());
 
 const data: ScoreboardExportData = {
   tdoc: { title: '测试 <script> & contest' } as ScoreboardExportData['tdoc'],
@@ -245,5 +261,131 @@ describe('server image renderer', () => {
     );
     await expect(result).rejects.toBeInstanceOf(ScoreboardExportLimitError);
     await expect(result).rejects.toThrow('participant limit');
+  });
+});
+
+describe('avatar preloading budget', () => {
+  const DATA_URI_PREFIX = 'data:image/png;base64,';
+  const DATA_URI_CHUNK = 1.5 * 1024 * 1024;
+
+  function makeUdict(uids: number[]) {
+    return Object.fromEntries(
+      uids.map((uid) => [uid, { uname: `user-${uid}`, avatar: '' }])
+    );
+  }
+
+  it('clamps the raw allowance to the embedded budget that remains', async () => {
+    loadExportAvatar.mockImplementation(
+      async (_avatar, _signal, maxBytes, maxPixels) => {
+        const embedded = Math.min(
+          DATA_URI_CHUNK,
+          DATA_URI_PREFIX.length + Math.ceil((maxBytes * 4) / 3)
+        );
+        return {
+          dataUri:
+            DATA_URI_PREFIX + 'x'.repeat(embedded - DATA_URI_PREFIX.length),
+          pixels: Math.min(64 * 64, maxPixels),
+        };
+      }
+    );
+    const uids = Array.from({ length: 30 }, (_, index) => index);
+
+    const avatars = await loadExportAvatars(
+      uids,
+      makeUdict(uids),
+      new AbortController().signal
+    );
+
+    const calls = loadExportAvatar.mock.calls;
+    const totalEmbedded = Object.values(avatars).reduce(
+      (total, dataUri) => total + dataUri.length,
+      0
+    );
+    const remaining =
+      MAX_EXPORT_AVATAR_TOTAL_BYTES - (calls.length - 1) * DATA_URI_CHUNK;
+    const lastAllowance = calls.at(-1)?.[2];
+    expect(calls[0][2]).toBe(MAX_EXPORT_AVATAR_BYTES);
+    expect(calls[0][3]).toBe(MAX_EXPORT_AVATAR_PIXELS);
+    expect(lastAllowance).toBe(
+      Math.floor((remaining - MAX_AVATAR_DATA_URI_PREFIX) / 4) * 3
+    );
+    expect(lastAllowance).toBeLessThan(MAX_EXPORT_AVATAR_BYTES);
+    expect(totalEmbedded).toBeLessThanOrEqual(MAX_EXPORT_AVATAR_TOTAL_BYTES);
+    expect(Object.keys(avatars)).toHaveLength(calls.length);
+  });
+
+  it('stops preloading once the aggregate pixel budget is spent', async () => {
+    loadExportAvatar.mockImplementation(
+      async (_avatar, _signal, _maxBytes, maxPixels) => ({
+        dataUri: 'data:image/png;base64,AAAA',
+        pixels: maxPixels,
+      })
+    );
+    const uids = Array.from({ length: 30 }, (_, index) => index);
+
+    const avatars = await loadExportAvatars(
+      uids,
+      makeUdict(uids),
+      new AbortController().signal
+    );
+
+    const calls = loadExportAvatar.mock.calls;
+    expect(calls).toHaveLength(
+      MAX_EXPORT_AVATAR_TOTAL_PIXELS / MAX_EXPORT_AVATAR_PIXELS
+    );
+    expect(calls[0][3]).toBe(MAX_EXPORT_AVATAR_PIXELS);
+    expect(calls.at(-1)?.[3]).toBe(MAX_EXPORT_AVATAR_PIXELS);
+    expect(Object.keys(avatars)).toHaveLength(calls.length);
+  });
+
+  it('clamps the pixel allowance to the aggregate budget that remains', async () => {
+    const returnedPixels: number[] = [];
+    loadExportAvatar.mockImplementation(
+      async (_avatar, _signal, _maxBytes, maxPixels) => {
+        const pixels = Math.min(600_000, maxPixels);
+        returnedPixels.push(pixels);
+        return { dataUri: 'data:image/png;base64,AAAA', pixels };
+      }
+    );
+    const uids = Array.from({ length: 30 }, (_, index) => index);
+
+    const avatars = await loadExportAvatars(
+      uids,
+      makeUdict(uids),
+      new AbortController().signal
+    );
+
+    const calls = loadExportAvatar.mock.calls;
+    const retainedBeforeLast = returnedPixels
+      .slice(0, -1)
+      .reduce((total, pixels) => total + pixels, 0);
+    const totalPixels = returnedPixels.reduce(
+      (total, pixels) => total + pixels,
+      0
+    );
+    const lastAllowance = calls.at(-1)?.[3];
+    expect(lastAllowance).toBe(
+      MAX_EXPORT_AVATAR_TOTAL_PIXELS - retainedBeforeLast
+    );
+    expect(lastAllowance).toBeLessThan(MAX_EXPORT_AVATAR_PIXELS);
+    expect(totalPixels).toBeLessThanOrEqual(MAX_EXPORT_AVATAR_TOTAL_PIXELS);
+    expect(Object.keys(avatars)).toHaveLength(calls.length);
+  });
+
+  it('omits oversized avatars and keeps the ones within the budget', async () => {
+    loadExportAvatar.mockResolvedValueOnce('').mockResolvedValueOnce({
+      dataUri: 'data:image/png;base64,AQID',
+      pixels: 4,
+    });
+    await expect(
+      loadExportAvatars(
+        [1, 2],
+        {
+          1: { uname: 'alice', avatar: 'a' },
+          2: { uname: 'bob', avatar: 'b' },
+        },
+        new AbortController().signal
+      )
+    ).resolves.toEqual({ 2: 'data:image/png;base64,AQID' });
   });
 });
