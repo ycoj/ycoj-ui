@@ -1,11 +1,11 @@
 'use client';
 
 import { useObjective } from '@/features/problem/objective/provider';
+import ConfirmActionDialog from '@/shared/components/confirm-action-dialog';
 import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/utils';
 import { Trash2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useCallback } from 'react';
 
 function escapeId(id: string) {
   if (typeof CSS !== 'undefined' && CSS.escape) return CSS.escape(id);
@@ -36,6 +36,7 @@ function scrollToQuestion(id: string) {
 
 export default function ObjectiveNavigation() {
   const t = useTranslations('problem.objectiveForm');
+  const tCommon = useTranslations('common');
   const {
     questionIds,
     isCompleted,
@@ -44,12 +45,6 @@ export default function ObjectiveNavigation() {
     isReadOnly,
     draftError,
   } = useObjective();
-
-  const handleClear = useCallback(async () => {
-    const confirmed = window.confirm(t('clearConfirm'));
-    if (!confirmed) return;
-    await clearAnswers();
-  }, [t, clearAnswers]);
 
   if (!isReady) return null;
   if (questionIds.length === 0) {
@@ -96,14 +91,24 @@ export default function ObjectiveNavigation() {
         })}
       </div>
       {!isReadOnly && (
-        <Button
-          variant="ghost"
-          className="h-10 w-full justify-start gap-3 px-4"
-          onClick={handleClear}
-        >
-          <Trash2 strokeWidth={2} />
-          {t('clearAnswers')}
-        </Button>
+        <ConfirmActionDialog
+          title={t('clearAnswers')}
+          description={t('clearConfirm')}
+          confirmLabel={t('clearAnswers')}
+          cancelLabel={tCommon('cancel')}
+          fallbackError={t('draftError')}
+          onConfirm={clearAnswers}
+          trigger={(pending) => (
+            <Button
+              variant="ghost"
+              className="h-10 w-full justify-start gap-3 px-4"
+              disabled={pending}
+            >
+              <Trash2 strokeWidth={2} />
+              {t('clearAnswers')}
+            </Button>
+          )}
+        />
       )}
     </div>
   );

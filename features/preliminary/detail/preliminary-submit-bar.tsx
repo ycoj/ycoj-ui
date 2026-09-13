@@ -5,6 +5,7 @@ import {
   PreliminaryRequestError,
   submitPreliminaryAnswers,
 } from '@/features/preliminary/lib/preliminary-request';
+import ConfirmActionDialog from '@/shared/components/confirm-action-dialog';
 import { Alert, AlertDescription } from '@/shared/components/ui/alert';
 import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/lib/utils';
@@ -52,6 +53,7 @@ export default function PreliminarySubmitBar({
   navigation,
 }: Props) {
   const t = useTranslations('preliminary');
+  const tCommon = useTranslations('common');
   const router = useRouter();
   const {
     answers,
@@ -64,11 +66,6 @@ export default function PreliminarySubmitBar({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { barRef, barHeight } = useFixedBarHeight();
-
-  const handleClear = async () => {
-    if (!window.confirm(t('clearConfirm'))) return;
-    await clearAnswers();
-  };
 
   const handleSubmit = async () => {
     if (pending) return;
@@ -131,18 +128,29 @@ export default function PreliminarySubmitBar({
                 <Send strokeWidth={2} />
                 {pending ? t('submitting') : t('submit')}
               </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => void handleClear()}
-                disabled={!isReady || pending}
-                className="size-11 shrink-0 gap-2 p-0 md:h-9 md:w-auto md:px-3"
-                aria-label={t('clearAnswers')}
+              <ConfirmActionDialog
                 title={t('clearAnswers')}
-              >
-                <Eraser strokeWidth={2} />
-                <span className="hidden md:inline">{t('clearAnswers')}</span>
-              </Button>
+                description={t('clearConfirm')}
+                confirmLabel={t('clearAnswers')}
+                cancelLabel={tCommon('cancel')}
+                fallbackError={t('draftError')}
+                onConfirm={clearAnswers}
+                trigger={(confirming) => (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    disabled={!isReady || pending || confirming}
+                    className="size-11 shrink-0 gap-2 p-0 md:h-9 md:w-auto md:px-3"
+                    aria-label={t('clearAnswers')}
+                    title={t('clearAnswers')}
+                  >
+                    <Eraser strokeWidth={2} />
+                    <span className="hidden md:inline">
+                      {t('clearAnswers')}
+                    </span>
+                  </Button>
+                )}
+              />
             </>
           )}
           <span

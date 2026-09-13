@@ -35,7 +35,7 @@ type Props = {
   domainId: string;
   cancelHref: string;
   canPin: boolean;
-  extraActions?: ReactNode;
+  extraActions?: (isSubmitting: boolean) => ReactNode;
   onSubmit: (values: TrainingFormValues) => Promise<string>;
 };
 
@@ -220,7 +220,7 @@ export default function TrainingForm({
               ? t('create')
               : t('save')}
         </Button>
-        {extraActions}
+        {extraActions?.(isSubmitting)}
         <Button asChild variant="secondary">
           <Link href={cancelHref}>
             <ArrowLeft />

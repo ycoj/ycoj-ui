@@ -1,6 +1,6 @@
 import PreliminarySubmitBar from './preliminary-submit-bar';
 import messages from '@/messages/en.json';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -105,6 +105,42 @@ describe('PreliminarySubmitBar permissions', () => {
     expect(
       screen.getByRole('button', { name: messages.preliminary.clearAnswers })
     ).toBeDisabled();
+  });
+});
+
+describe('PreliminarySubmitBar clear', () => {
+  it('clears answers only after confirming in the dialog', async () => {
+    const user = userEvent.setup();
+    renderBar();
+    await user.click(
+      screen.getByRole('button', { name: messages.preliminary.clearAnswers })
+    );
+    expect(mocks.answersState.clearAnswers).not.toHaveBeenCalled();
+    const dialog = await screen.findByRole('alertdialog');
+    await user.click(
+      within(dialog).getByRole('button', {
+        name: messages.preliminary.clearAnswers,
+      })
+    );
+    await waitFor(() =>
+      expect(mocks.answersState.clearAnswers).toHaveBeenCalled()
+    );
+  });
+
+  it('keeps answers when the dialog is cancelled', async () => {
+    const user = userEvent.setup();
+    renderBar();
+    await user.click(
+      screen.getByRole('button', { name: messages.preliminary.clearAnswers })
+    );
+    const dialog = await screen.findByRole('alertdialog');
+    await user.click(
+      within(dialog).getByRole('button', { name: messages.common.cancel })
+    );
+    await waitFor(() =>
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+    );
+    expect(mocks.answersState.clearAnswers).not.toHaveBeenCalled();
   });
 });
 

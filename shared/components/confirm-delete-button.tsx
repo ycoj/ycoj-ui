@@ -1,8 +1,8 @@
 'use client';
 
+import ConfirmActionDialog from '@/shared/components/confirm-action-dialog';
 import parseErrorMessage from '@/shared/components/errored/parse-message';
 import { Button } from '@/shared/components/ui/button';
-import { FieldError } from '@/shared/components/ui/field';
 import {
   matchesBackendPath,
   normalizeBackendPathname,
@@ -11,8 +11,7 @@ import type { Errorable } from '@/shared/types/error';
 import { LoaderCircle, Trash } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { AlertDialog } from 'radix-ui';
-import { useState } from 'react';
+import type { ComponentPropsWithoutRef } from 'react';
 
 export type ConfirmDeleteButtonProps = {
   id: string;
@@ -20,6 +19,8 @@ export type ConfirmDeleteButtonProps = {
   listRoute: string;
   onDelete: (id: string) => Promise<Errorable<{ url?: string }>>;
   disabled?: boolean;
+  variant?: ComponentPropsWithoutRef<typeof Button>['variant'];
+  className?: string;
 };
 
 export default function ConfirmDeleteButton({
@@ -28,102 +29,47 @@ export default function ConfirmDeleteButton({
   listRoute,
   onDelete,
   disabled,
+  variant = 'destructive',
+  className,
 }: ConfirmDeleteButtonProps) {
   const t = useTranslations(namespace);
   const tCommon = useTranslations('common');
   const router = useRouter();
-  const [deleting, setDeleting] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [error, setError] = useState<string>();
-
-  const onDeleteClick = async () => {
-    if (deleting) return;
-    setError(undefined);
-    setDeleting(true);
-    try {
-      const response = await onDelete(id);
-      if ('error' in response)
-        throw new Error(parseErrorMessage(response.error));
-      setOpen(false);
-      // A denied delete can come back as a redirect (e.g. to the login or
-      // domain-join page) instead of an error payload; honor it instead of
-      // treating the response as a successful deletion.
-      const target =
-        typeof response?.url === 'string' &&
-        !matchesBackendPath(response.url, listRoute)
-          ? normalizeBackendPathname(response.url)
-          : listRoute;
-      router.push(target);
-      router.refresh();
-    } catch (caught) {
-      setError(
-        caught instanceof Error && caught.message
-          ? caught.message
-          : t('deleteFailed')
-      );
-    } finally {
-      setDeleting(false);
-    }
-  };
 
   return (
-    <AlertDialog.Root
-      open={open}
-      onOpenChange={(next) => {
-        if (deleting) return;
-        setOpen(next);
-        if (!next) setError(undefined);
+    <ConfirmActionDialog
+      title={t('delete')}
+      description={t('deleteConfirm')}
+      confirmLabel={t('delete')}
+      pendingLabel={t('deleting')}
+      cancelLabel={tCommon('cancel')}
+      fallbackError={t('deleteFailed')}
+      onConfirm={async () => {
+        const response = await onDelete(id);
+        if ('error' in response)
+          throw new Error(parseErrorMessage(response.error));
+        // A denied delete can come back as a redirect (e.g. to the login or
+        // domain-join page) instead of an error payload; honor it instead of
+        // treating the response as a successful deletion.
+        const target =
+          typeof response?.url === 'string' &&
+          !matchesBackendPath(response.url, listRoute)
+            ? normalizeBackendPathname(response.url)
+            : listRoute;
+        router.push(target);
+        router.refresh();
       }}
-    >
-      <AlertDialog.Trigger asChild>
+      trigger={(pending) => (
         <Button
           type="button"
-          variant="destructive"
-          disabled={deleting || disabled}
+          variant={variant}
+          className={className}
+          disabled={pending || disabled}
         >
-          {deleting ? <LoaderCircle className="animate-spin" /> : <Trash />}
-          {deleting ? t('deleting') : t('delete')}
+          {pending ? <LoaderCircle className="animate-spin" /> : <Trash />}
+          {pending ? t('deleting') : t('delete')}
         </Button>
-      </AlertDialog.Trigger>
-      <AlertDialog.Portal>
-        <AlertDialog.Overlay className="fixed inset-0 z-50 bg-black/30 backdrop-blur-xs" />
-        <AlertDialog.Content
-          className="bg-background fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg border p-5 shadow-lg"
-          data-llm-visible="true"
-        >
-          <AlertDialog.Title
-            className="text-lg font-semibold"
-            data-llm-text={t('delete')}
-          >
-            {t('delete')}
-          </AlertDialog.Title>
-          <AlertDialog.Description
-            className="text-muted-foreground mt-2 text-sm"
-            data-llm-text={t('deleteConfirm')}
-          >
-            {t('deleteConfirm')}
-          </AlertDialog.Description>
-          {error && (
-            <FieldError className="mt-2" errors={[{ message: error }]} />
-          )}
-          <div className="mt-5 flex justify-end gap-2">
-            <AlertDialog.Cancel asChild>
-              <Button type="button" variant="outline" disabled={deleting}>
-                {tCommon('cancel')}
-              </Button>
-            </AlertDialog.Cancel>
-            <Button
-              type="button"
-              variant="destructive"
-              disabled={deleting}
-              onClick={() => void onDeleteClick()}
-            >
-              {deleting && <LoaderCircle className="animate-spin" />}
-              {deleting ? t('deleting') : t('delete')}
-            </Button>
-          </div>
-        </AlertDialog.Content>
-      </AlertDialog.Portal>
-    </AlertDialog.Root>
+      )}
+    />
   );
 }
