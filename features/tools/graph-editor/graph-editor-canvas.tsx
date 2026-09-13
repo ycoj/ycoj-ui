@@ -18,6 +18,7 @@ import {
   useEffect,
   useRef,
   useState,
+  type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
   type RefObject,
 } from 'react';
@@ -149,7 +150,7 @@ export default function GraphEditorCanvas({
     return () => cancelAnimationFrame(raf);
   }, [graphRef]);
 
-  const canvasPoint = (event: ReactPointerEvent<HTMLCanvasElement>) => {
+  const canvasPoint = (event: ReactMouseEvent<HTMLCanvasElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
     return { x: event.clientX - rect.left, y: event.clientY - rect.top };
   };
@@ -214,33 +215,7 @@ export default function GraphEditorCanvas({
       return;
     }
 
-    if (currentMode === 'edit') {
-      if (node) {
-        setEditing({
-          kind: 'node',
-          nodeId: node.id,
-          x: node.x,
-          y: node.y,
-          value: node.label,
-        });
-        return;
-      }
-      const edge = edgeAt(current, x, y, currentStyle.nodeRadius);
-      if (edge) {
-        const shape = edgeShapes(current, currentStyle.nodeRadius).find(
-          (item) => item.edge === edge
-        )?.shape;
-        const mid = shape ? edgeMidpoint(shape) : { x, y };
-        setEditing({
-          kind: 'edge',
-          edgeId: edge.id,
-          x: mid.x,
-          y: mid.y,
-          value: edge.weight,
-        });
-      }
-      return;
-    }
+    if (currentMode === 'edit') return;
 
     if (currentMode === 'delete') {
       if (node) {
@@ -259,6 +234,38 @@ export default function GraphEditorCanvas({
           edges: g.edges.filter((item) => item.id !== edge.id),
         }));
       }
+    }
+  };
+
+  const handleClick = (event: ReactMouseEvent<HTMLCanvasElement>) => {
+    const { mode: currentMode, style: currentStyle } = live.current;
+    if (currentMode !== 'edit') return;
+    const { x, y } = canvasPoint(event);
+    const current = graphRef.current;
+    const node = nodeAt(current, x, y, currentStyle.nodeRadius);
+    if (node) {
+      setEditing({
+        kind: 'node',
+        nodeId: node.id,
+        x: node.x,
+        y: node.y,
+        value: node.label,
+      });
+      return;
+    }
+    const edge = edgeAt(current, x, y, currentStyle.nodeRadius);
+    if (edge) {
+      const shape = edgeShapes(current, currentStyle.nodeRadius).find(
+        (item) => item.edge === edge
+      )?.shape;
+      const mid = shape ? edgeMidpoint(shape) : { x, y };
+      setEditing({
+        kind: 'edge',
+        edgeId: edge.id,
+        x: mid.x,
+        y: mid.y,
+        value: edge.weight,
+      });
     }
   };
 
@@ -337,6 +344,7 @@ export default function GraphEditorCanvas({
           'absolute inset-0 h-full w-full touch-none',
           CURSOR_BY_MODE[mode]
         )}
+        onClick={handleClick}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
