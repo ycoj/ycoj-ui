@@ -2,21 +2,21 @@
 
 import ClientApis from '@/api/client/method';
 import DeleteConfirmPopover from '@/shared/components/delete-confirm-popover';
-import type { ObjectId } from '@/shared/types/shared';
 import { useTranslations } from 'next-intl';
 
 type Props = {
-  pid: string | number;
-  psid: ObjectId;
+  tid: string;
+  sid: string;
 };
 
-export default function SolutionDeleteButton({ pid, psid }: Props) {
-  const t = useTranslations('solution');
+export default function ContestSolutionDeleteButton({ tid, sid }: Props) {
+  const t = useTranslations('contestSolution');
 
   return (
     <DeleteConfirmPopover
+      successHref={`/contest/${tid}`}
       onDelete={async () =>
-        await ClientApis.Problem.deleteProblemSolution(pid, psid).send()
+        await ClientApis.Contest.deleteContestSolution(tid, sid).send()
       }
       deleteLabel={t('delete')}
       confirmDeleteLabel={t('confirmDelete')}

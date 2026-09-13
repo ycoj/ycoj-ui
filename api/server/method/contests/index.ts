@@ -13,7 +13,11 @@ import {
   getContestScoreboard,
   getScoreboardExportData,
 } from '@/api/server/method/contests/scoreboard';
-import { getContestSolution } from '@/api/server/method/contests/solution';
+import {
+  getContestSolution,
+  getContestSolutionCreate,
+  getContestSolutionEdit,
+} from '@/api/server/method/contests/solution';
 
 const Contests = {
   getContestList,
@@ -28,6 +32,8 @@ const Contests = {
   getContestBalloons,
   getContestBulkSubmit,
   getContestSolution,
+  getContestSolutionCreate,
+  getContestSolutionEdit,
 };
 
 export default Contests;
