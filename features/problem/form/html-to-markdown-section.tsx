@@ -5,6 +5,7 @@ import { getConvertPrompt } from '@/features/problem/form/html-to-markdown-promp
 import parseErrorMessage from '@/shared/components/errored/parse-message';
 import { Button } from '@/shared/components/ui/button';
 import { Separator } from '@/shared/components/ui/separator';
+import type { HydroError } from '@/shared/types/error';
 import { FileText, Loader2, Wand2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { AlertDialog } from 'radix-ui';
@@ -113,7 +114,7 @@ export default function HtmlToMarkdownSection({
 
         const response = pollResponse as Exclude<
           typeof pollResponse,
-          { error: { name: string } }
+          { error: HydroError }
         >;
 
         if (response.status === 'completed') {

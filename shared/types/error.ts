@@ -1,7 +1,7 @@
 export type HydroError = {
-  message: string;
-  params?: string[];
-  name: string;
+  message?: string;
+  params?: unknown[];
+  name?: string;
 };
 
 export type Errorable<T> =

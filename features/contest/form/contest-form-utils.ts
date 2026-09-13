@@ -141,12 +141,12 @@ export function resolveContestAutoHide(
   return canAutoHide && submitted;
 }
 
-export function contestPermissionFromTdoc(tdoc: {
-  assign?: string[];
-  _code?: string;
-}): ContestPermission {
+export function contestPermissionFromTdoc(
+  tdoc: { assign?: string[] },
+  code?: string
+): ContestPermission {
   if (tdoc.assign?.length) return 'assign';
-  if (tdoc._code) return 'invite';
+  if (code) return 'invite';
   return 'public';
 }
 
@@ -154,7 +154,7 @@ export function isContestCreateRule(rule: string): rule is ContestCreateRule {
   return (CONTEST_CREATE_RULES as readonly string[]).includes(rule);
 }
 
-type ContestEditSource = Pick<ContestEditData, 'tdoc' | 'duration'>;
+type ContestEditSource = Pick<ContestEditData, 'tdoc' | 'duration' | 'code'>;
 
 export function mapContestEditToFormValues(
   data: ContestEditSource,
@@ -180,9 +180,9 @@ export function mapContestEditToFormValues(
     pids,
     content: tdoc.content ?? '',
     maintainer: (tdoc.maintainer ?? []).map(String),
-    permission: contestPermissionFromTdoc(tdoc),
+    permission: contestPermissionFromTdoc(tdoc, data.code),
     assign: tdoc.assign ?? [],
-    code: tdoc._code ?? '',
+    code: data.code ?? '',
     langs: tdoc.langs ?? [],
     rated: Boolean(tdoc.rated),
     autoHide: Boolean(tdoc.autoHide),

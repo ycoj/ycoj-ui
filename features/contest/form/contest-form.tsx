@@ -86,6 +86,12 @@ export default function ContestForm({
   const optionalPositiveNumber = z
     .string()
     .refine((value) => !value.trim() || Number(value) > 0, t('positiveNumber'));
+  const optionalNonNegativeInteger = z
+    .string()
+    .refine(
+      (value) => !value.trim() || /^\d+$/.test(value.trim()),
+      t('nonNegativeInteger')
+    );
   const schema = z
     .object({
       rule: z.enum(CONTEST_CREATE_RULES),
@@ -115,7 +121,7 @@ export default function ContestForm({
       allowViewCode: z.boolean(),
       allowPrint: z.boolean(),
       keepScoreboardHidden: z.boolean(),
-      lock: optionalPositiveNumber,
+      lock: optionalNonNegativeInteger,
       contestDuration: optionalPositiveNumber,
     })
     .refine(

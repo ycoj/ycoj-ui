@@ -141,16 +141,15 @@ describe('contest form utilities', () => {
 
   it('derives participation access from assign and invitation code', () => {
     expect(contestPermissionFromTdoc({ assign: ['class-a'] })).toBe('assign');
-    expect(contestPermissionFromTdoc({ _code: 'secret' })).toBe('invite');
+    expect(contestPermissionFromTdoc({}, 'secret')).toBe('invite');
     expect(contestPermissionFromTdoc({})).toBe('public');
   });
 
   it('maps edit GET data into form values without using create defaults', () => {
     const values = mapContestEditToFormValues(
       makeEditData(
-        {},
+        { code: 'secret' },
         {
-          _code: 'secret',
           allowViewCode: false,
           allowPrint: true,
           autoHide: true,
@@ -190,11 +189,10 @@ describe('contest form utilities', () => {
   it('prefers assigned access over an invitation code and maps flexible duration', () => {
     const values = mapContestEditToFormValues(
       makeEditData(
-        { duration: 5 },
+        { duration: 5, code: 'secret' },
         {
           rule: 'oi',
           assign: ['class-a'],
-          _code: 'secret',
           duration: 3.5,
           keepScoreboardHidden: true,
         }
