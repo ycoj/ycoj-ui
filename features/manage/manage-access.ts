@@ -9,3 +9,7 @@ export function manageLanding(user: Pick<User, 'priv'>) {
   if (user.priv === PRIV.PRIV_ALL) return '/manage/realname';
   return canManageExpiration(user) ? '/manage/user-expiration' : '/home';
 }
+
+export function canImportUsers(user: Pick<User, 'priv'>) {
+  return (user.priv & PRIV.PRIV_EDIT_SYSTEM) === PRIV.PRIV_EDIT_SYSTEM;
+}

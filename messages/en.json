@@ -41,7 +41,8 @@
   "manage": {
     "navigation": "System management",
     "realname": "Real-name review",
-    "expiration": "Account expiration"
+    "expiration": "Account expiration",
+    "userImport": "Import users"
   },
   "sudo": {
     "title": "Confirm your identity",
@@ -1887,5 +1888,33 @@
     "renameNode": "Rename node",
     "editWeight": "Edit edge weight",
     "emptyHint": "Type an edge list, or click the canvas in Draw mode to begin."
+  },
+  "userImport": {
+    "title": "Import users",
+    "description": "Create accounts in bulk: add your user list, review the preview, then import.",
+    "formatTitle": "Prepare your user list",
+    "formatHelp": "Use one user per line, without a header. Paste tab-separated rows from a spreadsheet, or separate values with commas. Quoted CSV fields are not supported; use tabs for values containing commas.",
+    "columns": "Column order: email, username, password, display name (optional), extra details (optional).",
+    "extraHelp": "Extra details can be a JSON object with group, school, and studentId. Keep the display name column empty if you only need extra details. Groups and display names apply to the current domain.",
+    "example": "Example user row",
+    "passwordHelp": "Each account needs an initial password. Use your own passwords; the example is only a format guide. Passwords are omitted from the preview.",
+    "file": "Load a text file (optional)",
+    "fileHelp": "Choose a UTF-8 CSV, TSV, or TXT file. Its contents will replace the text below.",
+    "users": "User list",
+    "required": "Add at least one user before previewing.",
+    "fileFailed": "Could not read the file. Try again or paste its contents.",
+    "failed": "The request could not be completed.",
+    "retryNotice": "Some accounts may already have been created. Preview again before retrying.",
+    "working": "Working…",
+    "preview": "Preview users",
+    "import": "Import {count} users",
+    "previewTitle": "Import preview",
+    "previewCount": "{count} of {total} rows accepted",
+    "previewHelp": "Review the messages below. Import processes valid rows only; invalid rows are skipped. To include missing users, correct the list and preview again.",
+    "email": "Email",
+    "username": "Username",
+    "displayName": "Display name",
+    "resultTitle": "Import results",
+    "resultHelp": "The import request finished. Review the server messages for skipped rows or creation errors. The “users found” count describes validated entries, not confirmed account creations."
   }
 }

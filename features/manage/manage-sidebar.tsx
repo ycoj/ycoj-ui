@@ -1,9 +1,12 @@
 'use client';
 
-import { canManageExpiration } from '@/features/manage/manage-access';
+import {
+  canImportUsers,
+  canManageExpiration,
+} from '@/features/manage/manage-access';
 import { PRIV } from '@/features/user/lib/priv';
 import { cn } from '@/shared/lib/utils';
-import { CalendarClock, UserCheck } from 'lucide-react';
+import { CalendarClock, UserCheck, UserPlus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -12,6 +15,15 @@ export default function ManageSidebar({ priv }: { priv: number }) {
   const t = useTranslations('manage');
   const pathname = usePathname();
   const items = [
+    ...(canImportUsers({ priv })
+      ? [
+          {
+            href: '/manage/user-import',
+            label: t('userImport'),
+            icon: UserPlus,
+          },
+        ]
+      : []),
     ...(priv === PRIV.PRIV_ALL
       ? [{ href: '/manage/realname', label: t('realname'), icon: UserCheck }]
       : []),

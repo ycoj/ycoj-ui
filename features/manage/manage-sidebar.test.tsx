@@ -1,4 +1,5 @@
 import {
+  canImportUsers,
   canManageExpiration,
   manageLanding,
 } from '@/features/manage/manage-access';
@@ -19,6 +20,7 @@ describe('management access', () => {
     { priv: 4, path: '/home', allowed: false },
   ])('routes privilege $priv correctly', ({ priv, path, allowed }) => {
     expect(canManageExpiration({ priv })).toBe(allowed);
+    expect(canImportUsers({ priv })).toBe(allowed);
     expect(manageLanding({ priv })).toBe(path);
   });
   it.each([-1, 5, 4])('shows only permitted links for privilege %s', (priv) => {
@@ -29,6 +31,9 @@ describe('management access', () => {
     );
     expect(!!screen.queryByRole('link', { name: 'Real-name review' })).toBe(
       priv === -1
+    );
+    expect(!!screen.queryByRole('link', { name: 'Import users' })).toBe(
+      canImportUsers({ priv })
     );
     expect(screen.getByRole('complementary')).toBeInTheDocument();
     expect(screen.getByRole('navigation')).toHaveClass('flex-col');

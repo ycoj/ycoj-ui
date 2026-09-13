@@ -41,7 +41,8 @@
   "manage": {
     "navigation": "系统管理",
     "realname": "实名认证审核",
-    "expiration": "账号有效期"
+    "expiration": "账号有效期",
+    "userImport": "导入用户"
   },
   "sudo": {
     "title": "确认身份",
@@ -1887,5 +1888,33 @@
     "renameNode": "重命名节点",
     "editWeight": "编辑边权",
     "emptyHint": "输入边列表，或在“绘制”模式下点击画布开始。"
+  },
+  "userImport": {
+    "title": "导入用户",
+    "description": "批量创建账号：填写用户列表，检查预览，然后导入。",
+    "formatTitle": "准备用户列表",
+    "formatHelp": "每行填写一个用户，不要包含表头。可以从电子表格粘贴制表符分隔的数据，也可以用逗号分隔。不支持带引号的 CSV 字段；如果内容包含逗号，请使用制表符分隔。",
+    "columns": "列顺序：邮箱、用户名、密码、显示名称（可选）、附加信息（可选）。",
+    "extraHelp": "附加信息可填写包含 group（用户组）、school（学校）、studentId（学号）的 JSON 对象。如果只需附加信息，请保留空的显示名称列。用户组和显示名称应用于当前域。",
+    "example": "用户数据示例",
+    "passwordHelp": "每个账号都需要初始密码。请自行设置密码，示例仅用于说明格式。预览中不显示密码。",
+    "file": "加载文本文件（可选）",
+    "fileHelp": "选择 UTF-8 编码的 CSV、TSV 或 TXT 文件，文件内容将替换下方文本。",
+    "users": "用户列表",
+    "required": "请至少填写一个用户后再预览。",
+    "fileFailed": "无法读取文件，请重试或直接粘贴文件内容。",
+    "failed": "请求未能完成。",
+    "retryNotice": "部分账号可能已经创建，请先重新预览再重试。",
+    "working": "处理中…",
+    "preview": "预览用户",
+    "import": "导入 {count} 个用户",
+    "previewTitle": "导入预览",
+    "previewCount": "{total} 行中有 {count} 行通过检查",
+    "previewHelp": "请检查下方提示。导入时仅处理有效行，无效行将被跳过。如需包含缺失的用户，请修改列表并重新预览。",
+    "email": "邮箱",
+    "username": "用户名",
+    "displayName": "显示名称",
+    "resultTitle": "导入结果",
+    "resultHelp": "导入请求已完成，请检查服务器提示中是否存在跳过的行或创建失败的账号。“users found” 表示通过检查的条目数，并非确认创建成功的账号数。"
   }
 }
