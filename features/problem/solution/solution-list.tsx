@@ -81,6 +81,7 @@ export default function SolutionList({
             allowEditSelf={allowEditSelf}
             allowDeleteAny={allowDeleteAny}
             allowDeleteSelf={allowDeleteSelf}
+            reviewLabel={data.reviewLabels[solution.reviewStatus]}
           />
           {index < solutions.length - 1 && <Separator className="mt-6" />}
         </Fragment>

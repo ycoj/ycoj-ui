@@ -29,6 +29,7 @@ describe('solution creation entry', () => {
     async (solutionBlocked) => {
       const data = {
         pdoc: { docId: 1 },
+        reviewLabels: {},
         solutionBlocked,
       } as ProblemSolutionResponse;
       render(await SolutionContent({ data }));

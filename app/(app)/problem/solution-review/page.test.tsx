@@ -51,8 +51,11 @@ describe('solution review route', () => {
   it.each([
     [undefined, 'pending'],
     ['authors', 'authors'],
-    ['all', 'pending'],
-  ])('loads the authorized %s view', async (status, expected) => {
+    ['featured', 'featured'],
+    ['blocked', 'blocked'],
+    ['all', 'all'],
+    ['bogus', 'pending'],
+  ])('loads the %s view as %s', async (status, expected) => {
     mocks.user.mockResolvedValue({
       perm: `BigInt::${PERM.PERM_DELETE_PROBLEM_SOLUTION}`,
     });

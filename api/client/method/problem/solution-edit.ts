@@ -15,6 +15,8 @@ export type ProblemSolutionDoc = {
 
 export type ProblemSolutionEditResponse = {
   psdoc: ProblemSolutionDoc;
+  /** The referer that the backend's `Handler#back()` echoes back. */
+  url?: string;
 };
 
 export const editProblemSolution = (

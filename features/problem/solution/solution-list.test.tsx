@@ -15,6 +15,16 @@ vi.mock('./solution-delete-button', () => ({
   default: () => <button>Delete solution</button>,
 }));
 
+const reviewLabels: Record<string, string> = {
+  '-1': 'Rejected and author blocked',
+  '0': 'Rejected',
+  '1': 'Unreviewed',
+  '2': 'Approved',
+  '3': 'Featured solution',
+  '-2': 'Held for review',
+};
+const localizedLabels: Record<string, string> = messages.solution.status;
+
 function solution(
   status: SolutionDoc['reviewStatus'],
   owner = 42
@@ -41,6 +51,7 @@ function mount(docs: SolutionDoc[]) {
     pdoc: { docId: 1, pid: 'P1' },
     udict: {},
     pssdict: {},
+    reviewLabels,
     solutionBlocked: false,
   } as ProblemSolutionResponse;
   return render(
@@ -76,9 +87,16 @@ describe('solution review visibility', () => {
       ).toBeInTheDocument();
     await userEvent.click(screen.getByText('Unapproved solutions (3)'));
     expect(disclosure).toHaveAttribute('open');
-    for (const label of Object.values(messages.solution.status))
-      expect(screen.getByText(label)).toBeInTheDocument();
+    for (const status of ['3', '2', '1', '0', '-1'])
+      expect(screen.getByText(localizedLabels[status])).toBeInTheDocument();
     expect(screen.getAllByText('Voting')).toHaveLength(5);
+  });
+
+  it('falls back to the backend label for a review status this client does not know', () => {
+    mount([
+      { ...solution(1), reviewStatus: -2 as SolutionDoc['reviewStatus'] },
+    ]);
+    expect(screen.getByText(reviewLabels['-2'])).toBeInTheDocument();
   });
 
   it('preserves ownership-based edit and delete actions in the unapproved group', async () => {
