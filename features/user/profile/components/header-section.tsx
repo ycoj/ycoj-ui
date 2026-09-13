@@ -4,6 +4,7 @@ import {
   getProfileUser,
   type UserProfileProps,
 } from './shared';
+import CcfHook from '@/features/user/ccf-hook';
 import UserAvatar from '@/features/user/user-avatar';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
@@ -39,10 +40,11 @@ export default function HeaderSection({ data }: UserProfileProps) {
               <UserAvatar user={profileUser} className="size-16 border" />
               <div className="min-w-0">
                 <h1
-                  className="truncate text-2xl leading-snug font-medium"
+                  className="flex min-w-0 items-center gap-1.5 text-2xl leading-snug font-medium"
                   data-llm-text={data.udoc.uname}
                 >
-                  {data.udoc.uname}
+                  <span className="truncate">{data.udoc.uname}</span>
+                  <CcfHook level={data.udoc.ccfLevel} />
                 </h1>
                 <p
                   className="text-sm text-muted-foreground"

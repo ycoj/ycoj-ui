@@ -1,6 +1,7 @@
 'use client';
 
 import ClientApis from '@/api/client/method';
+import CcfHook from '@/features/user/ccf-hook';
 import { locales, type Locale } from '@/i18n/config';
 import {
   Avatar,
@@ -35,7 +36,7 @@ import { useState, useSyncExternalStore } from 'react';
 export type SidebarRoleKey = 'user' | 'superAdmin' | 'coach';
 
 type Props = {
-  user: Pick<User, '_id' | 'uname'>;
+  user: Pick<User, '_id' | 'uname' | 'ccfLevel'>;
   roleKey: SidebarRoleKey;
   avatarSrc: string;
   canUsePaste?: boolean;
@@ -111,7 +112,10 @@ export default function SidebarUserMenu({
             </AvatarFallback>
           </Avatar>
           <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-semibold">{user.uname}</span>
+            <span className="flex min-w-0 items-center gap-1 font-semibold">
+              <span className="truncate">{user.uname}</span>
+              <CcfHook level={user.ccfLevel} />
+            </span>
             <span
               className="truncate text-xs text-muted-foreground"
               data-llm-text={roleLabel}

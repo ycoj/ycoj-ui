@@ -1,3 +1,4 @@
+import CcfHook from '@/features/user/ccf-hook';
 import getUsernameColor from '@/features/user/lib/username-color';
 import UserAvatar from '@/features/user/user-avatar';
 import { BaseUser } from '@/shared/types/user';
@@ -19,6 +20,7 @@ export default function UserSpan({ user, showAvatar = true }: Props) {
         >
           {user.uname}
         </span>
+        <CcfHook level={user.ccfLevel} />
       </span>
     </Link>
   );

@@ -1,3 +1,4 @@
+import AwardSection from './components/award-section';
 import BioSection from './components/bio-section';
 import CheckinHeatmap from './components/checkin-heatmap';
 import CoreStats from './components/core-stats';
@@ -15,6 +16,7 @@ export default function UserProfilePage({ data }: Props) {
   return (
     <div className="space-y-6" data-llm-visible="true">
       <HeaderSection data={data} />
+      <AwardSection data={data} />
       <BioSection data={data} />
       <CoreStats data={data} />
       <CheckinHeatmap history={data.checkinHistory} />

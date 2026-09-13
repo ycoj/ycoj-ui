@@ -23,6 +23,7 @@ function makeUserDetail(
     pdocs: [],
     tags: [],
     tdocs: [],
+    awardRecords: [],
   };
 }
 
