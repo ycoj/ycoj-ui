@@ -9,6 +9,7 @@ import {
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
+import { toast } from 'sonner';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
@@ -21,6 +22,9 @@ vi.mock('@/api/client/method', () => ({
 }));
 vi.mock('./user-import-xlsx', () => ({
   readXlsxTable: mocks.readXlsxTable,
+}));
+vi.mock('sonner', () => ({
+  toast: { success: vi.fn(), error: vi.fn() },
 }));
 
 // Radix checkboxes mount a hidden form input inside the dialog <form>, which
@@ -218,6 +222,42 @@ describe('user import workflow', () => {
     expect(mocks.importUsers).toHaveBeenLastCalledWith(aliceSource, true);
   });
 
+  it('drops delimiter-only lines when loading a file', async () => {
+    const user = setup();
+    const file = new File([''], 'users.csv', { type: 'text/csv' });
+    Object.defineProperty(file, 'text', {
+      value: async () => `${aliceSource}\n,,,\n\t\t\n`,
+    });
+    await user.upload(
+      document.querySelector('input[type=file]') as HTMLElement,
+      file
+    );
+    await waitFor(() =>
+      expect(toast.success).toHaveBeenCalledWith('Added 1 rows from the file.')
+    );
+    expect(screen.getByLabelText('Row 1 Username')).toHaveValue('alice');
+    expect(screen.queryByLabelText('Row 2 Email')).not.toBeInTheDocument();
+  });
+
+  it('treats a file that parses to only empty rows as empty', async () => {
+    const user = setup();
+    const file = new File([''], 'users.csv', { type: 'text/csv' });
+    Object.defineProperty(file, 'text', {
+      value: async () => ',,,\n\t\t\n',
+    });
+    await user.upload(
+      document.querySelector('input[type=file]') as HTMLElement,
+      file
+    );
+    await waitFor(() =>
+      expect(toast.error).toHaveBeenCalledWith(
+        'The file did not contain any user rows.'
+      )
+    );
+    expect(screen.getByText('No users yet')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Row 1 Email')).not.toBeInTheDocument();
+  });
+
   it('loads rows from an XLSX file through the workbook reader', async () => {
     const user = setup();
     mocks.readXlsxTable.mockResolvedValue([
@@ -276,6 +316,26 @@ describe('user import workflow', () => {
     expect(screen.getByLabelText('Row 1 Email')).toHaveValue('a@b.c');
     expect(screen.getByLabelText('Row 2 Username')).toHaveValue('s002');
     expect(screen.getByLabelText('Row 2 Email')).toHaveValue('s002@ycoj.local');
+  });
+
+  it('backfills a generated email on rows that already have a username', async () => {
+    const user = setup();
+    await user.click(screen.getByRole('button', { name: 'Add row' }));
+    await user.click(screen.getAllByRole('button', { name: 'Add row' })[0]);
+    await user.type(screen.getByLabelText('Row 1 Username'), 'alice');
+    await user.type(screen.getByLabelText('Row 2 Display name'), 'No name');
+    await user.click(
+      screen.getByRole('button', { name: 'Generate usernames' })
+    );
+    const dialog = await screen.findByRole('dialog');
+    await user.type(within(dialog).getByLabelText('Prefix'), 's');
+    await user.click(within(dialog).getByRole('button', { name: 'Generate' }));
+    await waitFor(() =>
+      expect(screen.getByLabelText('Row 2 Username')).toHaveValue('s001')
+    );
+    expect(screen.getByLabelText('Row 1 Email')).toHaveValue(
+      'alice@ycoj.local'
+    );
   });
 
   it('does not spend generated usernames on completely empty rows', async () => {
@@ -367,6 +427,16 @@ describe('user import workflow', () => {
       'Enter a password between 6 and 255 characters.'
     );
     expect(screen.getByLabelText('Row 1 Password')).toHaveValue('');
+    // The dialog stays open so the input can be corrected in place.
+    expect(dialog).toBeInTheDocument();
+    await user.clear(within(dialog).getByLabelText('Password'));
+    await user.type(within(dialog).getByLabelText('Password'), 'Valid123');
+    await user.click(
+      within(dialog).getByRole('button', { name: 'Fill passwords' })
+    );
+    await waitFor(() =>
+      expect(screen.getByLabelText('Row 1 Password')).toHaveValue('Valid123')
+    );
   });
 
   it('appends pasted rows from the paste dialog', async () => {
@@ -381,6 +451,43 @@ describe('user import workflow', () => {
       expect(screen.getByLabelText('Row 1 Username')).toHaveValue('alice')
     );
     expect(screen.getByLabelText('Row 1 Group')).toHaveValue('Class A');
+  });
+
+  it('keeps the paste dialog open with its text when the apply fails', async () => {
+    const user = setup();
+    await user.click(screen.getByRole('button', { name: 'Paste text' }));
+    const dialog = await screen.findByRole('dialog');
+    const textarea = within(dialog).getByLabelText('Paste user list');
+    await user.click(within(dialog).getByRole('button', { name: 'Add rows' }));
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent(
+      'Paste at least one row first.'
+    );
+    fireEvent.change(textarea, { target: { value: ',,,\n,,' } });
+    await user.click(within(dialog).getByRole('button', { name: 'Add rows' }));
+    await waitFor(() =>
+      expect(toast.error).toHaveBeenCalledWith(
+        'The file did not contain any user rows.'
+      )
+    );
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    expect(textarea).toHaveValue(',,,\n,,');
+    expect(screen.getByText('No users yet')).toBeInTheDocument();
+  });
+
+  it('keeps the pasted text when the dialog is closed and reopened', async () => {
+    const user = setup();
+    await user.click(screen.getByRole('button', { name: 'Paste text' }));
+    let dialog = await screen.findByRole('dialog');
+    await user.type(within(dialog).getByLabelText('Paste user list'), 'alice');
+    await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    );
+    await user.click(screen.getByRole('button', { name: 'Paste text' }));
+    dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByLabelText('Paste user list')).toHaveValue(
+      'alice'
+    );
   });
 
   it('clears all rows after confirmation', async () => {

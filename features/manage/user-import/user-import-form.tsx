@@ -80,8 +80,12 @@ export default function UserImportForm() {
     setError('');
     setRows(update);
   };
+  // Parsed input can contain delimiter-only lines that yield fully empty
+  // rows; those would show up as phantom blank rows and inflate counts.
   const addRows = (added: UserImportRow[]) => {
-    if (added.length) mutate((current) => [...current, ...added]);
+    const kept = added.filter((row) => !isRowEmpty(row));
+    if (kept.length) mutate((current) => [...current, ...kept]);
+    return kept;
   };
 
   const missingUsernames = rows.filter(
@@ -101,12 +105,12 @@ export default function UserImportForm() {
       const parsed = /\.xlsx$/i.test(file.name)
         ? tableToRows(await readXlsxTable(file))
         : parseUsersText(await file.text());
-      if (!parsed.length) {
+      const added = addRows(parsed);
+      if (!added.length) {
         toast.error(t('fileEmpty'));
         return;
       }
-      addRows(parsed);
-      toast.success(t('fileLoaded', { count: parsed.length }));
+      toast.success(t('fileLoaded', { count: added.length }));
     } catch {
       toast.error(t('fileFailed'));
     } finally {
@@ -114,7 +118,10 @@ export default function UserImportForm() {
     }
   };
 
-  const applyUsernames = (pattern: UsernamePattern, target: UsernameTarget) => {
+  const applyUsernames = (
+    pattern: UsernamePattern,
+    target: UsernameTarget
+  ): boolean => {
     const names = generateUsernames(pattern);
     if (target === 'append') {
       addRows(
@@ -124,12 +131,19 @@ export default function UserImportForm() {
           email: generatedEmail(username),
         }))
       );
-      return;
+      return true;
     }
     const queue = [...names];
     mutate((current) =>
       current.map((row) => {
-        if (isRowEmpty(row) || row.username.trim() || !queue.length) return row;
+        if (isRowEmpty(row)) return row;
+        // Rows that already have a username still get a generated email.
+        if (row.username.trim()) {
+          return row.email.trim()
+            ? row
+            : { ...row, email: generatedEmail(row.username.trim()) };
+        }
+        if (!queue.length) return row;
         const username = queue.shift()!;
         return {
           ...row,
@@ -138,9 +152,10 @@ export default function UserImportForm() {
         };
       })
     );
+    return true;
   };
 
-  const applyPasswords = (fill: PasswordFill) => {
+  const applyPasswords = (fill: PasswordFill): boolean => {
     mutate((current) =>
       current.map((row) => {
         if (isRowEmpty(row)) return row;
@@ -154,6 +169,7 @@ export default function UserImportForm() {
         };
       })
     );
+    return true;
   };
 
   const downloadTsv = () => {
@@ -474,48 +490,45 @@ export default function UserImportForm() {
         </section>
       )}
 
-      {dialog === 'usernames' && (
-        <UsernamesDialog
-          missingUsernames={missingUsernames}
-          onOpenChange={() => setDialog(null)}
-          onApply={applyUsernames}
-        />
-      )}
-      {dialog === 'passwords' && (
-        <PasswordsDialog
-          missingPasswords={missingPasswords}
-          onOpenChange={() => setDialog(null)}
-          onApply={applyPasswords}
-        />
-      )}
-      {dialog === 'paste' && (
-        <PasteDialog
-          onOpenChange={() => setDialog(null)}
-          onApply={(text) => {
-            const parsed = parseUsersText(text);
-            if (!parsed.length) {
-              toast.error(t('fileEmpty'));
-              return;
-            }
-            addRows(parsed);
-            toast.success(t('fileLoaded', { count: parsed.length }));
-          }}
-        />
-      )}
-      {dialog === 'clear' && (
-        <UserImportDialog
-          open
-          onOpenChange={() => setDialog(null)}
-          title={t('clearTitle')}
-          description={t('clearDescription', { count: rows.length })}
-          applyLabel={t('clearAll')}
-          onApply={() => {
-            mutate(() => []);
-            setShowValidation(false);
-            setDialog(null);
-          }}
-        />
-      )}
+      {/* Dialogs stay mounted so Radix can play the close animation; each
+          controls its own open state through the `dialog` value. */}
+      <UsernamesDialog
+        open={dialog === 'usernames'}
+        missingUsernames={missingUsernames}
+        onOpenChange={() => setDialog(null)}
+        onApply={applyUsernames}
+      />
+      <PasswordsDialog
+        open={dialog === 'passwords'}
+        missingPasswords={missingPasswords}
+        onOpenChange={() => setDialog(null)}
+        onApply={applyPasswords}
+      />
+      <PasteDialog
+        open={dialog === 'paste'}
+        onOpenChange={() => setDialog(null)}
+        onApply={(text) => {
+          const added = addRows(parseUsersText(text));
+          if (!added.length) {
+            toast.error(t('fileEmpty'));
+            return false;
+          }
+          toast.success(t('fileLoaded', { count: added.length }));
+          return true;
+        }}
+      />
+      <UserImportDialog
+        open={dialog === 'clear'}
+        onOpenChange={() => setDialog(null)}
+        title={t('clearTitle')}
+        description={t('clearDescription', { count: rows.length })}
+        applyLabel={t('clearAll')}
+        onApply={() => {
+          mutate(() => []);
+          setShowValidation(false);
+          return true;
+        }}
+      />
     </section>
   );
 }

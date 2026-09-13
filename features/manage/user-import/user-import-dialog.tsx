@@ -14,7 +14,8 @@ type Props = {
   applyLabel: string;
   applyDisabled?: boolean;
   error?: string;
-  onApply: () => void;
+  // Returning false keeps the dialog open so failed applies keep their input.
+  onApply: () => boolean;
   children?: ReactNode;
 };
 
@@ -53,7 +54,7 @@ export default function UserImportDialog({
               className="absolute top-4 right-4"
               aria-label={t('close')}
             >
-              <X />
+              <X aria-hidden="true" />
             </Button>
           </Dialog.Close>
           <div className="mt-4 space-y-4">
@@ -70,7 +71,7 @@ export default function UserImportDialog({
               noValidate
               onSubmit={(event) => {
                 event.preventDefault();
-                onApply();
+                if (onApply()) onOpenChange(false);
               }}
             >
               {children}

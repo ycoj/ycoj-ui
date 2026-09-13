@@ -11,21 +11,24 @@ import { useId, useState } from 'react';
 export type UsernameTarget = 'append' | 'fill';
 
 type Props = {
+  open: boolean;
   missingUsernames: number;
   onOpenChange: (open: boolean) => void;
-  onApply: (pattern: UsernamePattern, target: UsernameTarget) => void;
+  onApply: (pattern: UsernamePattern, target: UsernameTarget) => boolean;
 };
 
 export default function UsernamesDialog({
+  open,
   missingUsernames,
   onOpenChange,
   onApply,
 }: Props) {
   const t = useTranslations('userImport.usernames');
   const uid = useId();
-  const [target, setTarget] = useState<UsernameTarget>(
-    missingUsernames > 0 ? 'fill' : 'append'
-  );
+  // The dialog stays mounted between opens, so the target falls back to a
+  // per-open default until the user picks one explicitly.
+  const [choice, setChoice] = useState<UsernameTarget | null>(null);
+  const target = choice ?? (missingUsernames > 0 ? 'fill' : 'append');
   const [prefix, setPrefix] = useState('');
   const [start, setStart] = useState('1');
   const [digits, setDigits] = useState('3');
@@ -47,22 +50,24 @@ export default function UsernamesDialog({
   const apply = () => {
     if (!trimmed) {
       setError(t('prefixRequired'));
-      return;
+      return false;
     }
-    if (amount < 1 || amount > 1000) {
+    // Fill mode takes as many usernames as there are rows to fill, which can
+    // legitimately exceed the append-mode cap.
+    if (target === 'append' && (amount < 1 || amount > 1000)) {
       setError(t('countInvalid'));
-      return;
+      return false;
     }
-    onApply(
+    setError('');
+    return onApply(
       { prefix: trimmed, start: startNumber, count: amount, digits: pad },
       target
     );
-    onOpenChange(false);
   };
 
   return (
     <UserImportDialog
-      open
+      open={open}
       onOpenChange={onOpenChange}
       title={t('title')}
       description={t('description')}
@@ -88,7 +93,7 @@ export default function UsernamesDialog({
               name={`${uid}-target`}
               value={value}
               checked={target === value}
-              onChange={() => setTarget(value)}
+              onChange={() => setChoice(value)}
               className="accent-primary size-4 shrink-0"
             />
             <span className="text-sm">{label}</span>

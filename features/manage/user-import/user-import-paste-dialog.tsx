@@ -6,11 +6,12 @@ import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 
 type Props = {
+  open: boolean;
   onOpenChange: (open: boolean) => void;
-  onApply: (text: string) => void;
+  onApply: (text: string) => boolean;
 };
 
-export default function PasteDialog({ onOpenChange, onApply }: Props) {
+export default function PasteDialog({ open, onOpenChange, onApply }: Props) {
   const t = useTranslations('userImport.paste');
   const [text, setText] = useState('');
   const [error, setError] = useState('');
@@ -18,15 +19,15 @@ export default function PasteDialog({ onOpenChange, onApply }: Props) {
   const apply = () => {
     if (!text.trim()) {
       setError(t('empty'));
-      return;
+      return false;
     }
-    onApply(text);
-    onOpenChange(false);
+    setError('');
+    return onApply(text);
   };
 
   return (
     <UserImportDialog
-      open
+      open={open}
       onOpenChange={onOpenChange}
       title={t('title')}
       description={t('description')}

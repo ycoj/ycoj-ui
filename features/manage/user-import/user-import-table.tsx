@@ -95,7 +95,11 @@ export default function UserImportTable({
                       }
                       onClick={onTogglePasswords}
                     >
-                      {showPasswords ? <EyeOff /> : <Eye />}
+                      {showPasswords ? (
+                        <EyeOff aria-hidden="true" />
+                      ) : (
+                        <Eye aria-hidden="true" />
+                      )}
                     </Button>
                   )}
                 </span>
@@ -161,7 +165,7 @@ export default function UserImportTable({
                     aria-label={t('removeRow', { index: index + 1 })}
                     onClick={() => onRemove(row.id)}
                   >
-                    <X />
+                    <X aria-hidden="true" />
                   </Button>
                 </TableCell>
               </TableRow>

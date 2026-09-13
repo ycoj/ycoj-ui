@@ -1893,7 +1893,7 @@
     "title": "Import users",
     "description": "Create accounts in bulk: build the user list below, review the preview, then import.",
     "formatTitle": "Columns and file formats",
-    "formatHelp": "Each row is one account. Email, username, and password are required; the remaining columns are optional. Usernames are 3–31 characters (or exactly 2 Chinese characters) and passwords at least 6 characters.",
+    "formatHelp": "Each row is one account. Email, username, and password are required; the remaining columns are optional. Usernames are 3–31 characters (or exactly 2 Chinese characters) and passwords are 6–255 characters.",
     "columns": "Column order for files and pasted text: email, username, password, display name, extra details. A single-column file is treated as a username list, or an email list when the values contain @.",
     "extraHelp": "The extra details column accepts a JSON object such as {example}; other keys are kept unchanged. A plain value that is not JSON is treated as a group name. Group, school, and student ID have their own columns in the table and apply to the current domain.",
     "passwordHelp": "Passwords are hidden from the preview. Use Download TSV to keep a copy of the list before importing.",

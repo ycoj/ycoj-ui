@@ -12,12 +12,14 @@ export type PasswordFill =
   | { mode: 'random'; length: number; symbols: boolean; emptyOnly: boolean };
 
 type Props = {
+  open: boolean;
   missingPasswords: number;
   onOpenChange: (open: boolean) => void;
-  onApply: (fill: PasswordFill) => void;
+  onApply: (fill: PasswordFill) => boolean;
 };
 
 export default function PasswordsDialog({
+  open,
   missingPasswords,
   onOpenChange,
   onApply,
@@ -28,7 +30,10 @@ export default function PasswordsDialog({
   const [password, setPassword] = useState('');
   const [length, setLength] = useState('10');
   const [symbols, setSymbols] = useState(true);
-  const [emptyOnly, setEmptyOnly] = useState(missingPasswords > 0);
+  // The dialog stays mounted between opens, so the checkbox falls back to a
+  // per-open default until the user toggles it explicitly.
+  const [emptyOnlyChoice, setEmptyOnlyChoice] = useState<boolean | null>(null);
+  const emptyOnly = emptyOnlyChoice ?? missingPasswords > 0;
   const [error, setError] = useState('');
 
   const apply = () => {
@@ -37,23 +42,23 @@ export default function PasswordsDialog({
       const size = password.trim().length;
       if (size < 6 || size > 255) {
         setError(t('passwordInvalid'));
-        return;
+        return false;
       }
-      onApply({ mode, password, emptyOnly });
-    } else {
-      const size = Math.floor(Number(length) || 0);
-      if (size < 6 || size > 64) {
-        setError(t('lengthInvalid'));
-        return;
-      }
-      onApply({ mode, length: size, symbols, emptyOnly });
+      setError('');
+      return onApply({ mode, password, emptyOnly });
     }
-    onOpenChange(false);
+    const size = Math.floor(Number(length) || 0);
+    if (size < 6 || size > 64) {
+      setError(t('lengthInvalid'));
+      return false;
+    }
+    setError('');
+    return onApply({ mode, length: size, symbols, emptyOnly });
   };
 
   return (
     <UserImportDialog
-      open
+      open={open}
       onOpenChange={onOpenChange}
       title={t('title')}
       description={t('description')}
@@ -124,7 +129,7 @@ export default function PasswordsDialog({
         <Checkbox
           id={`${uid}-empty-only`}
           checked={emptyOnly}
-          onCheckedChange={(checked) => setEmptyOnly(!!checked)}
+          onCheckedChange={(checked) => setEmptyOnlyChoice(!!checked)}
         />
         <Label htmlFor={`${uid}-empty-only`}>
           {t('emptyOnly', { count: missingPasswords })}
