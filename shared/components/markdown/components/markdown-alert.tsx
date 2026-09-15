@@ -75,7 +75,7 @@ export default function MarkdownAlert({
   return (
     <Alert
       data-llm-visible="true"
-      className={cn('my-4', style.className, className)}
+      className={cn('not-prose my-4', style.className, className)}
     >
       <Icon strokeWidth={2} className="text-current" />
       {title && <AlertTitle data-llm-text={title}>{title}</AlertTitle>}

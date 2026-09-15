@@ -81,6 +81,7 @@ describe('Markdown containers', () => {
 
     const alert = screen.getByRole('alert');
     expect(alert).toHaveClass('border-blue-200');
+    expect(alert).toHaveClass('not-prose');
     expect(screen.getByText('Heads up')).toBeInTheDocument();
     expect(screen.getByText('attention').tagName).toBe('STRONG');
   });
