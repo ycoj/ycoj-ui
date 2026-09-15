@@ -21,6 +21,8 @@ type AlertVariant = 'error' | 'info' | 'success' | 'warning';
 const DIRECTIVE_RE =
   /^:::\s*(?:align\s*\{\s*(center|right|left)\s*\}|(info|warning|success|error))\s*(?:\[(.*)\])?\s*$/i;
 const CLOSING_RE = /^\s*:::\s*$/;
+const BLOCKQUOTE_MARKER_RE = /^[ \t]*(?:>[ \t]?)+/;
+const LEADING_WHITESPACE_RE = /^[ \t]*/;
 
 type ContainerDirective =
   | { align: AlignValue; kind: 'align' }
@@ -42,16 +44,52 @@ function getParagraphText(node: MdastNode): null | string {
   return value;
 }
 
-// Returns the raw markdown source of a node, so container bodies containing
-// inline markdown (emphasis, links, ...) survive re-parsing. Falls back to the
+// Paragraph source slices keep the blockquote markers and list indentation of
+// their container on continuation lines, so they cannot be parsed as a
+// standalone document until those prefixes are removed. Falls back to the
 // plain text for synthetic trees without position info.
 function getNodeSource(node: MdastNode, source: string): null | string {
   const start = node.position?.start?.offset;
   const end = node.position?.end?.offset;
   if (typeof start === 'number' && typeof end === 'number') {
-    return source.slice(start, end);
+    return normalizeParagraphSource(node, source, source.slice(start, end));
   }
   return getParagraphText(node);
+}
+
+// Returns the paragraph source as if it was written at the top level: quote
+// markers are stripped and continuation lines are dedented to the paragraph's
+// own content column, so compact bodies keep their markdown.
+function normalizeParagraphSource(
+  node: MdastNode,
+  source: string,
+  paragraphSource: string
+): string {
+  const lines = paragraphSource
+    .replace(/\r\n?/g, '\n')
+    .split('\n')
+    .map((line) => line.replace(BLOCKQUOTE_MARKER_RE, ''));
+
+  const start = node.position?.start?.offset;
+  let structuralIndent = 0;
+  if (typeof start === 'number') {
+    const lineStart = source.lastIndexOf('\n', start - 1) + 1;
+    structuralIndent = source
+      .slice(lineStart, start)
+      .replace(BLOCKQUOTE_MARKER_RE, '').length;
+  }
+
+  // Lazy continuation lines may be indented less than the list marker, so the
+  // dedent is clamped to the shallowest continuation line to keep content.
+  let dedent = structuralIndent;
+  for (let index = 1; index < lines.length; index += 1) {
+    const leading = LEADING_WHITESPACE_RE.exec(lines[index]!)?.[0].length ?? 0;
+    if (leading < dedent) dedent = leading;
+  }
+
+  return lines
+    .map((line, index) => (index === 0 ? line : line.slice(dedent)))
+    .join('\n');
 }
 
 function parseDirective(line: string): ContainerDirective | null {
@@ -177,11 +215,18 @@ function transformNode(
 
     if (text !== null && CLOSING_RE.test(text) && frames.length > 0) {
       const frame = frames.pop()!;
+      // Collected siblings come from the outer tree and keep outer offsets,
+      // while tail nodes were parsed from the opening paragraph slice. Only
+      // the collected ones may be scanned again with the outer source.
+      const collectedRoot: MdastNode = {
+        type: 'root',
+        children: frame.collected,
+      };
+      transformNode(collectedRoot, source, parseSource);
       const container = makeContainerNode(frame.directive, [
         ...(frame.tail ?? []),
-        ...frame.collected,
+        ...(collectedRoot.children ?? []),
       ]);
-      transformNode(container, source, parseSource);
       pushContent(container);
       continue;
     }
@@ -226,15 +271,22 @@ function transformNode(
 
   // Completed containers and plain content are final: scan them for nested
   // containers in deeper levels. Unterminated frames fall back to their
-  // original opening paragraph; content collected for them is emitted as-is,
-  // so completed inner containers still render.
+  // original opening paragraph, but their collected content is still scanned
+  // so completed inner containers render.
   for (const item of result) {
     if (isBuiltContainer(item)) continue;
     transformNode(item, source, parseSource);
   }
 
   for (const frame of frames) {
-    result.push(frame.opening, ...frame.collected);
+    // Content collected by an unterminated frame was never scanned for nested
+    // containers, so complete it before falling back to the literal opening.
+    const collectedRoot: MdastNode = {
+      type: 'root',
+      children: frame.collected,
+    };
+    transformNode(collectedRoot, source, parseSource);
+    result.push(frame.opening, ...(collectedRoot.children ?? []));
   }
 
   node.children = result;

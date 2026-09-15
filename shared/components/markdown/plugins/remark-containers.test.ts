@@ -6,6 +6,10 @@ type MdastNode = {
   type: string;
   children?: MdastNode[];
   data?: Record<string, unknown>;
+  position?: {
+    start?: { offset?: number };
+    end?: { offset?: number };
+  };
   value?: string;
 };
 
@@ -13,12 +17,25 @@ function paragraph(value: string): MdastNode {
   return { type: 'paragraph', children: [{ type: 'text', value }] };
 }
 
+function positionedParagraph(
+  value: string,
+  start: number,
+  end: number
+): MdastNode {
+  return {
+    type: 'paragraph',
+    children: [{ type: 'text', value }],
+    position: { start: { offset: start }, end: { offset: end } },
+  };
+}
+
 function applyPlugin(
   tree: MdastNode,
-  parse: Processor['parse'] = () => ({ type: 'root', children: [] }) as never
+  parse: Processor['parse'] = () => ({ type: 'root', children: [] }) as never,
+  source = ''
 ) {
   const transformer = remarkContainers.call({ parse } as unknown as Processor);
-  transformer(tree, { toString: () => '' });
+  transformer(tree, { toString: () => source });
   return tree;
 }
 
@@ -30,6 +47,17 @@ function applyWithStubParse(tree: MdastNode, parsed: MdastNode[]) {
       >
   );
   applyPlugin(tree, parse as unknown as Processor['parse']);
+  return parse;
+}
+
+function applyWithSource(tree: MdastNode, source: string) {
+  const parse = vi.fn(
+    () =>
+      ({ type: 'root', children: [] }) as unknown as ReturnType<
+        Processor['parse']
+      >
+  );
+  applyPlugin(tree, parse as unknown as Processor['parse'], source);
   return parse;
 }
 
@@ -334,5 +362,148 @@ describe('remarkContainers', () => {
     });
 
     expect(tree.children).toEqual([paragraph(':::'), paragraph('x')]);
+  });
+});
+
+describe('remarkContainers source normalization', () => {
+  it('re-parses a compact body inside a blockquote', () => {
+    const source = '> :::info\n> Be **careful**\n> :::';
+    const tree: MdastNode = {
+      type: 'root',
+      children: [
+        positionedParagraph(':::info\nBe **careful**\n:::', 2, source.length),
+      ],
+    };
+    const parse = applyWithSource(tree, source);
+
+    expect(parse).toHaveBeenCalledWith('Be **careful**');
+    expect(tree.children![0]!.data?.hName).toBe('md-alert');
+  });
+
+  it('re-parses a compact body inside a nested list item', () => {
+    const source = '  - :::warning\n    hi\n    :::';
+    const tree: MdastNode = {
+      type: 'root',
+      children: [positionedParagraph(':::warning\nhi\n:::', 4, source.length)],
+    };
+    const parse = applyWithSource(tree, source);
+
+    expect(parse).toHaveBeenCalledWith('hi');
+    expect(tree.children![0]!.data?.hProperties).toEqual({
+      'data-variant': 'warning',
+    });
+  });
+
+  it('re-parses a compact body inside a list item in a blockquote', () => {
+    const source = '> - :::success\n>   hi\n>   :::';
+    const tree: MdastNode = {
+      type: 'root',
+      children: [positionedParagraph(':::success\nhi\n:::', 4, source.length)],
+    };
+    const parse = applyWithSource(tree, source);
+
+    expect(parse).toHaveBeenCalledWith('hi');
+  });
+
+  it('keeps intentional indentation in a top-level compact body', () => {
+    const source = ':::info\n    code\n:::';
+    const tree: MdastNode = {
+      type: 'root',
+      children: [
+        positionedParagraph(':::info\n    code\n:::', 0, source.length),
+      ],
+    };
+    const parse = applyWithSource(tree, source);
+
+    expect(parse).toHaveBeenCalledWith('    code');
+  });
+
+  it('normalizes carriage returns in a compact body', () => {
+    const source = ':::info\r\nhi\r\n:::';
+    const tree: MdastNode = {
+      type: 'root',
+      children: [positionedParagraph(':::info\r\nhi\r\n:::', 0, source.length)],
+    };
+    const parse = applyWithSource(tree, source);
+
+    expect(parse).toHaveBeenCalledWith('hi');
+  });
+
+  it('scans wrappers collected by an unterminated container', () => {
+    const source = ':::info\n\n> :::warning\n> hi\n> :::';
+    const tree: MdastNode = {
+      type: 'root',
+      children: [
+        positionedParagraph(':::info', 0, 7),
+        {
+          type: 'blockquote',
+          children: [
+            positionedParagraph(
+              ':::warning\nhi\n:::',
+              source.indexOf(':::warning'),
+              source.length
+            ),
+          ],
+        },
+      ],
+    };
+    applyWithSource(tree, source);
+
+    expect(tree.children).toHaveLength(2);
+    expect(tree.children![0]).toMatchObject({ type: 'paragraph' });
+    const blockquote = tree.children![1]!;
+    const inner = blockquote.children![0]!;
+    expect(inner.type).toBe('container');
+    expect(inner.data?.hProperties).toEqual({ 'data-variant': 'warning' });
+  });
+
+  it('does not scan container tails with the outer document source', () => {
+    const tail = 'ppppppppppppppppppppp';
+    const source = `:::error\nINJECTED\n:::\n\n:::info\n${tail}\n\n:::`;
+    const infoStart = source.indexOf(':::info');
+    const tree: MdastNode = {
+      type: 'root',
+      children: [
+        positionedParagraph(
+          ':::error\nINJECTED\n:::',
+          0,
+          source.indexOf('\n\n')
+        ),
+        positionedParagraph(
+          `:::info\n${tail}`,
+          infoStart,
+          source.indexOf('\n\n', infoStart)
+        ),
+        positionedParagraph(':::', source.lastIndexOf(':::'), source.length),
+      ],
+    };
+    // The parser echoes each body back as a positioned paragraph, so a tail
+    // scanned again with the outer source would be replaced by the document
+    // prefix instead of keeping its own content.
+    const parse = vi.fn((body: string) => ({
+      type: 'root',
+      children: [
+        {
+          type: 'paragraph',
+          children: [{ type: 'text', value: body }],
+          position: { start: { offset: 0 }, end: { offset: body.length } },
+        },
+      ],
+    }));
+    const transformer = remarkContainers.call({
+      parse,
+    } as unknown as Processor);
+    transformer(tree, { toString: () => source });
+
+    expect(tree.children).toHaveLength(2);
+    const info = tree.children![1]!;
+    expect(info.data?.hProperties).toEqual({ 'data-variant': 'info' });
+    expect(info.children).toEqual([
+      {
+        type: 'paragraph',
+        children: [{ type: 'text', value: tail }],
+        position: { start: { offset: 0 }, end: { offset: tail.length } },
+      },
+    ]);
   });
 });

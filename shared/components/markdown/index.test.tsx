@@ -151,6 +151,60 @@ describe('Markdown containers', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(screen.getByText(/:::info/)).toBeInTheDocument();
   });
+
+  it('keeps the tail of an expanded container that follows another one', async () => {
+    await renderMarkdown(
+      ':::error\nINJECTED\n:::\n\n:::info\nppppppppppppppppppppp\n\n:::'
+    );
+
+    const alerts = screen.getAllByRole('alert');
+    expect(alerts).toHaveLength(2);
+    expect(alerts[0]).toHaveTextContent('INJECTED');
+    expect(alerts[1]).toHaveTextContent('ppppppppppppppppppppp');
+    expect(alerts[1]).not.toHaveTextContent('INJECTED');
+    expect(alerts[1].querySelector('[role="alert"]')).toBeNull();
+  });
+
+  it('renders a container inside a blockquote', async () => {
+    await renderMarkdown('> :::info\n> hi\n> :::');
+
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveTextContent('hi');
+  });
+
+  it('renders nested containers inside a blockquote', async () => {
+    await renderMarkdown('> :::info\n> :::warning\n> inner\n> :::\n> :::');
+
+    const alerts = screen.getAllByRole('alert');
+    expect(alerts).toHaveLength(2);
+    expect(alerts[0]).toContainElement(alerts[1]);
+    expect(alerts[1]).toHaveTextContent('inner');
+  });
+
+  it('renders wrappers collected by an unterminated container', async () => {
+    await renderMarkdown(':::info\n\n> :::warning\n> hi\n> :::');
+
+    const alerts = screen.getAllByRole('alert');
+    expect(alerts).toHaveLength(1);
+    expect(alerts[0]).toHaveTextContent('hi');
+    expect(screen.getByText(/:::info/)).toBeInTheDocument();
+  });
+
+  it('re-parses compact bodies inside nested list items', async () => {
+    const { container } = await renderMarkdown('  - :::info\n    hi\n    :::');
+
+    expect(screen.getByRole('alert')).toHaveTextContent('hi');
+    expect(container.querySelector('pre')).toBeNull();
+  });
+
+  it('renders a list inside a container', async () => {
+    await renderMarkdown(':::info\n- a\n- b\n\n:::');
+
+    const alert = screen.getByRole('alert');
+    expect(alert.querySelector('ul')).not.toBeNull();
+    expect(alert).toHaveTextContent('a');
+    expect(alert).toHaveTextContent('b');
+  });
 });
 
 describe('Markdown resolved file URLs', () => {
