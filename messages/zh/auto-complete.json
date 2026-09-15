@@ -1,0 +1,13 @@
+{
+  "loading": "正在搜索...",
+  "noResults": "没有匹配结果",
+  "loadFailed": "无法加载建议",
+  "clear": "清除选择",
+  "remove": "移除 {name}",
+  "group": "用户组",
+  "user": "用户",
+  "groupUsers": "{count} 位用户",
+  "invalid": "无效",
+  "problemId": "ID = {id}",
+  "userId": "UID = {id}"
+}

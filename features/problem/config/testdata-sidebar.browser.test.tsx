@@ -1,7 +1,7 @@
 import { ProblemConfigProvider } from './problem-config-context';
 import TestdataSidebar from './testdata-sidebar';
 import ClientApis from '@/api/client/method';
-import en from '@/messages/en.json';
+import en from '@/messages/en';
 import { NextIntlClientProvider } from 'next-intl';
 import { Toaster } from 'sonner';
 import { afterEach, expect, test, vi } from 'vitest';

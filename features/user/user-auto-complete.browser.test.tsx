@@ -1,5 +1,5 @@
 import UserAutoComplete from './user-auto-complete';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { NextIntlClientProvider } from 'next-intl';
 import { useState } from 'react';
 import { beforeEach, expect, test, vi } from 'vitest';
@@ -123,6 +123,7 @@ test('selects multiple users by UID and removes a chip', async () => {
   const alice = page.getByRole('option', { name: /alice \(Alice\)/ });
   await expect.element(alice).toBeVisible();
   await userEvent.click(alice);
+  await expect.element(input).toHaveValue('');
 
   await userEvent.type(input, 'bob');
   const bob = page.getByRole('option', { name: /bob \(Bob\)/ });

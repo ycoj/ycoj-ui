@@ -1,5 +1,5 @@
 import RecordCode from './record-code';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import type { RecordDoc } from '@/shared/types/record';
 import { NextIntlClientProvider } from 'next-intl';
 import { expect, test } from 'vitest';

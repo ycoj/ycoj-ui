@@ -82,6 +82,15 @@ export type SolutionDoc = {
   parentType: number;
   reply: DiscussionReplyDoc[];
   vote: number;
+  reviewStatus: SolutionReviewStatus;
+  revision: number;
+  reviewedBy?: number;
+  reviewedAt?: string;
 };
+
+export type SolutionReviewStatus = -1 | 0 | 1 | 2 | 3;
+
+/** Localized review-status labels keyed by status, as sent by the backend. */
+export type SolutionReviewLabels = Record<string, string>;
 
 export type ProblemDict = Record<number, ProblemDoc>;

@@ -1,5 +1,5 @@
 import PasteContent from './paste-content';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import Markdown from '@/shared/components/markdown';
 import { NextIntlClientProvider } from 'next-intl';
 import { Children, type ReactElement, type ReactNode } from 'react';

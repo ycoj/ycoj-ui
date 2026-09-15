@@ -1,6 +1,6 @@
 import SidebarUserMenu from './sidebar-user-menu';
-import en from '@/messages/en.json';
-import zh from '@/messages/zh.json';
+import en from '@/messages/en';
+import zh from '@/messages/zh';
 import { NextIntlClientProvider } from 'next-intl';
 import type { ComponentProps } from 'react';
 import { beforeEach, expect, test, vi } from 'vitest';

@@ -1,0 +1,9 @@
+{
+  "default": "传统题",
+  "objective": "选择题",
+  "submitAnswer": "提交答案",
+  "fileIo": "文件输入输出",
+  "interactive": "交互题",
+  "communication": "通信题",
+  "remoteJudge": "远端评测题"
+}

@@ -14,6 +14,14 @@ export default defineConfig({
     dedupe: ['react', 'react-dom'],
   },
   // Discovered late by dayjs imports; prebundling them avoids a mid-run reload.
+  // The scratchpad's clangd worker requires shared Wasm memory, which browsers
+  // only expose in a cross-origin isolated document.
+  server: {
+    headers: {
+      'Cross-Origin-Opener-Policy': 'same-origin',
+      'Cross-Origin-Embedder-Policy': 'require-corp',
+    },
+  },
   optimizeDeps: {
     include: [
       'dayjs/plugin/customParseFormat',

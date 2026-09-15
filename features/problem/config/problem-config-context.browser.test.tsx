@@ -3,7 +3,7 @@ import {
   ProblemConfigProvider,
   useProblemConfig,
 } from './problem-config-context';
-import en from '@/messages/en.json';
+import en from '@/messages/en';
 import { NextIntlClientProvider } from 'next-intl';
 import { expect, test } from 'vitest';
 import { render } from 'vitest-browser-react';

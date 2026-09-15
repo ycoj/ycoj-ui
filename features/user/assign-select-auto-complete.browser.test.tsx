@@ -1,5 +1,5 @@
 import AssignSelectAutoComplete from './assign-select-auto-complete';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { NextIntlClientProvider } from 'next-intl';
 import { useState } from 'react';
 import { beforeEach, expect, test, vi } from 'vitest';

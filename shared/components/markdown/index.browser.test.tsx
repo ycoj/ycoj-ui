@@ -1,5 +1,5 @@
 import Markdown from '.';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { resolveFileUrls } from '@/shared/lib/resolve-file-urls';
 import { NextIntlClientProvider } from 'next-intl';
 import { Children, type ReactElement, type ReactNode } from 'react';

@@ -1,0 +1,16 @@
+{
+  "title": "Problems (drag to reorder)",
+  "searchPlaceholder": "Search problems",
+  "copy": "Copy problem set",
+  "paste": "Paste problem set",
+  "copySuccess": "Problem set copied.",
+  "copyFailed": "Could not copy the problem set.",
+  "pasteSuccess": "Added {count, plural, one {# problem} other {# problems}}.",
+  "pasteNone": "No new problems were added.",
+  "pasteFailed": "Could not read the clipboard.",
+  "pasteMissing": "Could not find: {ids}",
+  "remove": "Remove {label}",
+  "moveUp": "Move {label} up",
+  "moveDown": "Move {label} down",
+  "empty": "No problems yet. Search to add one."
+}

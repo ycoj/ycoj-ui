@@ -1,0 +1,16 @@
+{
+  "suggestions": "Recommended",
+  "recentDiscussions": "Recent discussions",
+  "bulletin": "Bulletin",
+  "latestBlogs": "Latest blogs",
+  "recentContests": "Recent contests",
+  "countdown": "Countdown",
+  "running": "In progress",
+  "distancePrefix": "",
+  "untilStartSuffix": " starts in ",
+  "monthsDays": "{months}mo {days}d",
+  "days": "{days}d",
+  "untilStart": "{time} until {name} starts",
+  "noEvents": "No events are currently in progress",
+  "bannerAlt": "Banner {number}"
+}

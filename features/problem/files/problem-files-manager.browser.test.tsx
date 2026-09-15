@@ -1,6 +1,6 @@
 import ProblemFilesManager from './problem-files-manager';
 import ClientApis from '@/api/client/method';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { NextIntlClientProvider } from 'next-intl';
 import { act } from 'react';
 import { beforeEach, expect, test, vi } from 'vitest';

@@ -1,5 +1,5 @@
 import RealnameForm from '@/features/realname/user/realname-form';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import type { RealnamePageData } from '@/shared/types/realname';
 import { NextIntlClientProvider } from 'next-intl';
 import { beforeEach, expect, test, vi } from 'vitest';

@@ -1,5 +1,5 @@
 import AiGenerationForm from './ai-generation-form';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import type { AiGenerationOptions } from '@/shared/types/ai-generation';
 import { NextIntlClientProvider } from 'next-intl';
 import { beforeEach, expect, test, vi } from 'vitest';

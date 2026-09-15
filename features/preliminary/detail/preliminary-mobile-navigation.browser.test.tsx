@@ -4,7 +4,7 @@ import {
   getPreliminaryNavQuestions,
   getPreliminaryQuestionAnchorId,
 } from '@/features/preliminary/lib/preliminary-utils';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { NextIntlClientProvider } from 'next-intl';
 import { expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';

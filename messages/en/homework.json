@@ -1,0 +1,16 @@
+{
+  "participants": "Participants",
+  "duration": "Homework duration",
+  "registered": "Joined",
+  "register": "Join homework",
+  "registering": "Joining...",
+  "searchPlaceholder": "Search homework titles",
+  "create": "Create homework",
+  "introduction": "Introduction",
+  "problems": "Problems",
+  "time": "Homework time",
+  "joined": "Joined",
+  "backToHomework": "Back to homework",
+  "none": "No homework",
+  "noneDescription": "No homework is available yet, or you do not have permission to view it."
+}

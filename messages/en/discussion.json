@@ -1,0 +1,29 @@
+{
+  "node": "Discussion node",
+  "allNodes": "All nodes",
+  "unknownNode": "Unknown node",
+  "create": "Create discussion",
+  "pinned": "Pinned",
+  "featured": "Featured",
+  "replyCount": "Replies",
+  "views": "Views",
+  "updatedAt": "Updated",
+  "none": "No discussions",
+  "noneDescription": "No discussions yet. Start the first topic!",
+  "replies": {
+    "commentRequired": "Comment cannot be empty",
+    "commentFailed": "Failed to publish comment. Please try again later.",
+    "replyRequired": "Reply cannot be empty",
+    "replyFailed": "Reply failed. Please try again later.",
+    "commentPlaceholder": "Write a friendly comment...",
+    "noPermission": "You do not have permission to comment",
+    "publishing": "Publishing...",
+    "publish": "Publish",
+    "none": "No comments",
+    "noneDescription": "No comments yet. Be the first!",
+    "cancelReply": "Cancel reply",
+    "reply": "Reply",
+    "replyPlaceholder": "Reply to this comment...",
+    "replying": "Replying..."
+  }
+}

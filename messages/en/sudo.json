@@ -1,0 +1,19 @@
+{
+  "title": "Confirm your identity",
+  "description": "Verify your identity to continue to this protected page or operation.",
+  "unavailable": "There is no pending verification. Return to the page you want to access and try again.",
+  "resumeFailed": "The operation could not be confirmed. Check its current status before trying again.",
+  "resuming": "Verification complete. Continuing your request...",
+  "backHome": "Back to home",
+  "method": "Verification method",
+  "authn": "Security key",
+  "tfa": "Authentication code",
+  "password": "Password",
+  "codeRequired": "Enter a six-digit authentication code.",
+  "passwordRequired": "Enter your password.",
+  "unsupported": "Security keys require a supported browser and a secure connection. Choose another verification method.",
+  "failed": "Verification failed. Please try again.",
+  "cancel": "Cancel",
+  "confirm": "Verify identity",
+  "verifying": "Verifying..."
+}

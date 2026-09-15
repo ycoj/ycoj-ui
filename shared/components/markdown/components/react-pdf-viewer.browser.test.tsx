@@ -1,5 +1,5 @@
 import ReactPdfViewer from './react-pdf-viewer';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { NextIntlClientProvider } from 'next-intl';
 import { act, type ReactNode } from 'react';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';

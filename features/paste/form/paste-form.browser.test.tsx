@@ -1,7 +1,7 @@
 import { pasteDoc, pasteOptions } from '../paste.test-utils';
 import PasteForm from './paste-form';
 import { getPasteDefaults } from './paste-form-utils';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { NextIntlClientProvider } from 'next-intl';
 import type { ComponentProps } from 'react';
 import { beforeEach, expect, test, vi } from 'vitest';

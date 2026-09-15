@@ -1,5 +1,5 @@
 import ManageSidebar from '@/features/manage/manage-sidebar';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { NextIntlClientProvider } from 'next-intl';
 import { expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
@@ -24,11 +24,14 @@ function findLink(label: string) {
 test('shows every permitted link and highlights the current page', async () => {
   await renderSidebar(-1);
 
+  const importUsers = findLink('Import users');
   const realname = findLink('Real-name review');
   const expiration = findLink('Account expiration');
+  await expect.element(importUsers).toBeVisible();
   await expect.element(realname).toBeVisible();
   await expect.element(expiration).toBeVisible();
 
+  expect(importUsers.element().getAttribute('aria-current')).toBeNull();
   expect(realname.element().getAttribute('aria-current')).toBeNull();
   expect(expiration.element().getAttribute('aria-current')).toBe('page');
 
@@ -47,23 +50,27 @@ test('shows every permitted link and highlights the current page', async () => {
 test('stacks the navigation links without overlap', async () => {
   await renderSidebar(-1);
 
+  const importUsers = findLink('Import users').element();
   const realname = findLink('Real-name review').element();
   const expiration = findLink('Account expiration').element();
   const nav = page.getByRole('navigation', { name: 'System management' });
   await expect.element(nav).toBeVisible();
 
-  const first = realname.getBoundingClientRect();
-  const second = expiration.getBoundingClientRect();
+  const first = importUsers.getBoundingClientRect();
+  const second = realname.getBoundingClientRect();
+  const third = expiration.getBoundingClientRect();
   const navBounds = nav.element().getBoundingClientRect();
   expect(first.height).toBeGreaterThan(0);
   expect(second.top).toBeGreaterThanOrEqual(first.bottom);
+  expect(third.top).toBeGreaterThanOrEqual(second.bottom);
   expect(first.left).toBeGreaterThanOrEqual(navBounds.left);
-  expect(second.right).toBeLessThanOrEqual(navBounds.right);
+  expect(third.right).toBeLessThanOrEqual(navBounds.right);
 });
 
 test('hides the real-name review link from expiry-only managers', async () => {
   await renderSidebar(5);
 
+  await expect.element(findLink('Import users')).toBeVisible();
   await expect.element(findLink('Account expiration')).toBeVisible();
   await expect
     .poll(() => document.querySelectorAll('a[href="/manage/realname"]').length)

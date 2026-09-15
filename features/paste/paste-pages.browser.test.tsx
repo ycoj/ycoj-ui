@@ -6,7 +6,7 @@ import DetailPage, {
   generateMetadata as detailMetadata,
 } from '@/app/(app)/paste/[id]/page';
 import MainPage from '@/app/(app)/paste/page';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import type { HydroError } from '@/shared/types/error';
 import { createTranslator } from 'next-intl';
 import { beforeEach, expect, test, vi } from 'vitest';

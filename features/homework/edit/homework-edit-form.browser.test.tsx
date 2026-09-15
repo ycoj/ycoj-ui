@@ -4,7 +4,7 @@ import {
   getHomeworkCreateDefaults,
   type HomeworkFormValues,
 } from '@/features/homework/form/homework-form-utils';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { NextIntlClientProvider } from 'next-intl';
 import type { ReactNode } from 'react';
 import { beforeEach, expect, test, vi } from 'vitest';

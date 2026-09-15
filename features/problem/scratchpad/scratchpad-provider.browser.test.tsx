@@ -1,5 +1,10 @@
+import {
+  CLANGD_ISOLATION_PARAM,
+  SCRATCHPAD_OPEN_PARAM,
+} from './clangd/clangd-support';
 import ScratchpadProvider, { useScratchpad } from './scratchpad-provider';
 import type { ScratchpadConfig } from './scratchpad-types';
+import { StrictMode } from 'react';
 import { expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
@@ -40,6 +45,30 @@ function renderProvider() {
     </ScratchpadProvider>
   );
 }
+
+test('reopens after the isolation reload even with Strict Mode effect replay', async () => {
+  window.history.replaceState(
+    null,
+    '',
+    `/problem/P1?tid=contest&${CLANGD_ISOLATION_PARAM}=1&${SCRATCHPAD_OPEN_PARAM}=1`
+  );
+  try {
+    await render(
+      <StrictMode>
+        <ScratchpadProvider config={config} statement={<p>Statement</p>}>
+          <Launcher />
+        </ScratchpadProvider>
+      </StrictMode>
+    );
+
+    await expect.element(page.getByRole('dialog')).toBeVisible();
+    expect(window.location.search).toBe(
+      `?tid=contest&${CLANGD_ISOLATION_PARAM}=1`
+    );
+  } finally {
+    window.history.replaceState(null, '', '/');
+  }
+});
 
 test('opens, closes, and restores focus to the launcher', async () => {
   await renderProvider();

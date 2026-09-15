@@ -1,0 +1,7 @@
+{
+  "loading": "Loading PDF",
+  "mixedContent": "This PDF uses HTTP and cannot be displayed on this HTTPS page.",
+  "error": "The PDF could not be displayed.",
+  "pageLimit": "Only the first {limit} of {count} pages are shown.",
+  "document": "PDF document"
+}

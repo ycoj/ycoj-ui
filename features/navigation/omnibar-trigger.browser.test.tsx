@@ -1,6 +1,6 @@
 import OmnibarProvider from './omnibar-provider';
 import OmnibarTrigger from './omnibar-trigger';
-import en from '@/messages/en.json';
+import en from '@/messages/en';
 import { NextIntlClientProvider } from 'next-intl';
 import type { ComponentProps } from 'react';
 import { expect, test, vi } from 'vitest';

@@ -5,7 +5,7 @@ import {
   type PasteFormValues,
 } from '@/features/paste/form/paste-form-utils';
 import { pasteDoc, pasteOptions } from '@/features/paste/paste.test-utils';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { NextIntlClientProvider } from 'next-intl';
 import type { ReactNode } from 'react';
 import { beforeEach, expect, test, vi } from 'vitest';

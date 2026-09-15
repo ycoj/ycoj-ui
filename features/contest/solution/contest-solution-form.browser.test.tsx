@@ -1,5 +1,5 @@
 import ContestSolutionForm from './contest-solution-form';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import { NextIntlClientProvider } from 'next-intl';
 import type { ComponentProps, ReactNode } from 'react';
 import { beforeEach, expect, test, vi } from 'vitest';

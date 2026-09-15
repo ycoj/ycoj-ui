@@ -1,6 +1,6 @@
 import RecordList from './record-list';
 import type { RecordListResponse } from '@/api/server/method/record/list';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import type { ProblemDoc } from '@/shared/types/problem';
 import type { RecordListItem } from '@/shared/types/record';
 import { NextIntlClientProvider } from 'next-intl';

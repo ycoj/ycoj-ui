@@ -1,6 +1,6 @@
 import PasteHistory from './paste-history';
 import { pasteDoc, pasteOptions } from './paste.test-utils';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import type { PasteDoc } from '@/shared/types/paste';
 import { NextIntlClientProvider } from 'next-intl';
 import { expect, test, vi } from 'vitest';

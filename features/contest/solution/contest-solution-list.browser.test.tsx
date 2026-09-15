@@ -1,5 +1,5 @@
 import ContestSolutionList from './contest-solution-list';
-import messages from '@/messages/en.json';
+import messages from '@/messages/en';
 import type { ComponentProps } from 'react';
 import { expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';

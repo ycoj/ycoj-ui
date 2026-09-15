@@ -1,0 +1,29 @@
+{
+  "node": "讨论节点",
+  "allNodes": "全部节点",
+  "unknownNode": "未知节点",
+  "create": "创建讨论",
+  "pinned": "置顶",
+  "featured": "精华",
+  "replyCount": "回复数",
+  "views": "浏览量",
+  "updatedAt": "更新时间",
+  "none": "暂无讨论",
+  "noneDescription": "暂时没有讨论，快来发起第一个话题吧！",
+  "replies": {
+    "commentRequired": "评论内容不能为空",
+    "commentFailed": "评论发布失败，请稍后重试",
+    "replyRequired": "回复内容不能为空",
+    "replyFailed": "回复失败，请稍后重试",
+    "commentPlaceholder": "发一条友善的评论吧...",
+    "noPermission": "你当前没有评论权限",
+    "publishing": "发布中...",
+    "publish": "发布",
+    "none": "暂无评论",
+    "noneDescription": "还没有人评论，快来抢沙发吧。",
+    "cancelReply": "取消回复",
+    "reply": "回复",
+    "replyPlaceholder": "回复该评论...",
+    "replying": "回复中..."
+  }
+}
