@@ -32,6 +32,7 @@ test('shows every permitted link and highlights the current page', async () => {
   expect(realname.element().getAttribute('aria-current')).toBeNull();
   expect(expiration.element().getAttribute('aria-current')).toBe('page');
 
+  await realname.unhover();
   await expect
     .poll(() => getComputedStyle(expiration.element()).backgroundColor)
     .not.toBe('rgba(0, 0, 0, 0)');

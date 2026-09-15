@@ -1,6 +1,9 @@
 import PasteContent from './paste-content';
 import messages from '@/messages/en.json';
+import Markdown from '@/shared/components/markdown';
 import { NextIntlClientProvider } from 'next-intl';
+import { Children, type ReactElement, type ReactNode } from 'react';
+import { MarkdownAsync, type Options } from 'react-markdown';
 import { beforeEach, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';
@@ -93,3 +96,32 @@ test.each([
     expect(selected).not.toContain('Outside the code block');
   }
 );
+
+test('routes Markdown through the shared sanitized renderer', async () => {
+  const paste = {
+    mode: 'markdown' as const,
+    language: '',
+    content:
+      '# Hello\n<script>alert(1)</script>\n<img src=x onerror="alert(1)">\n[bad](javascript:alert(1))',
+  };
+  const wrapper = PasteContent({ paste });
+  const markdownElement = wrapper.props.children as ReactElement<{
+    children: string;
+  }>;
+  expect(markdownElement.type).toBe(Markdown);
+  const markdown = Markdown(markdownElement.props);
+  const children = (markdown.props as { children: ReactNode }).children;
+  const asyncMarkdown = Children.toArray(children)[0] as ReactElement<Options>;
+  const rendered = await MarkdownAsync(asyncMarkdown.props);
+  const { container } = await render(
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {rendered}
+    </NextIntlClientProvider>
+  );
+
+  const heading = page.getByRole('heading', { name: 'Hello' });
+  await expect.element(heading).toBeVisible();
+  expect(container.querySelector('script')).toBeNull();
+  expect(container.querySelector('[onerror]')).toBeNull();
+  expect(container.querySelector('a[href^="javascript:"]')).toBeNull();
+});

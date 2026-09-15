@@ -4,12 +4,6 @@ import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   plugins: [react()],
-  // Next.js client components read `process.env` at module scope (for example
-  // `next/image` reads `process.env.__NEXT_IMAGE_OPTS`). Vite does not define
-  // `process` in the browser, so provide the shape those modules expect.
-  define: {
-    'process.env': JSON.stringify({ NODE_ENV: 'test' }),
-  },
   resolve: {
     // Server Components import `server-only`; browser tests only render their
     // client output, so reuse the same empty module as the jsdom config.
@@ -28,6 +22,8 @@ export default defineConfig({
       'ansi_up',
       'react-resizable-panels',
       'reconnecting-websocket',
+      'alova/client',
+      'mime-types',
     ],
   },
   test: {

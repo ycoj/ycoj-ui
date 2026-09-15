@@ -9,10 +9,9 @@ imports. They run in a real browser, with real layout, media queries, focus, and
 pointer input. The Vite test server starts automatically; no Next.js or backend
 server is needed for component tests.
 
-Keep the existing jsdom suite during migration. Its config retains server-only
-aliases and CodSpeed integration; neither is inherited by the browser config.
-Browser tests must not import server implementation code. Keep pure logic and
-server contracts in unit tests; a later migration can move pure tests to Node.
+The Node unit config retains server-only aliases and CodSpeed integration;
+neither is inherited by the browser config. Browser tests must not import server
+implementation code. Keep pure logic and server contracts in Node unit tests.
 Browser component tests do not reproduce Next.js routing, async Server Components,
 font compilation, or production CSS chunk order. Verify those through application
 E2E tests against a built Next.js app.
@@ -22,17 +21,17 @@ E2E tests against a built Next.js app.
 ```sh
 pnpm install --frozen-lockfile
 pnpm exec playwright install --with-deps chromium
-pnpm test                    # Existing suite, then browser suite
-pnpm test:unit               # Existing suite only
+pnpm test                    # Node unit suite, then browser suite
+pnpm test:unit               # Node unit suite (no DOM)
 pnpm test:browser            # Headless Chromium
 pnpm test:browser:watch      # Interactive browser debugging
 pnpm test:browser:update     # Deliberately update screenshot baselines
 ```
 
-Colocate browser tests as `*.browser.test.tsx` (or `.ts`). The two configurations
-have disjoint file patterns so a browser test never silently runs in jsdom.
-`pnpm test:watch` continues to watch the existing unit suite; use the browser watch
-command when migrating rendering tests. Benchmarks retain `pnpm bench`.
+Colocate browser tests as `*.browser.test.tsx` (or `.ts`); pure logic stays as
+`*.test.ts`. The two configurations have disjoint file patterns so a browser test
+never silently runs in Node. `pnpm test:watch` watches the Node suite; use the
+browser watch command for rendering tests. Benchmarks retain `pnpm bench`.
 
 ## Test contracts
 
@@ -91,21 +90,16 @@ must explicitly configure and restore that preference.
 
 ## Migration status
 
-Migrated to `*.browser.test.tsx` (jsdom copies removed): contest status, timers,
-and scoreboard cells; problem difficulty/status, titles, lists, and auto-complete;
-problem status icons, objective navigation, scratchpad provider, and testdata
-uploads; record lists, filters, code and auto-complete widgets; check-in heatmap;
-management sidebar and real-name review filter/result/form; language and user
-auto-completes; paste language select, history, detail actions, and code content;
-preliminary mobile navigation; theme logo; ranking leaderboard; async
-auto-complete; login page; sudo page; and the confirm/delete dialogs. Pure helpers
-split out of those files stay as `*.test.ts` (for example
-`features/manage/manage-access.test.ts`).
+Complete. Every DOM-dependent test now runs in Chromium; `jsdom`,
+`@testing-library/*`, and `vitest.setup.ts` were removed. `pnpm test:unit` runs
+the remaining pure logic and server contract tests in the Node environment, and
+`pnpm test:browser` runs every rendering and browser-API test. Pure helpers that
+were split out of migrated files stay as `*.test.ts` (for example
+`features/manage/manage-access.test.ts`); DOM-dependent helpers such as
+`shared/lib/confine-select-all` now use the `.browser.test.ts` suffix.
 
-Suites that only describe server route composition or internal prop forwarding
-(no rendering contract to assert) intentionally remain on jsdom. The rest are
-still tracked by `vitest.config.mts`; migrate them in batches by the sequence
-below and keep `pnpm test` green between batches.
+Keep the two configurations disjoint: `**/*.browser.{test,spec}.*` belongs to the
+browser config, everything else runs in Node.
 
 ## Screenshot regressions
 
