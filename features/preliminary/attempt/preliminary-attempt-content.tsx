@@ -35,10 +35,13 @@ export function isCorrectOption(
 }
 
 function ReviewOption({
+  optionValue,
   selected,
   correct,
   children,
 }: {
+  // Identifies the row for review highlighting assertions and consumers.
+  optionValue: string;
   selected: boolean;
   correct: boolean;
   children: ReactNode;
@@ -53,6 +56,7 @@ function ReviewOption({
           !correct &&
           'border-red-500/50 bg-red-50 dark:border-red-500/40 dark:bg-red-500/10'
       )}
+      data-option-value={optionValue}
     >
       <span className="mt-1.5 flex shrink-0 items-center">
         {correct ? (
@@ -109,6 +113,7 @@ function ReviewQuestion({
         {getPreliminaryOptionInfos(question).map((info) => (
           <ReviewOption
             key={info.value}
+            optionValue={info.value}
             selected={question.result.answer === info.value}
             correct={isCorrectOption(question, info.value)}
           >

@@ -27,7 +27,7 @@
   }
 
   /* Headers */
-  & :where(h1, h2, h3, h4, h5, h6) {
+  & :where(h1, h2, h3, h4, h5, h6):not(:where(.not-prose, .not-prose *)) {
     margin-top: 0.75em;
     margin-bottom: 0.75em;
     font-weight: 500;
@@ -38,7 +38,7 @@
   }
 
   /* Paragraph spacing */
-  & :where(p, hr) {
+  & :where(p, hr):not(:where(.not-prose, .not-prose *)) {
     margin-top: 0.75em;
     margin-bottom: 0.75em;
   }
@@ -47,7 +47,7 @@
     margin-top: 0;
   }
 
-  & :where(code):not(:where(pre *)) {
+  & :where(code):not(:where(pre *, .not-prose, .not-prose *)) {
     background-color: var(--muted);
     border-radius: var(--radius-sm);
     padding: 0.15em 0.3em;
@@ -61,12 +61,12 @@
   }
 
   /* Code block spacing */
-  & :where(pre) {
+  & :where(pre):not(:where(.not-prose, .not-prose *)) {
     margin-top: 0.75em;
     margin-bottom: 0.75em;
   }
 
-  & :where(a) {
+  & :where(a):not(:where(.not-prose, .not-prose *)) {
     color: var(--primary);
   }
 }

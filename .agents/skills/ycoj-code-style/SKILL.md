@@ -27,7 +27,7 @@ These requirements are carried over from `AGENTS.md`; they are explicit project 
 - Respect the existing Tailwind and shadcn configuration in `components.json`. Use `class-variance-authority` for component variants where appropriate; add new shadcn primitives with `pnpm dlx shadcn@latest add <component>`, following the execution rules in `AGENTS.md`.
 - Keep static assets in `public/` and font configuration in `app/layout.tsx` aligned with Next.js usage.
 - Avoid heavy computations in render; precompute or memoize where needed.
-- Component tests use `@testing-library/react` with `vitest.setup.ts` and `@testing-library/jest-dom`. Fix lint warnings before committing.
+- Rendering and browser-API tests use Vitest Browser Mode with Playwright and `vitest-browser-react` (`*.browser.test.tsx`); pure logic and server contract tests stay as `*.test.ts` and run in Node. See `docs/browser-testing.md`. Fix lint warnings before committing.
 
 ## Ownership and module shape
 
@@ -64,8 +64,8 @@ These requirements are carried over from `AGENTS.md`; they are explicit project 
 
 ## Tests and completion
 
-- Colocate meaningful behavior tests as `*.test.ts` or `*.test.tsx` with explicit Vitest imports. Prefer table-driven cases for pure helpers, including relevant boundaries and contract-preserving behavior.
-- Component tests use Testing Library roles/labels and user interactions. Reuse local fixtures/providers; mock API and navigation boundaries rather than internal component mechanics. Cover pending, failure, or permission behavior when the change affects it. Provide messages through the aggregated catalogs (`import messages from '@/messages/en'`) instead of importing individual namespace files.
+- Colocate meaningful behavior tests as `*.test.ts` or `*.browser.test.tsx` with explicit Vitest imports. Prefer table-driven cases for pure helpers, including relevant boundaries and contract-preserving behavior.
+- Browser component tests use `*.browser.test.tsx`, `vitest-browser-react`, roles/labels, and real browser interactions. Assert computed styles, geometry, visibility, and user-visible outcomes rather than class names or internal calls. Reuse local fixtures/providers; mock API and navigation boundaries rather than internal component mechanics. Cover pending, failure, or permission behavior when the change affects it. Provide messages through the aggregated catalogs (`import messages from '@/messages/en'`) instead of importing individual namespace files.
 - Do not add tests that merely assert formatting, implementation wording, or trivial wrappers. Do not introduce benchmarks unless the task calls for performance measurement.
 - Follow the exact formatter, lint, type-check, and test workflow in `AGENTS.md`. Inspect the final diff for unrelated functional changes and report checks that failed or could not run. Do not start a development server without the user's explicit request.
 

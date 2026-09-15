@@ -1,4 +1,6 @@
 import '@/shared/components/code/style/both.css';
+import MarkdownAlert from '@/shared/components/markdown/components/markdown-alert';
+import MarkdownAlign from '@/shared/components/markdown/components/markdown-align';
 import MarkdownCodeBlock from '@/shared/components/markdown/components/markdown-code-block';
 import MarkdownPdf from '@/shared/components/markdown/components/markdown-pdf';
 import MarkdownUserSpan from '@/shared/components/markdown/components/markdown-user-span';
@@ -7,6 +9,7 @@ import KatexClientRender from '@/shared/components/markdown/katex-client-render'
 import { preserveLatexLineBreaks } from '@/shared/components/markdown/latex-line-breaks';
 import '@/shared/components/markdown/markdown.css';
 import rehypeUserSpan from '@/shared/components/markdown/plugins/rehype-user-span';
+import remarkContainers from '@/shared/components/markdown/plugins/remark-containers';
 import remarkPdf from '@/shared/components/markdown/plugins/remark-pdf';
 import remarkProblemSamples from '@/shared/components/markdown/plugins/remark-problem-samples';
 import 'katex/dist/katex.min.css';
@@ -27,6 +30,8 @@ export const markdownSanitizeSchema: Schema = {
     'pdf-embed',
     'samples',
     'user-span',
+    'md-alert',
+    'md-align',
     'details',
     'summary',
     'kbd',
@@ -44,6 +49,16 @@ export const markdownSanitizeSchema: Schema = {
       ],
     ],
     'pdf-embed': ['dataSrc', 'data-src'],
+    'md-alert': [
+      ['dataVariant', /^(info|warning|success|error)$/],
+      ['data-variant', /^(info|warning|success|error)$/],
+      'dataTitle',
+      'data-title',
+    ],
+    'md-align': [
+      ['dataAlign', /^(center|left|right)$/],
+      ['data-align', /^(center|left|right)$/],
+    ],
     samples: [
       ['dataIndex', /^\d+$/],
       'dataInput',
@@ -90,13 +105,20 @@ export default function Markdown({
   return (
     <div className="markdown">
       <MarkdownAsync
-        remarkPlugins={[remarkGfm, remarkPdf, remarkProblemSamples]}
+        remarkPlugins={[
+          remarkGfm,
+          remarkPdf,
+          remarkProblemSamples,
+          remarkContainers,
+        ]}
         rehypePlugins={rehypePluginsWithSanitize}
         components={{
           // @ts-expect-error pdf-embed is a custom element
           'pdf-embed': MarkdownPdf,
           samples: ProblemSample,
           'user-span': MarkdownUserSpan,
+          'md-alert': MarkdownAlert,
+          'md-align': MarkdownAlign,
           pre: MarkdownCodeBlock,
           ...components,
         }}

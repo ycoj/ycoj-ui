@@ -11,10 +11,14 @@
     "lint:type": "tsc --noEmit",
     "format": "prettier --write --list-different .",
     "format:check": "prettier --check .",
-    "test": "vitest run",
+    "test": "pnpm test:unit && pnpm test:browser",
     "test:watch": "vitest",
     "bench": "vitest bench --run",
-    "release": "node scripts/build.js"
+    "release": "node scripts/build.js",
+    "test:unit": "vitest run",
+    "test:browser": "vitest run --config vitest.browser.config.mts",
+    "test:browser:watch": "vitest --config vitest.browser.config.mts --browser.headless=false",
+    "test:browser:update": "vitest run --config vitest.browser.config.mts --update"
   },
   "dependencies": {
     "@alova/adapter-xhr": "^2.3.3",
@@ -79,10 +83,6 @@
     "@codspeed/vitest-plugin": "^5.7.1",
     "@tailwindcss/postcss": "^4.3.3",
     "@tailwindcss/typography": "^0.5.19",
-    "@testing-library/dom": "^10.4.1",
-    "@testing-library/jest-dom": "^6.9.1",
-    "@testing-library/react": "^16.3.2",
-    "@testing-library/user-event": "^14.6.1",
     "@trivago/prettier-plugin-sort-imports": "^6.0.0",
     "@types/hast": "^3.0.5",
     "@types/mime-types": "^3.0.1",
@@ -90,17 +90,19 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.0.5",
+    "@vitest/browser-playwright": "4.1.10",
     "baseline-browser-mapping": "^2.9.19",
     "eslint": "^9.39.5",
     "eslint-config-next": "16.3.0",
     "eslint-config-prettier": "^10.1.8",
-    "jsdom": "^29.1.1",
+    "playwright": "1.63.0",
     "prettier": "^3.7.4",
     "prettier-plugin-tailwindcss": "^0.8.1",
     "tailwindcss": "^4",
     "typescript": "^5.9.3",
     "unified": "11.0.5",
     "vite": "^8.2.1",
-    "vitest": "^4.1.10"
+    "vitest": "4.1.10",
+    "vitest-browser-react": "2.3.0"
   }
 }

@@ -51,3 +51,6 @@ next-env.d.ts
 /public/clangd/v2/*.tmp
 .vscode/
 opencode.json
+
+/test-results/
+/.vitest-attachments/

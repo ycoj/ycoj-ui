@@ -1,0 +1,368 @@
+import RecordDetailLive from './record-detail-live';
+import type { ProblemDoc } from '@/shared/types/problem';
+import type { RecordDoc } from '@/shared/types/record';
+import type { User } from '@/shared/types/user';
+import { act } from '@/tests/browser/act';
+import { beforeEach, expect, test, vi } from 'vitest';
+import { render } from 'vitest-browser-react';
+import { page, userEvent } from 'vitest/browser';
+
+const socketMock = vi.hoisted(() => ({
+  options: null as null | { onMessage: (message: unknown) => void },
+  reconnect: vi.fn(),
+}));
+
+const clientMock = vi.hoisted(() => ({
+  rejudge: vi.fn(),
+  cancel: vi.fn(),
+}));
+
+const routerMock = vi.hoisted(() => ({
+  refresh: vi.fn(),
+  push: vi.fn(),
+}));
+
+vi.mock('@/shared/hooks/use-record-socket', () => ({
+  useRecordSocket: vi.fn(
+    (options: { onMessage: (message: unknown) => void }) => {
+      socketMock.options = options;
+      return { reconnect: socketMock.reconnect };
+    }
+  ),
+}));
+
+vi.mock('@/api/client/method', () => ({
+  default: {
+    Record: {
+      rejudge: clientMock.rejudge,
+      cancel: clientMock.cancel,
+    },
+  },
+}));
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => routerMock,
+  useSearchParams: () => new URLSearchParams(),
+}));
+
+vi.mock('@/features/record/detail/record-detail', () => ({
+  default: ({ rdoc }: { rdoc: RecordDoc }) => (
+    <div data-testid="detail">{`${rdoc.status}:${rdoc.score}:${rdoc.time}`}</div>
+  ),
+}));
+
+vi.mock('@/features/record/detail/ai-generation/ai-generation-log', () => ({
+  default: ({ rdoc }: { rdoc: RecordDoc }) => (
+    <div data-testid="ai-log">{`${rdoc.lang}:${rdoc.status}`}</div>
+  ),
+}));
+
+vi.mock('@/features/record/detail/record-sidebar', () => ({
+  default: ({
+    onRejudge,
+    onCancel,
+  }: {
+    onRejudge: () => Promise<void>;
+    onCancel: () => Promise<void>;
+  }) => (
+    <div>
+      <button
+        type="button"
+        onClick={() => {
+          void onRejudge().catch(() => {});
+        }}
+      >
+        rejudge
+      </button>
+      <button
+        type="button"
+        onClick={() => {
+          void onCancel().catch(() => {});
+        }}
+      >
+        cancel
+      </button>
+    </div>
+  ),
+}));
+
+vi.mock('@/features/record/detail/record-code', () => ({
+  default: ({ rdoc }: { rdoc: RecordDoc }) => (
+    <div data-testid="code">{rdoc.code}</div>
+  ),
+}));
+
+vi.mock('@/features/record/detail/record-compiler-message', () => ({
+  RecordCompilerMessage: ({ rdoc }: { rdoc: RecordDoc }) => (
+    <div data-testid="compiler">{rdoc.compilerTexts.join(',')}</div>
+  ),
+}));
+
+vi.mock('@/features/record/detail/record-testcases', () => ({
+  RecordTestcases: ({ rdoc }: { rdoc: RecordDoc }) => (
+    <div data-testid="testcases">
+      {rdoc.testCases.map((testCase) => testCase.status).join(',')}
+    </div>
+  ),
+}));
+
+vi.mock('@/shared/layout/two-column', () => ({
+  default: ({
+    left,
+    right,
+  }: {
+    left: React.ReactNode;
+    right?: React.ReactNode;
+  }) => (
+    <div>
+      {left}
+      {right}
+    </div>
+  ),
+}));
+
+const rdoc: RecordDoc = {
+  _id: '66ab1234567890abcdef1234',
+  domainId: 'system',
+  pid: 1000,
+  uid: 2,
+  lang: 'cc.cc17',
+  code: 'original code',
+  score: 0,
+  memory: 0,
+  time: 0,
+  judgeTexts: [],
+  compilerTexts: [],
+  testCases: [],
+  rejudged: false,
+  judger: 0,
+  judgeAt: '',
+  status: 0,
+};
+
+const props = {
+  rdoc,
+  pdoc: { docId: 1000, title: 'Problem' } as ProblemDoc,
+  udoc: { _id: 2, uname: 'alice' } as User,
+  languages: {},
+  allowRejudge: false,
+  allRevs: {},
+};
+
+beforeEach(() => {
+  socketMock.options = null;
+  socketMock.reconnect.mockClear();
+  clientMock.rejudge.mockReset();
+  clientMock.cancel.mockReset();
+  routerMock.refresh.mockClear();
+  routerMock.push.mockClear();
+});
+
+test('uses the AI log only when lang is ai', async () => {
+  await render(
+    <RecordDetailLive
+      {...props}
+      rdoc={{
+        ...rdoc,
+        lang: 'ai',
+        aiGeneration: {
+          active: true,
+          stage: 'waiting',
+          model: 'gpt-5',
+        },
+      }}
+    />
+  );
+
+  await expect.element(page.getByTestId('ai-log')).toHaveTextContent('ai:0');
+  await expect.element(page.getByTestId('detail')).not.toBeInTheDocument();
+
+  await act(async () =>
+    socketMock.options!.onMessage({
+      rdoc: { _id: rdoc._id, status: 20, progress: 10 },
+    })
+  );
+  await expect.element(page.getByTestId('ai-log')).toHaveTextContent('ai:20');
+});
+
+test('keeps the normal record view when only aiGeneration metadata is present', async () => {
+  await render(
+    <RecordDetailLive
+      {...props}
+      rdoc={{
+        ...rdoc,
+        aiGeneration: {
+          active: true,
+          stage: 'waiting',
+          model: 'gpt-5',
+        },
+      }}
+    />
+  );
+
+  await expect.element(page.getByTestId('detail')).toHaveTextContent('0:0:0');
+  await expect.element(page.getByTestId('ai-log')).not.toBeInTheDocument();
+});
+
+test('updates every record section from the matching websocket frame', async () => {
+  await render(<RecordDetailLive {...props} />);
+
+  await act(async () =>
+    socketMock.options!.onMessage({
+      rdoc: {
+        _id: rdoc._id,
+        status: 1,
+        score: 100,
+        time: 25,
+        compilerTexts: ['compiled'],
+        testCases: [
+          {
+            id: 1,
+            subtaskId: 0,
+            score: 100,
+            time: 25,
+            memory: 1024,
+            status: 1,
+            message: '',
+          },
+        ],
+      },
+    })
+  );
+
+  await expect
+    .element(page.getByTestId('detail'))
+    .toHaveTextContent('1:100:25');
+  await expect
+    .element(page.getByTestId('compiler'))
+    .toHaveTextContent('compiled');
+  await expect.element(page.getByTestId('testcases')).toHaveTextContent('1');
+});
+
+test('ignores other records and preserves fields missing from updates', async () => {
+  await render(<RecordDetailLive {...props} />);
+
+  await act(async () =>
+    socketMock.options!.onMessage({
+      rdoc: { _id: 'ffffffffffffffffffffffff', status: 2, code: 'other' },
+    })
+  );
+  await expect.element(page.getByTestId('detail')).toHaveTextContent('0:0:0');
+  await expect
+    .element(page.getByTestId('code'))
+    .toHaveTextContent('original code');
+
+  await act(async () =>
+    socketMock.options!.onMessage({
+      rdoc: { _id: rdoc._id, score: 50, code: 'socket code' },
+    })
+  );
+  await expect.element(page.getByTestId('detail')).toHaveTextContent('0:50:0');
+  await expect
+    .element(page.getByTestId('code'))
+    .toHaveTextContent('original code');
+});
+
+test('resets local state when the server prop changes', async () => {
+  const view = await render(<RecordDetailLive {...props} />);
+
+  await act(async () =>
+    socketMock.options!.onMessage({
+      rdoc: { _id: rdoc._id, status: 1, score: 100, time: 25 },
+    })
+  );
+  await expect
+    .element(page.getByTestId('detail'))
+    .toHaveTextContent('1:100:25');
+
+  await view.rerender(
+    <RecordDetailLive
+      {...props}
+      rdoc={{ ...rdoc, status: 3, score: 60, time: 42 }}
+    />
+  );
+
+  await expect.element(page.getByTestId('detail')).toHaveTextContent('3:60:42');
+});
+
+test('keeps socket updates while the server prop is unchanged', async () => {
+  const view = await render(<RecordDetailLive {...props} />);
+
+  await act(async () =>
+    socketMock.options!.onMessage({
+      rdoc: { _id: rdoc._id, status: 1, score: 100 },
+    })
+  );
+
+  await view.rerender(<RecordDetailLive {...props} />);
+
+  await expect.element(page.getByTestId('detail')).toHaveTextContent('1:100:0');
+});
+
+test('ignores websocket frames while viewing a historical version', async () => {
+  await render(
+    <RecordDetailLive
+      {...props}
+      allRevs={{ '66ab1234567890abcdef0000': '2024-01-01T00:00:00.000Z' }}
+      selectedRev="66ab1234567890abcdef0000"
+    />
+  );
+
+  await act(async () =>
+    socketMock.options!.onMessage({
+      rdoc: { _id: rdoc._id, status: 1, score: 100, time: 25 },
+    })
+  );
+
+  await expect.element(page.getByTestId('detail')).toHaveTextContent('0:0:0');
+});
+
+test('reopens the websocket connection and refreshes after a successful rejudge', async () => {
+  clientMock.rejudge.mockResolvedValue({});
+  await render(<RecordDetailLive {...props} allowRejudge />);
+
+  await userEvent.click(page.getByRole('button', { name: 'rejudge' }));
+
+  await expect.poll(() => clientMock.rejudge.mock.calls.length).toBe(1);
+  expect(clientMock.rejudge).toHaveBeenCalledWith(rdoc._id);
+  expect(socketMock.reconnect).toHaveBeenCalledTimes(1);
+  expect(routerMock.refresh).toHaveBeenCalledTimes(1);
+});
+
+test('keeps the websocket closed when the rejudge request fails', async () => {
+  clientMock.rejudge.mockResolvedValue({
+    error: { name: 'PermissionError', message: 'denied' },
+  });
+  await render(<RecordDetailLive {...props} allowRejudge />);
+
+  await userEvent.click(page.getByRole('button', { name: 'rejudge' }));
+
+  await expect.poll(() => clientMock.rejudge.mock.calls.length).toBe(1);
+  expect(clientMock.rejudge).toHaveBeenCalledWith(rdoc._id);
+  expect(socketMock.reconnect).not.toHaveBeenCalled();
+  expect(routerMock.refresh).not.toHaveBeenCalled();
+});
+
+test('refreshes server data after a successful cancel', async () => {
+  clientMock.cancel.mockResolvedValue({});
+  await render(<RecordDetailLive {...props} allowRejudge />);
+
+  await userEvent.click(page.getByRole('button', { name: 'cancel' }));
+
+  await expect.poll(() => clientMock.cancel.mock.calls.length).toBe(1);
+  expect(clientMock.cancel).toHaveBeenCalledWith(rdoc._id);
+  expect(routerMock.refresh).toHaveBeenCalledTimes(1);
+});
+
+test('does not refresh when the cancel request fails', async () => {
+  clientMock.cancel.mockResolvedValue({
+    error: { name: 'PermissionError', message: 'denied' },
+  });
+  await render(<RecordDetailLive {...props} allowRejudge />);
+
+  await userEvent.click(page.getByRole('button', { name: 'cancel' }));
+
+  await expect.poll(() => clientMock.cancel.mock.calls.length).toBe(1);
+  expect(clientMock.cancel).toHaveBeenCalledWith(rdoc._id);
+  expect(routerMock.refresh).not.toHaveBeenCalled();
+});
