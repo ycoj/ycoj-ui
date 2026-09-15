@@ -75,6 +75,84 @@ describe('Markdown code blocks', () => {
   });
 });
 
+describe('Markdown containers', () => {
+  it('renders an info container with a title as an alert', async () => {
+    await renderMarkdown(':::info[Heads up]\nPay **attention**.\n:::');
+
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveClass('border-blue-200');
+    expect(screen.getByText('Heads up')).toBeInTheDocument();
+    expect(screen.getByText('attention').tagName).toBe('STRONG');
+  });
+
+  it.each([
+    ['info', 'border-blue-200'],
+    ['warning', 'border-yellow-200'],
+    ['success', 'border-green-200'],
+    ['error', 'border-red-200'],
+  ] as const)(
+    'renders the %s variant styling',
+    async (variant, borderClass) => {
+      await renderMarkdown(`:::${variant}\nMessage body\n:::`);
+
+      const alert = screen.getByRole('alert');
+      expect(alert).toHaveClass(borderClass);
+      expect(alert).toHaveTextContent('Message body');
+    }
+  );
+
+  it('renders a container written across separate paragraphs', async () => {
+    await renderMarkdown(':::warning\n\nWatch **out**\n\n:::');
+
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveTextContent('Watch');
+    expect(screen.getByText('out').tagName).toBe('STRONG');
+  });
+
+  it('renders an align container with the requested alignment', async () => {
+    const { container } = await renderMarkdown(':::align{right}\nhello\n:::');
+
+    expect(container.querySelector('.text-right')).toHaveTextContent('hello');
+  });
+
+  it('renders nested containers', async () => {
+    await renderMarkdown(':::info[Outer]\n:::warning\ninner\n:::\n:::');
+
+    const alerts = screen.getAllByRole('alert');
+    expect(alerts).toHaveLength(2);
+    expect(alerts[0]).toHaveClass('border-blue-200');
+    expect(alerts[0]).toHaveTextContent('Outer');
+    expect(alerts[1]).toHaveClass('border-yellow-200');
+    expect(alerts[1]).toHaveTextContent('inner');
+    expect(alerts[0]).toContainElement(alerts[1]);
+  });
+
+  it('renders completed inner containers when the outer one is unterminated', async () => {
+    await renderMarkdown(':::info\n\n:::warning\ninner\n:::\n');
+
+    const alerts = screen.getAllByRole('alert');
+    expect(alerts).toHaveLength(1);
+    expect(alerts[0]).toHaveClass('border-yellow-200');
+    expect(screen.getByText(/:::info/)).toBeInTheDocument();
+  });
+
+  it('renders sibling containers one after another', async () => {
+    await renderMarkdown(':::info\na\n:::\n\n:::error\nb\n:::');
+
+    const alerts = screen.getAllByRole('alert');
+    expect(alerts).toHaveLength(2);
+    expect(alerts[0]).toHaveClass('border-blue-200');
+    expect(alerts[1]).toHaveClass('border-red-200');
+  });
+
+  it('keeps an unterminated container as plain text', async () => {
+    await renderMarkdown(':::info\nnever closed');
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByText(/:::info/)).toBeInTheDocument();
+  });
+});
+
 describe('Markdown resolved file URLs', () => {
   it('renders resolved attachment links and images through the sanitized pipeline', async () => {
     const source = resolveFileUrls(
