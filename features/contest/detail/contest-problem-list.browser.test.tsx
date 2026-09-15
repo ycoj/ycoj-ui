@@ -3,9 +3,10 @@ import type { ContestProblemsData } from '@/api/server/method/contests/problems'
 import messages from '@/messages/en.json';
 import type { Contest } from '@/shared/types/contest';
 import type { ProblemDoc } from '@/shared/types/problem';
-import { render, screen } from '@testing-library/react';
 import { NextIntlClientProvider } from 'next-intl';
-import { describe, expect, it } from 'vitest';
+import { expect, test } from 'vitest';
+import { render } from 'vitest-browser-react';
+import { page } from 'vitest/browser';
 
 function makeData(attend?: number): ContestProblemsData {
   const contest = {
@@ -52,22 +53,21 @@ function renderList(data: ContestProblemsData) {
   );
 }
 
-describe('ContestProblemList problem links', () => {
-  it('opens an attended contest problem in contest mode', () => {
-    renderList(makeData(1));
+test('opens an attended contest problem in contest mode', async () => {
+  await renderList(makeData(1));
 
-    expect(screen.getByRole('link', { name: 'A + B' })).toHaveAttribute(
-      'href',
-      '/problem/A1000?tid=contest-id'
-    );
-  });
+  const link = page.getByRole('link', { name: 'A + B' });
+  await expect.element(link).toBeVisible();
+  expect(link.element().getAttribute('href')).toBe(
+    '/problem/A1000?tid=contest-id'
+  );
+  expect(link.element().getBoundingClientRect().height).toBeGreaterThan(0);
+});
 
-  it('opens an unattended contest problem in normal mode', () => {
-    renderList(makeData());
+test('opens an unattended contest problem in normal mode', async () => {
+  await renderList(makeData());
 
-    expect(screen.getByRole('link', { name: 'A + B' })).toHaveAttribute(
-      'href',
-      '/problem/A1000'
-    );
-  });
+  const link = page.getByRole('link', { name: 'A + B' });
+  await expect.element(link).toBeVisible();
+  expect(link.element().getAttribute('href')).toBe('/problem/A1000');
 });

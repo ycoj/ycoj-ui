@@ -91,15 +91,21 @@ must explicitly configure and restore that preference.
 
 ## Migration status
 
-Migrated to `*.browser.test.tsx` (jsdom copies removed): contest status and
-scoreboard cells, problem difficulty/status, problem and record lists, the
-check-in heatmap, management sidebar, language auto-complete, paste language
-select, preliminary mobile navigation, theme logo, and the confirm/delete
-dialogs. Pure helpers split out of those files stay as `*.test.ts` (for example
+Migrated to `*.browser.test.tsx` (jsdom copies removed): contest status, timers,
+and scoreboard cells; problem difficulty/status, titles, lists, and auto-complete;
+problem status icons, objective navigation, scratchpad provider, and testdata
+uploads; record lists, filters, code and auto-complete widgets; check-in heatmap;
+management sidebar and real-name review filter/result/form; language and user
+auto-completes; paste language select, history, detail actions, and code content;
+preliminary mobile navigation; theme logo; ranking leaderboard; async
+auto-complete; login page; sudo page; and the confirm/delete dialogs. Pure helpers
+split out of those files stay as `*.test.ts` (for example
 `features/manage/manage-access.test.ts`).
 
-The remaining jsdom suites are still tracked by `vitest.config.mts`; migrate them
-in batches by the sequence below and keep `pnpm test` green between batches.
+Suites that only describe server route composition or internal prop forwarding
+(no rendering contract to assert) intentionally remain on jsdom. The rest are
+still tracked by `vitest.config.mts`; migrate them in batches by the sequence
+below and keep `pnpm test` green between batches.
 
 ## Screenshot regressions
 

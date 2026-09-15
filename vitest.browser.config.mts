@@ -11,10 +11,24 @@ export default defineConfig({
     'process.env': JSON.stringify({ NODE_ENV: 'test' }),
   },
   resolve: {
+    // Server Components import `server-only`; browser tests only render their
+    // client output, so reuse the same empty module as the jsdom config.
+    alias: { 'server-only': 'next/dist/compiled/server-only/empty.js' },
     tsconfigPaths: true,
     // Prebundled deps must share the same React instance as
     // `vitest-browser-react`.
     dedupe: ['react', 'react-dom'],
+  },
+  // Discovered late by dayjs imports; prebundling them avoids a mid-run reload.
+  optimizeDeps: {
+    include: [
+      'dayjs/plugin/customParseFormat',
+      'dayjs/plugin/duration',
+      '@monaco-editor/react',
+      'ansi_up',
+      'react-resizable-panels',
+      'reconnecting-websocket',
+    ],
   },
   test: {
     include: ['**/*.browser.{test,spec}.{ts,tsx}'],
