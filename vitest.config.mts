@@ -19,7 +19,7 @@ export default defineConfig(({ mode }) => ({
     environment: 'jsdom',
     setupFiles: ['./vitest.setup.ts'],
     include: ['**/*.{test,spec}.{ts,tsx}'],
-    exclude: ['node_modules', '.next'],
+    exclude: ['node_modules', '.next', '**/*.browser.{test,spec}.{ts,tsx}'],
     benchmark: {
       include: ['**/*.bench.{ts,tsx}'],
       exclude: ['node_modules', '.next'],
