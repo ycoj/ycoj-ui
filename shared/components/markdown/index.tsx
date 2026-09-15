@@ -12,6 +12,7 @@ import rehypeUserSpan from '@/shared/components/markdown/plugins/rehype-user-spa
 import remarkContainers from '@/shared/components/markdown/plugins/remark-containers';
 import remarkPdf from '@/shared/components/markdown/plugins/remark-pdf';
 import remarkProblemSamples from '@/shared/components/markdown/plugins/remark-problem-samples';
+import type { Root } from 'hast';
 import 'katex/dist/katex.min.css';
 import { MarkdownAsync } from 'react-markdown';
 import type { Components } from 'react-markdown';
@@ -21,7 +22,18 @@ import type { Options as Schema } from 'rehype-sanitize';
 import rehypeStarryNight from 'rehype-starry-night';
 import remarkGfm from 'remark-gfm';
 import 'server-only';
+import type { Plugin } from 'unified';
 import type { PluggableList } from 'unified';
+
+// `rehype-starry-night` builds its highlighter (loading every common grammar)
+// when a processor freezes the plugin, and `MarkdownAsync` freezes a new
+// processor for every rendered block. Pages that render many blocks (for
+// example the preliminary detail view renders one per question and option)
+// would rebuild the highlighter hundreds of times per request. Build one
+// transformer and register it through a stable plugin instead.
+const starryNightTransformer = rehypeStarryNight();
+const rehypeStarryNightShared: Plugin<[], Root, Root> = () =>
+  starryNightTransformer;
 
 export const markdownSanitizeSchema: Schema = {
   ...defaultSchema,
@@ -99,7 +111,7 @@ export default function Markdown({
     ...rehypePlugins,
     [rehypeSanitize, sanitizeSchema],
     rehypeUserSpan,
-    rehypeStarryNight,
+    rehypeStarryNightShared,
   ];
 
   return (

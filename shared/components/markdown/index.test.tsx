@@ -7,6 +7,21 @@ import { Children, type ReactElement, type ReactNode } from 'react';
 import { MarkdownAsync, type Options } from 'react-markdown';
 import { describe, expect, it, vi } from 'vitest';
 
+const mocks = vi.hoisted(() => ({ highlighterFactories: 0 }));
+
+// Count how often the starry-night plugin builds its highlighter. Pages with
+// many markdown blocks (preliminary papers render one per question and
+// option) must not rebuild every grammar for each block.
+vi.mock('rehype-starry-night', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('rehype-starry-night')>();
+  return {
+    default: (...args: Parameters<typeof actual.default>) => {
+      mocks.highlighterFactories += 1;
+      return actual.default(...args);
+    },
+  };
+});
+
 vi.mock('./components/react-pdf-viewer', () => ({
   default: () => <div aria-label="PDF document" role="document" />,
 }));
@@ -25,6 +40,17 @@ async function renderMarkdown(source: string) {
     ),
   });
 }
+
+describe('Markdown highlighter reuse', () => {
+  it('does not rebuild the syntax highlighter for every block', async () => {
+    const builtBefore = mocks.highlighterFactories;
+
+    await renderMarkdown('first block');
+    await renderMarkdown('second block');
+
+    expect(mocks.highlighterFactories).toBe(builtBefore);
+  });
+});
 
 describe('Markdown PDF rendering', () => {
   it('renders the custom PDF syntax through the sanitized pipeline', async () => {
