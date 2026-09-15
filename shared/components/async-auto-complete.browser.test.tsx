@@ -25,6 +25,7 @@ type HarnessProps = {
   allowEmptyQuery?: boolean;
   initialValue?: string;
   onItemSelect?: (item: Item) => void;
+  debounceMs?: number;
 };
 
 function Harness({
@@ -33,6 +34,7 @@ function Harness({
   allowEmptyQuery,
   initialValue = '',
   onItemSelect,
+  debounceMs,
 }: HarnessProps) {
   const [value, setValue] = useState(initialValue);
 
@@ -51,6 +53,7 @@ function Harness({
         allowEmptyQuery={allowEmptyQuery}
         placeholder="Search items"
         onItemSelect={onItemSelect}
+        debounceMs={debounceMs}
       />
       <output data-testid="value">{value}</output>
     </>
@@ -208,8 +211,13 @@ test('ignores an older response that resolves after a newer query', async () => 
 });
 
 test('only searches an empty query when enabled and reports failures', async () => {
+  // The 400ms wait must outlast the debounce to prove the empty query is
+  // gated rather than merely delayed; a short explicit debounce keeps the
+  // test decoupled from the component default.
   const disabledSearch = vi.fn<(query: string) => Promise<Item[]>>();
-  const first = await render(<Harness searchItems={disabledSearch} />);
+  const first = await render(
+    <Harness searchItems={disabledSearch} debounceMs={100} />
+  );
 
   await userEvent.click(input());
   await new Promise((resolve) => setTimeout(resolve, 400));

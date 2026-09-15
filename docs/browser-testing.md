@@ -76,6 +76,12 @@ needed; do not mock the component's layout primitives, styles, ResizeObserver,
 matchMedia, focus, or scrolling. Browser module mocks must use factory exports;
 Node-only module spying patterns may need rewriting.
 
+Prefer driving updates through real events and awaiting them with
+`expect.element`/`expect.poll`. When fake timers or mocked callbacks must flush
+state updates synchronously, import `act` from `@/tests/browser/act` instead of
+`react`: the helper toggles `IS_REACT_ACT_ENVIRONMENT` around the call the same
+way `vitest-browser-react` does, so React does not log act-environment warnings.
+
 The browser config defines `process.env` because Next.js client components read
 it at module scope (`next/image` reads `process.env.__NEXT_IMAGE_OPTS`). It also
 dedupes `react`/`react-dom` so prebundled component libraries (for example

@@ -2,7 +2,7 @@ import RecordDetailLive from './record-detail-live';
 import type { ProblemDoc } from '@/shared/types/problem';
 import type { RecordDoc } from '@/shared/types/record';
 import type { User } from '@/shared/types/user';
-import { act } from 'react';
+import { act } from '@/tests/browser/act';
 import { beforeEach, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';

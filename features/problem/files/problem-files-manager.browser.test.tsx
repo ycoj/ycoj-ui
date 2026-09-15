@@ -1,8 +1,8 @@
 import ProblemFilesManager from './problem-files-manager';
 import ClientApis from '@/api/client/method';
 import messages from '@/messages/en';
+import { act } from '@/tests/browser/act';
 import { NextIntlClientProvider } from 'next-intl';
-import { act } from 'react';
 import { beforeEach, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 import { page, userEvent } from 'vitest/browser';

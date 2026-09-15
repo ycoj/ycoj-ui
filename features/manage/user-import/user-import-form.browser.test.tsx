@@ -70,14 +70,9 @@ async function openPasswordsDialog() {
   await userEvent.click(page.getByRole('button', { name: 'Fill passwords' }));
   const dialog = page.getByRole('dialog');
   await expect.element(dialog).toBeVisible();
-  // Wait out the opening scale animation so clicks land on a stable element.
-  await expect
-    .poll(
-      () =>
-        dialog.getByRole('radio').first().element().getBoundingClientRect()
-          .height
-    )
-    .toBe(16);
+  // The enter animation fades and zooms the content in; wait until it has
+  // finished (or never started) so clicks land on a stable element.
+  await expect.poll(() => getComputedStyle(dialog.element()).opacity).toBe('1');
   return dialog;
 }
 

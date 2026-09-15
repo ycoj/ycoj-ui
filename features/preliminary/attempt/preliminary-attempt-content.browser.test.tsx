@@ -80,14 +80,16 @@ function renderContent(data: PreliminaryAttemptData) {
 async function optionBorder(label: string) {
   const labelElement = page.getByText(label, { exact: true });
   await expect.element(labelElement).toBeVisible();
-  const row = labelElement.element().closest<HTMLElement>('[class*="border"]')!;
+  const row = labelElement
+    .element()
+    .closest<HTMLElement>('[data-option-value]')!;
   await expect.poll(() => getComputedStyle(row).borderTopColor).not.toBe('');
   return getComputedStyle(row).borderTopColor;
 }
 
 function redBorders(container: HTMLElement) {
   return Array.from(
-    container.querySelectorAll<HTMLElement>('[class*="border"]')
+    container.querySelectorAll<HTMLElement>('[data-option-value]')
   ).filter((element) => getComputedStyle(element).borderTopColor === RED_500);
 }
 

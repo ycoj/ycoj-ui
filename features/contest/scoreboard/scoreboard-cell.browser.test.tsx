@@ -24,16 +24,20 @@ test('renders score levels with distinct readable colors and weight', async () =
     withMessages(
       <div>
         <ScoreboardCell node={{ type: 'record', value: 100 }} />
+        <ScoreboardCell node={{ type: 'record', value: 99 }} />
         <ScoreboardCell node={{ type: 'record', value: 60 }} />
         <ScoreboardCell node={{ type: 'record', value: 59 }} />
+        <ScoreboardCell node={{ type: 'record', value: 0 }} />
       </div>
     )
   );
 
   for (const [score, color] of [
     ['100', 'oklch(0.627 0.194 149.214)'],
+    ['99', 'oklch(0.705 0.213 47.604)'],
     ['60', 'oklch(0.705 0.213 47.604)'],
     ['59', 'oklch(0.637 0.237 25.331)'],
+    ['0', 'oklch(0.637 0.237 25.331)'],
   ] as const) {
     const value = page.getByText(score, { exact: true });
     await expect.element(value).toBeVisible();

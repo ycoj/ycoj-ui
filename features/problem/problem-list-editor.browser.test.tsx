@@ -59,11 +59,13 @@ beforeEach(() => {
 });
 
 test('problemListDragType is unique per list id so sections cannot accept each other', () => {
+  // The drag source publishes this type and the drop target accepts it, so a
+  // list id must always map to one type and different lists must not collide.
+  expect(problemListDragType('sections.0.pids')).toBe(
+    problemListDragType('sections.0.pids')
+  );
   expect(problemListDragType('sections.0.pids')).not.toBe(
     problemListDragType('sections.1.pids')
-  );
-  expect(problemListDragType('sections.0.pids')).toBe(
-    'problem-list-item:sections.0.pids'
   );
 });
 

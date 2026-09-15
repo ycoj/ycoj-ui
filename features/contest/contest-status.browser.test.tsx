@@ -70,6 +70,30 @@ test('switches the pending badge to its readable dark theme colors', async () =>
     .toBe('oklab(0.685 -0.0912435 -0.142252 / 0.2)');
 });
 
+test('keeps the running badge readable on its pink chip in the dark theme', async () => {
+  await renderStatus('running');
+  document.documentElement.classList.add('dark');
+
+  const label = page.getByText('Running', { exact: true });
+  const badge = label.element().closest('[data-slot="badge"]')!;
+  // The running badge has no dedicated dark tokens; it keeps the pink chip
+  // from the light palette, so only legibility can be required.
+  await expect
+    .poll(() => getComputedStyle(label.element()).color)
+    .toBe('oklch(0.525 0.223 3.958)');
+  await expect
+    .poll(() => getComputedStyle(badge).backgroundColor)
+    .toBe('oklch(0.948 0.028 342.258)');
+  expect(getComputedStyle(label.element()).color).not.toBe(
+    getComputedStyle(badge).backgroundColor
+  );
+  const textBounds = label.element().getBoundingClientRect();
+  const badgeBounds = badge.getBoundingClientRect();
+  expect(textBounds.left).toBeGreaterThan(badgeBounds.left);
+  expect(textBounds.right).toBeLessThan(badgeBounds.right);
+  expect(textBounds.width).toBeGreaterThan(0);
+});
+
 test('keeps ended badges readable against the dark surface', async () => {
   await renderStatus('ended');
   document.documentElement.classList.add('dark');

@@ -1,5 +1,5 @@
 import { useCloneFlow } from './use-clone-flow';
-import { act } from 'react';
+import { act } from '@/tests/browser/act';
 import { beforeEach, expect, test, vi } from 'vitest';
 import { renderHook } from 'vitest-browser-react';
 

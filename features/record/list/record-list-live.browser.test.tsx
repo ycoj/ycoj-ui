@@ -3,7 +3,7 @@ import type { RecordListResponse } from '@/api/server/method/record/list';
 import type { ProblemDoc } from '@/shared/types/problem';
 import type { RecordListItem } from '@/shared/types/record';
 import type { BaseUser } from '@/shared/types/user';
-import { act } from 'react';
+import { act } from '@/tests/browser/act';
 import { beforeEach, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 

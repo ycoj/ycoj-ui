@@ -1,8 +1,8 @@
 import HtmlToMarkdownSection from '@/features/problem/form/html-to-markdown-section';
 import type { ProblemFormValues } from '@/features/problem/form/problem-form';
 import messages from '@/messages/en';
+import { act } from '@/tests/browser/act';
 import { NextIntlClientProvider } from 'next-intl';
-import { act } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';

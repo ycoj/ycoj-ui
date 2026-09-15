@@ -42,7 +42,6 @@ function renderNavigation(isReadOnly: boolean) {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.stubGlobal('indexedDB', {});
 });
 
 test('shows Clear answers for writable users and clears the draft after confirming', async () => {

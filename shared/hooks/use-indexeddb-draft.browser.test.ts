@@ -1,5 +1,5 @@
 import { useIndexedDbDraft } from './use-indexeddb-draft';
-import { act } from 'react';
+import { act } from '@/tests/browser/act';
 import { beforeEach, expect, test, vi } from 'vitest';
 import { renderHook } from 'vitest-browser-react';
 
@@ -8,6 +8,13 @@ const save =
   vi.fn<(id: string, value: Record<string, string>) => Promise<void>>();
 const clear = vi.fn<(id: string) => Promise<void>>();
 const sanitize = (stored: Record<string, string>) => stored;
+
+// Persistence runs in an effect that commits right after each render, so
+// once `vi.waitFor` settles the state a real frame is enough for any wrongly
+// scheduled save or clear to land before asserting that none did.
+async function settlePersistence() {
+  await new Promise((resolve) => setTimeout(resolve, 50));
+}
 
 function renderDraft(draftId: string) {
   return renderHook(
@@ -25,7 +32,6 @@ function renderDraft(draftId: string) {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.stubGlobal('indexedDB', {});
   load.mockResolvedValue(null);
   save.mockResolvedValue(undefined);
   clear.mockResolvedValue(undefined);
@@ -85,7 +91,7 @@ test('does not save when sanitize returns a fresh-but-equal object', async () =>
   );
   await vi.waitFor(() => expect(result.current.isReady).toBe(true));
   expect(result.current.answers).toEqual({ q1: 'o1' });
-  await new Promise((resolve) => setTimeout(resolve, 20));
+  await settlePersistence();
   expect(save).not.toHaveBeenCalled();
   expect(clear).not.toHaveBeenCalled();
 
@@ -148,13 +154,13 @@ test('holds persistence until sanitize inputs are ready', async () => {
   );
   await vi.waitFor(() => expect(result.current.isReady).toBe(true));
   expect(result.current.answers).toEqual({});
-  await new Promise((resolve) => setTimeout(resolve, 20));
+  await settlePersistence();
   expect(clear).not.toHaveBeenCalled();
   expect(save).not.toHaveBeenCalled();
 
   await rerender({ ready: true });
   await vi.waitFor(() => expect(result.current.answers).toEqual({ q1: 'o1' }));
-  await new Promise((resolve) => setTimeout(resolve, 20));
+  await settlePersistence();
   expect(clear).not.toHaveBeenCalled();
   expect(save).not.toHaveBeenCalled();
 });

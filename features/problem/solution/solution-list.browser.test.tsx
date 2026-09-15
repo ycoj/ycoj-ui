@@ -133,6 +133,26 @@ test('preserves ownership-based edit and delete actions in the unapproved group'
     .toBe(1);
 });
 
+test('shows the empty state when only unapproved solutions exist', async () => {
+  const { container } = await mount([solution(1), solution(0)]);
+
+  await expect
+    .element(page.getByText('No solutions', { exact: true }))
+    .toBeVisible();
+  const disclosure = container.querySelector('details')!;
+  expect(disclosure).not.toBeNull();
+  expect(disclosure.hasAttribute('open')).toBe(false);
+  await expect
+    .element(page.getByText('Content 1', { exact: true }))
+    .toBeInTheDocument();
+  await expect
+    .element(page.getByText('Content 0', { exact: true }))
+    .toBeInTheDocument();
+
+  await userEvent.click(page.getByText('Unapproved solutions (2)'));
+  expect(disclosure.hasAttribute('open')).toBe(true);
+});
+
 test('shows an empty state without an empty disclosure', async () => {
   const { container } = await mount([]);
 

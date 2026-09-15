@@ -1,5 +1,5 @@
 import { useClipboardCopy } from './use-clipboard-copy';
-import { act } from 'react';
+import { act } from '@/tests/browser/act';
 import { expect, test, vi } from 'vitest';
 import { renderHook } from 'vitest-browser-react';
 

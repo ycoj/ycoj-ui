@@ -1,5 +1,5 @@
 import { useRecordSocket } from './use-record-socket';
-import { act } from 'react';
+import { act } from '@/tests/browser/act';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { renderHook } from 'vitest-browser-react';
 
@@ -150,7 +150,11 @@ test('ignores reconnect calls when no socket is connected', async () => {
     })
   );
 
-  expect(() => act(() => result.current.reconnect())).not.toThrow();
+  // The wrapped act helper rejects when the callback throws, so awaiting it
+  // already proves reconnect() is safe without a connected socket.
+  await act(() => {
+    result.current.reconnect();
+  });
 });
 
 test('closes the socket and heartbeat on unmount', async () => {

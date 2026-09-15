@@ -2,7 +2,8 @@ import {
   CODE_EDITOR_STORAGE_KEY,
   useCodeEditorPreference,
 } from './use-code-editor-preference';
-import { act, createElement, useEffect } from 'react';
+import { act } from '@/tests/browser/act';
+import { createElement, useEffect } from 'react';
 import { hydrateRoot } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
 import { beforeEach, expect, test, vi } from 'vitest';

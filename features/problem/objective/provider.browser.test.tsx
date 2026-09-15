@@ -50,6 +50,13 @@ function Controls() {
   );
 }
 
+// Persistence runs in effects that commit right after each render, so once
+// the visible state settles a real frame is enough for any wrongly scheduled
+// save or clear to land before asserting that none did.
+async function settlePersistence() {
+  await new Promise((resolve) => setTimeout(resolve, 50));
+}
+
 function renderProvider(isReadOnly: boolean) {
   return render(
     <ObjectiveProvider draftId="d1" isReadOnly={isReadOnly}>
@@ -105,7 +112,7 @@ test('lets writable users clear answers from state and storage', async () => {
   await expect.element(answers).toHaveTextContent('{}');
   await expect.poll(() => mockedClearDraft.mock.calls.length).toBe(1);
   expect(mockedClearDraft).toHaveBeenCalledWith('d1');
-  await new Promise((resolve) => setTimeout(resolve, 50));
+  await settlePersistence();
   expect(mockedSaveDraft).not.toHaveBeenCalledWith('d1', {});
 });
 
@@ -133,7 +140,7 @@ test('does not delete a draft loaded before questions register', async () => {
   );
 
   await expect.element(page.getByTestId('answers')).toHaveTextContent('{}');
-  await new Promise((resolve) => setTimeout(resolve, 30));
+  await settlePersistence();
   expect(mockedClearDraft).not.toHaveBeenCalled();
   expect(mockedSaveDraft).not.toHaveBeenCalled();
 
@@ -147,6 +154,6 @@ test('does not delete a draft loaded before questions register', async () => {
   await expect
     .element(page.getByTestId('answers'))
     .toHaveTextContent('{"1":"ok"}');
-  await new Promise((resolve) => setTimeout(resolve, 30));
+  await settlePersistence();
   expect(mockedClearDraft).not.toHaveBeenCalled();
 });

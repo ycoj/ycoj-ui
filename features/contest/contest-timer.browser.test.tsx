@@ -1,8 +1,8 @@
 import ContestTimer from '@/features/contest/contest-timer';
 import messages from '@/messages/en';
 import type { Contest } from '@/shared/types/contest';
+import { act } from '@/tests/browser/act';
 import { NextIntlClientProvider } from 'next-intl';
-import { act } from 'react';
 import { afterEach, expect, test, vi } from 'vitest';
 import { render } from 'vitest-browser-react';
 
