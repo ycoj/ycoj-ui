@@ -1,4 +1,6 @@
 import '@/shared/components/code/style/both.css';
+import MarkdownAlert from '@/shared/components/markdown/components/markdown-alert';
+import MarkdownAlign from '@/shared/components/markdown/components/markdown-align';
 import MarkdownCodeBlock from '@/shared/components/markdown/components/markdown-code-block';
 import MarkdownPdf from '@/shared/components/markdown/components/markdown-pdf';
 import MarkdownUserSpan from '@/shared/components/markdown/components/markdown-user-span';
@@ -7,8 +9,10 @@ import KatexClientRender from '@/shared/components/markdown/katex-client-render'
 import { preserveLatexLineBreaks } from '@/shared/components/markdown/latex-line-breaks';
 import '@/shared/components/markdown/markdown.css';
 import rehypeUserSpan from '@/shared/components/markdown/plugins/rehype-user-span';
+import remarkContainers from '@/shared/components/markdown/plugins/remark-containers';
 import remarkPdf from '@/shared/components/markdown/plugins/remark-pdf';
 import remarkProblemSamples from '@/shared/components/markdown/plugins/remark-problem-samples';
+import type { Root } from 'hast';
 import 'katex/dist/katex.min.css';
 import { MarkdownAsync } from 'react-markdown';
 import type { Components } from 'react-markdown';
@@ -18,7 +22,18 @@ import type { Options as Schema } from 'rehype-sanitize';
 import rehypeStarryNight from 'rehype-starry-night';
 import remarkGfm from 'remark-gfm';
 import 'server-only';
+import type { Plugin } from 'unified';
 import type { PluggableList } from 'unified';
+
+// `rehype-starry-night` builds its highlighter (loading every common grammar)
+// when a processor freezes the plugin, and `MarkdownAsync` freezes a new
+// processor for every rendered block. Pages that render many blocks (for
+// example the preliminary detail view renders one per question and option)
+// would rebuild the highlighter hundreds of times per request. Build one
+// transformer and register it through a stable plugin instead.
+const starryNightTransformer = rehypeStarryNight();
+const rehypeStarryNightShared: Plugin<[], Root, Root> = () =>
+  starryNightTransformer;
 
 export const markdownSanitizeSchema: Schema = {
   ...defaultSchema,
@@ -27,6 +42,8 @@ export const markdownSanitizeSchema: Schema = {
     'pdf-embed',
     'samples',
     'user-span',
+    'md-alert',
+    'md-align',
     'details',
     'summary',
     'kbd',
@@ -44,6 +61,16 @@ export const markdownSanitizeSchema: Schema = {
       ],
     ],
     'pdf-embed': ['dataSrc', 'data-src'],
+    'md-alert': [
+      ['dataVariant', /^(info|warning|success|error)$/],
+      ['data-variant', /^(info|warning|success|error)$/],
+      'dataTitle',
+      'data-title',
+    ],
+    'md-align': [
+      ['dataAlign', /^(center|left|right)$/],
+      ['data-align', /^(center|left|right)$/],
+    ],
     samples: [
       ['dataIndex', /^\d+$/],
       'dataInput',
@@ -84,19 +111,26 @@ export default function Markdown({
     ...rehypePlugins,
     [rehypeSanitize, sanitizeSchema],
     rehypeUserSpan,
-    rehypeStarryNight,
+    rehypeStarryNightShared,
   ];
 
   return (
     <div className="markdown">
       <MarkdownAsync
-        remarkPlugins={[remarkGfm, remarkPdf, remarkProblemSamples]}
+        remarkPlugins={[
+          remarkGfm,
+          remarkPdf,
+          remarkProblemSamples,
+          remarkContainers,
+        ]}
         rehypePlugins={rehypePluginsWithSanitize}
         components={{
           // @ts-expect-error pdf-embed is a custom element
           'pdf-embed': MarkdownPdf,
           samples: ProblemSample,
           'user-span': MarkdownUserSpan,
+          'md-alert': MarkdownAlert,
+          'md-align': MarkdownAlign,
           pre: MarkdownCodeBlock,
           ...components,
         }}

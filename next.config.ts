@@ -26,6 +26,15 @@ const nextConfig: NextConfig = {
   },
   assetPrefix:
     process.env.NODE_ENV === 'production' ? 'https://next-cdn.ycoj.cc' : '',
+  async redirects() {
+    return [
+      {
+        source: '/p/:path*',
+        destination: '/problem/:path*',
+        permanent: true,
+      },
+    ];
+  },
   async headers() {
     const isolationHeaders = [
       { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },

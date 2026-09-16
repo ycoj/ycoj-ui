@@ -39,33 +39,31 @@ export default function SolutionList({
     (solution) => solution.reviewStatus < 2
   );
 
-  if (!data.psdocs.length) {
-    return (
-      <Empty data-llm-visible="true">
-        <EmptyMedia variant="icon">
-          <Lightbulb strokeWidth={2} />
-        </EmptyMedia>
-        <EmptyHeader>
-          <EmptyTitle data-llm-text={t('none')}>{t('none')}</EmptyTitle>
-          <EmptyDescription data-llm-text={t('noneDescription')}>
-            {t('noneDescription')}
-          </EmptyDescription>
-        </EmptyHeader>
-        <EmptyContent>
-          <Button asChild variant="secondary">
-            <Link href={`/problem/${pid}/solution`}>
-              <RefreshCw
-                strokeWidth={2}
-                className="size-4"
-                data-icon="inline-start"
-              />
-              <span data-llm-text={t('refresh')}>{t('refresh')}</span>
-            </Link>
-          </Button>
-        </EmptyContent>
-      </Empty>
-    );
-  }
+  const renderEmpty = () => (
+    <Empty data-llm-visible="true">
+      <EmptyMedia variant="icon">
+        <Lightbulb strokeWidth={2} />
+      </EmptyMedia>
+      <EmptyHeader>
+        <EmptyTitle data-llm-text={t('none')}>{t('none')}</EmptyTitle>
+        <EmptyDescription data-llm-text={t('noneDescription')}>
+          {t('noneDescription')}
+        </EmptyDescription>
+      </EmptyHeader>
+      <EmptyContent>
+        <Button asChild variant="secondary">
+          <Link href={`/problem/${pid}/solution`}>
+            <RefreshCw
+              strokeWidth={2}
+              className="size-4"
+              data-icon="inline-start"
+            />
+            <span data-llm-text={t('refresh')}>{t('refresh')}</span>
+          </Link>
+        </Button>
+      </EmptyContent>
+    </Empty>
+  );
 
   const renderSolutions = (solutions: typeof data.psdocs) => (
     <div className="space-y-6">
@@ -91,7 +89,7 @@ export default function SolutionList({
 
   return (
     <div className="space-y-6" data-llm-visible="true">
-      {approved.length > 0 && renderSolutions(approved)}
+      {approved.length > 0 ? renderSolutions(approved) : renderEmpty()}
       {unapproved.length > 0 && (
         <details className="border-t pt-4">
           <summary className="cursor-pointer text-sm font-medium">

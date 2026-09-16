@@ -114,6 +114,17 @@ describe('solution review visibility', () => {
     ).toHaveLength(1);
   });
 
+  it('shows the empty state when only unapproved solutions exist', async () => {
+    const { container } = mount([solution(1), solution(0)]);
+    expect(screen.getByText('No solutions')).toBeVisible();
+    const disclosure = container.querySelector('details')!;
+    expect(disclosure).not.toHaveAttribute('open');
+    expect(within(disclosure).getByText('Content 1')).toBeInTheDocument();
+    expect(within(disclosure).getByText('Content 0')).toBeInTheDocument();
+    await userEvent.click(screen.getByText('Unapproved solutions (2)'));
+    expect(disclosure).toHaveAttribute('open');
+  });
+
   it('shows an empty state without an empty disclosure', () => {
     const { container } = mount([]);
     expect(screen.getByText('No solutions')).toBeVisible();
