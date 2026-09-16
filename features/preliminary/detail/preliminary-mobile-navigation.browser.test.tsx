@@ -80,6 +80,9 @@ describe('mobile question navigation', () => {
     const scrollSpy = vi
       .spyOn(target, 'scrollIntoView')
       .mockImplementation(() => {});
+    link.addEventListener('click', (event) => event.preventDefault(), {
+      once: true,
+    });
     await user.click(link);
     await waitFor(() =>
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument()

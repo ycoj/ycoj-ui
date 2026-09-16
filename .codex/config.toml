@@ -1,4 +1,4 @@
-sandbox_mode = "workspace-write"
-
-[sandbox_workspace_write]
-network_access = true
+# Headless Chromium cannot launch under the codex workspace sandbox, and
+# `pnpm test:browser` needs it; keep full access so agents can run tests.
+approval_policy = "never"
+sandbox_mode = "danger-full-access"

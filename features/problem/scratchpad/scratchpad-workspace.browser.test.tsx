@@ -2,7 +2,13 @@ import { getScratchpadDraft } from './draft-storage';
 import ScratchpadWorkspace from './scratchpad-workspace';
 import messages from '@/messages/en';
 import ProblemSample from '@/shared/components/markdown/components/problem-sample';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
@@ -136,7 +142,9 @@ describe('ScratchpadWorkspace', () => {
     renderWorkspace();
     const editor = screen.getByRole('textbox', { name: 'Editor' });
     await waitFor(() => expect(getScratchpadDraft).toHaveBeenCalled());
-    fireEvent.change(editor, { target: { value: 'int main() {}' } });
+    await act(async () => {
+      fireEvent.change(editor, { target: { value: 'int main() {}' } });
+    });
 
     await user.click(screen.getByRole('button', { name: /Run/ }));
     expect(mocks.submitProblem).toHaveBeenCalledWith(
@@ -151,21 +159,23 @@ describe('ScratchpadWorkspace', () => {
     );
 
     await waitFor(() => expect(mocks.socketMessage).toBeDefined());
-    mocks.socketMessage?.({
-      rdoc: {
-        _id: 'pretest-id',
-        domainId: 'system',
-        pid: 1,
-        uid: 2,
-        lang: 'cc.cc17o2',
-        score: 100,
-        contest: '000000000000000000000000',
-        status: 1,
-        time: 5,
-        memory: 1024,
-        compilerTexts: [],
-        testCases: [],
-      },
+    await act(async () => {
+      mocks.socketMessage?.({
+        rdoc: {
+          _id: 'pretest-id',
+          domainId: 'system',
+          pid: 1,
+          uid: 2,
+          lang: 'cc.cc17o2',
+          score: 100,
+          contest: '000000000000000000000000',
+          status: 1,
+          time: 5,
+          memory: 1024,
+          compilerTexts: [],
+          testCases: [],
+        },
+      });
     });
     expect(await screen.findByText(/Accepted 5ms 1024KiB/)).toBeInTheDocument();
 
@@ -181,16 +191,17 @@ describe('ScratchpadWorkspace', () => {
 
   it('supports F10 submission and restores body scrolling on exit', async () => {
     const onClose = vi.fn();
+    const user = userEvent.setup();
     const view = renderWorkspace(onClose);
     await waitFor(() => expect(getScratchpadDraft).toHaveBeenCalled());
-    fireEvent.change(screen.getByRole('textbox', { name: 'Editor' }), {
-      target: { value: 'code' },
-    });
-    fireEvent.keyDown(document, { key: 'F10' });
+    const editor = screen.getByRole('textbox', { name: 'Editor' });
+    await user.clear(editor);
+    await user.type(editor, 'code');
+    await user.keyboard('{F10}');
     await waitFor(() => expect(mocks.submitProblem).toHaveBeenCalled());
 
     expect(document.body.style.overflow).toBe('hidden');
-    fireEvent.keyDown(document, { key: 'q', altKey: true });
+    await user.keyboard('{Alt>}q{/Alt}');
     expect(onClose).toHaveBeenCalled();
     view.unmount();
     expect(document.body.style.overflow).toBe('');

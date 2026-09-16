@@ -1,6 +1,7 @@
 import MarkdownCodeBlock from './markdown-code-block';
 import messages from '@/messages/en';
 import { createEvent, fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -22,14 +23,16 @@ function renderBlock() {
 describe('MarkdownCodeBlock', () => {
   it('copies highlighted code as plain text', async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
+    const user = userEvent.setup();
     Object.defineProperty(navigator, 'clipboard', {
       configurable: true,
       value: { writeText },
     });
 
     renderBlock();
-    fireEvent.click(screen.getByRole('button', { name: 'Copy' }));
+    await user.click(screen.getByRole('button', { name: 'Copy' }));
 
+    await screen.findByRole('button', { name: 'Copied' });
     expect(writeText).toHaveBeenCalledWith('int main() {}');
   });
 

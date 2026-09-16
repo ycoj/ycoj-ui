@@ -160,7 +160,11 @@ describe('OmnibarProvider', () => {
     renderOmnibar();
     await openAndSearch('tree');
 
-    fireEvent.click(screen.getByRole('link', { name: 'Accepted' }));
+    const statusLink = screen.getByRole('link', { name: 'Accepted' });
+    statusLink.addEventListener('click', (event) => event.preventDefault(), {
+      once: true,
+    });
+    fireEvent.click(statusLink);
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });

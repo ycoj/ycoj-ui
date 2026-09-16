@@ -37,5 +37,21 @@ jobs:
       - name: Run TypeScript type check
         run: pnpm lint:type
 
-      - name: Run unit tests
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Run tests
+        id: test
         run: pnpm test
+
+      - name: Upload Playwright artifacts
+        if: steps.test.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: |
+            **/__traces__/
+            test-results/
+            .vitest-attachments/
+          if-no-files-found: ignore
+          retention-days: 7

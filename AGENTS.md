@@ -18,6 +18,7 @@ delegation for tasks that can be completed directly.
 ## Collaboration
 
 - Run `pnpm lint`, `pnpm format:check`, `pnpm lint:type` and `pnpm test`, and fix failures before commit.
+- `pnpm test:browser` needs a Playwright Chromium binary that `pnpm install` does not fetch; run `pnpm exec playwright install chromium` once per machine.
 - Use conventional commits messages for both commit messages and PR titles.
 - Add yourself to commit co-author. For example, if you are Codex, add `Co-authored-by: Codex <codex@openai.com>` to commit message.
 
