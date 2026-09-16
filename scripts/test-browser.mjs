@@ -1,6 +1,6 @@
 import { spawn } from 'node:child_process';
 import { existsSync, globSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { join, resolve } from 'node:path';
 import { chromium } from 'playwright';
 
 // pnpm does not run playwright's install hooks, so a fresh clone has no
@@ -22,11 +22,17 @@ if (!Number.isInteger(batchSize) || batchSize < 1) {
   throw new Error('BROWSER_TEST_BATCH_SIZE must be a positive integer.');
 }
 
-// globSync also matches directories, so exclude playwright's __traces__
-// artifact dirs, which are named after the test files they recorded.
+// globSync also matches directories, and failed runs leave artifact dirs
+// named after test files (__traces__, failure screenshots, attachments).
+// The excludes only prune the walk; the isFile check is what keeps fake
+// "test files" from being passed to vitest as filters.
 const testFiles = globSync('**/*.browser.test.{ts,tsx}', {
   exclude: ['node_modules/**', '.next/**', '**/__traces__/**'],
-}).sort();
+  withFileTypes: true,
+})
+  .filter((entry) => entry.isFile())
+  .map((entry) => join(entry.parentPath, entry.name))
+  .sort();
 
 const vitest = resolve('node_modules/vitest/vitest.mjs');
 
