@@ -64,6 +64,8 @@ These requirements are carried over from `AGENTS.md`; they are explicit project 
 
 ## Tests and completion
 
+- Write tests based on the user's final rendered experience, not DOM implementation details. Prioritize what the user can actually see and interact with: visibility, layout, position, size, spacing, overlap, clipping, responsive behavior, and visual state after interactions.
+- Avoid assertions on classes, attributes, internal state, or DOM structure unless they directly represent a user-visible requirement. For every assertion, ask: **"If this fails, would the user actually experience something wrong?"** Prefer behavior and rendered-result assertions over implementation-detail assertions.
 - Colocate meaningful behavior tests as `*.test.ts` or `*.test.tsx` with explicit Vitest imports. Prefer table-driven cases for pure helpers, including relevant boundaries and contract-preserving behavior.
 - Component tests use Testing Library roles/labels and user interactions. Reuse local fixtures/providers; mock API and navigation boundaries rather than internal component mechanics. Cover pending, failure, or permission behavior when the change affects it. Provide messages through the aggregated catalogs (`import messages from '@/messages/en'`) instead of importing individual namespace files.
 - Do not add tests that merely assert formatting, implementation wording, or trivial wrappers. Do not introduce benchmarks unless the task calls for performance measurement.
