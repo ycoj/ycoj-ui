@@ -54,3 +54,4 @@ jobs:
             test-results/
             .vitest-attachments/
           if-no-files-found: ignore
+          retention-days: 7

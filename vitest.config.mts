@@ -1,15 +1,10 @@
+import { sharedPlugins, sharedResolve } from './vitest.shared.mjs';
 import codspeedPlugin from '@codspeed/vitest-plugin';
-import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig(({ mode }) => ({
-  plugins: [react(), codspeedPlugin()],
-  resolve: {
-    alias: {
-      'server-only': 'next/dist/compiled/server-only/empty.js',
-    },
-    tsconfigPaths: true,
-  },
+  plugins: [...sharedPlugins, codspeedPlugin()],
+  resolve: sharedResolve,
   test: {
     ...(mode !== 'benchmark' && {
       pool: 'vmThreads',

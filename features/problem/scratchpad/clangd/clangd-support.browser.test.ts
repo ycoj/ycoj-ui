@@ -24,14 +24,9 @@ describe('clangd browser support', () => {
   });
   afterEach(() => {
     vi.unstubAllGlobals();
-    Object.defineProperty(window, 'isSecureContext', {
-      configurable: true,
-      value: false,
-    });
-    Object.defineProperty(window, 'crossOriginIsolated', {
-      configurable: true,
-      value: false,
-    });
+    // Drop the own-property overrides so the real browser values return.
+    Reflect.deleteProperty(window, 'isSecureContext');
+    Reflect.deleteProperty(window, 'crossOriginIsolated');
     window.history.replaceState(null, '', '/');
   });
 

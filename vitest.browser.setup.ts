@@ -1,5 +1,7 @@
 import { beforeAll } from 'vitest';
 
+// Client code reads process.env.NEXT_PUBLIC_*, which does not exist in a
+// real browser; expose vite's import.meta.env under the same name.
 if (!('process' in globalThis)) {
   Object.defineProperty(globalThis, 'process', {
     configurable: true,
@@ -7,6 +9,7 @@ if (!('process' in globalThis)) {
   });
 }
 
+// Testing Library's act() requires this flag to flush React updates in tests.
 Object.defineProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT', {
   configurable: true,
   value: true,
@@ -14,6 +17,8 @@ Object.defineProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT', {
 });
 
 beforeAll(() => {
+  // ResizeObserver loop errors are benign but surface as unhandled errors
+  // that fail the browser run; suppress only those.
   window.addEventListener(
     'error',
     (event) => {

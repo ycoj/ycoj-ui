@@ -1,15 +1,10 @@
-import react from '@vitejs/plugin-react';
+import { sharedPlugins, sharedResolve } from './vitest.shared.mjs';
 import { playwright } from '@vitest/browser-playwright';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
-  plugins: [react()],
-  resolve: {
-    alias: {
-      'server-only': 'next/dist/compiled/server-only/empty.js',
-    },
-    tsconfigPaths: true,
-  },
+  plugins: sharedPlugins,
+  resolve: sharedResolve,
   test: {
     maxWorkers: 2,
     browser: {
@@ -21,7 +16,7 @@ export default defineConfig({
       screenshotDirectory: 'test-results/screenshots',
     },
     include: ['**/*.browser.test.{ts,tsx}'],
-    exclude: ['node_modules', '.next'],
+    exclude: ['node_modules', '.next', '**/__traces__/**'],
     setupFiles: ['./vitest.setup.ts', './vitest.browser.setup.ts'],
   },
 });

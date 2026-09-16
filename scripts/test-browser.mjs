@@ -1,23 +1,32 @@
-import { execFileSync, spawn } from 'node:child_process';
-import { statSync } from 'node:fs';
+import { spawn } from 'node:child_process';
+import { existsSync, globSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { chromium } from 'playwright';
 
-const defaultBatchSize = process.env.CI ? 50 : 40;
-const batchSize = Number(
-  process.env.BROWSER_TEST_BATCH_SIZE ?? defaultBatchSize
-);
+// pnpm does not run playwright's install hooks, so a fresh clone has no
+// browser binaries. Fail fast instead of erroring inside the first batch.
+const chromiumPath = chromium.executablePath();
+if (!chromiumPath || !existsSync(chromiumPath)) {
+  console.error(
+    'Playwright Chromium is not installed.\n' +
+      'Run `pnpm exec playwright install chromium` and try again.'
+  );
+  process.exit(1);
+}
+
+// A single vitest run over all files keeps leaking pages/memory in the
+// browser, so files run in sequential batches. BROWSER_TEST_BATCH_SIZE
+// overrides the default for local tuning.
+const batchSize = Number(process.env.BROWSER_TEST_BATCH_SIZE ?? 40);
 if (!Number.isInteger(batchSize) || batchSize < 1) {
   throw new Error('BROWSER_TEST_BATCH_SIZE must be a positive integer.');
 }
-const testFiles = execFileSync(
-  'rg',
-  ['--files', '-g', '*.browser.test.ts', '-g', '*.browser.test.tsx'],
-  { encoding: 'utf8' }
-)
-  .trim()
-  .split('\n')
-  .filter((file) => file && statSync(resolve(file)).isFile())
-  .sort();
+
+// globSync also matches directories, so exclude playwright's __traces__
+// artifact dirs, which are named after the test files they recorded.
+const testFiles = globSync('**/*.browser.test.{ts,tsx}', {
+  exclude: ['node_modules/**', '.next/**', '**/__traces__/**'],
+}).sort();
 
 const vitest = resolve('node_modules/vitest/vitest.mjs');
 
@@ -25,14 +34,7 @@ function runBatch(files) {
   return new Promise((resolveBatch, rejectBatch) => {
     const child = spawn(
       process.execPath,
-      [
-        vitest,
-        'run',
-        '--passWithNoTests',
-        '--config',
-        'vitest.browser.config.mts',
-        ...files,
-      ],
+      [vitest, 'run', '--config', 'vitest.browser.config.mts', ...files],
       { stdio: 'inherit' }
     );
 
