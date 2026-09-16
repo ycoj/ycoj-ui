@@ -41,6 +41,13 @@ describe('paste content rendering', () => {
     expect(container.querySelector('pre span')).not.toBeNull();
   });
 
+  it('renders a line number per code line without changing the text', () => {
+    const content = 'int a;\nint b;\n';
+    const { container } = renderCode(content, 'cpp');
+    expect(container.querySelectorAll('.code-line')).toHaveLength(2);
+    expect(container.querySelector('pre')?.textContent).toBe(content);
+  });
+
   it.each(['javascript', 'unknown-language'])(
     'copies the original %s code including whitespace',
     async (language) => {

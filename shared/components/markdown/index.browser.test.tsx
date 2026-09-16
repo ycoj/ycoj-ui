@@ -2,6 +2,7 @@ import Markdown from '.';
 import messages from '@/messages/en';
 import { resolveFileUrls } from '@/shared/lib/resolve-file-urls';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import { Children, type ReactElement, type ReactNode } from 'react';
 import { MarkdownAsync, type Options } from 'react-markdown';
@@ -98,6 +99,53 @@ describe('Markdown code blocks', () => {
     expect(
       screen.queryByRole('button', { name: 'Copy' })
     ).not.toBeInTheDocument();
+  });
+});
+
+describe('Markdown code block line numbers', () => {
+  it('renders a line number per code line', async () => {
+    const { container } = await renderMarkdown('```cpp\nint a;\nint b;\n```');
+
+    const lines = container.querySelectorAll('.code-line');
+    expect(lines).toHaveLength(2);
+    // Chromium reports the counter() expression rather than the resolved
+    // number; its presence means each line renders its own counter value.
+    for (const line of lines) {
+      expect(getComputedStyle(line, '::before').content).toBe(
+        'counter(code-line)'
+      );
+      expect(getComputedStyle(line, '::before').display).toBe('inline-block');
+    }
+  });
+
+  it('numbers fenced blocks without a language', async () => {
+    const { container } = await renderMarkdown('```\nalpha\nbeta\n```');
+
+    expect(container.querySelectorAll('.code-line')).toHaveLength(2);
+  });
+
+  it('omits numbers for a no-line-numbers language but still highlights', async () => {
+    const { container } = await renderMarkdown(
+      '```cpp|no-line-numbers\nint a;\n```'
+    );
+
+    expect(container.querySelectorAll('.code-line')).toHaveLength(0);
+    expect(container.querySelector('.pl-k')).not.toBeNull();
+    expect(container.querySelector('pre')).toHaveTextContent('int a;');
+  });
+
+  it('copies the original code without the line numbers', async () => {
+    const user = userEvent.setup();
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, 'clipboard', {
+      configurable: true,
+      value: { writeText },
+    });
+
+    await renderMarkdown('```cpp\nint a;\nint b;\n```');
+    await user.click(screen.getByRole('button', { name: 'Copy' }));
+
+    expect(writeText).toHaveBeenCalledWith('int a;\nint b;\n');
   });
 });
 

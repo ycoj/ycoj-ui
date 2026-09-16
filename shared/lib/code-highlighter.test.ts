@@ -12,6 +12,10 @@ describe('isSupportedCodeLanguage', () => {
   it.each(['', 'unknown-language', 'constructor'])('rejects %j', (language) => {
     expect(isSupportedCodeLanguage(language)).toBe(false);
   });
+
+  it('ignores the no-line-numbers flag', () => {
+    expect(isSupportedCodeLanguage('cpp|no-line-numbers')).toBe(true);
+  });
 });
 
 describe('highlightCodeToHtml', () => {
@@ -37,8 +41,32 @@ describe('highlightCodeToHtml', () => {
       'plaintext'
     );
 
-    expect(html).toContain('&#x3C;img src=x onerror=alert(1)>\n\n');
+    expect(html.replace(/<[^>]*>/g, '')).toBe(
+      '  &#x3C;img src=x onerror=alert(1)>\n\n'
+    );
     expect(html).not.toContain('<img');
     expect(html).not.toContain('class="pl-k"');
+  });
+
+  it('wraps each line in a code-line span without changing the text', () => {
+    const html = highlightCodeToHtml('int a;\nint b;\n', 'cpp');
+
+    expect(html.match(/class="code-line"/g)).toHaveLength(2);
+    // Stripping tags leaves the source text (with entities) untouched.
+    expect(html.replace(/<[^>]*>/g, '')).toBe('int a;\nint b;\n');
+  });
+
+  it('numbers plaintext fallbacks too', () => {
+    const html = highlightCodeToHtml('a\nb', 'unknown-language', 'plaintext');
+
+    expect(html.match(/class="code-line"/g)).toHaveLength(2);
+  });
+
+  it('suppresses line numbers for the no-line-numbers language flag', () => {
+    const html = highlightCodeToHtml('int a;\nint b;\n', 'cpp|no-line-numbers');
+
+    expect(html).not.toContain('code-line');
+    expect(html).toContain('class="pl-k"');
+    expect(html.replace(/<[^>]*>/g, '')).toBe('int a;\nint b;\n');
   });
 });

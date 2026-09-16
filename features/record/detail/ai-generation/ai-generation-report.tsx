@@ -1,4 +1,6 @@
 import type { AiGenerationReportProps } from './ai-generation-types';
+import '@/shared/components/code/style/line-numbers.css';
+import rehypeCodeLineNumbers from '@/shared/components/markdown/plugins/rehype-code-line-numbers';
 import { formatMemory } from '@/shared/lib/format-units';
 import { useTranslations } from 'next-intl';
 import ReactMarkdown from 'react-markdown';
@@ -20,7 +22,11 @@ export function AiGenerationReport({
         className="prose prose-sm dark:prose-invert bg-muted/50 max-w-none rounded-lg p-4"
         data-llm-text={report}
       >
-        <ReactMarkdown remarkPlugins={[remarkGfm]} skipHtml>
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeCodeLineNumbers]}
+          skipHtml
+        >
           {report}
         </ReactMarkdown>
       </div>

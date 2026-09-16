@@ -1,0 +1,22 @@
+/* Line numbers for code blocks. The renderer wraps each line in a
+ * `span.code-line`; numbers come from a counter so they never become part
+ * of the copied text or selection. */
+pre {
+  counter-reset: code-line;
+}
+
+.code-line {
+  counter-increment: code-line;
+}
+
+.code-line::before {
+  content: counter(code-line);
+  display: inline-block;
+  min-width: 3ch;
+  margin-right: 1ch;
+  padding-right: 1ch;
+  text-align: right;
+  color: var(--muted-foreground);
+  border-right: 1px solid var(--border);
+  user-select: none;
+}

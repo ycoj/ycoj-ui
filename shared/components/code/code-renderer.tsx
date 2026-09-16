@@ -1,4 +1,5 @@
 import '@/shared/components/code/style/both.css';
+import '@/shared/components/code/style/line-numbers.css';
 import {
   highlightCodeToHtml,
   type CodeHighlightFallback,
