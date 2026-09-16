@@ -73,7 +73,9 @@ describe('paste content rendering', () => {
       fireEvent(pre, event);
 
       expect(event.defaultPrevented).toBe(true);
-      expect(window.getSelection()?.toString()).toBe(content);
+      const selectedText = window.getSelection()?.toString() ?? '';
+      expect(selectedText.trimEnd()).toBe(content.trimEnd());
+      expect(selectedText).not.toContain('Outside the code block');
     }
   );
 

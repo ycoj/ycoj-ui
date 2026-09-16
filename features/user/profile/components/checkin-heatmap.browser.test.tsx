@@ -1,7 +1,8 @@
 import CheckinHeatmap from './checkin-heatmap';
 import messages from '@/messages/en';
 import type { CheckinHistory } from '@/shared/types/checkin';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -105,11 +106,12 @@ describe('CheckinHeatmap', () => {
       ],
     });
 
-    screen
-      .getByRole('gridcell', {
-        name: '2026-08-01: Fortune. Quote: A lake formed behind the dam.',
-      })
-      .focus();
+    const cell = screen.getByRole('gridcell', {
+      name: '2026-08-01: Fortune. Quote: A lake formed behind the dam.',
+    });
+    await act(async () => {
+      cell.focus();
+    });
 
     const quote = await screen.findByText('A lake formed behind the dam.');
     expect(quote.closest('[data-slot="tooltip-content"]')).toHaveClass(
@@ -118,7 +120,8 @@ describe('CheckinHeatmap', () => {
     );
   });
 
-  it('uses roving tabindex and moves focus with arrow keys', () => {
+  it('uses roving tabindex and moves focus with arrow keys', async () => {
+    const user = userEvent.setup();
     renderHeatmap({
       timezone: 'UTC+08:00',
       from: '2026-07-28',
@@ -133,8 +136,8 @@ describe('CheckinHeatmap', () => {
       cells.filter((cell) => cell.getAttribute('tabindex') === '-1')
     ).toHaveLength(cells.length - 1);
 
-    cells[0].focus();
-    fireEvent.keyDown(cells[0], { key: 'ArrowRight' });
+    await user.click(cells[0]);
+    await user.keyboard('{ArrowRight}');
 
     expect(cells[5]).toHaveFocus();
     expect(cells[5]).toHaveAttribute('tabindex', '0');

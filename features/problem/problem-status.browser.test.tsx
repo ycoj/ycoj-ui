@@ -103,7 +103,7 @@ describe('ProblemStatus progress', () => {
     const fill = getProgressFill(container);
     expect(fill).not.toBeNull();
     expect(fill!.style.backgroundColor).toBe(JUDGING_COLOR);
-    expect(fill!.style.clipPath).toBe('inset(0 60% 0 0)');
+    expect(fill!.style.clipPath).toBe('inset(0px 60% 0px 0px)');
   });
 
   it('shows only the outline at 0% and a full fill at 100%', () => {
@@ -111,13 +111,17 @@ describe('ProblemStatus progress', () => {
       STATUS.STATUS_JUDGING,
       0
     );
-    expect(getProgressFill(atZero)!.style.clipPath).toBe('inset(0 100% 0 0)');
+    expect(getProgressFill(atZero)!.style.clipPath).toBe(
+      'inset(0px 100% 0px 0px)'
+    );
 
     const { container: atFull } = renderStatusWithProgress(
       STATUS.STATUS_JUDGING,
       100
     );
-    expect(getProgressFill(atFull)!.style.clipPath).toBe('inset(0 0% 0 0)');
+    expect(getProgressFill(atFull)!.style.clipPath).toBe(
+      'inset(0px 0% 0px 0px)'
+    );
   });
 
   it('keeps the solid badge when progress is missing', () => {

@@ -368,6 +368,9 @@ describe('user import workflow', () => {
     await user.type(within(dialog).getByLabelText('Prefix'), 'team');
     await user.keyboard('{Enter}');
     await waitFor(() =>
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    );
+    await waitFor(() =>
       expect(screen.getByLabelText('Row 1 Username')).toHaveValue('team001')
     );
   });

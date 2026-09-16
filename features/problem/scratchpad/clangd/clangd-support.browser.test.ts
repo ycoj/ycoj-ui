@@ -9,13 +9,29 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 describe('clangd browser support', () => {
   beforeEach(() => {
-    vi.stubGlobal('isSecureContext', true);
-    vi.stubGlobal('crossOriginIsolated', true);
+    Object.defineProperty(window, 'isSecureContext', {
+      configurable: true,
+      value: true,
+    });
+    Object.defineProperty(window, 'crossOriginIsolated', {
+      configurable: true,
+      value: true,
+    });
     vi.stubGlobal('Worker', class {});
+    vi.stubGlobal('SharedArrayBuffer', class {});
+    vi.stubGlobal('WebAssembly', { Memory: class {} });
     vi.stubGlobal('navigator', { deviceMemory: 8 });
   });
   afterEach(() => {
     vi.unstubAllGlobals();
+    Object.defineProperty(window, 'isSecureContext', {
+      configurable: true,
+      value: false,
+    });
+    Object.defineProperty(window, 'crossOriginIsolated', {
+      configurable: true,
+      value: false,
+    });
     window.history.replaceState(null, '', '/');
   });
 
@@ -31,7 +47,10 @@ describe('clangd browser support', () => {
     expect(getClangdSupport()).toBe('supported');
   });
   it('requires a reload for a document without isolation and avoids reload loops', () => {
-    vi.stubGlobal('crossOriginIsolated', false);
+    Object.defineProperty(window, 'crossOriginIsolated', {
+      configurable: true,
+      value: false,
+    });
     expect(getClangdSupport()).toBe('reload');
     window.history.replaceState(
       null,
@@ -44,7 +63,10 @@ describe('clangd browser support', () => {
     vi.stubGlobal('Worker', undefined);
     expect(getClangdSupport()).toBe('unsupported');
     vi.stubGlobal('Worker', class {});
-    vi.stubGlobal('isSecureContext', false);
+    Object.defineProperty(window, 'isSecureContext', {
+      configurable: true,
+      value: false,
+    });
     expect(getClangdSupport()).toBe('unsupported');
   });
   it('rejects browsers that cannot create shared Wasm memory', () => {

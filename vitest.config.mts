@@ -16,10 +16,10 @@ export default defineConfig(({ mode }) => ({
       maxWorkers: 2,
       vmMemoryLimit: '512MB',
     }),
-    environment: 'jsdom',
+    environment: 'node',
     setupFiles: ['./vitest.setup.ts'],
     include: ['**/*.{test,spec}.{ts,tsx}'],
-    exclude: ['node_modules', '.next'],
+    exclude: ['node_modules', '.next', '**/*.browser.test.{ts,tsx}'],
     benchmark: {
       include: ['**/*.bench.{ts,tsx}'],
       exclude: ['node_modules', '.next'],

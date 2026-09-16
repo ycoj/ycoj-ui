@@ -11,6 +11,7 @@ export default defineConfig({
     tsconfigPaths: true,
   },
   test: {
+    maxWorkers: 2,
     browser: {
       enabled: true,
       headless: true,
@@ -19,6 +20,6 @@ export default defineConfig({
     },
     include: ['**/*.browser.test.{ts,tsx}'],
     exclude: ['node_modules', '.next'],
-    setupFiles: ['./vitest.setup.ts'],
+    setupFiles: ['./vitest.setup.ts', './vitest.browser.setup.ts'],
   },
 });

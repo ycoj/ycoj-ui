@@ -9,6 +9,7 @@ import type { ReactNode } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('next/dynamic', () => ({
+  __esModule: true,
   default: () =>
     function MockReactPdfViewer({ src }: { src: string }) {
       return <div aria-label="PDF document" data-src={src} role="document" />;
