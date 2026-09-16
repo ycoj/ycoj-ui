@@ -17,6 +17,8 @@ export default defineConfig({
       headless: true,
       instances: [{ browser: 'chromium' }],
       provider: playwright(),
+      trace: 'retain-on-failure',
+      screenshotDirectory: 'test-results/screenshots',
     },
     include: ['**/*.browser.test.{ts,tsx}'],
     exclude: ['node_modules', '.next'],
