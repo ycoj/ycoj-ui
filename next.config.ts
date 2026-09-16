@@ -14,6 +14,19 @@ const uploadBaseUrl =
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ['@resvg/resvg-js'],
+  // LAN dev access: requests to dev-only resources (HMR socket, _next assets)
+  // from other devices carry the machine's private address as their origin.
+  allowedDevOrigins: [
+    '10.*.*.*',
+    '192.168.*.*',
+    ...Array.from({ length: 16 }, (_, i) => `172.${16 + i}.*.*`),
+    '*.local',
+  ],
+  experimental: {
+    // proxy.ts makes Next buffer request bodies before the backend rewrites;
+    // keep /api file uploads (imports, bulk submits) above the 10MB default.
+    proxyClientMaxBodySize: '100mb',
+  },
   outputFileTracingIncludes: {
     '/scoreboard-export/*/*': [
       './assets/fonts/NotoSansCJKsc-Regular.otf',
