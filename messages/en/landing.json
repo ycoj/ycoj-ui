@@ -1,11 +1,119 @@
 {
-  "title": "<modern>Modern</modern>, <native>AI-native</native> online judge",
-  "description": "Experience efficient learning powered by deeply integrated artificial intelligence on <highlight>{siteName}</highlight>.",
-  "mobileTitle": "Mobile friendly",
-  "mobileDescription": "Solve problems and review results wherever you are.",
-  "transparentTitle": "Transparent evaluation",
-  "transparentDescription": "Clearer status and feedback to help you improve.",
-  "aiTitle": "Deep AI integration",
-  "aiDescription": "Locate issues faster and summarize key concepts.",
-  "footerNote": "Log in to sync progress, submissions, and profile information."
+  "metadataTitle": "The next-generation online judge",
+  "metadataDescription": "A fast, intelligent, and versatile online judge for problem solving, training, and programming contests.",
+  "brandFallback": "YCOJ",
+  "logoAlt": "{siteName} logo",
+  "navigationLabel": "Homepage navigation",
+  "navCapabilities": "Capabilities",
+  "login": "Log in",
+  "hero": {
+    "eyebrow": "Built for every breakthrough",
+    "title": "Move every line of code <speed>faster toward the answer</speed>, and <smart>learn smarter</smart>",
+    "description": "On {siteName}, everything from writing and submitting to understanding feedback feels seamless. Focus on solving; leave the waiting and uncertainty to the platform.",
+    "primaryCta": "Start solving",
+    "secondaryCta": "Explore capabilities",
+    "instant": "Fast judge feedback",
+    "transparent": "Clear status tracking",
+    "crossDevice": "Fluid across devices",
+    "terminalLabel": "Live judge stream",
+    "compiling": "Compiling",
+    "case1": "Samples passed",
+    "case2": "Edges passed",
+    "case3": "Stress passed",
+    "aiScanning": "AI is analyzing code performance",
+    "ready": "Insight ready",
+    "verdict": "Verdict"
+  },
+  "speed": {
+    "eyebrow": "Fast · Clear · Reliable",
+    "title": "A seamless path from submit to insight",
+    "description": "See every stage clearly, confirm results sooner, locate issues, and move straight into your next attempt.",
+    "steps": {
+      "submit": {
+        "title": "Submit with confidence",
+        "description": "Finish your code and let the platform carry the judging flow forward."
+      },
+      "evaluate": {
+        "title": "Transparent evaluation",
+        "description": "Compilation, test execution, and results stay visible at every stage."
+      },
+      "feedback": {
+        "title": "Iterate quickly",
+        "description": "Use detailed records and feedback to return to your code with direction."
+      }
+    },
+    "visual": {
+      "queue": "Submission queue",
+      "live": "Judge in progress",
+      "compile": "Compile code",
+      "samples": "Run test cases",
+      "judge": "Build verdict",
+      "status1": "Complete",
+      "status2": "Passed",
+      "status3": "Ready",
+      "resultLabel": "Final status",
+      "result": "Accepted",
+      "detailLabel": "Feedback view",
+      "detail": "Clear and traceable"
+    }
+  },
+  "ai": {
+    "eyebrow": "AI-native learning",
+    "title": "Go beyond the verdict and understand the problem",
+    "description": "Intelligence is woven into the solving flow, turning every setback into a clearer next step.",
+    "analysisTitle": "Intelligent code insight",
+    "analysisStatus": "Building learning suggestions",
+    "locateTitle": "Locate issues faster",
+    "locateDescription": "Find useful signals in code behavior and judge feedback to shorten debugging.",
+    "summarizeTitle": "Capture key concepts",
+    "summarizeDescription": "Distill important ideas from each solution so they are easier to retain and revisit.",
+    "generateTitle": "AI test data generation",
+    "generateDescription": "Get intelligent support while preparing and validating problems across more meaningful cases.",
+    "learnTitle": "Connect every practice",
+    "learnDescription": "Bring problems, submissions, and feedback together into one continuous learning journey."
+  },
+  "features": {
+    "eyebrow": "One platform, many paths",
+    "title": "Practice, train, and compete in one place",
+    "description": "From everyday problem solving to serious contests, keep one familiar experience across every goal.",
+    "items": {
+      "problems": {
+        "title": "Problem library",
+        "description": "Browse, filter, and solve problems to build strong skills through consistent practice."
+      },
+      "training": {
+        "title": "Focused training",
+        "description": "Organize practice around key topics so every session has a clear direction."
+      },
+      "contests": {
+        "title": "Online contests",
+        "description": "Challenge yourself at real contest pace, then improve through rankings and review."
+      },
+      "homework": {
+        "title": "Course homework",
+        "description": "See assignments, progress, and outcomes together in one clear view."
+      },
+      "ranking": {
+        "title": "Rankings and records",
+        "description": "Review submissions and progress, using visible growth to stay motivated."
+      },
+      "community": {
+        "title": "Discussion and ideas",
+        "description": "Share approaches and read solutions to discover new ways to think."
+      }
+    }
+  },
+  "device": {
+    "eyebrow": "Ready wherever you are",
+    "title": "A continuous experience from desktop to mobile",
+    "description": "Focus on coding at your desk or check problems and results on the go. The information that matters is always within reach.",
+    "responsive": "Responsive interface",
+    "synced": "Synced progress and records"
+  },
+  "cta": {
+    "title": "Your next Accepted starts here",
+    "description": "Log in to sync progress, submissions, and your profile, then keep moving through every challenge.",
+    "button": "Log in and start solving"
+  },
+  "footer": "© {siteName} · Built for people who love code"
 }

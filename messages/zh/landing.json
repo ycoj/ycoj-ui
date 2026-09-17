@@ -1,11 +1,119 @@
 {
-  "title": "<modern>现代</modern>、<native>原生智能</native>的在线测评系统",
-  "description": "准备好在 <highlight>{siteName}</highlight> 上体验深度集成的人工智能所带来的高效学习。",
-  "mobileTitle": "移动端友好",
-  "mobileDescription": "适合随时随地刷题、查看评测结果。",
-  "transparentTitle": "评测更透明",
-  "transparentDescription": "更清晰的状态与反馈，少走弯路。",
-  "aiTitle": "AI 深度集成",
-  "aiDescription": "更高效地定位问题、总结知识点。",
-  "footerNote": "登录后可同步进度、提交记录与个人信息。"
+  "metadataTitle": "新一代在线测评平台",
+  "metadataDescription": "高速、智能、多功能的在线测评平台，为刷题、训练和竞赛提供清晰高效的学习体验。",
+  "brandFallback": "YCOJ",
+  "logoAlt": "{siteName} 标志",
+  "navigationLabel": "首页导航",
+  "navCapabilities": "平台能力",
+  "login": "登录",
+  "hero": {
+    "eyebrow": "为每一次突破而生",
+    "title": "让每一行代码，<speed>更快抵达答案</speed>，<smart>更聪明地成长</smart>",
+    "description": "在 {siteName}，从编写、提交到理解反馈，一切都更流畅。专注解题，把等待和迷茫交给平台。",
+    "primaryCta": "开始挑战",
+    "secondaryCta": "探索平台能力",
+    "instant": "快速评测反馈",
+    "transparent": "清晰状态追踪",
+    "crossDevice": "多端流畅体验",
+    "terminalLabel": "实时评测流",
+    "compiling": "编译中",
+    "case1": "样例通过",
+    "case2": "边界通过",
+    "case3": "压力通过",
+    "aiScanning": "AI 正在分析代码表现",
+    "ready": "洞察已就绪",
+    "verdict": "评测结果"
+  },
+  "speed": {
+    "eyebrow": "高速 · 清晰 · 可靠",
+    "title": "从提交到反馈，一气呵成",
+    "description": "每一步状态都清楚可见，让你更快确认结果、定位问题，并立即投入下一次尝试。",
+    "steps": {
+      "submit": {
+        "title": "随时提交",
+        "description": "专注完成代码，提交后的评测流程由平台顺畅接管。"
+      },
+      "evaluate": {
+        "title": "透明评测",
+        "description": "编译、测试与结果状态层层呈现，减少无意义的等待。"
+      },
+      "feedback": {
+        "title": "快速迭代",
+        "description": "结合详细记录与反馈，回到代码继续验证你的思路。"
+      }
+    },
+    "visual": {
+      "queue": "提交队列",
+      "live": "评测正在进行",
+      "compile": "编译代码",
+      "samples": "运行测试点",
+      "judge": "汇总结果",
+      "status1": "完成",
+      "status2": "通过",
+      "status3": "已生成",
+      "resultLabel": "最终状态",
+      "result": "答案正确",
+      "detailLabel": "反馈视图",
+      "detail": "清晰可追踪"
+    }
+  },
+  "ai": {
+    "eyebrow": "AI 原生学习体验",
+    "title": "不只告诉你结果，更帮你看懂问题",
+    "description": "把智能能力融入解题流程，让每次失败都能转化为更明确的下一步。",
+    "analysisTitle": "智能代码洞察",
+    "analysisStatus": "正在生成学习建议",
+    "locateTitle": "快速定位问题",
+    "locateDescription": "从代码表现与评测反馈中寻找线索，缩短排查路径。",
+    "summarizeTitle": "总结关键知识",
+    "summarizeDescription": "提炼解题中的重要概念，让经验更容易沉淀和复习。",
+    "generateTitle": "AI 测试数据生成",
+    "generateDescription": "为题目准备与验证提供智能辅助，覆盖更多值得检查的情况。",
+    "learnTitle": "连接每次练习",
+    "learnDescription": "将题目、提交记录与反馈串联起来，形成连贯的成长轨迹。"
+  },
+  "features": {
+    "eyebrow": "一个平台，多种可能",
+    "title": "学习、训练与竞赛，都在这里",
+    "description": "从日常刷题到正式比赛，用统一而熟悉的体验承接不同阶段的目标。",
+    "items": {
+      "problems": {
+        "title": "丰富题库",
+        "description": "浏览、筛选并完成题目，在持续练习中建立扎实能力。"
+      },
+      "training": {
+        "title": "专题训练",
+        "description": "围绕知识点组织练习，让每次训练都有清晰方向。"
+      },
+      "contests": {
+        "title": "在线竞赛",
+        "description": "在真实节奏中挑战自己，通过排名与赛后复盘继续提升。"
+      },
+      "homework": {
+        "title": "课程作业",
+        "description": "集中查看任务、进度与结果，让学习安排一目了然。"
+      },
+      "ranking": {
+        "title": "排名与记录",
+        "description": "回看提交与成长表现，用可见的进步保持前进动力。"
+      },
+      "community": {
+        "title": "讨论与交流",
+        "description": "分享思路、阅读题解，在交流中获得新的解题视角。"
+      }
+    }
+  },
+  "device": {
+    "eyebrow": "随时进入状态",
+    "title": "从桌面到移动端，体验始终连贯",
+    "description": "无论是在电脑上专注编码，还是在移动设备上查看题目与结果，关键信息都触手可及。",
+    "responsive": "响应式界面",
+    "synced": "进度与记录同步"
+  },
+  "cta": {
+    "title": "下一次 Accepted，从这里开始",
+    "description": "登录后同步进度、提交记录与个人信息，继续你的每一次挑战。",
+    "button": "登录并开始刷题"
+  },
+  "footer": "© {siteName} · 为热爱代码的人打造"
 }
