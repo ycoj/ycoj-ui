@@ -1,6 +1,7 @@
 import type { LanguageFamily } from '@/api/server/method/ui/languages';
 import ProblemLink from '@/features/problem/problem-link';
 import ProblemStatus from '@/features/problem/problem-status';
+import { formatRecordTime } from '@/features/record/lib/format-time';
 import UserSpan from '@/features/user/user-span';
 import {
   Table,
@@ -18,7 +19,6 @@ import type {
 } from '@/shared/types/problem';
 import type { RecordDoc } from '@/shared/types/record';
 import type { User } from '@/shared/types/user';
-import dayjs from 'dayjs';
 import { useTranslations } from 'next-intl';
 
 type Props = {
@@ -31,13 +31,8 @@ type Props = {
 export default function RecordDetail({ rdoc, pdoc, udoc, languages }: Props) {
   const t = useTranslations('record');
   const common = useTranslations('common');
-  const submittedAtMs = oid2ts(rdoc._id);
-  const submittedAt = Number.isFinite(submittedAtMs)
-    ? dayjs(submittedAtMs).format('MM-DD HH:mm:ss')
-    : '';
-  const judgedAt = dayjs(rdoc.judgeAt).isValid()
-    ? dayjs(rdoc.judgeAt).format('MM-DD HH:mm:ss')
-    : '';
+  const submittedAt = formatRecordTime(oid2ts(rdoc._id));
+  const judgedAt = formatRecordTime(rdoc.judgeAt);
 
   const statusDoc: ProblemStatusDoc = {
     _id: rdoc._id,
@@ -130,11 +125,9 @@ export default function RecordDetail({ rdoc, pdoc, udoc, languages }: Props) {
             {formatMemory(rdoc.memory)}
           </TableCell>
           <TableCell className="text-center tabular-nums">
-            {submittedAt || '-'}
+            {submittedAt}
           </TableCell>
-          <TableCell className="text-right tabular-nums">
-            {judgedAt || '-'}
-          </TableCell>
+          <TableCell className="text-right tabular-nums">{judgedAt}</TableCell>
         </TableRow>
       </TableBody>
     </Table>

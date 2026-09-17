@@ -1,6 +1,6 @@
 import type { AiTraceEvent } from './ai-generation-trace';
+import { formatRecordTime } from '@/features/record/lib/format-time';
 import type { AiGenerationStage } from '@/shared/types/record';
-import dayjs from 'dayjs';
 
 export const TERMINAL_STATUSES = new Set([1, 3, 8, 9, 31]);
 export const TERMINAL_STAGES = new Set<AiGenerationStage>([
@@ -68,8 +68,7 @@ export function stringifyValue(value: unknown): string {
 }
 
 export function formatDate(value?: string): string {
-  const date = value ? dayjs(value) : null;
-  return date?.isValid() ? date.format('YYYY-MM-DD HH:mm:ss') : '-';
+  return value ? formatRecordTime(value, 'YYYY-MM-DD HH:mm:ss') : '-';
 }
 
 export function getReport(events: AiTraceEvent[]): string | null {

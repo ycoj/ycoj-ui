@@ -1,5 +1,6 @@
 'use client';
 
+import { formatRecordTime } from '@/features/record/lib/format-time';
 import { Button } from '@/shared/components/ui/button';
 import {
   Select,
@@ -130,9 +131,7 @@ export default function RecordSidebar({
               <SelectGroup>
                 <SelectLabel>{t('historicalVersion')}</SelectLabel>
                 {versions.map(({ rev, judgedAt }) => {
-                  const time = dayjs(judgedAt).isValid()
-                    ? dayjs(judgedAt).format('MM-DD HH:mm:ss')
-                    : '-';
+                  const time = formatRecordTime(judgedAt);
                   return (
                     <SelectItem key={rev} value={rev}>
                       {t('judgedAt', { time })}

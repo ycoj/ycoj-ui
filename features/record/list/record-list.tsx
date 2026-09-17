@@ -2,6 +2,7 @@ import type { RecordListResponse } from '@/api/server/method/record/list';
 import type { LanguageFamily } from '@/api/server/method/ui/languages';
 import ProblemLink from '@/features/problem/problem-link';
 import ProblemStatus from '@/features/problem/problem-status';
+import { formatRecordTime } from '@/features/record/lib/format-time';
 import UserSpan from '@/features/user/user-span';
 import {
   Table,
@@ -15,7 +16,6 @@ import { STATUS_BACKGROUND_COLOR } from '@/shared/configs/status';
 import { formatMemory, formatTime } from '@/shared/lib/format-units';
 import oid2ts from '@/shared/lib/oid2ts';
 import type { ProblemStatus as ProblemStatusDoc } from '@/shared/types/problem';
-import dayjs from 'dayjs';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
@@ -84,10 +84,7 @@ export default function RecordList({ data, languages }: Props) {
             STATUS_BACKGROUND_COLOR[
               record.status as keyof typeof STATUS_BACKGROUND_COLOR
             ] || '#6b7280';
-          const submittedAtMs = oid2ts(record._id);
-          const submittedAt = Number.isFinite(submittedAtMs)
-            ? dayjs(submittedAtMs).format('MM-DD HH:mm:ss')
-            : '';
+          const submittedAt = formatRecordTime(oid2ts(record._id));
 
           return (
             <TableRow key={record._id}>
@@ -136,7 +133,7 @@ export default function RecordList({ data, languages }: Props) {
                 {getLanguageDisplayName(record.lang)}
               </TableCell>
               <TableCell className="hidden md:table-cell text-center tabular-nums">
-                {submittedAt || '-'}
+                {submittedAt}
               </TableCell>
             </TableRow>
           );
