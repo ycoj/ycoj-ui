@@ -4,7 +4,7 @@ import { render } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/shared/lib/code-highlighter', () => ({
-  highlightCodeToHtml: vi.fn((code: string) => code),
+  highlightCodeToHtml: vi.fn((code: string) => ({ html: code })),
 }));
 
 describe('CodeRenderer', () => {

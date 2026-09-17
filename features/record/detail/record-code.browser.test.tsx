@@ -6,7 +6,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('@/shared/lib/code-highlighter', () => ({
-  highlightCodeToHtml: (code: string) => code,
+  highlightCodeToHtml: (code: string) => ({ html: code }),
 }));
 
 const rdoc = {

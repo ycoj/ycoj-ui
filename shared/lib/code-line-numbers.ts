@@ -2,6 +2,8 @@ import type { ElementContent } from 'hast';
 
 export const NO_LINE_NUMBERS_SUFFIX = '|no-line-numbers';
 
+export const LINE_NUMBER_DIGITS_VARIABLE = '--code-line-number-digits';
+
 /**
  * Splits a language tag such as `cpp|no-line-numbers` into the real language
  * and whether the code block should render line numbers (on by default).
@@ -54,12 +56,17 @@ function splitLines(children: ElementContent[]): ElementContent[][] {
   return lines;
 }
 
+export type NumberedLines = {
+  children: ElementContent[];
+  lineNumberDigits: number;
+};
+
 /**
  * Wraps each line of highlighted code content in a `span.code-line` element.
  * Line breaks stay as `\n` text nodes between the wrappers so `textContent`,
  * copy, and selection produce the original source unchanged.
  */
-export function addLineNumbers(children: ElementContent[]): ElementContent[] {
+export function addLineNumbers(children: ElementContent[]): NumberedLines {
   const lines = splitLines(children);
   // A source ending in a line break yields one trailing empty segment; drop
   // it so the block does not render a phantom empty numbered line.
@@ -78,5 +85,9 @@ export function addLineNumbers(children: ElementContent[]): ElementContent[] {
     });
   });
   if (trailingBreak) out.push({ type: 'text', value: '\n' });
-  return out;
+
+  return {
+    children: out,
+    lineNumberDigits: String(lines.length).length,
+  };
 }

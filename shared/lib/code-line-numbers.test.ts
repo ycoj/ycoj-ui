@@ -47,26 +47,26 @@ describe('parseCodeLanguage', () => {
 describe('addLineNumbers', () => {
   it('wraps each line and preserves the text', () => {
     const source = 'int a;\nint b;';
-    const out = addLineNumbers([{ type: 'text', value: source }]);
+    const { children } = addLineNumbers([{ type: 'text', value: source }]);
 
-    expect(lineSpans(out)).toHaveLength(2);
-    expect(textOf(out)).toBe(source);
+    expect(lineSpans(children)).toHaveLength(2);
+    expect(textOf(children)).toBe(source);
   });
 
   it('does not number a phantom line after a trailing newline', () => {
     const source = 'int a;\nint b;\n';
-    const out = addLineNumbers([{ type: 'text', value: source }]);
+    const { children } = addLineNumbers([{ type: 'text', value: source }]);
 
-    expect(lineSpans(out)).toHaveLength(2);
-    expect(textOf(out)).toBe(source);
+    expect(lineSpans(children)).toHaveLength(2);
+    expect(textOf(children)).toBe(source);
   });
 
   it('keeps interior blank lines numbered', () => {
     const source = 'a\n\nb\n';
-    const out = addLineNumbers([{ type: 'text', value: source }]);
+    const { children } = addLineNumbers([{ type: 'text', value: source }]);
 
-    expect(lineSpans(out)).toHaveLength(3);
-    expect(textOf(out)).toBe(source);
+    expect(lineSpans(children)).toHaveLength(3);
+    expect(textOf(children)).toBe(source);
   });
 
   it('splits elements that span line breaks into per-line clones', () => {
@@ -76,23 +76,45 @@ describe('addLineNumbers', () => {
       properties: { className: ['pl-c'] },
       children: [{ type: 'text', value: '/* a\nb */' }],
     };
-    const out = addLineNumbers([comment]);
+    const { children } = addLineNumbers([comment]);
 
-    const lines = lineSpans(out);
+    const lines = lineSpans(children);
     expect(lines).toHaveLength(2);
     expect(lines[0]!.children[0]).toMatchObject({
       type: 'element',
       properties: { className: ['pl-c'] },
     });
-    expect(textOf(out)).toBe('/* a\nb */');
+    expect(textOf(children)).toBe('/* a\nb */');
     // The original element is split into two clones.
     expect(lines[0]!.children[0]).not.toBe(lines[1]!.children[0]);
   });
 
   it('handles CRLF line endings', () => {
     const source = 'a\r\nb';
-    const out = addLineNumbers([{ type: 'text', value: source }]);
+    const { children } = addLineNumbers([{ type: 'text', value: source }]);
 
-    expect(lineSpans(out)).toHaveLength(2);
+    expect(lineSpans(children)).toHaveLength(2);
   });
+
+  it.each([
+    [1, 1],
+    [9, 1],
+    [10, 2],
+    [99, 2],
+    [100, 3],
+    [1000, 4],
+  ] as const)(
+    'sizes a %i-line block for %i-digit numbers',
+    (lineCount, digits) => {
+      const source = Array.from(
+        { length: lineCount },
+        (_, index) => `line ${index}`
+      ).join('\n');
+      const { lineNumberDigits } = addLineNumbers([
+        { type: 'text', value: source },
+      ]);
+
+      expect(lineNumberDigits).toBe(digits);
+    }
+  );
 });

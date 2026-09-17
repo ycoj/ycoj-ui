@@ -10,6 +10,11 @@ const starryNight = await createStarryNight(common);
 
 export type CodeHighlightFallback = 'cpp' | 'plaintext';
 
+export type HighlightedCode = {
+  html: string;
+  lineNumberDigits?: number;
+};
+
 export function isSupportedCodeLanguage(language: string): boolean {
   return !!starryNight.flagToScope(parseCodeLanguage(language).language);
 }
@@ -18,7 +23,7 @@ export function highlightCodeToHtml(
   code: string,
   language: string,
   fallback: CodeHighlightFallback = 'cpp'
-) {
+): HighlightedCode {
   const parsed = parseCodeLanguage(language);
   const scope =
     starryNight.flagToScope(parsed.language) ??
@@ -28,8 +33,13 @@ export function highlightCodeToHtml(
     ? (starryNight.highlight(code, scope).children as ElementContent[])
     : ([{ type: 'text', value: code }] satisfies ElementContent[]);
 
-  return toHtml({
-    type: 'root',
-    children: parsed.lineNumbers ? addLineNumbers(children) : children,
-  });
+  const numbered = parsed.lineNumbers ? addLineNumbers(children) : undefined;
+
+  return {
+    html: toHtml({
+      type: 'root',
+      children: numbered?.children ?? children,
+    }),
+    lineNumberDigits: numbered?.lineNumberDigits,
+  };
 }

@@ -27,18 +27,31 @@ vi.mock('./components/react-pdf-viewer', () => ({
   default: () => <div aria-label="PDF document" role="document" />,
 }));
 
-async function renderMarkdown(source: string) {
+function markdownWrapper({ children }: { children: ReactNode }) {
+  return (
+    <NextIntlClientProvider locale="en" messages={messages}>
+      {children}
+    </NextIntlClientProvider>
+  );
+}
+
+async function markdownElement(source: string) {
   const markdown = Markdown({ children: source });
   const children = (markdown.props as { children: ReactNode }).children;
   const asyncMarkdown = Children.toArray(children)[0] as ReactElement<Options>;
-  const rendered = await MarkdownAsync(asyncMarkdown.props);
 
-  return render(rendered, {
-    wrapper: ({ children }) => (
-      <NextIntlClientProvider locale="en" messages={messages}>
-        {children}
-      </NextIntlClientProvider>
-    ),
+  return MarkdownAsync(asyncMarkdown.props);
+}
+
+async function renderMarkdown(source: string) {
+  return render(await markdownElement(source), { wrapper: markdownWrapper });
+}
+
+async function renderMarkdownDocument(source: string) {
+  const rendered = await markdownElement(source);
+
+  return render(<div className="markdown">{rendered}</div>, {
+    wrapper: markdownWrapper,
   });
 }
 
@@ -146,6 +159,87 @@ describe('Markdown code block line numbers', () => {
     await user.click(screen.getByRole('button', { name: 'Copy' }));
 
     expect(writeText).toHaveBeenCalledWith('int a;\nint b;\n');
+  });
+
+  it('keeps the divider aligned when numbers grow wider', async () => {
+    const source = '```cpp\n' + 'int a;\n'.repeat(1000) + '```';
+    const { container } = await renderMarkdown(source);
+
+    const lines = container.querySelectorAll('.code-line');
+    expect(lines).toHaveLength(1000);
+    const gutterWidths = new Set(
+      [...lines].map((line) => getComputedStyle(line, '::before').width)
+    );
+
+    expect(gutterWidths.size).toBe(1);
+  });
+
+  it('pads the number evenly on both sides of the divider', async () => {
+    const { container } = await renderMarkdownDocument(
+      '```cpp\nint a;\nint b;\n```'
+    );
+
+    const gutter = getComputedStyle(
+      container.querySelector('.code-line')!,
+      '::before'
+    );
+
+    expect(gutter.paddingLeft).toBe(gutter.paddingRight);
+    expect(parseFloat(gutter.paddingLeft)).toBeGreaterThan(0);
+  });
+
+  it('extends the divider to the top and bottom edges of the block', async () => {
+    const { container } = await renderMarkdown('```cpp\nint a;\nint b;\n```');
+    const pre = container.querySelector('pre')!;
+
+    const divider = getComputedStyle(pre, '::after');
+    const gutterWidth = parseFloat(
+      getComputedStyle(container.querySelector('.code-line')!, '::before').width
+    );
+
+    expect(divider.position).toBe('absolute');
+    expect(divider.top).toBe('0px');
+    expect(divider.bottom).toBe('0px');
+    expect(parseFloat(divider.left)).toBeCloseTo(gutterWidth, 1);
+  });
+
+  it('leaves the outer horizontal inset around numbered code blocks to the container', async () => {
+    const { container } = await renderMarkdownDocument('```cpp\nint a;\n```');
+
+    const pre = getComputedStyle(container.querySelector('pre')!);
+    expect(pre.paddingLeft).toBe('0px');
+    expect(parseFloat(pre.paddingRight)).toBeGreaterThan(0);
+  });
+
+  it('keeps the prose inset for code blocks without line numbers', async () => {
+    const { container } = await renderMarkdownDocument(
+      '```cpp|no-line-numbers\nint a;\n```'
+    );
+
+    const pre = getComputedStyle(container.querySelector('pre')!);
+    expect(parseFloat(pre.paddingLeft)).toBeGreaterThan(0);
+  });
+
+  it('widens the gutter to fit the largest line number', async () => {
+    const block = (lineCount: number) =>
+      '```cpp\n' +
+      Array.from({ length: lineCount }, (_, index) => `int v${index};`).join(
+        '\n'
+      ) +
+      '\n```';
+
+    const { container: singleDigits } = await renderMarkdown(block(9));
+    const { container: doubleDigits } = await renderMarkdown(block(10));
+
+    const gutterWidth = (container: HTMLElement) =>
+      parseFloat(
+        getComputedStyle(container.querySelector('.code-line')!, '::before')
+          .width
+      );
+
+    expect(gutterWidth(doubleDigits)).toBeGreaterThan(
+      gutterWidth(singleDigits)
+    );
   });
 });
 

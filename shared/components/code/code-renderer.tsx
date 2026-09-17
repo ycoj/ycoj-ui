@@ -4,7 +4,8 @@ import {
   highlightCodeToHtml,
   type CodeHighlightFallback,
 } from '@/shared/lib/code-highlighter';
-import type { HTMLAttributes } from 'react';
+import { LINE_NUMBER_DIGITS_VARIABLE } from '@/shared/lib/code-line-numbers';
+import type { CSSProperties, HTMLAttributes } from 'react';
 
 type Props = {
   code: string;
@@ -23,11 +24,21 @@ export default function CodeRenderer({
   tabIndex,
   onKeyDown,
 }: Props) {
-  const html = highlightCodeToHtml(code, language, fallback);
+  const { html, lineNumberDigits } = highlightCodeToHtml(
+    code,
+    language,
+    fallback
+  );
+  const style =
+    lineNumberDigits === undefined
+      ? undefined
+      : ({ [LINE_NUMBER_DIGITS_VARIABLE]: lineNumberDigits } as CSSProperties);
+
   return (
     <pre
       tabIndex={tabIndex}
       className={className}
+      style={style}
       onKeyDown={onKeyDown}
       dangerouslySetInnerHTML={{ __html: html }}
     />

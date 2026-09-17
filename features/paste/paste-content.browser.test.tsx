@@ -48,6 +48,38 @@ describe('paste content rendering', () => {
     expect(container.querySelector('pre')?.textContent).toBe(content);
   });
 
+  it('draws the line number divider across the full block height', () => {
+    const { container } = renderCode('int a;\nint b;\n', 'cpp');
+    const pre = container.querySelector('pre')!;
+
+    // The divider is an absolute pseudo on the pre so it spans the whole
+    // padding box and reaches the card borders above and below.
+    const divider = getComputedStyle(pre, '::after');
+    expect(divider.position).toBe('absolute');
+    expect(divider.top).toBe('0px');
+    expect(divider.bottom).toBe('0px');
+  });
+
+  it('widens the gutter to fit the largest line number', () => {
+    const block = (lineCount: number) =>
+      Array.from({ length: lineCount }, (_, index) => `int v${index};`).join(
+        '\n'
+      );
+
+    const { container: singleDigits } = renderCode(block(9), 'cpp');
+    const { container: doubleDigits } = renderCode(block(10), 'cpp');
+
+    const gutterWidth = (container: HTMLElement) =>
+      parseFloat(
+        getComputedStyle(container.querySelector('.code-line')!, '::before')
+          .width
+      );
+
+    expect(gutterWidth(doubleDigits)).toBeGreaterThan(
+      gutterWidth(singleDigits)
+    );
+  });
+
   it.each(['javascript', 'unknown-language'])(
     'copies the original %s code including whitespace',
     async (language) => {

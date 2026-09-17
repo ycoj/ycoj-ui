@@ -20,7 +20,7 @@ describe('isSupportedCodeLanguage', () => {
 
 describe('highlightCodeToHtml', () => {
   it('highlights code and escapes markup in string literals', () => {
-    const html = highlightCodeToHtml('const value = "<tag>";', 'cpp');
+    const { html } = highlightCodeToHtml('const value = "<tag>";', 'cpp');
 
     expect(html).toContain('class="pl-k"');
     expect(html).toContain('&#x3C;tag>');
@@ -28,14 +28,14 @@ describe('highlightCodeToHtml', () => {
   });
 
   it('falls back to C++ highlighting for unknown languages', () => {
-    const html = highlightCodeToHtml('int value = 1;', 'unknown-language');
+    const { html } = highlightCodeToHtml('int value = 1;', 'unknown-language');
 
     expect(html).toContain('class="pl-k"');
     expect(html).toContain('int');
   });
 
   it('escapes unknown languages as plaintext when requested', () => {
-    const html = highlightCodeToHtml(
+    const { html } = highlightCodeToHtml(
       '  <img src=x onerror=alert(1)>\n\n',
       'unknown-language',
       'plaintext'
@@ -49,7 +49,7 @@ describe('highlightCodeToHtml', () => {
   });
 
   it('wraps each line in a code-line span without changing the text', () => {
-    const html = highlightCodeToHtml('int a;\nint b;\n', 'cpp');
+    const { html } = highlightCodeToHtml('int a;\nint b;\n', 'cpp');
 
     expect(html.match(/class="code-line"/g)).toHaveLength(2);
     // Stripping tags leaves the source text (with entities) untouched.
@@ -57,16 +57,42 @@ describe('highlightCodeToHtml', () => {
   });
 
   it('numbers plaintext fallbacks too', () => {
-    const html = highlightCodeToHtml('a\nb', 'unknown-language', 'plaintext');
+    const { html } = highlightCodeToHtml(
+      'a\nb',
+      'unknown-language',
+      'plaintext'
+    );
 
     expect(html.match(/class="code-line"/g)).toHaveLength(2);
   });
 
   it('suppresses line numbers for the no-line-numbers language flag', () => {
-    const html = highlightCodeToHtml('int a;\nint b;\n', 'cpp|no-line-numbers');
+    const { html } = highlightCodeToHtml(
+      'int a;\nint b;\n',
+      'cpp|no-line-numbers'
+    );
 
     expect(html).not.toContain('code-line');
     expect(html).toContain('class="pl-k"');
     expect(html.replace(/<[^>]*>/g, '')).toBe('int a;\nint b;\n');
+  });
+
+  it('reports the gutter width needed for the largest line number', () => {
+    const code = Array.from(
+      { length: 10 },
+      (_, index) => `int v${index};`
+    ).join('\n');
+    const { lineNumberDigits } = highlightCodeToHtml(code, 'cpp');
+
+    expect(lineNumberDigits).toBe(2);
+  });
+
+  it('reports no gutter width when numbers are disabled', () => {
+    const { lineNumberDigits } = highlightCodeToHtml(
+      'int a;',
+      'cpp|no-line-numbers'
+    );
+
+    expect(lineNumberDigits).toBeUndefined();
   });
 });

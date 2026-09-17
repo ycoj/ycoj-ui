@@ -19,14 +19,14 @@ export default function RecordCode({ rdoc }: Props) {
   }
 
   return (
-    <Card className="relative">
+    <Card className="relative py-0">
       <CodeCopyButton text={code} />
       <CardContent className="text-base">
         <CodeRenderer
           code={code}
           language={getSyntaxLanguage(rdoc.lang)}
           tabIndex={0}
-          className="outline-none"
+          className="py-4 outline-none"
           onKeyDown={confineSelectAllOnKeyDown}
         />
       </CardContent>

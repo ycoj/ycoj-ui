@@ -1,8 +1,35 @@
 /* Line numbers for code blocks. The renderer wraps each line in a
  * `span.code-line`; numbers come from a counter so they never become part
- * of the copied text or selection. */
+ * of the copied text or selection. The renderer sets
+ * `--code-line-number-digits` so every gutter shares the width of the
+ * widest number.
+ *
+ * The divider is drawn once on the `pre` itself so it spans the full block
+ * height, padding included, and meets the top and bottom edges instead of
+ * ending with the first and last line boxes. Its offset mirrors the
+ * `::before` gutter width, so a numbered `pre` must not carry its own left
+ * padding; extra room on the left of the numbers comes from
+ * `--code-line-number-padding-left`. */
 pre {
   counter-reset: code-line;
+}
+
+pre:has(.code-line) {
+  position: relative;
+  padding-left: 0;
+}
+
+pre:has(.code-line)::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(
+    var(--code-line-number-padding-left, 1ch) +
+      var(--code-line-number-digits, 1) * 1ch + 1.5ch
+  );
+  border-left: 1px solid var(--border);
+  pointer-events: none;
 }
 
 .code-line {
@@ -12,11 +39,15 @@ pre {
 .code-line::before {
   content: counter(code-line);
   display: inline-block;
-  min-width: 3ch;
-  margin-right: 1ch;
-  padding-right: 1ch;
+  box-sizing: border-box;
+  width: calc(
+    var(--code-line-number-padding-left, 1ch) +
+      var(--code-line-number-digits, 1) * 1ch + 1.5ch
+  );
+  padding-right: 1.5ch;
+  padding-left: var(--code-line-number-padding-left, 1ch);
+  margin-right: 1.5ch;
   text-align: right;
   color: var(--muted-foreground);
-  border-right: 1px solid var(--border);
   user-select: none;
 }

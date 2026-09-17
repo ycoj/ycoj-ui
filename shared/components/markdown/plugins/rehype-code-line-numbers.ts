@@ -1,5 +1,6 @@
 import {
   addLineNumbers,
+  LINE_NUMBER_DIGITS_VARIABLE,
   NO_LINE_NUMBERS_SUFFIX,
 } from '@/shared/lib/code-line-numbers';
 import type { Element, Root } from 'hast';
@@ -60,13 +61,12 @@ export function wrapCodeBlockLines(
       only && only.type === 'element' && only.tagName === 'code'
         ? only
         : undefined;
-    if (code) {
-      if (!skipped.has(code)) {
-        code.children = addLineNumbers(code.children);
-      }
-      return;
-    }
-    node.children = addLineNumbers(node.children);
+    if (code && skipped.has(code)) return;
+
+    const numbered = addLineNumbers(code ? code.children : node.children);
+    if (code) code.children = numbered.children;
+    else node.children = numbered.children;
+    node.properties.style = `${LINE_NUMBER_DIGITS_VARIABLE}: ${numbered.lineNumberDigits}`;
   });
 }
 
