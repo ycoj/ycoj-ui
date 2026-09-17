@@ -72,7 +72,7 @@ function renderOmnibar() {
 async function openAndSearch(query: string) {
   fireEvent.keyDown(document, { key: 'k', ctrlKey: true });
   const input = screen.getByRole('textbox', {
-    name: 'Search problems and users',
+    name: 'Search Globally',
   });
   fireEvent.change(input, { target: { value: query } });
   await act(async () => {
@@ -150,7 +150,7 @@ describe('OmnibarProvider', () => {
     );
 
     fireEvent.keyDown(
-      screen.getByRole('textbox', { name: 'Search problems and users' }),
+      screen.getByRole('textbox', { name: 'Search Globally' }),
       { key: 'Enter' }
     );
     expect(mocks.push).toHaveBeenCalledWith('/problem/P3');
@@ -179,7 +179,7 @@ describe('OmnibarProvider', () => {
 
     fireEvent.keyDown(document, { key: 'k', ctrlKey: true });
     expect(
-      screen.getByRole('textbox', { name: 'Search problems and users' })
+      screen.getByRole('textbox', { name: 'Search Globally' })
     ).toHaveValue('tree');
     expect(screen.getByRole('option', { name: /Binary Tree/ })).toBeVisible();
   });

@@ -42,9 +42,7 @@ describe('OmnibarTrigger', () => {
       </NextIntlClientProvider>
     );
 
-    await user.click(
-      screen.getByRole('button', { name: /Search problems and users/ })
-    );
+    await user.click(screen.getByRole('button', { name: /Search Globally/ }));
     expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
 });
