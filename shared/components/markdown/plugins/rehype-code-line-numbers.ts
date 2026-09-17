@@ -1,7 +1,7 @@
 import {
   addLineNumbers,
   LINE_NUMBER_DIGITS_VARIABLE,
-  NO_LINE_NUMBERS_SUFFIX,
+  parseCodeLanguage,
 } from '@/shared/lib/code-line-numbers';
 import type { Element, Root } from 'hast';
 import { visit } from 'unist-util-visit';
@@ -23,18 +23,14 @@ export function stripLineNumberFlags(tree: Root): Set<Element> {
 
     let flagged = false;
     const next = className.flatMap((token) => {
-      if (typeof token !== 'string') return [token];
-      if (
-        !token.startsWith(LANGUAGE_PREFIX) ||
-        !token.endsWith(NO_LINE_NUMBERS_SUFFIX)
-      ) {
+      if (typeof token !== 'string' || !token.startsWith(LANGUAGE_PREFIX)) {
         return [token];
       }
-      flagged = true;
-      const language = token.slice(
-        LANGUAGE_PREFIX.length,
-        -NO_LINE_NUMBERS_SUFFIX.length
+      const { language, lineNumbers } = parseCodeLanguage(
+        token.slice(LANGUAGE_PREFIX.length)
       );
+      if (lineNumbers) return [token];
+      flagged = true;
       return language ? [LANGUAGE_PREFIX + language] : [];
     });
     if (!flagged) return;
@@ -56,12 +52,12 @@ export function wrapCodeBlockLines(
 ): void {
   visit(tree, 'element', (node: Element) => {
     if (node.tagName !== 'pre') return;
-    const only = node.children.length === 1 ? node.children[0] : undefined;
-    const code =
-      only && only.type === 'element' && only.tagName === 'code'
-        ? only
-        : undefined;
-    if (code && skipped.has(code)) return;
+    const codes = node.children.filter(
+      (child): child is Element =>
+        child.type === 'element' && child.tagName === 'code'
+    );
+    if (codes.some((code) => skipped.has(code))) return;
+    const code = node.children.length === 1 ? codes[0] : undefined;
 
     const numbered = addLineNumbers(code ? code.children : node.children);
     if (code) code.children = numbered.children;

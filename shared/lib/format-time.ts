@@ -11,9 +11,11 @@ dayjs.extend(timezone);
 const RECORD_TIME_ZONE = 'Asia/Shanghai';
 
 export function formatRecordTime(
-  value: string | number,
+  value: string | number | undefined,
   format = 'MM-DD HH:mm:ss'
 ): string {
+  // dayjs(undefined) is the current time, not an invalid date.
+  if (value === undefined) return '-';
   const time = dayjs(value);
   return time.isValid() ? time.tz(RECORD_TIME_ZONE).format(format) : '-';
 }

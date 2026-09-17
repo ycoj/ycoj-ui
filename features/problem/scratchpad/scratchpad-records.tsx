@@ -12,9 +12,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/components/ui/table';
+import { formatRecordTime } from '@/shared/lib/format-time';
 import { formatMemory, formatTime } from '@/shared/lib/format-units';
 import oid2ts from '@/shared/lib/oid2ts';
-import dayjs from 'dayjs';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 
@@ -105,9 +105,7 @@ export default function ScratchpadRecords({
                 <TableCell>{formatMemory(record.memory)}</TableCell>
                 <TableCell>{languageName(record.lang)}</TableCell>
                 <TableCell className="whitespace-nowrap">
-                  {Number.isFinite(submittedAt)
-                    ? dayjs(submittedAt).format('MM-DD HH:mm:ss')
-                    : '-'}
+                  {formatRecordTime(submittedAt)}
                 </TableCell>
               </TableRow>
             );

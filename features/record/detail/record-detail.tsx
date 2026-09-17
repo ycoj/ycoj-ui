@@ -1,7 +1,6 @@
 import type { LanguageFamily } from '@/api/server/method/ui/languages';
 import ProblemLink from '@/features/problem/problem-link';
 import ProblemStatus from '@/features/problem/problem-status';
-import { formatRecordTime } from '@/features/record/lib/format-time';
 import UserSpan from '@/features/user/user-span';
 import {
   Table,
@@ -11,6 +10,7 @@ import {
   TableRow,
 } from '@/shared/components/ui/table';
 import { STATUS_BACKGROUND_COLOR } from '@/shared/configs/status';
+import { formatRecordTime } from '@/shared/lib/format-time';
 import { formatMemory, formatTime } from '@/shared/lib/format-units';
 import oid2ts from '@/shared/lib/oid2ts';
 import type {

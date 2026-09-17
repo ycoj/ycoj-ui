@@ -1,6 +1,5 @@
 'use client';
 
-import { formatRecordTime } from '@/features/record/lib/format-time';
 import { Button } from '@/shared/components/ui/button';
 import {
   Select,
@@ -12,6 +11,7 @@ import {
   SelectValue,
 } from '@/shared/components/ui/select';
 import { Separator } from '@/shared/components/ui/separator';
+import { formatRecordTime } from '@/shared/lib/format-time';
 import dayjs from 'dayjs';
 import { Ban, RotateCcw } from 'lucide-react';
 import { useTranslations } from 'next-intl';

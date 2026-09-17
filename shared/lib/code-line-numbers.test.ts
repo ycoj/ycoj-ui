@@ -85,16 +85,33 @@ describe('addLineNumbers', () => {
       properties: { className: ['pl-c'] },
     });
     expect(textOf(children)).toBe('/* a\nb */');
-    // The original element is split into two clones.
     expect(lines[0]!.children[0]).not.toBe(lines[1]!.children[0]);
   });
 
-  it('handles CRLF line endings', () => {
-    const source = 'a\r\nb';
+  it('preserves the original line separators in the emitted text', () => {
+    const source = 'a\r\nb\rc\r\n';
     const { children } = addLineNumbers([{ type: 'text', value: source }]);
 
-    expect(lineSpans(children)).toHaveLength(2);
+    expect(lineSpans(children)).toHaveLength(3);
+    expect(textOf(children)).toBe(source);
   });
+
+  it('renders no numbered line for an empty source', () => {
+    expect(addLineNumbers([])).toEqual({ children: [], lineNumberDigits: 1 });
+    expect(addLineNumbers([{ type: 'text', value: '' }]).children).toHaveLength(
+      0
+    );
+  });
+
+  it.each(['\n', '\r\n', '\r'] as const)(
+    'preserves a source made of a single break %j',
+    (source) => {
+      const { children } = addLineNumbers([{ type: 'text', value: source }]);
+
+      expect(lineSpans(children)).toHaveLength(0);
+      expect(textOf(children)).toBe(source);
+    }
+  );
 
   it.each([
     [1, 1],

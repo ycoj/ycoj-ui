@@ -25,6 +25,10 @@ const nextConfig: NextConfig = {
   experimental: {
     // proxy.ts makes Next buffer request bodies before the backend rewrites;
     // keep /api file uploads (imports, bulk submits) above the 10MB default.
+    // Bodies past this size are silently truncated, not rejected. Problem-file
+    // uploads POST straight to NEXT_PUBLIC_UPLOAD_BASEURL (the absolute
+    // backend URL by default) and bypass the proxy; on referer rejections,
+    // set NEXT_PUBLIC_UPLOAD_BASEURL='' to route them through /api.
     proxyClientMaxBodySize: '100mb',
   },
   outputFileTracingIncludes: {

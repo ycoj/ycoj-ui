@@ -8,6 +8,12 @@ const backendOrigin = backendBaseUrl ? new URL(backendBaseUrl).origin : '';
 // and Referer, but the backend rejects POSTs whose origin is not its own site.
 // Point both at the backend; the rewrites in next.config.ts then forward the
 // corrected headers upstream.
+// Assumes the backend is not configured with `xhost: 'x-forwarded-host'`:
+// Next sets that header to the dev-server origin on external rewrites, and a
+// backend honoring it would see the LAN host again and re-trigger the CSRF
+// check this proxy bypasses. The rewritten referer also flows into backend
+// `back()` redirects, making `response.url` backend-absolute; a raw
+// `router.push(response.url)` would navigate to the backend origin.
 export function proxy(request: NextRequest) {
   if (process.env.NODE_ENV !== 'development' || !backendBaseUrl)
     return NextResponse.next();

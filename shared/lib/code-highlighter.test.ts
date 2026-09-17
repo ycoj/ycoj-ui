@@ -52,7 +52,6 @@ describe('highlightCodeToHtml', () => {
     const { html } = highlightCodeToHtml('int a;\nint b;\n', 'cpp');
 
     expect(html.match(/class="code-line"/g)).toHaveLength(2);
-    // Stripping tags leaves the source text (with entities) untouched.
     expect(html.replace(/<[^>]*>/g, '')).toBe('int a;\nint b;\n');
   });
 

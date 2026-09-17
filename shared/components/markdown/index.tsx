@@ -36,8 +36,7 @@ import type { PluggableList } from 'unified';
 // example the preliminary detail view renders one per question and option)
 // would rebuild the highlighter hundreds of times per request. Build one
 // transformer and register it through a stable plugin instead.
-// The transformer also strips `|no-line-numbers` language flags beforehand
-// and wraps code lines for numbering afterwards.
+// Order matters: `|no-line-numbers` flags must be stripped before starry-night resolves the language, lines wrapped after.
 const starryNightTransformer = rehypeStarryNight();
 const rehypeCodeBlocks: Plugin<[], Root, Root> = () => async (tree, file) => {
   const skipped = stripLineNumberFlags(tree);
