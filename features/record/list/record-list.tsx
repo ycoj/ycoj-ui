@@ -26,7 +26,6 @@ type Props = {
 
 export default function RecordList({ data, languages }: Props) {
   const common = useTranslations('common');
-  // Get language display name
   const getLanguageDisplayName = (lang: string): string => {
     for (const family of Object.values(languages)) {
       const version = family.versions.find((v) => v.name === lang);
