@@ -1,4 +1,4 @@
-import ScoreboardTable from '@/features/contest/scoreboard/scoreboard-table';
+import ScoreboardTableFilter from '@/features/contest/scoreboard/scoreboard-table-filter';
 import ScoreboardToolbar from '@/features/contest/scoreboard/scoreboard-toolbar';
 import {
   Empty,
@@ -16,6 +16,7 @@ type Props = {
   tid: string;
   pageType: 'contest' | 'homework';
   currentUid?: number;
+  filter?: string;
 };
 
 export default function ContestScoreboard({
@@ -23,9 +24,10 @@ export default function ContestScoreboard({
   tid,
   pageType,
   currentUid,
+  filter,
 }: Props) {
   const t = useTranslations('scoreboard');
-  const { tdoc, rows, udict, pdict, availableViews } = data;
+  const { tdoc, rows, udict, pdict, availableViews, groups = [] } = data;
 
   return (
     <div className="space-y-6" data-llm-visible="true">
@@ -36,13 +38,16 @@ export default function ContestScoreboard({
         tdoc={tdoc}
       />
       {rows.length > 1 ? (
-        <ScoreboardTable
+        <ScoreboardTableFilter
+          key={filter}
           rows={rows}
           udict={udict}
           pdict={pdict}
           tid={tid}
           pageType={pageType}
           currentUid={currentUid}
+          groups={groups}
+          filter={filter}
         />
       ) : (
         <Empty data-llm-visible="true">
