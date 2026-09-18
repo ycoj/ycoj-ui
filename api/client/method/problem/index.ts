@@ -2,6 +2,7 @@ import { generateAiTestdata } from './ai-generate-testdata';
 import { searchProblems } from './auto-complete';
 import { createProblem } from './create';
 import { editProblem } from './edit';
+import { submitProblemFeedback, updateProblemFeedbackStatus } from './feedback';
 import {
   deleteProblemFiles,
   generateProblemTestdata,
@@ -31,6 +32,8 @@ const Problem = {
   searchOmnibarProblems,
   createProblem,
   editProblem,
+  submitProblemFeedback,
+  updateProblemFeedbackStatus,
   submitHtmlToMarkdown,
   pollHtmlToMarkdown,
   generateAiTestdata,

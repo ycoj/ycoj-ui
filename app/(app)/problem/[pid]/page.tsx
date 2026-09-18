@@ -147,6 +147,7 @@ function ProblemDetailContent({
             contest={data.tdoc}
             contestStatus={data.tsdoc}
             allowConfigure={canConfigure}
+            allowFeedback={Boolean(user?._id)}
             scratchpadSlot={
               flattenScratchpadLanguages(scratchpadLanguages).length ? (
                 <ScratchpadOpenButton />

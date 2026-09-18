@@ -41,6 +41,9 @@ describe('management access', () => {
     expect(!!screen.queryByRole('link', { name: 'Account expiration' })).toBe(
       canManageExpiration({ priv })
     );
+    expect(!!screen.queryByRole('link', { name: 'Problem feedback' })).toBe(
+      canManageExpiration({ priv })
+    );
     if (canManageExpiration({ priv }))
       expect(
         screen.getByRole('link', { name: 'Account expiration' })

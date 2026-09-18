@@ -31,6 +31,7 @@ import preliminaryForm from './preliminary-form.json';
 import preliminary from './preliminary.json';
 import problemCreate from './problem-create.json';
 import problemEdit from './problem-edit.json';
+import problemFeedback from './problem-feedback.json';
 import problemImport from './problem-import.json';
 import problemListEditor from './problem-list-editor.json';
 import problemType from './problem-type.json';
@@ -68,6 +69,7 @@ const catalog = {
   trainingForm,
   preliminaryForm,
   problem,
+  problemFeedback,
   problemCreate,
   problemEdit,
   problemImport,

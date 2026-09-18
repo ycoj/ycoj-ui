@@ -1,0 +1,43 @@
+{
+  "submit": {
+    "trigger": "Report an issue",
+    "title": "Report a problem issue",
+    "description": "Briefly describe an unclear statement, missing information, incorrect test data, or another issue.",
+    "label": "Issue description",
+    "placeholder": "Describe what is wrong and where it appears...",
+    "characterCount": "{count}/1000",
+    "cancel": "Cancel",
+    "submit": "Submit feedback",
+    "submitting": "Submitting...",
+    "success": "Problem feedback submitted.",
+    "failed": "Could not submit feedback. Please try again."
+  },
+  "manage": {
+    "title": "Problem feedback",
+    "count": "{count, plural, one {# report} other {# reports}}",
+    "filterLabel": "Filter feedback status",
+    "filter": {
+      "pending": "Unconfirmed",
+      "processing": "Processing",
+      "resolved": "Resolved",
+      "invalid": "Invalid",
+      "all": "All statuses"
+    },
+    "status": {
+      "pending": "Unconfirmed",
+      "processing": "Processing",
+      "resolved": "Resolved",
+      "invalid": "Invalid"
+    },
+    "problem": "Problem",
+    "reporter": "Reporter",
+    "content": "Description",
+    "submittedAt": "Submitted",
+    "statusLabel": "Status",
+    "statusFor": "Status for {problem}",
+    "updated": "Feedback status updated.",
+    "failed": "Could not update the feedback status.",
+    "emptyTitle": "No feedback found",
+    "emptyDescription": "No reports match the selected status."
+  }
+}

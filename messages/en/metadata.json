@@ -15,6 +15,7 @@
   "recordDetail": "Submission details",
   "problemList": "Problems",
   "problemDetail": "Problem details",
+  "problemFeedbackManage": "Problem feedback",
   "files": "Files",
   "aiGeneration": "AI testdata generation",
   "problemConfig": "Judge configuration",

@@ -1,0 +1,43 @@
+{
+  "submit": {
+    "trigger": "反馈题目问题",
+    "title": "反馈题目问题",
+    "description": "请简要描述题面表述不清、关键信息缺失、测试数据错误或其他问题。",
+    "label": "问题描述",
+    "placeholder": "请说明问题内容以及出现的位置……",
+    "characterCount": "{count}/1000",
+    "cancel": "取消",
+    "submit": "提交反馈",
+    "submitting": "提交中……",
+    "success": "题目反馈已提交。",
+    "failed": "无法提交反馈，请稍后重试。"
+  },
+  "manage": {
+    "title": "题目反馈",
+    "count": "共 {count} 条反馈",
+    "filterLabel": "筛选反馈状态",
+    "filter": {
+      "pending": "未确认",
+      "processing": "处理中",
+      "resolved": "已处理",
+      "invalid": "不成立",
+      "all": "全部状态"
+    },
+    "status": {
+      "pending": "未确认",
+      "processing": "处理中",
+      "resolved": "已处理",
+      "invalid": "不成立"
+    },
+    "problem": "题目",
+    "reporter": "反馈人",
+    "content": "问题描述",
+    "submittedAt": "提交时间",
+    "statusLabel": "状态",
+    "statusFor": "设置 {problem} 的反馈状态",
+    "updated": "反馈状态已更新。",
+    "failed": "无法更新反馈状态。",
+    "emptyTitle": "暂无题目反馈",
+    "emptyDescription": "没有符合当前状态的反馈。"
+  }
+}
