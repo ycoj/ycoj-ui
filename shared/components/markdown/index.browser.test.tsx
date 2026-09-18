@@ -163,10 +163,32 @@ describe('Markdown code block line numbers', () => {
     }
   });
 
-  it('numbers fenced blocks without a language', async () => {
+  it('does not number fenced blocks without a language', async () => {
     const { container } = await renderMarkdown('```\nalpha\nbeta\n```');
 
+    expect(container.querySelectorAll('.code-line')).toHaveLength(0);
+    expect(container.querySelector('pre')).toHaveTextContent('alpha');
+  });
+
+  it('does not number plain text or unknown languages', async () => {
+    const { container } = await renderMarkdown(
+      '```text\nalpha\nbeta\n```\n\n```notalanguage\nint a;\n```'
+    );
+
+    expect(container.querySelectorAll('.code-line')).toHaveLength(0);
+    const blocks = container.querySelectorAll('pre');
+    expect(blocks).toHaveLength(2);
+    expect(blocks[0]).toHaveTextContent('alpha');
+    expect(blocks[1]).toHaveTextContent('int a;');
+  });
+
+  it('numbers every language flagged with line-numbers', async () => {
+    const { container } = await renderMarkdown(
+      '```text|line-numbers\nalpha\nbeta\n```'
+    );
+
     expect(container.querySelectorAll('.code-line')).toHaveLength(2);
+    expect(container.querySelector('pre')).toHaveTextContent('alpha');
   });
 
   it('omits numbers for a no-line-numbers language but still highlights', async () => {

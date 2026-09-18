@@ -1,24 +1,111 @@
 import type { ElementContent } from 'hast';
 
+const LINE_NUMBERS_SUFFIX = '|line-numbers';
 const NO_LINE_NUMBERS_SUFFIX = '|no-line-numbers';
 
 export const LINE_NUMBER_DIGITS_VARIABLE = '--code-line-number-digits';
 
 /**
- * Splits a language tag such as `cpp|no-line-numbers` into the real language
- * and whether the code block should render line numbers (on by default).
+ * Splits a language tag such as `cpp`, `cpp|line-numbers`, or
+ * `cpp|no-line-numbers` into the real language and the explicit line-number
+ * choice. `lineNumbers` is left `undefined` when the tag carries no flag so
+ * each caller can apply its own default.
  */
 export function parseCodeLanguage(language: string): {
   language: string;
-  lineNumbers: boolean;
+  lineNumbers?: boolean;
 } {
-  if (!language.endsWith(NO_LINE_NUMBERS_SUFFIX)) {
-    return { language, lineNumbers: true };
+  if (language.endsWith(NO_LINE_NUMBERS_SUFFIX)) {
+    return {
+      language: language.slice(0, -NO_LINE_NUMBERS_SUFFIX.length),
+      lineNumbers: false,
+    };
   }
-  return {
-    language: language.slice(0, -NO_LINE_NUMBERS_SUFFIX.length),
-    lineNumbers: false,
-  };
+  if (language.endsWith(LINE_NUMBERS_SUFFIX)) {
+    return {
+      language: language.slice(0, -LINE_NUMBERS_SUFFIX.length),
+      lineNumbers: true,
+    };
+  }
+  return { language };
+}
+
+// Languages that render line numbers by default: the programming, markup,
+// and configuration languages commonly fenced in site content. Plain-text
+// flags and unrecognized languages do not number their lines unless the tag
+// carries an explicit `|line-numbers` flag.
+const COMMON_CODE_LANGUAGES = new Set([
+  'c',
+  'cc',
+  'cpp',
+  'c++',
+  'cs',
+  'csharp',
+  'java',
+  'python',
+  'py',
+  'javascript',
+  'js',
+  'jsx',
+  'typescript',
+  'ts',
+  'tsx',
+  'go',
+  'golang',
+  'rust',
+  'rs',
+  'kotlin',
+  'kt',
+  'swift',
+  'ruby',
+  'rb',
+  'php',
+  'scala',
+  'lua',
+  'perl',
+  'pl',
+  'haskell',
+  'hs',
+  'pascal',
+  'ocaml',
+  'erlang',
+  'elixir',
+  'clojure',
+  'dart',
+  'r',
+  'bash',
+  'sh',
+  'shell',
+  'zsh',
+  'sql',
+  'html',
+  'css',
+  'scss',
+  'less',
+  'xml',
+  'markdown',
+  'md',
+  'latex',
+  'tex',
+  'json',
+  'yaml',
+  'yml',
+  'toml',
+  'ini',
+  'dockerfile',
+  'docker',
+  'makefile',
+  'diff',
+  'graphql',
+]);
+
+/**
+ * Whether the language is a common code language that renders line numbers
+ * by default. Matched case-insensitively against the flag written on the
+ * fence.
+ */
+export function isCommonCodeLanguage(language: string): boolean {
+  return COMMON_CODE_LANGUAGES.has(language.toLowerCase());
 }
 
 const LINE_BREAK = /(\r\n|[\n\r])/;

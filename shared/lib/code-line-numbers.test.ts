@@ -1,5 +1,6 @@
 import {
   addLineNumbers,
+  isCommonCodeLanguage,
   parseCodeLanguage,
 } from '@/shared/lib/code-line-numbers';
 import type { Element, ElementContent } from 'hast';
@@ -25,9 +26,17 @@ function textOf(children: ElementContent[]): string {
 }
 
 describe('parseCodeLanguage', () => {
-  it('keeps plain languages numbered', () => {
-    expect(parseCodeLanguage('cpp')).toEqual({
-      language: 'cpp',
+  it('leaves unflagged languages to the caller default', () => {
+    expect(parseCodeLanguage('cpp')).toEqual({ language: 'cpp' });
+  });
+
+  it('strips the line-numbers suffix', () => {
+    expect(parseCodeLanguage('text|line-numbers')).toEqual({
+      language: 'text',
+      lineNumbers: true,
+    });
+    expect(parseCodeLanguage('|line-numbers')).toEqual({
+      language: '',
       lineNumbers: true,
     });
   });
@@ -41,6 +50,27 @@ describe('parseCodeLanguage', () => {
       language: '',
       lineNumbers: false,
     });
+  });
+});
+
+describe('isCommonCodeLanguage', () => {
+  it.each(['cpp', 'c++', 'python', 'yaml', 'json', 'html', 'bash', 'md'])(
+    'recognizes %s as a common code language',
+    (language) => {
+      expect(isCommonCodeLanguage(language)).toBe(true);
+    }
+  );
+
+  it.each(['', 'text', 'txt', 'plain', 'plaintext', 'unknown-language'])(
+    'rejects %j',
+    (language) => {
+      expect(isCommonCodeLanguage(language)).toBe(false);
+    }
+  );
+
+  it('matches case-insensitively', () => {
+    expect(isCommonCodeLanguage('Python')).toBe(true);
+    expect(isCommonCodeLanguage('CPP')).toBe(true);
   });
 });
 
