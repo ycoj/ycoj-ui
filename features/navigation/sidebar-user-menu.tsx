@@ -25,6 +25,7 @@ import {
   Settings,
   Sun,
   UserRound,
+  Award,
 } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
@@ -162,6 +163,12 @@ export default function SidebarUserMenu({
             <Link href="/home/realname">
               <BadgeCheck aria-hidden="true" />
               <span data-llm-text={t('realname')}>{t('realname')}</span>
+            </Link>
+          </DropdownMenuPrimitive.Item>
+          <DropdownMenuPrimitive.Item asChild className={menuItemClassName}>
+            <Link href="/home/award">
+              <Award aria-hidden="true" />
+              <span data-llm-text={t('award')}>{t('award')}</span>
             </Link>
           </DropdownMenuPrimitive.Item>
           <DropdownMenuPrimitive.Item asChild className={menuItemClassName}>

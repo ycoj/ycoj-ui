@@ -2,6 +2,7 @@ import accountExpiration from './account-expiration.json';
 import accountSettings from './account-settings.json';
 import auth from './auth.json';
 import autoComplete from './auto-complete.json';
+import award from './award.json';
 import checkin from './checkin.json';
 import common from './common.json';
 import contestCreate from './contest-create.json';
@@ -52,6 +53,7 @@ const catalog = {
   manage,
   sudo,
   accountExpiration,
+  award,
   common,
   autoComplete,
   omnibar,

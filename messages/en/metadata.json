@@ -43,6 +43,8 @@
   "realname": "Real-name verification",
   "realnameResult": "Verification result",
   "realnameManage": "Real-name review",
+  "awardCertification": "Award certification",
+  "awardManage": "Award certification management",
   "preliminaryList": "Preliminary training",
   "preliminaryDetail": "Paper detail",
   "preliminaryAttempt": "Attempt result",

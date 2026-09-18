@@ -3,5 +3,6 @@
   "realname": "实名认证审核",
   "expiration": "账号有效期",
   "userImport": "导入用户",
-  "problemFeedback": "题目反馈"
+  "problemFeedback": "题目反馈",
+  "award": "奖项认证"
 }
