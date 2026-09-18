@@ -6,12 +6,7 @@ import {
 } from '@/features/manage/manage-access';
 import { PRIV } from '@/features/user/lib/priv';
 import { cn } from '@/shared/lib/utils';
-import {
-  CalendarClock,
-  MessageSquareWarning,
-  UserCheck,
-  UserPlus,
-} from 'lucide-react';
+import { CalendarClock, UserCheck, UserPlus } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -34,11 +29,6 @@ export default function ManageSidebar({ priv }: { priv: number }) {
       : []),
     ...(canManageExpiration({ priv })
       ? [
-          {
-            href: '/manage/problem-feedback',
-            label: t('problemFeedback'),
-            icon: MessageSquareWarning,
-          },
           {
             href: '/manage/user-expiration',
             label: t('expiration'),

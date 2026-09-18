@@ -3,7 +3,7 @@
 import ProblemCreateOrImportDialog from './problem-create-or-import-dialog';
 import { Button } from '@/shared/components/ui/button';
 import { Input } from '@/shared/components/ui/input';
-import { ListChecks, Search } from 'lucide-react';
+import { ListChecks, MessageSquareWarning, Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -12,9 +12,14 @@ import { type FormEvent, useState } from 'react';
 type Props = {
   canCreate: boolean;
   canReview?: boolean;
+  canManageFeedback?: boolean;
 };
 
-export default function ProblemSearch({ canCreate, canReview = false }: Props) {
+export default function ProblemSearch({
+  canCreate,
+  canReview = false,
+  canManageFeedback = false,
+}: Props) {
   const t = useTranslations('problem');
   const reviewT = useTranslations('solution.review');
   const router = useRouter();
@@ -59,6 +64,19 @@ export default function ProblemSearch({ canCreate, canReview = false }: Props) {
         >
           <Link href="/problem/solution-review" prefetch={false}>
             <ListChecks />
+          </Link>
+        </Button>
+      )}
+      {canManageFeedback && (
+        <Button
+          asChild
+          variant="outline"
+          size="icon"
+          aria-label={t('feedbackManage')}
+          title={t('feedbackManage')}
+        >
+          <Link href="/manage/problem-feedback" prefetch={false}>
+            <MessageSquareWarning />
           </Link>
         </Button>
       )}

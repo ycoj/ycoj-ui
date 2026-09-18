@@ -1,4 +1,5 @@
 import ServerApis from '@/api/server/method';
+import { canEditSystem } from '@/features/manage/manage-access';
 import ProblemList from '@/features/problem/list/problem-list';
 import ProblemSearch from '@/features/problem/list/problem-search';
 import { getUser } from '@/features/user/lib/get-user';
@@ -35,6 +36,7 @@ export default async function ProblemListPage({
       <ProblemSearch
         canCreate={hasPerm(user, PERM.PERM_CREATE_PROBLEM)}
         canReview={hasPerm(user, PERM.PERM_DELETE_PROBLEM_SOLUTION)}
+        canManageFeedback={canEditSystem(user)}
       />
       <ProblemList
         data={data}

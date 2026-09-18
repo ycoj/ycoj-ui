@@ -31,12 +31,6 @@ export default function ContestScoreboard({
 
   return (
     <div className="space-y-6" data-llm-visible="true">
-      <ScoreboardToolbar
-        tid={tid}
-        pageType={pageType}
-        availableViews={availableViews}
-        tdoc={tdoc}
-      />
       {rows.length > 1 ? (
         <ScoreboardTableFilter
           key={filter}
@@ -48,19 +42,34 @@ export default function ContestScoreboard({
           currentUid={currentUid}
           groups={groups}
           filter={filter}
-        />
+        >
+          <ScoreboardToolbar
+            tid={tid}
+            pageType={pageType}
+            availableViews={availableViews}
+            tdoc={tdoc}
+          />
+        </ScoreboardTableFilter>
       ) : (
-        <Empty data-llm-visible="true">
-          <EmptyMedia variant="icon">
-            <Clipboard strokeWidth={2} />
-          </EmptyMedia>
-          <EmptyHeader>
-            <EmptyTitle data-llm-text={t('noData')}>{t('noData')}</EmptyTitle>
-            <EmptyDescription data-llm-text={t('noSubmissions')}>
-              {t('noSubmissions')}
-            </EmptyDescription>
-          </EmptyHeader>
-        </Empty>
+        <>
+          <ScoreboardToolbar
+            tid={tid}
+            pageType={pageType}
+            availableViews={availableViews}
+            tdoc={tdoc}
+          />
+          <Empty data-llm-visible="true">
+            <EmptyMedia variant="icon">
+              <Clipboard strokeWidth={2} />
+            </EmptyMedia>
+            <EmptyHeader>
+              <EmptyTitle data-llm-text={t('noData')}>{t('noData')}</EmptyTitle>
+              <EmptyDescription data-llm-text={t('noSubmissions')}>
+                {t('noSubmissions')}
+              </EmptyDescription>
+            </EmptyHeader>
+          </Empty>
+        </>
       )}
     </div>
   );

@@ -8,11 +8,18 @@ import {
 } from './scoreboard-filter';
 import ScoreboardTable from './scoreboard-table';
 import { Button } from '@/shared/components/ui/button';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/shared/components/ui/select';
 import type { GDoc, ScoreboardRow } from '@/shared/types/contest';
 import type { ProblemDict } from '@/shared/types/problem';
 import type { BaseUserDict } from '@/shared/types/user';
 import { useTranslations } from 'next-intl';
-import { useMemo, useState, type FormEvent } from 'react';
+import { useMemo, useState, useSyncExternalStore, type ReactNode } from 'react';
 
 type Props = {
   rows: ScoreboardRow[];
@@ -23,7 +30,12 @@ type Props = {
   currentUid?: number;
   groups: GDoc[];
   filter?: string;
+  children?: ReactNode;
 };
+
+const subscribeToHydration = () => () => {};
+const getClientHydrationSnapshot = () => true;
+const getServerHydrationSnapshot = () => false;
 
 export default function ScoreboardTableFilter({
   rows,
@@ -34,9 +46,15 @@ export default function ScoreboardTableFilter({
   currentUid,
   groups,
   filter: initialFilter,
+  children: toolbar,
 }: Props) {
   const t = useTranslations('scoreboard');
   const common = useTranslations('common');
+  const hydrated = useSyncExternalStore(
+    subscribeToHydration,
+    getClientHydrationSnapshot,
+    getServerHydrationSnapshot
+  );
   const [filter, setFilter] = useState(() =>
     normalizeScoreboardFilter(initialFilter, groups)
   );
@@ -62,46 +80,65 @@ export default function ScoreboardTableFilter({
     );
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const value = new FormData(event.currentTarget).get('filter');
-    applyFilter(
-      normalizeScoreboardFilter(
-        typeof value === 'string' ? value : undefined,
-        groups
-      )
-    );
-  }
-
   return (
     <div className="space-y-3">
-      <form
-        method="get"
-        onSubmit={handleSubmit}
-        className="flex flex-wrap items-center justify-end gap-2"
-      >
-        <label htmlFor="scoreboard-filter" className="sr-only">
-          {t('filterUsers')}
-        </label>
-        <select
-          id="scoreboard-filter"
-          name="filter"
-          value={filter}
-          onChange={(event) => applyFilter(event.target.value)}
-          className="border-input focus-visible:border-ring focus-visible:ring-ring/50 h-8 rounded-lg border bg-transparent px-2.5 text-sm outline-none transition-colors focus-visible:ring-3"
-        >
-          <option value={SCOREBOARD_FILTER_ALL}>{t('allUsers')}</option>
-          <option value={SCOREBOARD_FILTER_RANKED}>{t('rankedUsers')}</option>
-          {groups.map((group) => (
-            <option key={group._id} value={group._id}>
-              {group.name}
-            </option>
-          ))}
-        </select>
-        <Button type="submit" variant="secondary" size="sm">
-          {common('filter')}
-        </Button>
-      </form>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        {toolbar}
+        <div>
+          <label htmlFor="scoreboard-filter" className="sr-only">
+            {t('filterUsers')}
+          </label>
+          {hydrated ? (
+            <Select value={filter} onValueChange={applyFilter}>
+              <SelectTrigger
+                id="scoreboard-filter"
+                className="w-48"
+                aria-label={t('filterUsers')}
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent position="popper" align="end">
+                <SelectItem value={SCOREBOARD_FILTER_ALL}>
+                  {t('allUsers')}
+                </SelectItem>
+                <SelectItem value={SCOREBOARD_FILTER_RANKED}>
+                  {t('rankedUsers')}
+                </SelectItem>
+                {groups.map((group) => (
+                  <SelectItem key={group._id} value={group._id}>
+                    {group.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <form method="get" className="flex items-center gap-2">
+              <label htmlFor="scoreboard-filter-no-script" className="sr-only">
+                {t('filterUsers')}
+              </label>
+              <select
+                id="scoreboard-filter-no-script"
+                name="filter"
+                defaultValue={filter}
+                className="border-input h-8 rounded-lg border bg-transparent px-2.5 text-sm"
+              >
+                <option value={SCOREBOARD_FILTER_ALL}>{t('allUsers')}</option>
+                <option value={SCOREBOARD_FILTER_RANKED}>
+                  {t('rankedUsers')}
+                </option>
+                {groups.map((group) => (
+                  <option key={group._id} value={group._id}>
+                    {group.name}
+                  </option>
+                ))}
+              </select>
+              <Button type="submit" variant="secondary" size="sm">
+                {common('filter')}
+              </Button>
+            </form>
+          )}
+        </div>
+      </div>
 
       {visibleRows.length > 1 ? (
         <ScoreboardTable

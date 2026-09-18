@@ -81,7 +81,7 @@ export default function RealnameReviewFilter({ value, username }: Props) {
           <ListFilter className="size-4 text-muted-foreground" />
           <SelectValue />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent position="popper" align="start">
           {statuses.map((status) => (
             <SelectItem key={status} value={status}>
               {t(`filter.${status}`)}

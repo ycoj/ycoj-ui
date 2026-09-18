@@ -57,6 +57,14 @@ function renderTable(filter?: string) {
   );
 }
 
+async function chooseFilter(value: string) {
+  const user = userEvent.setup();
+  await user.click(
+    screen.getByRole('combobox', { name: 'Filter participants' })
+  );
+  await user.click(await screen.findByRole('option', { name: value }));
+}
+
 describe('scoreboard participant filtering', () => {
   it('shows every participant by default', () => {
     renderTable();
@@ -64,16 +72,13 @@ describe('scoreboard participant filtering', () => {
     expect(screen.getByText('alice')).toBeInTheDocument();
     expect(screen.getByText('bob')).toBeInTheDocument();
     expect(screen.getByText('carol')).toBeInTheDocument();
+    expect(document.querySelector('img[src=""]')).not.toBeInTheDocument();
   });
 
   it('narrows to the selected group, hiding other participants', async () => {
-    const user = userEvent.setup();
     renderTable();
 
-    await user.selectOptions(
-      screen.getByRole('combobox', { name: 'Filter participants' }),
-      'g1'
-    );
+    await chooseFilter('Alpha');
 
     expect(screen.getByText('alice')).toBeInTheDocument();
     expect(screen.getByText('carol')).toBeInTheDocument();
@@ -82,13 +87,9 @@ describe('scoreboard participant filtering', () => {
   });
 
   it('hides unranked participants in the ranked filter', async () => {
-    const user = userEvent.setup();
     renderTable();
 
-    await user.selectOptions(
-      screen.getByRole('combobox', { name: 'Filter participants' }),
-      'ranked'
-    );
+    await chooseFilter('Ranked users');
 
     expect(screen.getByText('alice')).toBeInTheDocument();
     expect(screen.getByText('bob')).toBeInTheDocument();
@@ -96,13 +97,9 @@ describe('scoreboard participant filtering', () => {
   });
 
   it('restores every participant when switching back to all users', async () => {
-    const user = userEvent.setup();
     renderTable('g1');
 
-    await user.selectOptions(
-      screen.getByRole('combobox', { name: 'Filter participants' }),
-      'all'
-    );
+    await chooseFilter('All users');
 
     expect(screen.getByText('bob')).toBeInTheDocument();
     expect(window.location.search).not.toContain('filter=');
@@ -116,13 +113,9 @@ describe('scoreboard participant filtering', () => {
   });
 
   it('explains an empty result instead of rendering an empty table', async () => {
-    const user = userEvent.setup();
     renderTable();
 
-    await user.selectOptions(
-      screen.getByRole('combobox', { name: 'Filter participants' }),
-      'g2'
-    );
+    await chooseFilter('Empty');
 
     expect(
       screen.getByText('No participants match this filter.')
