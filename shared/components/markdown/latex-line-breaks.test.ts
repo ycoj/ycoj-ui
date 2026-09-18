@@ -23,7 +23,7 @@ describe('preserveLatexLineBreaks', () => {
     expect(preserveLatexLineBreaks(source)).toBe(String.raw`\`$a \\\\ b$\``);
   });
 
-  it('does not change prose, fenced code, or existing longer runs', () => {
+  it('does not change prose, fenced code, or code spans', () => {
     const source = [
       String.raw`text \\ text`,
       '',
@@ -31,7 +31,7 @@ describe('preserveLatexLineBreaks', () => {
       String.raw`$a \\ b$`,
       '```',
       '',
-      String.raw`$$a \\\\ b$$`,
+      '`$a \\ b$`',
     ].join('\n');
 
     expect(preserveLatexLineBreaks(source)).toBe(source);
@@ -68,9 +68,51 @@ describe('preserveLatexLineBreaks', () => {
     expect(preserveLatexLineBreaks(source)).toBe(source);
   });
 
-  it('leaves ordinary LaTeX commands unchanged', () => {
-    expect(preserveLatexLineBreaks(String.raw`$\frac{a}{b}$`)).toBe(
-      String.raw`$\frac{a}{b}$`
+  it('doubles every backslash run inside math', () => {
+    expect(preserveLatexLineBreaks(String.raw`$$a \\\\ b$$`)).toBe(
+      String.raw`$$a \\\\\\\\ b$$`
     );
+    expect(preserveLatexLineBreaks(String.raw`$a\\\%b$`)).toBe(
+      String.raw`$a\\\\\\%b$`
+    );
+  });
+
+  it('doubles a lone backslash at the end of a math line', () => {
+    expect(preserveLatexLineBreaks('$$\na\\\nb\n$$')).toBe('$$\na\\\\\nb\n$$');
+  });
+
+  it('doubles backslashes of ordinary LaTeX commands', () => {
+    expect(preserveLatexLineBreaks(String.raw`$\frac{a}{b}$`)).toBe(
+      String.raw`$\\frac{a}{b}$`
+    );
+  });
+
+  it('escapes markdown-active characters inside math', () => {
+    expect(preserveLatexLineBreaks(String.raw`$a*b$`)).toBe(String.raw`$a\*b$`);
+    expect(preserveLatexLineBreaks(String.raw`$a~b~c$`)).toBe(
+      String.raw`$a\~b\~c$`
+    );
+    expect(preserveLatexLineBreaks(String.raw`$x_i$`)).toBe(String.raw`$x\_i$`);
+    expect(preserveLatexLineBreaks(String.raw`$a<b>c$`)).toBe(
+      String.raw`$a\<b>c$`
+    );
+  });
+
+  it('escapes already-escaped markdown-active characters consistently', () => {
+    expect(preserveLatexLineBreaks(String.raw`$a\*b$`)).toBe(
+      String.raw`$a\\\*b$`
+    );
+    expect(preserveLatexLineBreaks(String.raw`$x\_i$`)).toBe(
+      String.raw`$x\\\_i$`
+    );
+    expect(preserveLatexLineBreaks(String.raw`$a\<b$`)).toBe(
+      String.raw`$a\\\<b$`
+    );
+  });
+
+  it('does not escape markdown-active characters outside math', () => {
+    const source = String.raw`*em* x_i a<b> ~~del~~ \\ text`;
+
+    expect(preserveLatexLineBreaks(source)).toBe(source);
   });
 });

@@ -90,31 +90,30 @@ function isEscaped(source: string, index: number) {
   return backslashes % 2 === 1;
 }
 
-function preserveLatexBackslashes(source: string) {
+const MARKDOWN_ACTIVE_CHARACTERS = new Set(['*', '<', '_', '~']);
+
+function escapeLatexForMarkdown(content: string) {
   let result = '';
 
-  for (let index = 0; index < source.length;) {
-    if (source[index] !== '\\') {
-      result += source[index];
-      index += 1;
+  for (let index = 0; index < content.length;) {
+    const char = content[index];
+
+    if (char === '\\') {
+      let end = index;
+      while (content[end] === '\\') end += 1;
+      // Markdown consumes one level of backslash escapes, so double every
+      // run: N backslashes survive as N literal backslashes for KaTeX.
+      result += '\\'.repeat((end - index) * 2);
+      index = end;
       continue;
     }
 
-    let end = index;
-    while (source[end] === '\\') end += 1;
-    const count = end - index;
-    const isMarkdownEscape =
-      count === 1 &&
-      source[end] !== undefined &&
-      /[!-/:-@[-`{-~]/.test(source[end]);
-
-    result +=
-      count === 2
-        ? '\\\\\\\\'
-        : isMarkdownEscape
-          ? '\\\\'
-          : source.slice(index, end);
-    index = end;
+    // `*`, `<`, `_`, and `~` would otherwise be consumed by markdown
+    // (emphasis, strikethrough, raw HTML) before KaTeX runs. A markdown
+    // escape renders as the bare character, so the text KaTeX sees stays
+    // identical to the LaTeX source.
+    result += MARKDOWN_ACTIVE_CHARACTERS.has(char) ? `\\${char}` : char;
+    index += 1;
   }
 
   return result;
@@ -190,7 +189,7 @@ export function preserveLatexLineBreaks(source: string) {
     }
 
     result += delimiter;
-    result += preserveLatexBackslashes(source.slice(contentStart, contentEnd));
+    result += escapeLatexForMarkdown(source.slice(contentStart, contentEnd));
     result += delimiter;
     index = contentEnd + delimiter.length;
   }

@@ -96,6 +96,59 @@ describe('Markdown math rendering', () => {
       );
     });
   });
+
+  it('renders escaped punctuation and literal underscores', async () => {
+    const { container } = await renderMarkdownWithKatex(
+      String.raw`$a\_b \& c \# d \{e\}$`
+    );
+
+    await waitFor(() => {
+      expect(container.querySelector('.katex-html')).toHaveTextContent(
+        'a_b&c#d{e}'
+      );
+    });
+  });
+
+  it('renders subscripts after underscore escaping', async () => {
+    const { container } = await renderMarkdownWithKatex(
+      String.raw`$x_i^2 + y_{jk}$`
+    );
+
+    await waitFor(() => {
+      expect(container.querySelector('annotation')).toHaveTextContent(
+        'x_i^2 + y_{jk}'
+      );
+    });
+  });
+
+  it('renders bare asterisks in math', async () => {
+    const { container } = await renderMarkdownWithKatex(
+      String.raw`$a^{*}b^{*}$`
+    );
+
+    await waitFor(() => {
+      expect(container.querySelector('.katex-html')).toHaveTextContent('a∗b∗');
+    });
+  });
+
+  it('renders angle brackets in math', async () => {
+    const { container } = await renderMarkdownWithKatex(String.raw`$a<b>c$`);
+
+    await waitFor(() => {
+      expect(container.querySelector('.katex-html')).toHaveTextContent('a<b>c');
+    });
+  });
+
+  it('renders tildes as spacing instead of strikethrough', async () => {
+    const { container } = await renderMarkdownWithKatex(String.raw`$a~b~c$`);
+
+    await waitFor(() => {
+      const math = container.querySelector('.katex-html');
+      expect(math).not.toBeNull();
+      expect(math?.textContent).toMatch(/^a\s+b\s+c$/);
+      expect(container.querySelector('del')).not.toBeInTheDocument();
+    });
+  });
 });
 
 describe('Markdown PDF rendering', () => {
