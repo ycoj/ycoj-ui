@@ -9,7 +9,7 @@ import {
   getPreliminarySectionStarts,
   getQuestionDisplayNumber,
 } from '@/features/preliminary/lib/preliminary-utils';
-import Markdown from '@/shared/components/markdown';
+import PreliminaryMarkdown from '@/features/preliminary/markdown/preliminary-markdown';
 import { Badge } from '@/shared/components/ui/badge';
 import {
   Card,
@@ -50,7 +50,7 @@ export default function PreliminaryContent({ data, isReadOnly }: Props) {
         </CardHeader>
         {description && (
           <CardContent className="px-4 md:px-6">
-            <Markdown>{description}</Markdown>
+            <PreliminaryMarkdown>{description}</PreliminaryMarkdown>
           </CardContent>
         )}
       </Card>
@@ -85,7 +85,7 @@ export default function PreliminaryContent({ data, isReadOnly }: Props) {
                     {t('totalScore', { count: question.score })}
                   </span>
                 </div>
-                <Markdown>{question.prompt}</Markdown>
+                <PreliminaryMarkdown>{question.prompt}</PreliminaryMarkdown>
                 <fieldset
                   disabled={isReadOnly}
                   aria-label={String(displayNumber)}

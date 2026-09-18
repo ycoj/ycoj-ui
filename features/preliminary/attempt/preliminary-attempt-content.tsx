@@ -10,7 +10,7 @@ import {
   getPreliminarySectionStarts,
   getQuestionDisplayNumber,
 } from '@/features/preliminary/lib/preliminary-utils';
-import Markdown from '@/shared/components/markdown';
+import PreliminaryMarkdown from '@/features/preliminary/markdown/preliminary-markdown';
 import { Badge } from '@/shared/components/ui/badge';
 import {
   Card,
@@ -104,7 +104,7 @@ function ReviewQuestion({
           {question.result.score} / {question.result.maxScore}
         </span>
       </div>
-      <Markdown>{question.prompt}</Markdown>
+      <PreliminaryMarkdown>{question.prompt}</PreliminaryMarkdown>
       <div className="space-y-2">
         {getPreliminaryOptionInfos(question).map((info) => (
           <ReviewOption
@@ -128,7 +128,7 @@ function ReviewQuestion({
           >
             {t('explanation')}
           </h4>
-          <Markdown>{question.explanation}</Markdown>
+          <PreliminaryMarkdown>{question.explanation}</PreliminaryMarkdown>
         </div>
       )}
     </li>
@@ -167,7 +167,9 @@ export default function PreliminaryAttemptContent({ data }: Props) {
               timeStyle: 'short',
             })}
           </p>
-          {description && <Markdown>{description}</Markdown>}
+          {description && (
+            <PreliminaryMarkdown>{description}</PreliminaryMarkdown>
+          )}
         </CardContent>
       </Card>
 
