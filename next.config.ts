@@ -11,6 +11,8 @@ const uploadBaseUrl =
   process.env.NEXT_PUBLIC_UPLOAD_BASEURL?.replace(/\/+$/, '') ??
   backendBaseUrl ??
   '';
+const assetPrefix =
+  process.env.NODE_ENV === 'production' ? 'https://next-cdn.ycoj.cc' : '';
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ['@resvg/resvg-js'],
@@ -38,11 +40,11 @@ const nextConfig: NextConfig = {
     ],
   },
   env: {
+    NEXT_PUBLIC_CLANGD_ASSET_PREFIX: assetPrefix,
     NEXT_PUBLIC_UPLOAD_BASEURL: uploadBaseUrl,
     SITE_NAME: process.env.SITE_NAME ?? '',
   },
-  assetPrefix:
-    process.env.NODE_ENV === 'production' ? 'https://next-cdn.ycoj.cc' : '',
+  assetPrefix,
   async redirects() {
     return [
       {

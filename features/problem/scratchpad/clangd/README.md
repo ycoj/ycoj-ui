@@ -12,9 +12,11 @@ workers.
 `pnpm build` runs `pnpm prepare:clangd` before Next.js. This verifies the pinned
 runtime already checked into `public/clangd/v2/`; both the JavaScript loader and
 Wasm binary are tracked with Git LFS. The build does not download Clangd assets.
-Keep this directory in deployments and serve `/clangd/` from the same origin as
-the application. No LLVM compilation takes place during the build. To verify
-assets for a development environment, run `pnpm prepare:clangd` explicitly.
+Keep this directory in deployments and publish `/clangd/` through the configured
+static asset CDN. Production scratchpad workers load the runtime from that CDN;
+development and the standalone smoke test serve it from the application origin.
+No LLVM compilation takes place during the build. To verify assets for a
+development environment, run `pnpm prepare:clangd` explicitly.
 
 The source is the [clangd-in-browser project](https://github.com/guyutongxue/clangd-in-browser).
 Checksums in `scripts/prepare-clangd.mjs` pin the JavaScript and Wasm snapshot.
@@ -33,13 +35,12 @@ and the worker assets. The opt-in button saves the current draft before a full
 navigation and reopens the scratchpad. Ordinary page requests do not receive
 these isolation headers. Reverse proxies must retain the query string and the
 headers. Cross-origin CORS requests (including fonts and module scripts) still
-need suitable CORS responses from the host serving those assets. The clangd
-runtime itself is always fetched from the application server.
+need suitable CORS responses from the CDN. Test the actual CDN deployment.
 
 ## Resource and compiler limits
 
 - The Wasm asset is 126,550,863 bytes before HTTP compression. Enable gzip or
-  Brotli at the application server. Versioned assets are cached for a year.
+  Brotli at the CDN. Versioned assets are cached for a year.
 - The runtime reserves 2 GiB of shared Wasm memory and can grow to 4 GiB. Browser
   memory reporting is approximate, not a measurement of available RAM. Devices
   reporting less than 8 GiB are gated out; browsers without that API can opt in

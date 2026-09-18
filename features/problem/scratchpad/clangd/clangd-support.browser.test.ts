@@ -4,6 +4,7 @@ import {
   getClangdReloadUrl,
   getClangdStandard,
   getClangdSupport,
+  getClangdWorkerUrl,
 } from './clangd-support';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -95,5 +96,21 @@ describe('clangd compiler selection', () => {
     expect(url.searchParams.get(CLANGD_ISOLATION_PARAM)).toBe('1');
     expect(url.searchParams.get(SCRATCHPAD_OPEN_PARAM)).toBe('1');
     expect(url.hash).toBe('#sample');
+  });
+});
+
+describe('clangd asset URLs', () => {
+  it('loads the worker from the configured CDN prefix', () => {
+    vi.stubEnv('NEXT_PUBLIC_CLANGD_ASSET_PREFIX', 'https://next-cdn.ycoj.cc/');
+
+    expect(getClangdWorkerUrl()).toBe(
+      'https://next-cdn.ycoj.cc/clangd/worker.mjs'
+    );
+  });
+
+  it('uses the application origin when no CDN prefix is configured', () => {
+    vi.stubEnv('NEXT_PUBLIC_CLANGD_ASSET_PREFIX', '');
+
+    expect(getClangdWorkerUrl()).toBe('/clangd/worker.mjs');
   });
 });

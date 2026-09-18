@@ -41,15 +41,11 @@ async function start(standard) {
   if (!/^gnu\+\+(98|11|14|17|20|23|26)$/.test(standard)) {
     throw new Error('Unsupported C++ standard');
   }
-  const clangdAssetBaseUrl = new URL('/clangd/v2/', self.location.origin);
   const { default: Clangd } = await import('./v2/clangd.js');
   const decoder = new MessageDecoder((message) => {
     globalThis.postMessage({ type: 'rpc', message });
   });
   const clangd = await Clangd({
-    // The application server owns the Wasm runtime. Do not let the generated
-    // loader resolve the binary through the Next.js asset CDN prefix.
-    locateFile: (path) => new URL(path, clangdAssetBaseUrl).href,
     thisProgram: '/usr/bin/clangd',
     stdinReady: () => input.ready(),
     stdin: () => input.read(),

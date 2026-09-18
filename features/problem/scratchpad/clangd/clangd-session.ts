@@ -6,6 +6,7 @@ import type {
   Markup,
   Range,
 } from './clangd-protocol';
+import { getClangdWorkerUrl } from './clangd-support';
 import type { ClangdStatus } from './clangd-support';
 import type { OnMount } from '@monaco-editor/react';
 import type * as MonacoApi from 'monaco-editor';
@@ -51,7 +52,7 @@ export function startClangdSession(
     4: monaco.MarkerSeverity.Hint,
   };
   const connection = new ClangdConnection(
-    new Worker('/clangd/worker.mjs', {
+    new Worker(getClangdWorkerUrl(), {
       type: 'module',
       name: 'scratchpad-clangd',
     }),
