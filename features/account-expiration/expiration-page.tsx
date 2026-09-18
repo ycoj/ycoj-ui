@@ -59,22 +59,24 @@ export default function ExpirationPage({ state, query }: Props) {
       data-llm-visible="true"
       aria-busy={refreshing}
     >
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold" data-llm-text={t('title')}>
-            {t('title')}
-          </h1>
-          {state.kind === 'data' && (
-            <p
-              className="mt-1 text-sm text-muted-foreground"
-              data-llm-text={t('count', { count: state.data.count })}
-            >
-              {t('count', { count: state.data.count })}
-            </p>
-          )}
-        </div>
-        {state.kind === 'data' && <ExpirationFilter query={query} />}
-      </div>
+      <header className="space-y-2">
+        <h1
+          className="flex items-center gap-2 text-xl font-semibold"
+          data-llm-text={t('title')}
+        >
+          <CalendarClock className="size-5" aria-hidden="true" />
+          {t('title')}
+        </h1>
+        {state.kind === 'data' && (
+          <p
+            className="text-sm text-muted-foreground"
+            data-llm-text={t('count', { count: state.data.count })}
+          >
+            {t('count', { count: state.data.count })}
+          </p>
+        )}
+      </header>
+      {state.kind === 'data' && <ExpirationFilter query={query} />}
       {state.kind === 'error' && (
         <div className="space-y-3 rounded-lg border p-5">
           <p role="alert" data-llm-text={state.message}>
