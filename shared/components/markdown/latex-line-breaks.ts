@@ -90,7 +90,7 @@ function isEscaped(source: string, index: number) {
   return backslashes % 2 === 1;
 }
 
-function doubleLineBreaks(source: string) {
+function preserveLatexBackslashes(source: string) {
   let result = '';
 
   for (let index = 0; index < source.length;) {
@@ -103,7 +103,17 @@ function doubleLineBreaks(source: string) {
     let end = index;
     while (source[end] === '\\') end += 1;
     const count = end - index;
-    result += count === 2 ? '\\\\\\\\' : source.slice(index, end);
+    const isMarkdownEscape =
+      count === 1 &&
+      source[end] !== undefined &&
+      /[!-/:-@[-`{-~]/.test(source[end]);
+
+    result +=
+      count === 2
+        ? '\\\\\\\\'
+        : isMarkdownEscape
+          ? '\\\\'
+          : source.slice(index, end);
     index = end;
   }
 
@@ -180,7 +190,7 @@ export function preserveLatexLineBreaks(source: string) {
     }
 
     result += delimiter;
-    result += doubleLineBreaks(source.slice(contentStart, contentEnd));
+    result += preserveLatexBackslashes(source.slice(contentStart, contentEnd));
     result += delimiter;
     index = contentEnd + delimiter.length;
   }

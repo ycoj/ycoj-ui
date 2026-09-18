@@ -1,7 +1,7 @@
 import Markdown from '.';
 import messages from '@/messages/en';
 import { resolveFileUrls } from '@/shared/lib/resolve-file-urls';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import { Children, type ReactElement, type ReactNode } from 'react';
@@ -55,6 +55,24 @@ async function renderMarkdownDocument(source: string) {
   });
 }
 
+async function renderMarkdownWithKatex(source: string) {
+  const markdown = Markdown({ children: source });
+  const children = Children.toArray(
+    (markdown.props as { children: ReactNode }).children
+  );
+  const asyncMarkdown = children[0] as ReactElement<Options>;
+  const katexClientRender = children[1];
+  const rendered = await MarkdownAsync(asyncMarkdown.props);
+
+  return render(
+    <div className="markdown">
+      {rendered}
+      {katexClientRender}
+    </div>,
+    { wrapper: markdownWrapper }
+  );
+}
+
 describe('Markdown highlighter reuse', () => {
   it('does not rebuild the syntax highlighter for every block', async () => {
     const builtBefore = mocks.highlighterFactories;
@@ -63,6 +81,20 @@ describe('Markdown highlighter reuse', () => {
     await renderMarkdown('second block');
 
     expect(mocks.highlighterFactories).toBe(builtBefore);
+  });
+});
+
+describe('Markdown math rendering', () => {
+  it('renders escaped percent signs alongside LaTeX commands', async () => {
+    const { container } = await renderMarkdownWithKatex(
+      String.raw`$50\% \le 100\%$`
+    );
+
+    await waitFor(() => {
+      expect(container.querySelector('.katex-html')).toHaveTextContent(
+        '50%≤100%'
+      );
+    });
   });
 });
 

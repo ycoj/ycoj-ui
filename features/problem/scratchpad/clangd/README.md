@@ -33,12 +33,13 @@ and the worker assets. The opt-in button saves the current draft before a full
 navigation and reopens the scratchpad. Ordinary page requests do not receive
 these isolation headers. Reverse proxies must retain the query string and the
 headers. Cross-origin CORS requests (including fonts and module scripts) still
-need suitable CORS responses from their CDN. Test the actual CDN deployment.
+need suitable CORS responses from the host serving those assets. The clangd
+runtime itself is always fetched from the application server.
 
 ## Resource and compiler limits
 
 - The Wasm asset is 126,550,863 bytes before HTTP compression. Enable gzip or
-  Brotli at the static host/CDN. Versioned assets are cached for a year.
+  Brotli at the application server. Versioned assets are cached for a year.
 - The runtime reserves 2 GiB of shared Wasm memory and can grow to 4 GiB. Browser
   memory reporting is approximate, not a measurement of available RAM. Devices
   reporting less than 8 GiB are gated out; browsers without that API can opt in
