@@ -1,9 +1,9 @@
 import type { PreliminaryDetailData } from '@/api/server/method/preliminary/detail';
-import { usePreliminaryAnswers } from '@/features/preliminary/detail/preliminary-answer-provider';
 import PreliminaryOption from '@/features/preliminary/detail/preliminary-option';
 import PreliminaryOptionContent, {
   getPreliminaryOptionInfos,
 } from '@/features/preliminary/detail/preliminary-option-content';
+import PreliminaryProgrammingAnswer from '@/features/preliminary/detail/preliminary-programming-answer';
 import PreliminarySectionShell from '@/features/preliminary/detail/preliminary-section-shell';
 import {
   getPreliminaryQuestionAnchorId,
@@ -18,8 +18,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/shared/components/ui/card';
-import { Input } from '@/shared/components/ui/input';
-import { Textarea } from '@/shared/components/ui/textarea';
 import { useTranslations } from 'next-intl';
 
 type Props = {
@@ -32,7 +30,6 @@ export default function PreliminaryContent({ data, isReadOnly }: Props) {
   const paper = data.paper;
   const description = paper.content?.trim();
   const sectionsWithStarts = getPreliminarySectionStarts(paper.sections);
-  const { programmingAnswers, setProgrammingAnswer } = usePreliminaryAnswers();
 
   return (
     <div className="space-y-4" data-llm-visible="true">
@@ -91,35 +88,13 @@ export default function PreliminaryContent({ data, isReadOnly }: Props) {
                 </div>
                 <PreliminaryMarkdown>{question.prompt}</PreliminaryMarkdown>
                 {question.type === 'programming' ? (
-                  <div className="space-y-2">
-                    <Input
-                      value={programmingAnswers[question.id]?.lang ?? ''}
-                      onChange={(event) =>
-                        setProgrammingAnswer(question.id, {
-                          lang: event.target.value,
-                          code: programmingAnswers[question.id]?.code ?? '',
-                        })
-                      }
-                      disabled={isReadOnly}
-                      placeholder={t('languagePlaceholder')}
-                    />
-                    <Textarea
-                      value={programmingAnswers[question.id]?.code ?? ''}
-                      onChange={(event) =>
-                        setProgrammingAnswer(question.id, {
-                          lang:
-                            programmingAnswers[question.id]?.lang ??
-                            question.languages?.[0] ??
-                            '',
-                          code: event.target.value,
-                        })
-                      }
-                      disabled={isReadOnly}
-                      rows={12}
-                      className="font-mono"
-                      placeholder={t('codePlaceholder')}
-                    />
-                  </div>
+                  <PreliminaryProgrammingAnswer
+                    questionId={question.id}
+                    defaultLanguage={question.languages?.[0]}
+                    isReadOnly={isReadOnly}
+                    languagePlaceholder={t('languagePlaceholder')}
+                    codePlaceholder={t('codePlaceholder')}
+                  />
                 ) : (
                   <fieldset
                     disabled={isReadOnly}
