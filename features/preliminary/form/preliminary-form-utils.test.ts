@@ -176,7 +176,7 @@ describe('buildPreliminaryPayload', () => {
             {
               id: 'q1',
               type: 'true_false',
-              prompt: 'p',
+              prompt: '',
               score: 0,
               explanation: '',
               answer: '',
@@ -425,7 +425,7 @@ describe('mapPreliminaryEditToFormValues', () => {
 
     const payload = buildPreliminaryPayload(values).sections[0].questions[0];
     expect(payload.pid).toBe(42);
-    expect(payload.problemTitle).toBe('A+B Problem');
+    expect(payload.prompt).toBe('');
     expect(payload.multiplier).toBe(1.5);
     expect(payload.languages).toEqual(['cpp', 'java']);
   });
@@ -444,7 +444,7 @@ describe('mapPreliminaryEditToFormValues', () => {
             {
               id: 'q1',
               type: 'programming',
-              prompt: 'p',
+              prompt: '',
               score: 4,
               explanation: '',
               answer: '',

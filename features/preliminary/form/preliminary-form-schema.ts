@@ -53,11 +53,7 @@ export function buildPreliminarySchema(messages: PreliminarySchemaMessages) {
     .object({
       id: z.string(),
       type: z.enum(['choice', 'true_false', 'programming']),
-      prompt: z
-        .string()
-        .trim()
-        .min(1, messages.promptRequired)
-        .max(16384, messages.promptTooLong),
+      prompt: z.string().trim().max(16384, messages.promptTooLong),
       score: z
         .number({ invalid_type_error: messages.scoreInvalid })
         .min(0.5, messages.scoreInvalid)
@@ -75,6 +71,13 @@ export function buildPreliminarySchema(messages: PreliminarySchemaMessages) {
       languages: z.string().optional(),
     })
     .superRefine((question, ctx) => {
+      if (question.type !== 'programming' && !question.prompt) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['prompt'],
+          message: messages.promptRequired,
+        });
+      }
       if (question.type === 'true_false') {
         if (
           !(PRELIMINARY_TRUE_FALSE_VALUES as readonly string[]).includes(

@@ -241,7 +241,7 @@ describe('buildPreliminarySchema', () => {
         {
           id: 'q1',
           type: 'programming',
-          prompt: 'Solve',
+          prompt: '',
           score: 5,
           explanation: '',
           answer: '',
@@ -253,7 +253,7 @@ describe('buildPreliminarySchema', () => {
         {
           id: 'q2',
           type: 'programming',
-          prompt: 'Solve again',
+          prompt: '',
           score: 5,
           explanation: '',
           answer: '',

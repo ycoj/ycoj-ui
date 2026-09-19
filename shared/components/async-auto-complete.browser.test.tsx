@@ -165,7 +165,7 @@ describe('AsyncAutoComplete', () => {
     expect(input).toHaveValue('Alice');
   });
 
-  it('clears the input after onItemSelect instead of keeping the selected value', async () => {
+  it('keeps the selected value after onItemSelect', async () => {
     const searchItems = vi
       .fn<(query: string) => Promise<Item[]>>()
       .mockResolvedValue([{ id: '1', label: 'Alice' }]);
@@ -178,8 +178,8 @@ describe('AsyncAutoComplete', () => {
     fireEvent.click(screen.getByText('Alice'));
 
     expect(onItemSelect).toHaveBeenCalledWith({ id: '1', label: 'Alice' });
-    expect(screen.getByTestId('value')).toBeEmptyDOMElement();
-    expect(input).toHaveValue('');
+    expect(screen.getByTestId('value')).toHaveTextContent('');
+    expect(input).toHaveValue('ali');
   });
 
   it('ignores an older response that resolves after a newer query', async () => {

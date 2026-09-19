@@ -193,7 +193,7 @@ export function buildPreliminaryPayload(
       questions: section.questions.map((question) => ({
         id: question.id,
         type: question.type,
-        prompt: question.prompt.trim(),
+        prompt: question.type === 'programming' ? '' : question.prompt.trim(),
         score: normalizePayloadScore(question.score),
         explanation: (question.explanation ?? '').trim(),
         answer:
@@ -206,7 +206,6 @@ export function buildPreliminaryPayload(
         ...(question.type === 'programming'
           ? {
               pid: question.pid,
-              problemTitle: question.problemTitle,
               multiplier: question.multiplier ?? 1,
               languages: (question.languages ?? '')
                 .split(',')

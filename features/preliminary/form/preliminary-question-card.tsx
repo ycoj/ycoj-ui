@@ -134,20 +134,24 @@ export default function PreliminaryQuestionCard({
       </div>
 
       <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_8rem]">
-        <Field>
-          <FieldLabel htmlFor={`${base}.prompt`}>{t('prompt')}</FieldLabel>
-          <FieldContent>
-            <Textarea
-              id={`${base}.prompt`}
-              rows={2}
-              placeholder={t('promptPlaceholder')}
-              disabled={disabled}
-              aria-invalid={!!questionErrors?.prompt}
-              {...register(`${base}.prompt`)}
-            />
-            <FieldError errors={[questionErrors?.prompt]} />
-          </FieldContent>
-        </Field>
+        {question?.type === 'programming' ? (
+          <div />
+        ) : (
+          <Field>
+            <FieldLabel htmlFor={`${base}.prompt`}>{t('prompt')}</FieldLabel>
+            <FieldContent>
+              <Textarea
+                id={`${base}.prompt`}
+                rows={2}
+                placeholder={t('promptPlaceholder')}
+                disabled={disabled}
+                aria-invalid={!!questionErrors?.prompt}
+                {...register(`${base}.prompt`)}
+              />
+              <FieldError errors={[questionErrors?.prompt]} />
+            </FieldContent>
+          </Field>
+        )}
         <Field>
           <FieldLabel htmlFor={`${base}.score`}>{t('score')}</FieldLabel>
           <FieldContent>

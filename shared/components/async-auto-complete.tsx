@@ -175,7 +175,6 @@ export default function AsyncAutoComplete<Item>({
       setSelectedItem(null);
       setEditingSelection(false);
       setSearchState(null);
-      onValueChange('');
       setOpen(false);
       return;
     }
