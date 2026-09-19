@@ -66,6 +66,7 @@ export function ObjectiveProblemPage({ data, tid, canConfigure, user }: Props) {
               contest={data.tdoc}
               contestStatus={data.tsdoc}
               allowConfigure={canConfigure}
+              allowFeedback={Boolean(user?._id)}
               objectiveSlot={<ObjectiveNavigation />}
             />
           }

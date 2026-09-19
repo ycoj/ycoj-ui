@@ -1,9 +1,9 @@
 import type { ObjectId } from './shared';
 
 export type PreliminarySectionType =
-  'single_choice' | 'program_reading' | 'program_completion';
+  'single_choice' | 'program_reading' | 'program_completion' | 'programming';
 
-export type PreliminaryQuestionType = 'choice' | 'true_false';
+export type PreliminaryQuestionType = 'choice' | 'true_false' | 'programming';
 
 // Fixed answer literals for true/false questions, shared by the publish
 // schema, the draft allow-list, and the option renderers.
@@ -26,6 +26,10 @@ export type PreliminaryQuestion = {
   answer: string;
   options?: PreliminaryChoiceOption[];
   questionNumber?: number;
+  pid?: number;
+  problemTitle?: string;
+  multiplier?: number;
+  languages?: string[];
 };
 
 export type PreliminarySection = {
@@ -60,6 +64,11 @@ export type PreliminaryDefinitionInput = {
 };
 
 export type PreliminaryAnswers = Record<string, string>;
+export type PreliminaryProgrammingAnswer = { lang: string; code: string };
+export type PreliminaryProgrammingAnswers = Record<
+  string,
+  PreliminaryProgrammingAnswer
+>;
 
 export type PreliminaryPaperSummary = {
   docId: ObjectId;

@@ -12,9 +12,11 @@ type Props = ComponentProps<typeof Avatar> & {
 };
 
 export default function UserAvatar({ user, ...props }: Props) {
+  const src = avatarUrl(user.avatar);
+
   return (
     <Avatar {...props}>
-      <AvatarImage src={avatarUrl(user.avatar)} alt={user.uname} />
+      {src && <AvatarImage src={src} alt={user.uname} />}
       <AvatarFallback>{user.uname.slice(0, 1).toUpperCase()}</AvatarFallback>
     </Avatar>
   );

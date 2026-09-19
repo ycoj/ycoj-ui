@@ -2,6 +2,7 @@ import accountExpiration from './account-expiration.json';
 import accountSettings from './account-settings.json';
 import auth from './auth.json';
 import autoComplete from './auto-complete.json';
+import award from './award.json';
 import checkin from './checkin.json';
 import common from './common.json';
 import contestCreate from './contest-create.json';
@@ -31,6 +32,7 @@ import preliminaryForm from './preliminary-form.json';
 import preliminary from './preliminary.json';
 import problemCreate from './problem-create.json';
 import problemEdit from './problem-edit.json';
+import problemFeedback from './problem-feedback.json';
 import problemImport from './problem-import.json';
 import problemListEditor from './problem-list-editor.json';
 import problemType from './problem-type.json';
@@ -51,6 +53,7 @@ const catalog = {
   manage,
   sudo,
   accountExpiration,
+  award,
   common,
   autoComplete,
   omnibar,
@@ -68,6 +71,7 @@ const catalog = {
   trainingForm,
   preliminaryForm,
   problem,
+  problemFeedback,
   problemCreate,
   problemEdit,
   problemImport,

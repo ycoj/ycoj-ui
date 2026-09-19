@@ -11,6 +11,8 @@ const uploadBaseUrl =
   process.env.NEXT_PUBLIC_UPLOAD_BASEURL?.replace(/\/+$/, '') ??
   backendBaseUrl ??
   '';
+const assetPrefix =
+  process.env.NODE_ENV === 'production' ? 'https://next-cdn.ycoj.cc' : '';
 
 const nextConfig: NextConfig = {
   serverExternalPackages: ['@resvg/resvg-js'],
@@ -25,6 +27,10 @@ const nextConfig: NextConfig = {
   experimental: {
     // proxy.ts makes Next buffer request bodies before the backend rewrites;
     // keep /api file uploads (imports, bulk submits) above the 10MB default.
+    // Bodies past this size are silently truncated, not rejected. Problem-file
+    // uploads POST straight to NEXT_PUBLIC_UPLOAD_BASEURL (the absolute
+    // backend URL by default) and bypass the proxy; on referer rejections,
+    // set NEXT_PUBLIC_UPLOAD_BASEURL='' to route them through /api.
     proxyClientMaxBodySize: '100mb',
   },
   outputFileTracingIncludes: {
@@ -34,11 +40,11 @@ const nextConfig: NextConfig = {
     ],
   },
   env: {
+    NEXT_PUBLIC_CLANGD_ASSET_PREFIX: assetPrefix,
     NEXT_PUBLIC_UPLOAD_BASEURL: uploadBaseUrl,
     SITE_NAME: process.env.SITE_NAME ?? '',
   },
-  assetPrefix:
-    process.env.NODE_ENV === 'production' ? 'https://next-cdn.ycoj.cc' : '',
+  assetPrefix,
   async redirects() {
     return [
       {

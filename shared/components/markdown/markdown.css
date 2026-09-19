@@ -67,7 +67,6 @@
   }
 
   & :where(pre):not(:where(.not-prose, .not-prose *)):has(.code-line) {
-    padding-left: 0;
     --code-line-number-padding-left: 1.5ch;
   }
 

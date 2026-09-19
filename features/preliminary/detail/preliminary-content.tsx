@@ -1,4 +1,5 @@
 import type { PreliminaryDetailData } from '@/api/server/method/preliminary/detail';
+import { usePreliminaryAnswers } from '@/features/preliminary/detail/preliminary-answer-provider';
 import PreliminaryOption from '@/features/preliminary/detail/preliminary-option';
 import PreliminaryOptionContent, {
   getPreliminaryOptionInfos,
@@ -9,7 +10,7 @@ import {
   getPreliminarySectionStarts,
   getQuestionDisplayNumber,
 } from '@/features/preliminary/lib/preliminary-utils';
-import Markdown from '@/shared/components/markdown';
+import PreliminaryMarkdown from '@/features/preliminary/markdown/preliminary-markdown';
 import { Badge } from '@/shared/components/ui/badge';
 import {
   Card,
@@ -17,6 +18,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/shared/components/ui/card';
+import { Input } from '@/shared/components/ui/input';
+import { Textarea } from '@/shared/components/ui/textarea';
 import { useTranslations } from 'next-intl';
 
 type Props = {
@@ -29,6 +32,7 @@ export default function PreliminaryContent({ data, isReadOnly }: Props) {
   const paper = data.paper;
   const description = paper.content?.trim();
   const sectionsWithStarts = getPreliminarySectionStarts(paper.sections);
+  const { programmingAnswers, setProgrammingAnswer } = usePreliminaryAnswers();
 
   return (
     <div className="space-y-4" data-llm-visible="true">
@@ -50,7 +54,7 @@ export default function PreliminaryContent({ data, isReadOnly }: Props) {
         </CardHeader>
         {description && (
           <CardContent className="px-4 md:px-6">
-            <Markdown>{description}</Markdown>
+            <PreliminaryMarkdown>{description}</PreliminaryMarkdown>
           </CardContent>
         )}
       </Card>
@@ -85,28 +89,60 @@ export default function PreliminaryContent({ data, isReadOnly }: Props) {
                     {t('totalScore', { count: question.score })}
                   </span>
                 </div>
-                <Markdown>{question.prompt}</Markdown>
-                <fieldset
-                  disabled={isReadOnly}
-                  aria-label={String(displayNumber)}
-                >
+                <PreliminaryMarkdown>{question.prompt}</PreliminaryMarkdown>
+                {question.type === 'programming' ? (
                   <div className="space-y-2">
-                    {getPreliminaryOptionInfos(question).map((info) => (
-                      <PreliminaryOption
-                        key={info.value}
-                        questionId={question.id}
-                        value={info.value}
-                        disabled={isReadOnly}
-                      >
-                        <PreliminaryOptionContent
-                          info={info}
-                          trueLabel={t('trueLabel')}
-                          falseLabel={t('falseLabel')}
-                        />
-                      </PreliminaryOption>
-                    ))}
+                    <Input
+                      value={programmingAnswers[question.id]?.lang ?? ''}
+                      onChange={(event) =>
+                        setProgrammingAnswer(question.id, {
+                          lang: event.target.value,
+                          code: programmingAnswers[question.id]?.code ?? '',
+                        })
+                      }
+                      disabled={isReadOnly}
+                      placeholder={t('languagePlaceholder')}
+                    />
+                    <Textarea
+                      value={programmingAnswers[question.id]?.code ?? ''}
+                      onChange={(event) =>
+                        setProgrammingAnswer(question.id, {
+                          lang:
+                            programmingAnswers[question.id]?.lang ??
+                            question.languages?.[0] ??
+                            '',
+                          code: event.target.value,
+                        })
+                      }
+                      disabled={isReadOnly}
+                      rows={12}
+                      className="font-mono"
+                      placeholder={t('codePlaceholder')}
+                    />
                   </div>
-                </fieldset>
+                ) : (
+                  <fieldset
+                    disabled={isReadOnly}
+                    aria-label={String(displayNumber)}
+                  >
+                    <div className="space-y-2">
+                      {getPreliminaryOptionInfos(question).map((info) => (
+                        <PreliminaryOption
+                          key={info.value}
+                          questionId={question.id}
+                          value={info.value}
+                          disabled={isReadOnly}
+                        >
+                          <PreliminaryOptionContent
+                            info={info}
+                            trueLabel={t('trueLabel')}
+                            falseLabel={t('falseLabel')}
+                          />
+                        </PreliminaryOption>
+                      ))}
+                    </div>
+                  </fieldset>
+                )}
               </li>
             );
           })}

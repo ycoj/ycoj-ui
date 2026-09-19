@@ -8,6 +8,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const mocks = vi.hoisted(() => ({
   answersState: {
     answers: {},
+    programmingAnswers: {},
     answeredCount: 0,
     totalCount: 2,
     clearAnswers: vi.fn(() => Promise.resolve()),

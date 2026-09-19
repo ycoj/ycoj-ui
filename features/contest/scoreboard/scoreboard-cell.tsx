@@ -1,4 +1,5 @@
 import { getScoreColor } from './scoreboard-presentation';
+import { formatProblemPid } from '@/features/problem/lib/format-problem-pid';
 import UserSpan from '@/features/user/user-span';
 import {
   Tooltip,
@@ -49,7 +50,7 @@ function renderByType(
     ownedBalloonColors?: string[];
   }
 ): ReactNode {
-  const { isHeader, udict, pdict, tid, ownedBalloonColors } = ctx;
+  const { isHeader, udict, pdict, tid, pageType, ownedBalloonColors } = ctx;
 
   switch (node.type) {
     case 'rank':
@@ -82,11 +83,24 @@ function renderByType(
           const problem = pdict?.[rawPid as number];
           const pid = problem?.pid ?? problem?.docId ?? rawPid;
           const href = tid ? `/problem/${pid}?tid=${tid}` : `/problem/${pid}`;
-          return (
+          const label =
+            pageType === 'homework' && problem
+              ? formatProblemPid(problem)
+              : node.value;
+          const link = (
             <Link href={href} prefetch={false}>
-              {node.value}
+              {label}
             </Link>
           );
+          if (problem?.title) {
+            return (
+              <Tooltip>
+                <TooltipTrigger asChild>{link}</TooltipTrigger>
+                <TooltipContent>{problem.title}</TooltipContent>
+              </Tooltip>
+            );
+          }
+          return link;
         }
       }
       return <span>{node.value}</span>;

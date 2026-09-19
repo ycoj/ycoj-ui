@@ -39,19 +39,23 @@ export default function ProblemLink({
           rel: 'noopener noreferrer',
         })}
       >
-        <span className="space-x-1">
+        {/* Separators must be real spaces inside one inline flow: margins or
+            flex gaps are not painted by text-decoration, so the link underline
+            would break between pid and title. */}
+        <span>
           {showId && (
             <span
               className="dark:brightness-150"
               style={idColor ? { color: idColor } : undefined}
               data-llm-text={`${displayPid}.`}
             >
-              {displayPid}.
+              {displayPid}.{' '}
             </span>
           )}
           <span data-llm-text={problem.title}>{problem.title}</span>
           {(problem as PublicProjectionProblem).hidden && (
             <span className="text-primary" data-llm-text={t('hidden')}>
+              {' '}
               {t('hidden')}
             </span>
           )}

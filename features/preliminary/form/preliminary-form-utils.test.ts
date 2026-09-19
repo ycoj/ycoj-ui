@@ -18,6 +18,7 @@ describe('getSectionTypeLabel', () => {
     { type: 'single_choice' as const, expected: 'singleChoice' },
     { type: 'program_reading' as const, expected: 'programReading' },
     { type: 'program_completion' as const, expected: 'programCompletion' },
+    { type: 'programming' as const, expected: 'programming' },
     { type: undefined, expected: 'singleChoice' },
   ])('labels $type as $expected', ({ type, expected }) => {
     expect(getSectionTypeLabel(type, t)).toBe(expected);
@@ -45,6 +46,12 @@ describe('newSection', () => {
   it('seeds program-reading sections with a true/false question', () => {
     expect(newSection('program_reading', 'Reading').questions[0].type).toBe(
       'true_false'
+    );
+  });
+
+  it('seeds programming sections with a programming question', () => {
+    expect(newSection('programming', 'Programming').questions[0].type).toBe(
+      'programming'
     );
   });
 
@@ -169,7 +176,7 @@ describe('buildPreliminaryPayload', () => {
             {
               id: 'q1',
               type: 'true_false',
-              prompt: 'p',
+              prompt: '',
               score: 0,
               explanation: '',
               answer: '',
@@ -380,5 +387,77 @@ describe('mapPreliminaryEditToFormValues', () => {
       ],
     });
     expect(values.sections[0].questions[0].answer).toBe('false');
+  });
+
+  it('round-trips programming question fields through the payload builder', () => {
+    const values = mapPreliminaryEditToFormValues({
+      title: 'Paper',
+      content: '',
+      sections: [
+        {
+          id: 's1',
+          type: 'program_completion',
+          title: 'S',
+          content: '',
+          questions: [
+            {
+              id: 'q1',
+              type: 'programming',
+              prompt: 'p',
+              score: 4,
+              explanation: '',
+              answer: '',
+              options: [],
+              pid: 42,
+              problemTitle: 'A+B Problem',
+              multiplier: 1.5,
+              languages: ['cpp', 'java'],
+            },
+          ],
+        },
+      ],
+    });
+    const question = values.sections[0].questions[0];
+    expect(question.pid).toBe(42);
+    expect(question.problemTitle).toBe('A+B Problem');
+    expect(question.multiplier).toBe(1.5);
+    expect(question.languages).toBe('cpp,java');
+
+    const payload = buildPreliminaryPayload(values).sections[0].questions[0];
+    expect(payload.pid).toBe(42);
+    expect(payload.prompt).toBe('');
+    expect(payload.multiplier).toBe(1.5);
+    expect(payload.languages).toEqual(['cpp', 'java']);
+  });
+
+  it('normalizes programming language input when building the payload', () => {
+    const payload = buildPreliminaryPayload({
+      title: 'Paper',
+      content: '',
+      sections: [
+        {
+          id: 's1',
+          type: 'program_completion',
+          title: 'S',
+          content: '',
+          questions: [
+            {
+              id: 'q1',
+              type: 'programming',
+              prompt: '',
+              score: 4,
+              explanation: '',
+              answer: '',
+              options: [],
+              pid: 1,
+              problemTitle: 'T',
+              multiplier: 1,
+              languages: ' cpp , , java ',
+            },
+          ],
+        },
+      ],
+    });
+    expect(payload.sections[0].questions[0].languages).toEqual(['cpp', 'java']);
   });
 });

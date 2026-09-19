@@ -5,6 +5,7 @@ import {
   getContestProblemLabel,
   getContestStatus,
 } from '@/features/contest/detail/contest-utils';
+import ProblemFeedbackDialog from '@/features/problem/feedback/problem-feedback-dialog';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
 import { Separator } from '@/shared/components/ui/separator';
@@ -40,6 +41,7 @@ type Props = {
   allowConfigure?: boolean;
   objectiveSlot?: React.ReactNode;
   scratchpadSlot?: React.ReactNode;
+  allowFeedback?: boolean;
 };
 
 type SidebarButtonProps = {
@@ -87,6 +89,7 @@ export default function ProblemSidebar({
   allowConfigure,
   objectiveSlot,
   scratchpadSlot,
+  allowFeedback,
 }: Props) {
   const t = useTranslations('problem');
   const common = useTranslations('common');
@@ -185,6 +188,9 @@ export default function ProblemSidebar({
           text={t('files')}
           href={withTid(`/problem/${problem.pid ?? problem.docId}/files`, tid)}
         />
+        {allowFeedback && (
+          <ProblemFeedbackDialog pid={problem.pid ?? problem.docId} tid={tid} />
+        )}
         {!isContestMode && allowConfigure && (
           <div className="space-y-1 pt-2">
             <SidebarButton

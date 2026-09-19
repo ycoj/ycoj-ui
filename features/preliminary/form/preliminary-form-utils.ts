@@ -19,6 +19,11 @@ export type PreliminaryQuestionValue = {
   explanation: string;
   answer: string;
   options: PreliminaryOptionValue[];
+  pid?: number;
+  problemTitle?: string;
+  multiplier?: number;
+  // Comma-separated input value; buildPreliminaryPayload splits it back.
+  languages?: string;
 };
 
 export type PreliminarySectionValue = {
@@ -84,6 +89,19 @@ export function newOption(): PreliminaryOptionValue {
 export function newQuestion(
   type: PreliminaryQuestionType
 ): PreliminaryQuestionValue {
+  if (type === 'programming') {
+    return {
+      id: newId(),
+      type,
+      prompt: '',
+      score: PRELIMINARY_DEFAULT_SCORE,
+      explanation: '',
+      answer: '',
+      options: [],
+      multiplier: 1,
+      languages: '',
+    };
+  }
   if (type === 'true_false') {
     return {
       id: newId(),
@@ -117,7 +135,13 @@ export function newSection(
     title,
     content: '',
     questions: [
-      newQuestion(type === 'program_reading' ? 'true_false' : 'choice'),
+      newQuestion(
+        type === 'program_reading'
+          ? 'true_false'
+          : type === 'programming'
+            ? 'programming'
+            : 'choice'
+      ),
     ],
   };
 }
@@ -131,7 +155,7 @@ export function getPreliminaryCreateDefaults(): PreliminaryFormValues {
 }
 
 export type SectionTypeLabelKey =
-  'singleChoice' | 'programReading' | 'programCompletion';
+  'singleChoice' | 'programReading' | 'programCompletion' | 'programming';
 
 // Single source for the section-type label used by the section card and list.
 export function getSectionTypeLabel(
@@ -140,6 +164,7 @@ export function getSectionTypeLabel(
 ): string {
   if (type === 'program_reading') return t('programReading');
   if (type === 'program_completion') return t('programCompletion');
+  if (type === 'programming') return t('programming');
   return t('singleChoice');
 }
 
@@ -168,7 +193,7 @@ export function buildPreliminaryPayload(
       questions: section.questions.map((question) => ({
         id: question.id,
         type: question.type,
-        prompt: question.prompt.trim(),
+        prompt: question.type === 'programming' ? '' : question.prompt.trim(),
         score: normalizePayloadScore(question.score),
         explanation: (question.explanation ?? '').trim(),
         answer:
@@ -178,6 +203,16 @@ export function buildPreliminaryPayload(
           )
             ? 'true'
             : question.answer,
+        ...(question.type === 'programming'
+          ? {
+              pid: question.pid,
+              multiplier: question.multiplier ?? 1,
+              languages: (question.languages ?? '')
+                .split(',')
+                .map((item) => item.trim())
+                .filter(Boolean),
+            }
+          : {}),
         options:
           question.type === 'true_false'
             ? []
@@ -229,6 +264,14 @@ export function mapPreliminaryEditToFormValues(
           id: option.id || newId(),
           text: option.text ?? '',
         })),
+        ...(question.type === 'programming'
+          ? {
+              pid: question.pid,
+              problemTitle: question.problemTitle,
+              multiplier: question.multiplier ?? 1,
+              languages: (question.languages ?? []).join(','),
+            }
+          : {}),
       })),
     })),
   };

@@ -1,6 +1,7 @@
 import { getProblemsByIds } from './by-ids';
 import { getProblemConfig } from './config';
 import { getProblemDetail } from './detail';
+import { getProblemFeedback } from './feedback';
 import { getProblemFiles } from './files';
 import { getProblemsList } from './list';
 import { getProblemSolution } from './solution';
@@ -14,6 +15,7 @@ const Problems = {
   getProblemsList,
   getProblemConfig,
   getProblemDetail,
+  getProblemFeedback,
   getProblemFiles,
   submitProblem,
   getProblemSolution,

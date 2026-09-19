@@ -4,7 +4,10 @@ import {
   type PreliminaryFormValues,
 } from '@/features/preliminary/form/preliminary-form-utils';
 import { normalizeBackendPathname } from '@/shared/lib/backend-response';
-import type { PreliminaryAnswers } from '@/shared/types/preliminary';
+import type {
+  PreliminaryAnswers,
+  PreliminaryProgrammingAnswers,
+} from '@/shared/types/preliminary';
 
 // Shared failure signal for preliminary save/submit. Use instanceof to
 // distinguish expected request failures from backend messages; the message
@@ -56,12 +59,14 @@ export async function submitPreliminaryAnswers(
   paperId: string,
   revision: number,
   answers: PreliminaryAnswers,
+  programmingAnswers: PreliminaryProgrammingAnswers,
   clearAnswers: () => Promise<void>
 ): Promise<string> {
   const response = await ClientApis.Preliminary.submitPreliminary(
     paperId,
     revision,
-    answers
+    answers,
+    programmingAnswers
   ).send();
   if (!response || 'error' in response || !response.url) {
     throw new PreliminaryRequestError(

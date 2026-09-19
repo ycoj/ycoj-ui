@@ -13,7 +13,8 @@ describe('isSupportedCodeLanguage', () => {
     expect(isSupportedCodeLanguage(language)).toBe(false);
   });
 
-  it('ignores the no-line-numbers flag', () => {
+  it('ignores the line-number flags', () => {
+    expect(isSupportedCodeLanguage('cpp|line-numbers')).toBe(true);
     expect(isSupportedCodeLanguage('cpp|no-line-numbers')).toBe(true);
   });
 });
@@ -52,7 +53,6 @@ describe('highlightCodeToHtml', () => {
     const { html } = highlightCodeToHtml('int a;\nint b;\n', 'cpp');
 
     expect(html.match(/class="code-line"/g)).toHaveLength(2);
-    // Stripping tags leaves the source text (with entities) untouched.
     expect(html.replace(/<[^>]*>/g, '')).toBe('int a;\nint b;\n');
   });
 
@@ -75,6 +75,16 @@ describe('highlightCodeToHtml', () => {
     expect(html).not.toContain('code-line');
     expect(html).toContain('class="pl-k"');
     expect(html.replace(/<[^>]*>/g, '')).toBe('int a;\nint b;\n');
+  });
+
+  it('numbers the line-numbers language flag even for plain text', () => {
+    const { html } = highlightCodeToHtml(
+      'a\nb',
+      'text|line-numbers',
+      'plaintext'
+    );
+
+    expect(html.match(/class="code-line"/g)).toHaveLength(2);
   });
 
   it('reports the gutter width needed for the largest line number', () => {

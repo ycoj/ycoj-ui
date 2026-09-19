@@ -13,6 +13,7 @@ describe('formatRecordTime', () => {
   });
 
   it('returns a placeholder for missing or invalid values', () => {
+    expect(formatRecordTime(undefined)).toBe('-');
     expect(formatRecordTime('')).toBe('-');
     expect(formatRecordTime(Number.NaN)).toBe('-');
     expect(formatRecordTime('not-a-date')).toBe('-');

@@ -5,6 +5,7 @@ import messages from '@/messages/en';
 import type { ScoreboardNode } from '@/shared/types/contest';
 import type { ProblemDict, ProblemDoc } from '@/shared/types/problem';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import { describe, expect, it } from 'vitest';
 
@@ -66,6 +67,97 @@ describe('ScoreboardCell problem header links', () => {
 
     const link = screen.getByRole('link', { name: 'B' });
     expect(link).toHaveAttribute('href', '/problem/P1001?tid=contest456');
+  });
+
+  it('uses the pid instead of the problem index on homework headers', () => {
+    const node: ScoreboardNode = {
+      type: 'problem',
+      value: 'A',
+      raw: 1001,
+    };
+    const pdict: ProblemDict = {
+      1001: {
+        _id: 'p123',
+        docId: 1001,
+        pid: 'P1001',
+        title: 'Problem A',
+      } as unknown as ProblemDoc,
+    };
+
+    render(
+      <ScoreboardCell
+        node={node}
+        isHeader
+        pdict={pdict}
+        tid="homework456"
+        pageType="homework"
+      />
+    );
+
+    const link = screen.getByRole('link', { name: 'P1001' });
+    expect(link).toHaveAttribute('href', '/problem/P1001?tid=homework456');
+    expect(screen.queryByRole('link', { name: 'A' })).not.toBeInTheDocument();
+  });
+
+  it('falls back to the problem index on contest headers', () => {
+    const node: ScoreboardNode = {
+      type: 'problem',
+      value: 'A',
+      raw: 1001,
+    };
+    const pdict: ProblemDict = {
+      1001: {
+        _id: 'p123',
+        docId: 1001,
+        pid: 'P1001',
+        title: 'Problem A',
+      } as unknown as ProblemDoc,
+    };
+
+    render(
+      <ScoreboardCell
+        node={node}
+        isHeader
+        pdict={pdict}
+        tid="contest456"
+        pageType="contest"
+      />
+    );
+
+    expect(screen.getByRole('link', { name: 'A' })).toHaveAttribute(
+      'href',
+      '/problem/P1001?tid=contest456'
+    );
+  });
+
+  it('shows the problem title on hover over a homework header', async () => {
+    const user = userEvent.setup();
+    const node: ScoreboardNode = {
+      type: 'problem',
+      value: 'A',
+      raw: 1001,
+    };
+    const pdict: ProblemDict = {
+      1001: {
+        _id: 'p123',
+        docId: 1001,
+        pid: 'P1001',
+        title: 'Two Sum',
+      } as unknown as ProblemDoc,
+    };
+
+    render(
+      <ScoreboardCell
+        node={node}
+        isHeader
+        pdict={pdict}
+        tid="homework456"
+        pageType="homework"
+      />
+    );
+
+    await user.hover(screen.getByRole('link', { name: 'P1001' }));
+    expect(await screen.findByText('Two Sum')).toBeInTheDocument();
   });
 
   it('renders problem header with link /problem/:pid when tid is not provided', () => {

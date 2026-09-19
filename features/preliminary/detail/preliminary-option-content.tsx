@@ -1,6 +1,6 @@
 import type { PreliminaryReviewQuestion } from '@/api/server/method/preliminary/attempt';
 import { getAlphabeticId } from '@/features/preliminary/lib/preliminary-utils';
-import Markdown from '@/shared/components/markdown';
+import PreliminaryMarkdown from '@/features/preliminary/markdown/preliminary-markdown';
 import {
   PRELIMINARY_TRUE_FALSE_VALUES,
   type PreliminaryQuestion,
@@ -59,7 +59,7 @@ export default function PreliminaryOptionContent({
           {getAlphabeticId(info.index)}.
         </span>
         <div className="min-w-0 flex-1 [&_.markdown>:nth-last-child(2)]:mb-0!">
-          <Markdown>{info.text}</Markdown>
+          <PreliminaryMarkdown>{info.text}</PreliminaryMarkdown>
         </div>
       </div>
     );

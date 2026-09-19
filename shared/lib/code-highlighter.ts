@@ -33,7 +33,8 @@ export function highlightCodeToHtml(
     ? (starryNight.highlight(code, scope).children as ElementContent[])
     : ([{ type: 'text', value: code }] satisfies ElementContent[]);
 
-  const numbered = parsed.lineNumbers ? addLineNumbers(children) : undefined;
+  const numbered =
+    (parsed.lineNumbers ?? true) ? addLineNumbers(children) : undefined;
 
   return {
     html: toHtml({

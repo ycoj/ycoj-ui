@@ -1,5 +1,6 @@
 import {
   addLineNumbers,
+  isCommonCodeLanguage,
   parseCodeLanguage,
 } from '@/shared/lib/code-line-numbers';
 import type { Element, ElementContent } from 'hast';
@@ -25,9 +26,17 @@ function textOf(children: ElementContent[]): string {
 }
 
 describe('parseCodeLanguage', () => {
-  it('keeps plain languages numbered', () => {
-    expect(parseCodeLanguage('cpp')).toEqual({
-      language: 'cpp',
+  it('leaves unflagged languages to the caller default', () => {
+    expect(parseCodeLanguage('cpp')).toEqual({ language: 'cpp' });
+  });
+
+  it('strips the line-numbers suffix', () => {
+    expect(parseCodeLanguage('text|line-numbers')).toEqual({
+      language: 'text',
+      lineNumbers: true,
+    });
+    expect(parseCodeLanguage('|line-numbers')).toEqual({
+      language: '',
       lineNumbers: true,
     });
   });
@@ -41,6 +50,27 @@ describe('parseCodeLanguage', () => {
       language: '',
       lineNumbers: false,
     });
+  });
+});
+
+describe('isCommonCodeLanguage', () => {
+  it.each(['cpp', 'c++', 'python', 'yaml', 'json', 'html', 'bash', 'md'])(
+    'recognizes %s as a common code language',
+    (language) => {
+      expect(isCommonCodeLanguage(language)).toBe(true);
+    }
+  );
+
+  it.each(['', 'text', 'txt', 'plain', 'plaintext', 'unknown-language'])(
+    'rejects %j',
+    (language) => {
+      expect(isCommonCodeLanguage(language)).toBe(false);
+    }
+  );
+
+  it('matches case-insensitively', () => {
+    expect(isCommonCodeLanguage('Python')).toBe(true);
+    expect(isCommonCodeLanguage('CPP')).toBe(true);
   });
 });
 
@@ -85,16 +115,33 @@ describe('addLineNumbers', () => {
       properties: { className: ['pl-c'] },
     });
     expect(textOf(children)).toBe('/* a\nb */');
-    // The original element is split into two clones.
     expect(lines[0]!.children[0]).not.toBe(lines[1]!.children[0]);
   });
 
-  it('handles CRLF line endings', () => {
-    const source = 'a\r\nb';
+  it('preserves the original line separators in the emitted text', () => {
+    const source = 'a\r\nb\rc\r\n';
     const { children } = addLineNumbers([{ type: 'text', value: source }]);
 
-    expect(lineSpans(children)).toHaveLength(2);
+    expect(lineSpans(children)).toHaveLength(3);
+    expect(textOf(children)).toBe(source);
   });
+
+  it('renders no numbered line for an empty source', () => {
+    expect(addLineNumbers([])).toEqual({ children: [], lineNumberDigits: 1 });
+    expect(addLineNumbers([{ type: 'text', value: '' }]).children).toHaveLength(
+      0
+    );
+  });
+
+  it.each(['\n', '\r\n', '\r'] as const)(
+    'preserves a source made of a single break %j',
+    (source) => {
+      const { children } = addLineNumbers([{ type: 'text', value: source }]);
+
+      expect(lineSpans(children)).toHaveLength(0);
+      expect(textOf(children)).toBe(source);
+    }
+  );
 
   it.each([
     [1, 1],

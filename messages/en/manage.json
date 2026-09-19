@@ -2,5 +2,7 @@
   "navigation": "System management",
   "realname": "Real-name review",
   "expiration": "Account expiration",
-  "userImport": "Import users"
+  "userImport": "Import users",
+  "problemFeedback": "Problem feedback",
+  "award": "Award certification"
 }

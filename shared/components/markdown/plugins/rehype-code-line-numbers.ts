@@ -1,7 +1,8 @@
 import {
   addLineNumbers,
+  isCommonCodeLanguage,
   LINE_NUMBER_DIGITS_VARIABLE,
-  NO_LINE_NUMBERS_SUFFIX,
+  parseCodeLanguage,
 } from '@/shared/lib/code-line-numbers';
 import type { Element, Root } from 'hast';
 import { visit } from 'unist-util-visit';
@@ -9,37 +10,48 @@ import { visit } from 'unist-util-visit';
 const LANGUAGE_PREFIX = 'language-';
 
 /**
- * Rewrites `language-*|no-line-numbers` classes on `code` elements to the
- * bare language so the highlighter still resolves them, and returns the code
- * elements that opted out of line numbers. Must run after sanitize (which
- * only keeps `language-*` classes) and before highlighting.
+ * Rewrites `language-*|line-numbers` and `language-*|no-line-numbers` classes
+ * on `code` elements to the bare language so the highlighter still resolves
+ * them, and returns the code elements that must not render line numbers:
+ * those flagged off, and unflagged ones whose language is not a common code
+ * language. Must run after sanitize (which only keeps `language-*` classes)
+ * and before highlighting.
  */
-export function stripLineNumberFlags(tree: Root): Set<Element> {
+export function resolveLineNumberSkips(tree: Root): Set<Element> {
   const skipped = new Set<Element>();
   visit(tree, 'element', (node: Element) => {
     if (node.tagName !== 'code') return;
     const className = node.properties.className;
-    if (!Array.isArray(className)) return;
+    if (!Array.isArray(className)) {
+      // Fenced blocks without a language carry no class at all.
+      skipped.add(node);
+      return;
+    }
 
     let flagged = false;
+    let hasLanguage = false;
     const next = className.flatMap((token) => {
-      if (typeof token !== 'string') return [token];
-      if (
-        !token.startsWith(LANGUAGE_PREFIX) ||
-        !token.endsWith(NO_LINE_NUMBERS_SUFFIX)
-      ) {
+      if (typeof token !== 'string' || !token.startsWith(LANGUAGE_PREFIX)) {
+        return [token];
+      }
+      hasLanguage = true;
+      const { language, lineNumbers } = parseCodeLanguage(
+        token.slice(LANGUAGE_PREFIX.length)
+      );
+      if (lineNumbers === undefined) {
+        if (!isCommonCodeLanguage(language)) skipped.add(node);
         return [token];
       }
       flagged = true;
-      const language = token.slice(
-        LANGUAGE_PREFIX.length,
-        -NO_LINE_NUMBERS_SUFFIX.length
-      );
+      if (!lineNumbers) skipped.add(node);
       return language ? [LANGUAGE_PREFIX + language] : [];
     });
+    if (!hasLanguage) {
+      skipped.add(node);
+      return;
+    }
     if (!flagged) return;
 
-    skipped.add(node);
     if (next.length > 0) node.properties.className = next;
     else delete node.properties.className;
   });
@@ -48,7 +60,7 @@ export function stripLineNumberFlags(tree: Root): Set<Element> {
 
 /**
  * Wraps every line inside `pre` code blocks in `span.code-line` elements so
- * CSS counters can render line numbers. Flagged code elements are skipped.
+ * CSS counters can render line numbers. Resolved skips are left untouched.
  */
 export function wrapCodeBlockLines(
   tree: Root,
@@ -56,12 +68,14 @@ export function wrapCodeBlockLines(
 ): void {
   visit(tree, 'element', (node: Element) => {
     if (node.tagName !== 'pre') return;
-    const only = node.children.length === 1 ? node.children[0] : undefined;
-    const code =
-      only && only.type === 'element' && only.tagName === 'code'
-        ? only
-        : undefined;
-    if (code && skipped.has(code)) return;
+    const codes = node.children.filter(
+      (child): child is Element =>
+        child.type === 'element' && child.tagName === 'code'
+    );
+    // A `pre` without a `code` child carries no language to decide on.
+    if (codes.length === 0) return;
+    if (codes.some((code) => skipped.has(code))) return;
+    const code = node.children.length === 1 ? codes[0] : undefined;
 
     const numbered = addLineNumbers(code ? code.children : node.children);
     if (code) code.children = numbered.children;
@@ -72,6 +86,6 @@ export function wrapCodeBlockLines(
 
 export default function rehypeCodeLineNumbers() {
   return (tree: Root): void => {
-    wrapCodeBlockLines(tree, stripLineNumberFlags(tree));
+    wrapCodeBlockLines(tree, resolveLineNumberSkips(tree));
   };
 }

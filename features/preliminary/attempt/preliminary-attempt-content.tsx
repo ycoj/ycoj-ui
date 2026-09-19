@@ -10,7 +10,7 @@ import {
   getPreliminarySectionStarts,
   getQuestionDisplayNumber,
 } from '@/features/preliminary/lib/preliminary-utils';
-import Markdown from '@/shared/components/markdown';
+import PreliminaryMarkdown from '@/features/preliminary/markdown/preliminary-markdown';
 import { Badge } from '@/shared/components/ui/badge';
 import {
   Card,
@@ -77,6 +77,26 @@ function ReviewQuestion({
 }) {
   const t = useTranslations('preliminary');
   const correct = question.result.correct;
+  if (question.type === 'programming') {
+    return (
+      <li className="space-y-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="font-medium tabular-nums">
+            {getQuestionDisplayNumber(question, globalIndex)}
+          </span>
+          <Badge variant="secondary">
+            {question.result.status === 'pending'
+              ? t('judging')
+              : t('programmingQuestion')}
+          </Badge>
+          <span className="text-xs text-muted-foreground tabular-nums">
+            {question.result.score} / {question.result.maxScore}
+          </span>
+        </div>
+        <PreliminaryMarkdown>{question.prompt}</PreliminaryMarkdown>
+      </li>
+    );
+  }
   const displayNumber = getQuestionDisplayNumber(question, globalIndex);
 
   return (
@@ -104,7 +124,7 @@ function ReviewQuestion({
           {question.result.score} / {question.result.maxScore}
         </span>
       </div>
-      <Markdown>{question.prompt}</Markdown>
+      <PreliminaryMarkdown>{question.prompt}</PreliminaryMarkdown>
       <div className="space-y-2">
         {getPreliminaryOptionInfos(question).map((info) => (
           <ReviewOption
@@ -128,7 +148,7 @@ function ReviewQuestion({
           >
             {t('explanation')}
           </h4>
-          <Markdown>{question.explanation}</Markdown>
+          <PreliminaryMarkdown>{question.explanation}</PreliminaryMarkdown>
         </div>
       )}
     </li>
@@ -167,7 +187,9 @@ export default function PreliminaryAttemptContent({ data }: Props) {
               timeStyle: 'short',
             })}
           </p>
-          {description && <Markdown>{description}</Markdown>}
+          {description && (
+            <PreliminaryMarkdown>{description}</PreliminaryMarkdown>
+          )}
         </CardContent>
       </Card>
 

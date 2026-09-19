@@ -92,7 +92,8 @@ describe('ProblemListEditor', () => {
     expect(screen.getByText('P1000. Binary Tree')).toBeInTheDocument();
     expect(screen.getByText('A')).toBeInTheDocument();
 
-    fireEvent.change(input, { target: { value: 'tree' } });
+    // The input keeps the query after a selection, so edit it to search again.
+    fireEvent.change(input, { target: { value: 'tree traversal' } });
     await advanceDebounce();
     fireEvent.click(screen.getByText('P1000 Binary Tree'));
 

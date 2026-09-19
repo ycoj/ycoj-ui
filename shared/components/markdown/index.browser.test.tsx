@@ -1,7 +1,7 @@
 import Markdown from '.';
 import messages from '@/messages/en';
 import { resolveFileUrls } from '@/shared/lib/resolve-file-urls';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
 import { Children, type ReactElement, type ReactNode } from 'react';
@@ -55,6 +55,24 @@ async function renderMarkdownDocument(source: string) {
   });
 }
 
+async function renderMarkdownWithKatex(source: string) {
+  const markdown = Markdown({ children: source });
+  const children = Children.toArray(
+    (markdown.props as { children: ReactNode }).children
+  );
+  const asyncMarkdown = children[0] as ReactElement<Options>;
+  const katexClientRender = children[1];
+  const rendered = await MarkdownAsync(asyncMarkdown.props);
+
+  return render(
+    <div className="markdown">
+      {rendered}
+      {katexClientRender}
+    </div>,
+    { wrapper: markdownWrapper }
+  );
+}
+
 describe('Markdown highlighter reuse', () => {
   it('does not rebuild the syntax highlighter for every block', async () => {
     const builtBefore = mocks.highlighterFactories;
@@ -63,6 +81,73 @@ describe('Markdown highlighter reuse', () => {
     await renderMarkdown('second block');
 
     expect(mocks.highlighterFactories).toBe(builtBefore);
+  });
+});
+
+describe('Markdown math rendering', () => {
+  it('renders escaped percent signs alongside LaTeX commands', async () => {
+    const { container } = await renderMarkdownWithKatex(
+      String.raw`$50\% \le 100\%$`
+    );
+
+    await waitFor(() => {
+      expect(container.querySelector('.katex-html')).toHaveTextContent(
+        '50%≤100%'
+      );
+    });
+  });
+
+  it('renders escaped punctuation and literal underscores', async () => {
+    const { container } = await renderMarkdownWithKatex(
+      String.raw`$a\_b \& c \# d \{e\}$`
+    );
+
+    await waitFor(() => {
+      expect(container.querySelector('.katex-html')).toHaveTextContent(
+        'a_b&c#d{e}'
+      );
+    });
+  });
+
+  it('renders subscripts after underscore escaping', async () => {
+    const { container } = await renderMarkdownWithKatex(
+      String.raw`$x_i^2 + y_{jk}$`
+    );
+
+    await waitFor(() => {
+      expect(container.querySelector('annotation')).toHaveTextContent(
+        'x_i^2 + y_{jk}'
+      );
+    });
+  });
+
+  it('renders bare asterisks in math', async () => {
+    const { container } = await renderMarkdownWithKatex(
+      String.raw`$a^{*}b^{*}$`
+    );
+
+    await waitFor(() => {
+      expect(container.querySelector('.katex-html')).toHaveTextContent('a∗b∗');
+    });
+  });
+
+  it('renders angle brackets in math', async () => {
+    const { container } = await renderMarkdownWithKatex(String.raw`$a<b>c$`);
+
+    await waitFor(() => {
+      expect(container.querySelector('.katex-html')).toHaveTextContent('a<b>c');
+    });
+  });
+
+  it('renders tildes as spacing instead of strikethrough', async () => {
+    const { container } = await renderMarkdownWithKatex(String.raw`$a~b~c$`);
+
+    await waitFor(() => {
+      const math = container.querySelector('.katex-html');
+      expect(math).not.toBeNull();
+      expect(math?.textContent).toMatch(/^a\s+b\s+c$/);
+      expect(container.querySelector('del')).not.toBeInTheDocument();
+    });
   });
 });
 
@@ -131,10 +216,32 @@ describe('Markdown code block line numbers', () => {
     }
   });
 
-  it('numbers fenced blocks without a language', async () => {
+  it('does not number fenced blocks without a language', async () => {
     const { container } = await renderMarkdown('```\nalpha\nbeta\n```');
 
+    expect(container.querySelectorAll('.code-line')).toHaveLength(0);
+    expect(container.querySelector('pre')).toHaveTextContent('alpha');
+  });
+
+  it('does not number plain text or unknown languages', async () => {
+    const { container } = await renderMarkdown(
+      '```text\nalpha\nbeta\n```\n\n```notalanguage\nint a;\n```'
+    );
+
+    expect(container.querySelectorAll('.code-line')).toHaveLength(0);
+    const blocks = container.querySelectorAll('pre');
+    expect(blocks).toHaveLength(2);
+    expect(blocks[0]).toHaveTextContent('alpha');
+    expect(blocks[1]).toHaveTextContent('int a;');
+  });
+
+  it('numbers every language flagged with line-numbers', async () => {
+    const { container } = await renderMarkdown(
+      '```text|line-numbers\nalpha\nbeta\n```'
+    );
+
     expect(container.querySelectorAll('.code-line')).toHaveLength(2);
+    expect(container.querySelector('pre')).toHaveTextContent('alpha');
   });
 
   it('omits numbers for a no-line-numbers language but still highlights', async () => {

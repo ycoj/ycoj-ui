@@ -10,6 +10,10 @@ type Params = {
   tid: string;
 };
 
+type SearchParams = {
+  filter?: string;
+};
+
 export async function generateMetadata({
   params,
 }: {
@@ -26,10 +30,12 @@ export async function generateMetadata({
 
 export default async function ContestScoreboardPage({
   params,
+  searchParams,
 }: {
   params: Promise<Params>;
+  searchParams: Promise<SearchParams>;
 }) {
-  const { tid } = await params;
+  const [{ tid }, { filter }] = await Promise.all([params, searchParams]);
   const data = await getContestScoreboard(tid);
 
   return (
@@ -37,7 +43,12 @@ export default async function ContestScoreboardPage({
       <ContestTimer contest={data.tdoc} status={data.tsdoc} />
       <ContestTitle tdoc={data.tdoc} />
       <Separator />
-      <ContestScoreboard data={data} tid={tid} pageType="contest" />
+      <ContestScoreboard
+        data={data}
+        tid={tid}
+        pageType="contest"
+        filter={filter}
+      />
     </div>
   );
 }

@@ -150,7 +150,12 @@ export default function AsyncAutoComplete<Item>({
     nextValue: string,
     details: Combobox.Root.ChangeEventDetails
   ) => {
-    if (details.reason === 'item-press') return;
+    // Base UI resets its own filter text with these reasons (e.g. after an
+    // item press or when the popup closes); the controlled value is the
+    // source of truth and must not follow them.
+    if (details.reason === 'item-press' || details.reason === 'input-clear') {
+      return;
+    }
 
     setSelectedItem(null);
     setEditingSelection(false);
@@ -175,7 +180,6 @@ export default function AsyncAutoComplete<Item>({
       setSelectedItem(null);
       setEditingSelection(false);
       setSearchState(null);
-      onValueChange('');
       setOpen(false);
       return;
     }

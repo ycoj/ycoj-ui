@@ -10,7 +10,7 @@ import KatexClientRender from '@/shared/components/markdown/katex-client-render'
 import { preserveLatexLineBreaks } from '@/shared/components/markdown/latex-line-breaks';
 import '@/shared/components/markdown/markdown.css';
 import {
-  stripLineNumberFlags,
+  resolveLineNumberSkips,
   wrapCodeBlockLines,
 } from '@/shared/components/markdown/plugins/rehype-code-line-numbers';
 import rehypeUserSpan from '@/shared/components/markdown/plugins/rehype-user-span';
@@ -36,11 +36,11 @@ import type { PluggableList } from 'unified';
 // example the preliminary detail view renders one per question and option)
 // would rebuild the highlighter hundreds of times per request. Build one
 // transformer and register it through a stable plugin instead.
-// The transformer also strips `|no-line-numbers` language flags beforehand
-// and wraps code lines for numbering afterwards.
+// Order matters: `|line-numbers` and `|no-line-numbers` flags must be
+// stripped before starry-night resolves the language, lines wrapped after.
 const starryNightTransformer = rehypeStarryNight();
 const rehypeCodeBlocks: Plugin<[], Root, Root> = () => async (tree, file) => {
-  const skipped = stripLineNumberFlags(tree);
+  const skipped = resolveLineNumberSkips(tree);
   await starryNightTransformer(tree, file);
   wrapCodeBlockLines(tree, skipped);
 };

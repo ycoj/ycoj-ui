@@ -10,12 +10,8 @@ const mocks = vi.hoisted(() => ({
 vi.mock('@/api/client/method', () => ({
   default: {
     Preliminary: {
-      submitPreliminary: (
-        paperId: string,
-        revision: number,
-        answers: unknown
-      ) => ({
-        send: () => mocks.submit(paperId, revision, answers),
+      submitPreliminary: (...args: unknown[]) => ({
+        send: () => mocks.submit(...args),
       }),
     },
   },
@@ -30,17 +26,46 @@ describe('submitPreliminaryAnswers', () => {
     mocks.submit.mockResolvedValue({ url: '/preliminary/p1/attempt/a1' });
     const clearAnswers = vi.fn(() => Promise.resolve());
     await expect(
-      submitPreliminaryAnswers('p1', 2, { q1: 'o1' }, clearAnswers)
+      submitPreliminaryAnswers(
+        'p1',
+        2,
+        { q1: 'o1' },
+        { q2: { lang: 'cpp', code: 'int main() {}' } },
+        clearAnswers
+      )
     ).resolves.toBe('/preliminary/p1/attempt/a1');
-    expect(mocks.submit).toHaveBeenCalledWith('p1', 2, { q1: 'o1' });
+    expect(mocks.submit).toHaveBeenCalledWith(
+      'p1',
+      2,
+      { q1: 'o1' },
+      { q2: { lang: 'cpp', code: 'int main() {}' } }
+    );
     expect(clearAnswers).toHaveBeenCalled();
+  });
+
+  it('sends objective and programming answers as separate payloads', async () => {
+    mocks.submit.mockResolvedValue({ url: '/preliminary/p1/attempt/a1' });
+    const clearAnswers = vi.fn(() => Promise.resolve());
+    await submitPreliminaryAnswers(
+      'p1',
+      2,
+      { q1: 'o1', q2: 'true' },
+      {},
+      clearAnswers
+    );
+    expect(mocks.submit).toHaveBeenCalledWith(
+      'p1',
+      2,
+      { q1: 'o1', q2: 'true' },
+      {}
+    );
   });
 
   it('still returns the url when draft cleanup fails', async () => {
     mocks.submit.mockResolvedValue({ url: '/preliminary/p1/attempt/a1' });
     const clearAnswers = vi.fn(() => Promise.reject(new Error('no idb')));
     await expect(
-      submitPreliminaryAnswers('p1', 2, {}, clearAnswers)
+      submitPreliminaryAnswers('p1', 2, {}, {}, clearAnswers)
     ).resolves.toBe('/preliminary/p1/attempt/a1');
   });
 
@@ -50,7 +75,7 @@ describe('submitPreliminaryAnswers', () => {
     });
     const clearAnswers = vi.fn(() => Promise.resolve());
     await expect(
-      submitPreliminaryAnswers('p1', 2, {}, clearAnswers)
+      submitPreliminaryAnswers('p1', 2, {}, {}, clearAnswers)
     ).resolves.toBe('/preliminary/p1/attempt/a1?from=submit');
     expect(clearAnswers).toHaveBeenCalled();
   });
@@ -66,7 +91,7 @@ describe('submitPreliminaryAnswers', () => {
     mocks.submit.mockResolvedValue(response);
     const clearAnswers = vi.fn(() => Promise.resolve());
     await expect(
-      submitPreliminaryAnswers('p1', 2, {}, clearAnswers)
+      submitPreliminaryAnswers('p1', 2, {}, {}, clearAnswers)
     ).rejects.toThrow(PreliminaryRequestError);
     expect(clearAnswers).not.toHaveBeenCalled();
   });
@@ -86,6 +111,7 @@ describe('submitPreliminaryAnswers', () => {
     const failure = await submitPreliminaryAnswers(
       'p1',
       2,
+      {},
       {},
       clearAnswers
     ).catch((error: unknown) => error);

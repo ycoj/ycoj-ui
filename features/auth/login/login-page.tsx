@@ -1,5 +1,6 @@
 'use client';
 
+import { resolveLoginRedirect } from './resolve-login-redirect';
 import ClientApis from '@/api/client/method';
 import ThemeLogo from '@/shared/components/theme-logo';
 import { Button } from '@/shared/components/ui/button';
@@ -80,7 +81,11 @@ export function LoginPage() {
   const onSubmit = async (values: LoginFormValues) => {
     setSubmitError(null);
     try {
-      const redirect = searchParams?.get('redirect') || undefined;
+      const redirect = resolveLoginRedirect(
+        document.referrer,
+        window.location.origin,
+        searchParams?.get('redirect')
+      );
       const response = await ClientApis.Auth.login({
         ...values,
         redirect,

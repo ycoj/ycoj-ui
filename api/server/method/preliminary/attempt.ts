@@ -13,6 +13,10 @@ export type PreliminaryQuestionResult = {
   correct: boolean;
   score: number;
   maxScore: number;
+  status?: 'pending' | 'completed';
+  rid?: ObjectId;
+  lang?: string;
+  judgeScore?: number;
 };
 
 export type PreliminaryReviewQuestion = Pick<
@@ -48,9 +52,11 @@ export type PreliminaryAttemptDoc = {
   revision: number;
   owner: number;
   answers: PreliminaryAnswers;
+  programmingAnswers?: Record<string, { lang: string; code: string }>;
   results: PreliminaryQuestionResult[];
   score: number;
   totalScore: number;
+  status?: 'pending' | 'completed';
   submittedAt: string;
 };
 

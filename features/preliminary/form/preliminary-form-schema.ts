@@ -23,6 +23,9 @@ export type PreliminarySchemaMessages = {
   tooManyQuestions: string;
   tooManyOptions: string;
   trueFalseOnlyInReading: string;
+  programmingProblemRequired: string;
+  multiplierInvalid: string;
+  programmingOnly: string;
 };
 
 export function countQuestions(sections: { questions: unknown[] }[]): number {
@@ -49,12 +52,8 @@ export function buildPreliminarySchema(messages: PreliminarySchemaMessages) {
   const questionSchema = z
     .object({
       id: z.string(),
-      type: z.enum(['choice', 'true_false']),
-      prompt: z
-        .string()
-        .trim()
-        .min(1, messages.promptRequired)
-        .max(16384, messages.promptTooLong),
+      type: z.enum(['choice', 'true_false', 'programming']),
+      prompt: z.string().trim().max(16384, messages.promptTooLong),
       score: z
         .number({ invalid_type_error: messages.scoreInvalid })
         .min(0.5, messages.scoreInvalid)
@@ -63,10 +62,22 @@ export function buildPreliminarySchema(messages: PreliminarySchemaMessages) {
           message: messages.scoreInvalid,
         }),
       explanation: z.string().max(32768, messages.explanationTooLong),
-      answer: z.string().trim().min(1, messages.answerRequired),
+      answer: z.string().trim(),
       options: z.array(optionSchema).max(26, messages.tooManyOptions),
+      pid: z.number().int().positive().optional(),
+      problemTitle: z.string().optional(),
+      multiplier: z.number().positive().finite().optional(),
+      // Comma-separated input value; buildPreliminaryPayload splits it back.
+      languages: z.string().optional(),
     })
     .superRefine((question, ctx) => {
+      if (question.type !== 'programming' && !question.prompt) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['prompt'],
+          message: messages.promptRequired,
+        });
+      }
       if (question.type === 'true_false') {
         if (
           !(PRELIMINARY_TRUE_FALSE_VALUES as readonly string[]).includes(
@@ -80,6 +91,28 @@ export function buildPreliminarySchema(messages: PreliminarySchemaMessages) {
           });
         }
         return;
+      }
+      if (question.type === 'programming') {
+        if (!question.pid)
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['pid'],
+            message: messages.programmingProblemRequired,
+          });
+        if (!question.multiplier || question.multiplier <= 0)
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['multiplier'],
+            message: messages.multiplierInvalid,
+          });
+        return;
+      }
+      if (!question.answer) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['answer'],
+          message: messages.answerRequired,
+        });
       }
       if (question.options.length < 2) {
         ctx.addIssue({
@@ -103,7 +136,12 @@ export function buildPreliminarySchema(messages: PreliminarySchemaMessages) {
   const sectionSchema = z
     .object({
       id: z.string(),
-      type: z.enum(['single_choice', 'program_reading', 'program_completion']),
+      type: z.enum([
+        'single_choice',
+        'program_reading',
+        'program_completion',
+        'programming',
+      ]),
       title: z
         .string()
         .trim()
@@ -113,7 +151,10 @@ export function buildPreliminarySchema(messages: PreliminarySchemaMessages) {
       questions: z.array(questionSchema).min(1, messages.questionsRequired),
     })
     .superRefine((section, ctx) => {
-      if (section.type !== 'single_choice' && !section.content.trim()) {
+      if (
+        !['single_choice', 'programming'].includes(section.type) &&
+        !section.content.trim()
+      ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['content'],
@@ -121,6 +162,13 @@ export function buildPreliminarySchema(messages: PreliminarySchemaMessages) {
         });
       }
       section.questions.forEach((question, index) => {
+        if (section.type === 'programming' && question.type !== 'programming') {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['questions', index, 'type'],
+            message: messages.programmingOnly,
+          });
+        }
         if (
           question.type === 'true_false' &&
           section.type !== 'program_reading'

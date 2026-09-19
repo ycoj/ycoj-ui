@@ -82,6 +82,7 @@ export default function PreliminarySectionList({ disabled }: Props) {
             <SelectItem value="program_completion">
               {t('programCompletion')}
             </SelectItem>
+            <SelectItem value="programming">{t('programming')}</SelectItem>
           </SelectContent>
         </Select>
         <Button

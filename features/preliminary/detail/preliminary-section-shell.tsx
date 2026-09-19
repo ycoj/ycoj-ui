@@ -1,4 +1,4 @@
-import Markdown from '@/shared/components/markdown';
+import PreliminaryMarkdown from '@/features/preliminary/markdown/preliminary-markdown';
 import {
   Card,
   CardContent,
@@ -26,7 +26,9 @@ export default function PreliminarySectionShell({
         </CardTitle>
       </CardHeader>
       <CardContent className="min-w-0 space-y-4 px-4 md:px-6">
-        {content?.trim() && <Markdown>{content}</Markdown>}
+        {content?.trim() && (
+          <PreliminaryMarkdown>{content}</PreliminaryMarkdown>
+        )}
         <ol className="space-y-6 md:space-y-4">{children}</ol>
       </CardContent>
     </Card>

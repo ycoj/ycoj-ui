@@ -36,13 +36,19 @@ export default function ScoreboardTable({
   const headerRow = rows[0];
   const dataRows = rows.slice(1);
   const problemColors = getProblemBalloonColors(headerRow);
+  const problemColumns = new Set(
+    headerRow.flatMap((node, i) => (node.type === 'problem' ? [i] : []))
+  );
 
   return (
     <Table>
       <TableHeader className="sticky top-0 z-10 bg-background">
         <TableRow>
           {headerRow.map((node, i) => (
-            <TableHead key={i}>
+            <TableHead
+              key={i}
+              className={cn(problemColumns.has(i) && 'text-center')}
+            >
               <ScoreboardCell
                 node={node}
                 isHeader
@@ -63,7 +69,10 @@ export default function ScoreboardTable({
           return (
             <TableRow key={i} className={cn(isCurrentUser && 'bg-primary/5')}>
               {row.map((node, j) => (
-                <TableCell key={j}>
+                <TableCell
+                  key={j}
+                  className={cn(problemColumns.has(j) && 'text-center')}
+                >
                   <ScoreboardCell
                     node={node}
                     udict={udict}

@@ -1,6 +1,7 @@
 import {
   buildAllowedAnswers,
   getAlphabeticId,
+  getProgrammingQuestionIds,
   getPreliminaryNavQuestions,
   getPreliminarySectionStarts,
   getQuestionDisplayNumber,
@@ -84,6 +85,35 @@ describe('buildAllowedAnswers', () => {
       q2: ['true', 'false'],
       q3: ['o9'],
     });
+  });
+
+  it('excludes programming questions so their answers persist separately', () => {
+    expect(
+      buildAllowedAnswers([
+        {
+          questions: [
+            { id: 'q1', type: 'programming' },
+            { id: 'q2', type: 'choice', options: [{ id: 'o1', text: 'A' }] },
+          ],
+        },
+      ])
+    ).toEqual({ q2: ['o1'] });
+  });
+});
+
+describe('getProgrammingQuestionIds', () => {
+  it('collects programming question ids across sections in order', () => {
+    expect(
+      getProgrammingQuestionIds([
+        {
+          questions: [
+            { id: 'q1', type: 'choice' },
+            { id: 'q2', type: 'programming' },
+          ],
+        },
+        { questions: [{ id: 'q3', type: 'programming' }] },
+      ])
+    ).toEqual(['q2', 'q3']);
   });
 });
 

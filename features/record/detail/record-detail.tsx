@@ -1,7 +1,6 @@
 import type { LanguageFamily } from '@/api/server/method/ui/languages';
 import ProblemLink from '@/features/problem/problem-link';
 import ProblemStatus from '@/features/problem/problem-status';
-import { formatRecordTime } from '@/features/record/lib/format-time';
 import UserSpan from '@/features/user/user-span';
 import {
   Table,
@@ -10,7 +9,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/shared/components/ui/table';
+import { getProblemDifficultyTextColor } from '@/shared/configs/difficulty';
 import { STATUS_BACKGROUND_COLOR } from '@/shared/configs/status';
+import { formatRecordTime } from '@/shared/lib/format-time';
 import { formatMemory, formatTime } from '@/shared/lib/format-units';
 import oid2ts from '@/shared/lib/oid2ts';
 import type {
@@ -47,7 +48,6 @@ export default function RecordDetail({ rdoc, pdoc, udoc, languages }: Props) {
       rdoc.status as keyof typeof STATUS_BACKGROUND_COLOR
     ] || '#6b7280';
 
-  // Get language display name
   const getLanguageDisplayName = (lang: string): string => {
     for (const family of Object.values(languages)) {
       const version = family.versions.find((v) => v.name === lang);
@@ -105,7 +105,12 @@ export default function RecordDetail({ rdoc, pdoc, udoc, languages }: Props) {
             </span>
           </TableCell>
           <TableCell>
-            <ProblemLink problem={pdoc} prefetch={null} />
+            <ProblemLink
+              problem={pdoc}
+              prefetch={null}
+              showId
+              idColor={getProblemDifficultyTextColor(pdoc.difficulty)}
+            />
           </TableCell>
           <TableCell className="text-right">
             <div className="flex justify-end">
