@@ -20,7 +20,8 @@ export function getPreliminaryQuestionAnchorId(questionId: string): string {
 
 // Allow-list of submittable answer values per question, used to sanitize
 // restored drafts. True/false questions accept fixed literals; choice
-// questions accept their current option ids.
+// questions accept their current option ids. Programming questions are
+// excluded: their typed answers persist in a separate draft map.
 export type AllowedAnswerSection = {
   questions: Pick<PreliminaryQuestion, 'id' | 'type' | 'options'>[];
 };
@@ -31,6 +32,7 @@ export function buildAllowedAnswers(
   const allowed: Record<string, string[]> = {};
   for (const section of sections) {
     for (const question of section.questions) {
+      if (question.type === 'programming') continue;
       allowed[question.id] =
         question.type === 'true_false'
           ? [...PRELIMINARY_TRUE_FALSE_VALUES]
@@ -38,6 +40,20 @@ export function buildAllowedAnswers(
     }
   }
   return allowed;
+}
+
+// Ids of programming questions, used to persist and sanitize the separate
+// programming-answer draft map.
+export function getProgrammingQuestionIds(
+  sections: AllowedAnswerSection[]
+): string[] {
+  const ids: string[] = [];
+  for (const section of sections) {
+    for (const question of section.questions) {
+      if (question.type === 'programming') ids.push(question.id);
+    }
+  }
+  return ids;
 }
 
 // Backend numbers are global across sections; fall back to the global index

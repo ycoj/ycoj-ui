@@ -70,7 +70,8 @@ export function buildPreliminarySchema(messages: PreliminarySchemaMessages) {
       pid: z.number().int().positive().optional(),
       problemTitle: z.string().optional(),
       multiplier: z.number().positive().finite().optional(),
-      languages: z.array(z.string()).optional(),
+      // Comma-separated input value; buildPreliminaryPayload splits it back.
+      languages: z.string().optional(),
     })
     .superRefine((question, ctx) => {
       if (question.type === 'true_false') {

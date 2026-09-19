@@ -41,6 +41,8 @@
   "incorrect": "Incorrect",
   "judging": "Judging",
   "programmingQuestion": "Programming",
+  "languagePlaceholder": "Language",
+  "codePlaceholder": "Code",
   "explanation": "Explanation",
   "trueLabel": "True",
   "falseLabel": "False",

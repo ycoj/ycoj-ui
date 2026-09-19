@@ -65,6 +65,10 @@ export type PreliminaryDefinitionInput = {
 
 export type PreliminaryAnswers = Record<string, string>;
 export type PreliminaryProgrammingAnswer = { lang: string; code: string };
+export type PreliminaryProgrammingAnswers = Record<
+  string,
+  PreliminaryProgrammingAnswer
+>;
 
 export type PreliminaryPaperSummary = {
   docId: ObjectId;

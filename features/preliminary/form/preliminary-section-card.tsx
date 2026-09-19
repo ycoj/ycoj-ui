@@ -212,16 +212,6 @@ export default function PreliminarySectionCard({
             <Plus />
             {t('addProgramming')}
           </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            disabled={disabled}
-            onClick={() => handleAddQuestion('programming')}
-          >
-            <Plus />
-            {t('addProgramming')}
-          </Button>
         </div>
       </CardContent>
     </Card>

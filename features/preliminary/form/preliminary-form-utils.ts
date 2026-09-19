@@ -22,7 +22,8 @@ export type PreliminaryQuestionValue = {
   pid?: number;
   problemTitle?: string;
   multiplier?: number;
-  languages?: string[];
+  // Comma-separated input value; buildPreliminaryPayload splits it back.
+  languages?: string;
 };
 
 export type PreliminarySectionValue = {
@@ -98,7 +99,7 @@ export function newQuestion(
       answer: '',
       options: [],
       multiplier: 1,
-      languages: [],
+      languages: '',
     };
   }
   if (type === 'true_false') {
@@ -200,7 +201,10 @@ export function buildPreliminaryPayload(
               pid: question.pid,
               problemTitle: question.problemTitle,
               multiplier: question.multiplier ?? 1,
-              languages: question.languages ?? [],
+              languages: (question.languages ?? '')
+                .split(',')
+                .map((item) => item.trim())
+                .filter(Boolean),
             }
           : {}),
         options:
@@ -254,6 +258,14 @@ export function mapPreliminaryEditToFormValues(
           id: option.id || newId(),
           text: option.text ?? '',
         })),
+        ...(question.type === 'programming'
+          ? {
+              pid: question.pid,
+              problemTitle: question.problemTitle,
+              multiplier: question.multiplier ?? 1,
+              languages: (question.languages ?? []).join(','),
+            }
+          : {}),
       })),
     })),
   };

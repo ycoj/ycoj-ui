@@ -28,6 +28,14 @@ export default function ContestScoreboard({
 }: Props) {
   const t = useTranslations('scoreboard');
   const { tdoc, rows, udict, pdict, availableViews, groups = [] } = data;
+  const toolbar = (
+    <ScoreboardToolbar
+      tid={tid}
+      pageType={pageType}
+      availableViews={availableViews}
+      tdoc={tdoc}
+    />
+  );
 
   return (
     <div className="space-y-6" data-llm-visible="true">
@@ -43,21 +51,11 @@ export default function ContestScoreboard({
           groups={groups}
           filter={filter}
         >
-          <ScoreboardToolbar
-            tid={tid}
-            pageType={pageType}
-            availableViews={availableViews}
-            tdoc={tdoc}
-          />
+          {toolbar}
         </ScoreboardTableFilter>
       ) : (
         <>
-          <ScoreboardToolbar
-            tid={tid}
-            pageType={pageType}
-            availableViews={availableViews}
-            tdoc={tdoc}
-          />
+          {toolbar}
           <Empty data-llm-visible="true">
             <EmptyMedia variant="icon">
               <Clipboard strokeWidth={2} />

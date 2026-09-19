@@ -220,13 +220,7 @@ export default function PreliminaryQuestionCard({
                 id={`${base}.languages`}
                 placeholder={t('languagesPlaceholder')}
                 disabled={disabled}
-                {...register(`${base}.languages` as const, {
-                  setValueAs: (value) =>
-                    String(value)
-                      .split(',')
-                      .map((item) => item.trim())
-                      .filter(Boolean),
-                })}
+                {...register(`${base}.languages` as const)}
               />
             </FieldContent>
           </Field>

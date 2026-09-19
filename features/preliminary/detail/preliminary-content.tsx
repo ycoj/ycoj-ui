@@ -32,7 +32,7 @@ export default function PreliminaryContent({ data, isReadOnly }: Props) {
   const paper = data.paper;
   const description = paper.content?.trim();
   const sectionsWithStarts = getPreliminarySectionStarts(paper.sections);
-  const { answers, setAnswer } = usePreliminaryAnswers();
+  const { programmingAnswers, setProgrammingAnswer } = usePreliminaryAnswers();
 
   return (
     <div className="space-y-4" data-llm-visible="true">
@@ -93,58 +93,31 @@ export default function PreliminaryContent({ data, isReadOnly }: Props) {
                 {question.type === 'programming' ? (
                   <div className="space-y-2">
                     <Input
-                      value={(() => {
-                        try {
-                          return (
-                            JSON.parse(answers[question.id] ?? '{}').lang ?? ''
-                          );
-                        } catch {
-                          return '';
-                        }
-                      })()}
-                      onChange={(event) => {
-                        let current: { code?: string } = {};
-                        try {
-                          current = JSON.parse(answers[question.id] ?? '{}');
-                        } catch {}
-                        setAnswer(
-                          question.id,
-                          JSON.stringify({
-                            lang: event.target.value,
-                            code: current.code ?? '',
-                          })
-                        );
-                      }}
+                      value={programmingAnswers[question.id]?.lang ?? ''}
+                      onChange={(event) =>
+                        setProgrammingAnswer(question.id, {
+                          lang: event.target.value,
+                          code: programmingAnswers[question.id]?.code ?? '',
+                        })
+                      }
                       disabled={isReadOnly}
-                      placeholder="Language"
+                      placeholder={t('languagePlaceholder')}
                     />
                     <Textarea
-                      value={(() => {
-                        try {
-                          return (
-                            JSON.parse(answers[question.id] ?? '{}').code ?? ''
-                          );
-                        } catch {
-                          return '';
-                        }
-                      })()}
-                      onChange={(event) => {
-                        let current: { lang?: string } = {};
-                        try {
-                          current = JSON.parse(answers[question.id] ?? '{}');
-                        } catch {}
-                        setAnswer(
-                          question.id,
-                          JSON.stringify({
-                            lang: current.lang ?? question.languages?.[0] ?? '',
-                            code: event.target.value,
-                          })
-                        );
-                      }}
+                      value={programmingAnswers[question.id]?.code ?? ''}
+                      onChange={(event) =>
+                        setProgrammingAnswer(question.id, {
+                          lang:
+                            programmingAnswers[question.id]?.lang ??
+                            question.languages?.[0] ??
+                            '',
+                          code: event.target.value,
+                        })
+                      }
                       disabled={isReadOnly}
                       rows={12}
                       className="font-mono"
-                      placeholder="Code"
+                      placeholder={t('codePlaceholder')}
                     />
                   </div>
                 ) : (

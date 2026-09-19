@@ -381,4 +381,76 @@ describe('mapPreliminaryEditToFormValues', () => {
     });
     expect(values.sections[0].questions[0].answer).toBe('false');
   });
+
+  it('round-trips programming question fields through the payload builder', () => {
+    const values = mapPreliminaryEditToFormValues({
+      title: 'Paper',
+      content: '',
+      sections: [
+        {
+          id: 's1',
+          type: 'program_completion',
+          title: 'S',
+          content: '',
+          questions: [
+            {
+              id: 'q1',
+              type: 'programming',
+              prompt: 'p',
+              score: 4,
+              explanation: '',
+              answer: '',
+              options: [],
+              pid: 42,
+              problemTitle: 'A+B Problem',
+              multiplier: 1.5,
+              languages: ['cpp', 'java'],
+            },
+          ],
+        },
+      ],
+    });
+    const question = values.sections[0].questions[0];
+    expect(question.pid).toBe(42);
+    expect(question.problemTitle).toBe('A+B Problem');
+    expect(question.multiplier).toBe(1.5);
+    expect(question.languages).toBe('cpp,java');
+
+    const payload = buildPreliminaryPayload(values).sections[0].questions[0];
+    expect(payload.pid).toBe(42);
+    expect(payload.problemTitle).toBe('A+B Problem');
+    expect(payload.multiplier).toBe(1.5);
+    expect(payload.languages).toEqual(['cpp', 'java']);
+  });
+
+  it('normalizes programming language input when building the payload', () => {
+    const payload = buildPreliminaryPayload({
+      title: 'Paper',
+      content: '',
+      sections: [
+        {
+          id: 's1',
+          type: 'program_completion',
+          title: 'S',
+          content: '',
+          questions: [
+            {
+              id: 'q1',
+              type: 'programming',
+              prompt: 'p',
+              score: 4,
+              explanation: '',
+              answer: '',
+              options: [],
+              pid: 1,
+              problemTitle: 'T',
+              multiplier: 1,
+              languages: ' cpp , , java ',
+            },
+          ],
+        },
+      ],
+    });
+    expect(payload.sections[0].questions[0].languages).toEqual(['cpp', 'java']);
+  });
 });

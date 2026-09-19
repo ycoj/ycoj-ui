@@ -4,7 +4,11 @@ import ProblemFeedbackFilter from '@/features/problem/feedback/problem-feedback-
 import ProblemFeedbackList from '@/features/problem/feedback/problem-feedback-list';
 import { getUser } from '@/features/user/lib/get-user';
 import Pagination from '@/shared/components/pagination';
-import type { ProblemFeedbackFilterStatus } from '@/shared/types/problem-feedback';
+import type {
+  ProblemFeedbackFilterStatus,
+  ProblemFeedbackStatus,
+} from '@/shared/types/problem-feedback';
+import { PROBLEM_FEEDBACK_STATUSES } from '@/shared/types/problem-feedback';
 import { MessageSquareWarning } from 'lucide-react';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
@@ -21,12 +25,9 @@ function parsePage(value?: string) {
 }
 
 function parseStatus(value?: string): ProblemFeedbackFilterStatus {
-  return value === 'all' ||
-    value === 'pending' ||
-    value === 'processing' ||
-    value === 'resolved' ||
-    value === 'invalid'
-    ? value
+  if (value === 'all') return 'all';
+  return (PROBLEM_FEEDBACK_STATUSES as readonly string[]).includes(value ?? '')
+    ? (value as ProblemFeedbackStatus)
     : 'pending';
 }
 

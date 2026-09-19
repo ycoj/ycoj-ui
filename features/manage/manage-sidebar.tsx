@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  canEditSystem,
   canImportUsers,
   canManageExpiration,
 } from '@/features/manage/manage-access';
@@ -27,7 +28,7 @@ export default function ManageSidebar({ priv }: { priv: number }) {
     ...(priv === PRIV.PRIV_ALL
       ? [{ href: '/manage/realname', label: t('realname'), icon: UserCheck }]
       : []),
-    ...(canManageExpiration({ priv })
+    ...(canEditSystem({ priv })
       ? [{ href: '/manage/award', label: t('award'), icon: Award }]
       : []),
     ...(canManageExpiration({ priv })

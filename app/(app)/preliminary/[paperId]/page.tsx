@@ -4,7 +4,10 @@ import PreliminaryMobileNavigation from '@/features/preliminary/detail/prelimina
 import PreliminarySidebar from '@/features/preliminary/detail/preliminary-sidebar';
 import PreliminarySubmitBar from '@/features/preliminary/detail/preliminary-submit-bar';
 import { getPreliminaryDetail } from '@/features/preliminary/lib/preliminary-loaders';
-import { buildAllowedAnswers } from '@/features/preliminary/lib/preliminary-utils';
+import {
+  buildAllowedAnswers,
+  getProgrammingQuestionIds,
+} from '@/features/preliminary/lib/preliminary-utils';
 import { getUser } from '@/features/user/lib/get-user';
 import { Errored } from '@/shared/components/errored';
 import TwoColumnLayout from '@/shared/layout/two-column';
@@ -52,6 +55,7 @@ export default async function PreliminaryDetailPage({
   }
 
   const allowedAnswers = buildAllowedAnswers(data.paper.sections);
+  const programmingQuestionIds = getProgrammingQuestionIds(data.paper.sections);
   const draftId = `${user?._id ?? 0}/preliminary/${paperId}@${data.paper.revision}`;
 
   return (
@@ -59,6 +63,7 @@ export default async function PreliminaryDetailPage({
       key={draftId}
       draftId={draftId}
       allowedAnswers={allowedAnswers}
+      programmingQuestionIds={programmingQuestionIds}
       isReadOnly={!data.canSubmit}
     >
       <div className="space-y-6 [&_.markdown]:min-w-0 [&_.markdown]:max-w-full [&_.markdown]:overflow-x-auto">

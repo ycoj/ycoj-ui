@@ -7,7 +7,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/components/ui/select';
-import type { ProblemFeedbackFilterStatus } from '@/shared/types/problem-feedback';
+import {
+  PROBLEM_FEEDBACK_STATUSES,
+  type ProblemFeedbackFilterStatus,
+} from '@/shared/types/problem-feedback';
 import { ListFilter } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -17,10 +20,7 @@ type Props = {
 };
 
 const statuses: ProblemFeedbackFilterStatus[] = [
-  'pending',
-  'processing',
-  'resolved',
-  'invalid',
+  ...PROBLEM_FEEDBACK_STATUSES,
   'all',
 ];
 

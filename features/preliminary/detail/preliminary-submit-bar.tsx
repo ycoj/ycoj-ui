@@ -57,6 +57,7 @@ export default function PreliminarySubmitBar({
   const router = useRouter();
   const {
     answers,
+    programmingAnswers,
     answeredCount,
     totalCount,
     clearAnswers,
@@ -76,6 +77,7 @@ export default function PreliminarySubmitBar({
         paperId,
         revision,
         answers,
+        programmingAnswers,
         clearAnswers
       );
       router.push(url);
