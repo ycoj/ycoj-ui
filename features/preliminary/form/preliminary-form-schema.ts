@@ -25,6 +25,7 @@ export type PreliminarySchemaMessages = {
   trueFalseOnlyInReading: string;
   programmingProblemRequired: string;
   multiplierInvalid: string;
+  programmingOnly: string;
 };
 
 export function countQuestions(sections: { questions: unknown[] }[]): number {
@@ -65,7 +66,7 @@ export function buildPreliminarySchema(messages: PreliminarySchemaMessages) {
           message: messages.scoreInvalid,
         }),
       explanation: z.string().max(32768, messages.explanationTooLong),
-      answer: z.string().trim().min(1, messages.answerRequired),
+      answer: z.string().trim(),
       options: z.array(optionSchema).max(26, messages.tooManyOptions),
       pid: z.number().int().positive().optional(),
       problemTitle: z.string().optional(),
@@ -103,6 +104,13 @@ export function buildPreliminarySchema(messages: PreliminarySchemaMessages) {
           });
         return;
       }
+      if (!question.answer) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['answer'],
+          message: messages.answerRequired,
+        });
+      }
       if (question.options.length < 2) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -125,7 +133,12 @@ export function buildPreliminarySchema(messages: PreliminarySchemaMessages) {
   const sectionSchema = z
     .object({
       id: z.string(),
-      type: z.enum(['single_choice', 'program_reading', 'program_completion']),
+      type: z.enum([
+        'single_choice',
+        'program_reading',
+        'program_completion',
+        'programming',
+      ]),
       title: z
         .string()
         .trim()
@@ -135,7 +148,10 @@ export function buildPreliminarySchema(messages: PreliminarySchemaMessages) {
       questions: z.array(questionSchema).min(1, messages.questionsRequired),
     })
     .superRefine((section, ctx) => {
-      if (section.type !== 'single_choice' && !section.content.trim()) {
+      if (
+        !['single_choice', 'programming'].includes(section.type) &&
+        !section.content.trim()
+      ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ['content'],
@@ -143,6 +159,13 @@ export function buildPreliminarySchema(messages: PreliminarySchemaMessages) {
         });
       }
       section.questions.forEach((question, index) => {
+        if (section.type === 'programming' && question.type !== 'programming') {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['questions', index, 'type'],
+            message: messages.programmingOnly,
+          });
+        }
         if (
           question.type === 'true_false' &&
           section.type !== 'program_reading'

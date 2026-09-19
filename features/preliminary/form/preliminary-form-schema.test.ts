@@ -30,6 +30,7 @@ const messages: PreliminarySchemaMessages = {
   trueFalseOnlyInReading: 'trueFalseOnlyInReading',
   programmingProblemRequired: 'programmingProblemRequired',
   multiplierInvalid: 'multiplierInvalid',
+  programmingOnly: 'programmingOnly',
 };
 
 function validValues(): PreliminaryFormValues {
@@ -227,6 +228,56 @@ describe('buildPreliminarySchema', () => {
     expect(buildPreliminarySchema(messages).safeParse(values).success).toBe(
       true
     );
+  });
+
+  it('accepts multiple programming questions in a programming section', () => {
+    const values = validValues();
+    values.sections[0] = {
+      id: 's1',
+      type: 'programming',
+      title: 'Programming',
+      content: '',
+      questions: [
+        {
+          id: 'q1',
+          type: 'programming',
+          prompt: 'Solve',
+          score: 5,
+          explanation: '',
+          answer: '',
+          options: [],
+          pid: 1,
+          multiplier: 1,
+          languages: '',
+        },
+        {
+          id: 'q2',
+          type: 'programming',
+          prompt: 'Solve again',
+          score: 5,
+          explanation: '',
+          answer: '',
+          options: [],
+          pid: 2,
+          multiplier: 1,
+          languages: '',
+        },
+      ],
+    };
+    expect(buildPreliminarySchema(messages).safeParse(values).success).toBe(
+      true
+    );
+  });
+
+  it('rejects objective questions in a programming section', () => {
+    const values = validValues();
+    values.sections[0].type = 'programming';
+    const result = buildPreliminarySchema(messages).safeParse(values);
+    expect(result.success).toBe(false);
+    if (result.success) return;
+    expect(
+      result.error.issues.some((issue) => issue.message === 'programmingOnly')
+    ).toBe(true);
   });
 
   it.each([

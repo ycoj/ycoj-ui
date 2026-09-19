@@ -80,6 +80,7 @@ export default function PreliminaryForm({
       trueFalseOnlyInReading: t('trueFalseOnlyInReading'),
       programmingProblemRequired: t('programmingProblemRequired'),
       multiplierInvalid: t('multiplierInvalid'),
+      programmingOnly: t('programmingOnly'),
     }),
     [t]
   );

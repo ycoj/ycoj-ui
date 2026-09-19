@@ -135,7 +135,13 @@ export function newSection(
     title,
     content: '',
     questions: [
-      newQuestion(type === 'program_reading' ? 'true_false' : 'choice'),
+      newQuestion(
+        type === 'program_reading'
+          ? 'true_false'
+          : type === 'programming'
+            ? 'programming'
+            : 'choice'
+      ),
     ],
   };
 }
@@ -149,7 +155,7 @@ export function getPreliminaryCreateDefaults(): PreliminaryFormValues {
 }
 
 export type SectionTypeLabelKey =
-  'singleChoice' | 'programReading' | 'programCompletion';
+  'singleChoice' | 'programReading' | 'programCompletion' | 'programming';
 
 // Single source for the section-type label used by the section card and list.
 export function getSectionTypeLabel(
@@ -158,6 +164,7 @@ export function getSectionTypeLabel(
 ): string {
   if (type === 'program_reading') return t('programReading');
   if (type === 'program_completion') return t('programCompletion');
+  if (type === 'programming') return t('programming');
   return t('singleChoice');
 }
 

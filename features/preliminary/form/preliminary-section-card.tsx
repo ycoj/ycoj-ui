@@ -147,23 +147,24 @@ export default function PreliminarySectionCard({
           </FieldContent>
         </Field>
 
-        {section?.type !== 'single_choice' && (
-          <Field>
-            <FieldLabel htmlFor={`sections.${sectionIndex}.content`}>
-              {t('passage')}
-            </FieldLabel>
-            <FieldContent>
-              <Textarea
-                id={`sections.${sectionIndex}.content`}
-                rows={6}
-                placeholder={t('passagePlaceholder')}
-                disabled={disabled}
-                className="font-mono"
-                {...register(`sections.${sectionIndex}.content`)}
-              />
-            </FieldContent>
-          </Field>
-        )}
+        {section?.type !== 'single_choice' &&
+          section?.type !== 'programming' && (
+            <Field>
+              <FieldLabel htmlFor={`sections.${sectionIndex}.content`}>
+                {t('passage')}
+              </FieldLabel>
+              <FieldContent>
+                <Textarea
+                  id={`sections.${sectionIndex}.content`}
+                  rows={6}
+                  placeholder={t('passagePlaceholder')}
+                  disabled={disabled}
+                  className="font-mono"
+                  {...register(`sections.${sectionIndex}.content`)}
+                />
+              </FieldContent>
+            </Field>
+          )}
 
         <div className="space-y-3">
           {questionFields.map((field, questionIndex) => (
@@ -180,16 +181,18 @@ export default function PreliminarySectionCard({
         <FieldError errors={[sectionErrors?.questions]} />
 
         <div className="flex flex-wrap gap-2">
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            disabled={disabled}
-            onClick={() => handleAddQuestion('choice')}
-          >
-            <Plus />
-            {t('addQuestion')}
-          </Button>
+          {section?.type !== 'programming' && (
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              disabled={disabled}
+              onClick={() => handleAddQuestion('choice')}
+            >
+              <Plus />
+              {t('addQuestion')}
+            </Button>
+          )}
           {section?.type === 'program_reading' && (
             <Button
               type="button"
@@ -202,16 +205,18 @@ export default function PreliminarySectionCard({
               {t('addTrueFalse')}
             </Button>
           )}
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            disabled={disabled}
-            onClick={() => handleAddQuestion('programming')}
-          >
-            <Plus />
-            {t('addProgramming')}
-          </Button>
+          {section?.type === 'programming' && (
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              disabled={disabled}
+              onClick={() => handleAddQuestion('programming')}
+            >
+              <Plus />
+              {t('addProgramming')}
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

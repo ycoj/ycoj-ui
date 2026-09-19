@@ -18,6 +18,7 @@ describe('getSectionTypeLabel', () => {
     { type: 'single_choice' as const, expected: 'singleChoice' },
     { type: 'program_reading' as const, expected: 'programReading' },
     { type: 'program_completion' as const, expected: 'programCompletion' },
+    { type: 'programming' as const, expected: 'programming' },
     { type: undefined, expected: 'singleChoice' },
   ])('labels $type as $expected', ({ type, expected }) => {
     expect(getSectionTypeLabel(type, t)).toBe(expected);
@@ -45,6 +46,12 @@ describe('newSection', () => {
   it('seeds program-reading sections with a true/false question', () => {
     expect(newSection('program_reading', 'Reading').questions[0].type).toBe(
       'true_false'
+    );
+  });
+
+  it('seeds programming sections with a programming question', () => {
+    expect(newSection('programming', 'Programming').questions[0].type).toBe(
+      'programming'
     );
   });
 

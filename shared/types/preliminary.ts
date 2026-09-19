@@ -1,7 +1,7 @@
 import type { ObjectId } from './shared';
 
 export type PreliminarySectionType =
-  'single_choice' | 'program_reading' | 'program_completion';
+  'single_choice' | 'program_reading' | 'program_completion' | 'programming';
 
 export type PreliminaryQuestionType = 'choice' | 'true_false' | 'programming';
 
