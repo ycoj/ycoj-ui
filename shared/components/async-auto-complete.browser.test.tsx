@@ -178,7 +178,18 @@ describe('AsyncAutoComplete', () => {
     fireEvent.click(screen.getByText('Alice'));
 
     expect(onItemSelect).toHaveBeenCalledWith({ id: '1', label: 'Alice' });
-    expect(screen.getByTestId('value')).toHaveTextContent('');
+    expect(screen.getByTestId('value')).toHaveTextContent('ali');
+    expect(input).toHaveValue('ali');
+
+    // Closing the popup resets Base UI's internal filter text; the controlled
+    // value must survive that async reset.
+    await act(async () => {
+      vi.advanceTimersByTime(300);
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(screen.getByTestId('value')).toHaveTextContent('ali');
     expect(input).toHaveValue('ali');
   });
 

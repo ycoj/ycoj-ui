@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => ({
   test: {
     ...(mode !== 'benchmark' && {
       pool: 'vmThreads',
-      maxWorkers: 2,
+      maxWorkers: 4,
       vmMemoryLimit: '512MB',
     }),
     environment: 'node',
