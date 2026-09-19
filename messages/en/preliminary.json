@@ -39,6 +39,8 @@
   "score": "Score",
   "correct": "Correct",
   "incorrect": "Incorrect",
+  "judging": "Judging",
+  "programmingQuestion": "Programming",
   "explanation": "Explanation",
   "trueLabel": "True",
   "falseLabel": "False",

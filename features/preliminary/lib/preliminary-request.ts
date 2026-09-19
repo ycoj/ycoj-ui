@@ -58,10 +58,32 @@ export async function submitPreliminaryAnswers(
   answers: PreliminaryAnswers,
   clearAnswers: () => Promise<void>
 ): Promise<string> {
+  const objectiveAnswers: PreliminaryAnswers = {};
+  const programmingAnswers: Record<string, { lang: string; code: string }> = {};
+  for (const [questionId, value] of Object.entries(answers)) {
+    try {
+      const parsed = JSON.parse(value) as { lang?: unknown; code?: unknown };
+      if (
+        parsed &&
+        typeof parsed.lang === 'string' &&
+        typeof parsed.code === 'string'
+      ) {
+        programmingAnswers[questionId] = {
+          lang: parsed.lang,
+          code: parsed.code,
+        };
+        continue;
+      }
+    } catch {
+      // Objective answers are plain strings.
+    }
+    objectiveAnswers[questionId] = value;
+  }
   const response = await ClientApis.Preliminary.submitPreliminary(
     paperId,
     revision,
-    answers
+    objectiveAnswers,
+    programmingAnswers
   ).send();
   if (!response || 'error' in response || !response.url) {
     throw new PreliminaryRequestError(

@@ -78,6 +78,8 @@ export default function PreliminaryForm({
       tooManyQuestions: t('tooManyQuestions'),
       tooManyOptions: t('tooManyOptions'),
       trueFalseOnlyInReading: t('trueFalseOnlyInReading'),
+      programmingProblemRequired: t('programmingProblemRequired'),
+      multiplierInvalid: t('multiplierInvalid'),
     }),
     [t]
   );

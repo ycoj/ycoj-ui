@@ -6,6 +6,7 @@ import {
 } from '@/features/preliminary/form/preliminary-form-utils';
 import type { PreliminaryFormValues } from '@/features/preliminary/form/preliminary-form-utils';
 import { getAlphabeticId } from '@/features/preliminary/lib/preliminary-utils';
+import ProblemAutoComplete from '@/features/problem/problem-auto-complete';
 import { Button } from '@/shared/components/ui/button';
 import {
   Field,
@@ -61,9 +62,11 @@ export default function PreliminaryQuestionCard({
   });
 
   const typeLabel =
-    question?.type === 'true_false'
-      ? t('trueFalseQuestion')
-      : t('choiceQuestion');
+    question?.type === 'programming'
+      ? t('programmingQuestion')
+      : question?.type === 'true_false'
+        ? t('trueFalseQuestion')
+        : t('choiceQuestion');
 
   // Explanation visibility is editor-only UI state: the form value keeps just
   // the explanation text, and the editor opens whenever text exists.
@@ -167,7 +170,68 @@ export default function PreliminaryQuestionCard({
         </Field>
       </div>
 
-      {question?.type === 'true_false' ? (
+      {question?.type === 'programming' ? (
+        <div className="grid gap-3 md:grid-cols-3">
+          <Field>
+            <FieldLabel>{t('problem')}</FieldLabel>
+            <FieldContent>
+              <ProblemAutoComplete
+                domainId="system"
+                value={question.pid ? String(question.pid) : ''}
+                onValueChange={(value) =>
+                  setValue(`${base}.pid`, Number(value) || undefined, {
+                    shouldDirty: true,
+                  })
+                }
+                onItemSelect={(item) => {
+                  setValue(`${base}.pid`, item.docId, { shouldDirty: true });
+                  setValue(`${base}.problemTitle`, item.title, {
+                    shouldDirty: true,
+                  });
+                }}
+                disabled={disabled}
+                ariaLabel={t('problem')}
+              />
+            </FieldContent>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor={`${base}.multiplier`}>
+              {t('multiplier')}
+            </FieldLabel>
+            <FieldContent>
+              <Input
+                id={`${base}.multiplier`}
+                type="number"
+                min="0.000001"
+                step="any"
+                disabled={disabled}
+                {...register(`${base}.multiplier`, {
+                  setValueAs: (value) => Number(value) || 1,
+                })}
+              />
+            </FieldContent>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor={`${base}.languages`}>
+              {t('languages')}
+            </FieldLabel>
+            <FieldContent>
+              <Input
+                id={`${base}.languages`}
+                placeholder={t('languagesPlaceholder')}
+                disabled={disabled}
+                {...register(`${base}.languages` as const, {
+                  setValueAs: (value) =>
+                    String(value)
+                      .split(',')
+                      .map((item) => item.trim())
+                      .filter(Boolean),
+                })}
+              />
+            </FieldContent>
+          </Field>
+        </div>
+      ) : question?.type === 'true_false' ? (
         <Field>
           <FieldLabel>{t('answer')}</FieldLabel>
           <FieldContent>

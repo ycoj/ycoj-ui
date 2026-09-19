@@ -39,6 +39,8 @@
   "score": "得分",
   "correct": "正确",
   "incorrect": "错误",
+  "judging": "评测中",
+  "programmingQuestion": "编程题",
   "explanation": "解析",
   "trueLabel": "正确",
   "falseLabel": "错误",

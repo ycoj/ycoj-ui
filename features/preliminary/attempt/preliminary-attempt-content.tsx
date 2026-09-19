@@ -77,6 +77,26 @@ function ReviewQuestion({
 }) {
   const t = useTranslations('preliminary');
   const correct = question.result.correct;
+  if (question.type === 'programming') {
+    return (
+      <li className="space-y-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="font-medium tabular-nums">
+            {getQuestionDisplayNumber(question, globalIndex)}
+          </span>
+          <Badge variant="secondary">
+            {question.result.status === 'pending'
+              ? t('judging')
+              : t('programmingQuestion')}
+          </Badge>
+          <span className="text-xs text-muted-foreground tabular-nums">
+            {question.result.score} / {question.result.maxScore}
+          </span>
+        </div>
+        <PreliminaryMarkdown>{question.prompt}</PreliminaryMarkdown>
+      </li>
+    );
+  }
   const displayNumber = getQuestionDisplayNumber(question, globalIndex);
 
   return (

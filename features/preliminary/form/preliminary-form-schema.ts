@@ -23,6 +23,8 @@ export type PreliminarySchemaMessages = {
   tooManyQuestions: string;
   tooManyOptions: string;
   trueFalseOnlyInReading: string;
+  programmingProblemRequired: string;
+  multiplierInvalid: string;
 };
 
 export function countQuestions(sections: { questions: unknown[] }[]): number {
@@ -49,7 +51,7 @@ export function buildPreliminarySchema(messages: PreliminarySchemaMessages) {
   const questionSchema = z
     .object({
       id: z.string(),
-      type: z.enum(['choice', 'true_false']),
+      type: z.enum(['choice', 'true_false', 'programming']),
       prompt: z
         .string()
         .trim()
@@ -65,6 +67,10 @@ export function buildPreliminarySchema(messages: PreliminarySchemaMessages) {
       explanation: z.string().max(32768, messages.explanationTooLong),
       answer: z.string().trim().min(1, messages.answerRequired),
       options: z.array(optionSchema).max(26, messages.tooManyOptions),
+      pid: z.number().int().positive().optional(),
+      problemTitle: z.string().optional(),
+      multiplier: z.number().positive().finite().optional(),
+      languages: z.array(z.string()).optional(),
     })
     .superRefine((question, ctx) => {
       if (question.type === 'true_false') {
@@ -79,6 +85,21 @@ export function buildPreliminarySchema(messages: PreliminarySchemaMessages) {
             message: messages.answerInvalid,
           });
         }
+        return;
+      }
+      if (question.type === 'programming') {
+        if (!question.pid)
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['pid'],
+            message: messages.programmingProblemRequired,
+          });
+        if (!question.multiplier || question.multiplier <= 0)
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['multiplier'],
+            message: messages.multiplierInvalid,
+          });
         return;
       }
       if (question.options.length < 2) {

@@ -19,6 +19,10 @@ export type PreliminaryQuestionValue = {
   explanation: string;
   answer: string;
   options: PreliminaryOptionValue[];
+  pid?: number;
+  problemTitle?: string;
+  multiplier?: number;
+  languages?: string[];
 };
 
 export type PreliminarySectionValue = {
@@ -84,6 +88,19 @@ export function newOption(): PreliminaryOptionValue {
 export function newQuestion(
   type: PreliminaryQuestionType
 ): PreliminaryQuestionValue {
+  if (type === 'programming') {
+    return {
+      id: newId(),
+      type,
+      prompt: '',
+      score: PRELIMINARY_DEFAULT_SCORE,
+      explanation: '',
+      answer: '',
+      options: [],
+      multiplier: 1,
+      languages: [],
+    };
+  }
   if (type === 'true_false') {
     return {
       id: newId(),
@@ -178,6 +195,14 @@ export function buildPreliminaryPayload(
           )
             ? 'true'
             : question.answer,
+        ...(question.type === 'programming'
+          ? {
+              pid: question.pid,
+              problemTitle: question.problemTitle,
+              multiplier: question.multiplier ?? 1,
+              languages: question.languages ?? [],
+            }
+          : {}),
         options:
           question.type === 'true_false'
             ? []

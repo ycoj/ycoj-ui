@@ -11,10 +11,12 @@ export type SubmitPreliminaryResponse = {
 export const submitPreliminary = (
   paperId: string,
   revision: number,
-  answers: Record<string, string>
+  answers: Record<string, string>,
+  programmingAnswers: Record<string, { lang: string; code: string }> = {}
 ) =>
   clientRequest.Post<SubmitPreliminaryResponse>(`/preliminary/${paperId}`, {
     operation: 'submit',
     revision,
     answers,
+    programmingAnswers,
   });

@@ -28,6 +28,8 @@ const messages: PreliminarySchemaMessages = {
   tooManyQuestions: 'tooManyQuestions',
   tooManyOptions: 'tooManyOptions',
   trueFalseOnlyInReading: 'trueFalseOnlyInReading',
+  programmingProblemRequired: 'programmingProblemRequired',
+  multiplierInvalid: 'multiplierInvalid',
 };
 
 function validValues(): PreliminaryFormValues {
