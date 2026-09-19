@@ -92,6 +92,11 @@ describe('ProblemListEditor', () => {
     expect(screen.getByText('P1000. Binary Tree')).toBeInTheDocument();
     expect(screen.getByText('A')).toBeInTheDocument();
 
+    // The combobox clears the input asynchronously after a selection.
+    await act(async () => {
+      vi.advanceTimersByTime(300);
+    });
+
     fireEvent.change(input, { target: { value: 'tree' } });
     await advanceDebounce();
     fireEvent.click(screen.getByText('P1000 Binary Tree'));
