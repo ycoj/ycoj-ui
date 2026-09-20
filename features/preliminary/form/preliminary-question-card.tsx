@@ -21,6 +21,7 @@ import { ChevronDown, ChevronUp, Plus, X } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import {
+  Controller,
   useFieldArray,
   useFormContext,
   useFormState,
@@ -179,22 +180,19 @@ export default function PreliminaryQuestionCard({
           <Field>
             <FieldLabel>{t('problem')}</FieldLabel>
             <FieldContent>
-              <ProblemAutoComplete
-                domainId="system"
-                value={question.pid ? String(question.pid) : ''}
-                onValueChange={(value) =>
-                  setValue(`${base}.pid`, Number(value) || undefined, {
-                    shouldDirty: true,
-                  })
-                }
-                onItemSelect={(item) => {
-                  setValue(`${base}.pid`, item.docId, { shouldDirty: true });
-                  setValue(`${base}.problemTitle`, item.title, {
-                    shouldDirty: true,
-                  });
-                }}
-                disabled={disabled}
-                ariaLabel={t('problem')}
+              <Controller
+                control={control}
+                name={`${base}.pid`}
+                render={({ field }) => (
+                  <ProblemAutoComplete
+                    domainId="system"
+                    value={field.value ?? ''}
+                    onValueChange={field.onChange}
+                    onBlur={field.onBlur}
+                    disabled={disabled}
+                    ariaLabel={t('problem')}
+                  />
+                )}
               />
             </FieldContent>
           </Field>

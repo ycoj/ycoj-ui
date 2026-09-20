@@ -418,7 +418,7 @@ describe('mapPreliminaryEditToFormValues', () => {
       ],
     });
     const question = values.sections[0].questions[0];
-    expect(question.pid).toBe(42);
+    expect(question.pid).toBe('42');
     expect(question.problemTitle).toBe('A+B Problem');
     expect(question.multiplier).toBe(1.5);
     expect(question.languages).toBe('cpp,java');
@@ -449,7 +449,7 @@ describe('mapPreliminaryEditToFormValues', () => {
               explanation: '',
               answer: '',
               options: [],
-              pid: 1,
+              pid: '1',
               problemTitle: 'T',
               multiplier: 1,
               languages: ' cpp , , java ',

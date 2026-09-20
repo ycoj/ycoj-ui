@@ -19,7 +19,7 @@ export type PreliminaryQuestionValue = {
   explanation: string;
   answer: string;
   options: PreliminaryOptionValue[];
-  pid?: number;
+  pid?: string;
   problemTitle?: string;
   multiplier?: number;
   // Comma-separated input value; buildPreliminaryPayload splits it back.
@@ -205,7 +205,7 @@ export function buildPreliminaryPayload(
             : question.answer,
         ...(question.type === 'programming'
           ? {
-              pid: question.pid,
+              pid: question.pid ? Number(question.pid) : undefined,
               multiplier: question.multiplier ?? 1,
               languages: (question.languages ?? '')
                 .split(',')
@@ -266,7 +266,7 @@ export function mapPreliminaryEditToFormValues(
         })),
         ...(question.type === 'programming'
           ? {
-              pid: question.pid,
+              pid: question.pid ? String(question.pid) : undefined,
               problemTitle: question.problemTitle,
               multiplier: question.multiplier ?? 1,
               languages: (question.languages ?? []).join(','),

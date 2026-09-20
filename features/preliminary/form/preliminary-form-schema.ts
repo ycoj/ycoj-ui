@@ -64,7 +64,7 @@ export function buildPreliminarySchema(messages: PreliminarySchemaMessages) {
       explanation: z.string().max(32768, messages.explanationTooLong),
       answer: z.string().trim(),
       options: z.array(optionSchema).max(26, messages.tooManyOptions),
-      pid: z.number().int().positive().optional(),
+      pid: z.string().trim().optional(),
       problemTitle: z.string().optional(),
       multiplier: z.number().positive().finite().optional(),
       // Comma-separated input value; buildPreliminaryPayload splits it back.
@@ -93,7 +93,7 @@ export function buildPreliminarySchema(messages: PreliminarySchemaMessages) {
         return;
       }
       if (question.type === 'programming') {
-        if (!question.pid)
+        if (!question.pid || !/^\d+$/.test(question.pid))
           ctx.addIssue({
             code: z.ZodIssueCode.custom,
             path: ['pid'],
