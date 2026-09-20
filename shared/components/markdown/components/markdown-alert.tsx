@@ -98,6 +98,7 @@ export default function MarkdownAlert({
             className="flex w-full cursor-pointer items-center gap-1"
             onClick={() => setOpen((value) => !value)}
           >
+            <span className="flex-1 text-left">{title}</span>
             <ChevronRight
               strokeWidth={2}
               className={cn(
@@ -105,7 +106,6 @@ export default function MarkdownAlert({
                 open && 'rotate-90'
               )}
             />
-            {title}
           </button>
         </AlertTitle>
       )}
