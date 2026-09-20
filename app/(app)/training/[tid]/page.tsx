@@ -32,7 +32,6 @@ export default async function TrainingDetailPage({
 }) {
   const { tid } = await params;
   const [data, user] = await Promise.all([getTrainingDetail(tid), getUser()]);
-  const owner = data.udict[data.tdoc.owner];
   const isEnrolled = Boolean(data.tsdoc?.enroll);
 
   return (
@@ -46,7 +45,7 @@ export default async function TrainingDetailPage({
           <TrainingSidebar
             tid={tid}
             data={data}
-            owner={owner}
+            owner={data.udoc}
             canEdit={canEditTraining(user, data.tdoc)}
           />
         </div>
