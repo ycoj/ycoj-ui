@@ -2,6 +2,10 @@
 
 import { isEditableFile } from './editable-file';
 import { formatFileSize } from './format-file-size';
+import {
+  getPreviewableFileType,
+  type PreviewableFileType,
+} from './previewable-file';
 import { Button } from '@/shared/components/ui/button';
 import { Checkbox } from '@/shared/components/ui/checkbox';
 import { Input } from '@/shared/components/ui/input';
@@ -26,6 +30,11 @@ type Props<TType extends string> = {
   onUpload: (type: TType, files: File[]) => Promise<void>;
   onRename?: (type: TType, file: FileInfo) => void;
   onEdit?: (type: TType, file: FileInfo) => void;
+  onPreview?: (
+    type: TType,
+    file: FileInfo,
+    previewType: PreviewableFileType
+  ) => void;
   onDelete: (type: TType, names: string[]) => void;
   onDownload: (type: TType, names: string[]) => void;
 };
@@ -45,6 +54,7 @@ export default function FileSection<TType extends string = ProblemFileType>({
   onUpload,
   onRename,
   onEdit,
+  onPreview,
   onDelete,
   onDownload,
 }: Props<TType>) {
@@ -134,6 +144,9 @@ export default function FileSection<TType extends string = ProblemFileType>({
               const checked = selected.includes(file.name);
               const editable =
                 canEdit && Boolean(onEdit) && isEditableFile(file.name);
+              const previewType = getPreviewableFileType(file.name);
+              const previewable =
+                canDownload && Boolean(onPreview) && previewType !== null;
               return (
                 <li
                   key={file.name}
@@ -153,6 +166,19 @@ export default function FileSection<TType extends string = ProblemFileType>({
                       title={t('editFile')}
                       data-llm-text={file.name}
                       onClick={() => onEdit?.(type, file)}
+                    >
+                      {file.name}
+                    </button>
+                  ) : previewable ? (
+                    <button
+                      type="button"
+                      className="min-w-0 cursor-pointer truncate text-left font-mono hover:text-primary hover:underline"
+                      title={t('preview')}
+                      aria-label={t('previewFile', { name: file.name })}
+                      data-llm-text={file.name}
+                      onClick={() =>
+                        previewType && onPreview?.(type, file, previewType)
+                      }
                     >
                       {file.name}
                     </button>

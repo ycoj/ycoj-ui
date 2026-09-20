@@ -1,7 +1,9 @@
 'use client';
 
 import CreateFileDialog from './create-file-dialog';
+import FilePreviewDialog from './file-preview-dialog';
 import FileSection from './file-section';
+import type { PreviewableFileType } from './previewable-file';
 import RenameFileDialog from './rename-file-dialog';
 import ClientApis from '@/api/client/method';
 import { Button } from '@/shared/components/ui/button';
@@ -36,6 +38,12 @@ type ActiveUpload = {
   progress: Map<File, number>;
 };
 
+type PreviewTarget = {
+  type: ProblemFileType;
+  file: FileInfo;
+  previewType: PreviewableFileType;
+};
+
 export default function ProblemFilesManager({
   pid,
   tid,
@@ -50,6 +58,13 @@ export default function ProblemFilesManager({
   const [createType, setCreateType] = useState<ProblemFileType | null>(null);
   const [renameTarget, setRenameTarget] = useState<FileTarget | null>(null);
   const [editTarget, setEditTarget] = useState<FileTarget | null>(null);
+  const [previewTarget, setPreviewTarget] = useState<PreviewTarget | null>(
+    null
+  );
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState('');
+  const previewRequestIdRef = useRef(0);
   const [deleteTarget, setDeleteTarget] = useState<{
     type: ProblemFileType;
     names: string[];
@@ -106,6 +121,45 @@ export default function ProblemFilesManager({
     setRenameTarget({ type, file });
   const openEdit = (type: ProblemFileType, file: FileInfo) =>
     setEditTarget({ type, file });
+
+  const openPreview = (
+    type: ProblemFileType,
+    file: FileInfo,
+    previewType: PreviewableFileType
+  ) => {
+    const requestId = previewRequestIdRef.current + 1;
+    previewRequestIdRef.current = requestId;
+    const target = { type, file, previewType };
+    setPreviewTarget(target);
+    setPreviewUrl(null);
+    setPreviewError('');
+    setPreviewLoading(true);
+
+    void ClientApis.Problem.getProblemFileLinks(pid, [file.name], type, tid)
+      .send()
+      .then((data) => {
+        if (previewRequestIdRef.current !== requestId) return;
+        const url = data.links?.[file.name];
+        if (!url) throw new Error(t('previewError'));
+        setPreviewUrl(url);
+      })
+      .catch((err: unknown) => {
+        if (previewRequestIdRef.current !== requestId) return;
+        setPreviewError(err instanceof Error ? err.message : t('previewError'));
+      })
+      .finally(() => {
+        if (previewRequestIdRef.current === requestId) setPreviewLoading(false);
+      });
+  };
+
+  const closePreview = (open: boolean) => {
+    if (open) return;
+    previewRequestIdRef.current += 1;
+    setPreviewTarget(null);
+    setPreviewUrl(null);
+    setPreviewError('');
+    setPreviewLoading(false);
+  };
 
   const deleteFiles = (type: ProblemFileType, names: string[]) => {
     if (!names.length) return;
@@ -202,6 +256,7 @@ export default function ProblemFilesManager({
             onUpload={uploadFiles}
             onRename={openRename}
             onEdit={openEdit}
+            onPreview={openPreview}
             onDelete={deleteFiles}
             onDownload={downloadFiles}
           />
@@ -236,6 +291,7 @@ export default function ProblemFilesManager({
           onUpload={uploadFiles}
           onRename={openRename}
           onEdit={openEdit}
+          onPreview={openPreview}
           onDelete={deleteFiles}
           onDownload={downloadFiles}
         />
@@ -274,6 +330,14 @@ export default function ProblemFilesManager({
         onOpenChange={(open) => !open && setRenameTarget(null)}
         onSaved={() => router.refresh()}
         onError={setPageError}
+      />
+      <FilePreviewDialog
+        file={previewTarget?.file ?? null}
+        type={previewTarget?.previewType ?? null}
+        url={previewUrl}
+        loading={previewLoading}
+        error={previewError}
+        onOpenChange={closePreview}
       />
 
       <Dialog.Root open={activeUpload !== null} onOpenChange={() => undefined}>
