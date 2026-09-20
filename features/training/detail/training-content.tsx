@@ -4,6 +4,7 @@ import ProblemDifficulty from '@/features/problem/problem-difficulty';
 import ProblemLink from '@/features/problem/problem-link';
 import ProblemStatus from '@/features/problem/problem-status';
 import { getTrainingChapterAnchorId } from '@/features/training/detail/training-detail-utils';
+import TrainingTagsToggle from '@/features/training/detail/training-tags-toggle';
 import Markdown from '@/shared/components/markdown';
 import {
   Accordion,
@@ -12,7 +13,6 @@ import {
   AccordionTrigger,
 } from '@/shared/components/ui/accordion';
 import { Badge } from '@/shared/components/ui/badge';
-import { Button } from '@/shared/components/ui/button';
 import { Separator } from '@/shared/components/ui/separator';
 import {
   Table,
@@ -22,7 +22,6 @@ import {
   TableRow,
 } from '@/shared/components/ui/table';
 import { useTranslations } from 'next-intl';
-import Link from 'next/link';
 
 type Props = {
   data: TrainingDetailResponse;
@@ -78,7 +77,7 @@ export default function TrainingContent({ data, showTags }: Props) {
                   </div>
                 </AccordionTrigger>
 
-                <AccordionContent className="pb-1">
+                <AccordionContent className="h-auto pb-1">
                   <Table className="table-fixed">
                     <colgroup>
                       <col className="w-20 md:w-28" />
@@ -93,15 +92,9 @@ export default function TrainingContent({ data, showTags }: Props) {
                         <TableCell>{t('problemNumber')}</TableCell>
                         <TableCell>{common('problem')}</TableCell>
                         <TableCell className="text-right">
-                          <Button
-                            asChild
-                            variant="link"
-                            className="h-auto p-0 text-sm font-medium"
-                          >
-                            <Link href={toggleShowTagsHref}>
-                              {showTags ? tp('hideTags') : tp('showTags')}
-                            </Link>
-                          </Button>
+                          <TrainingTagsToggle href={toggleShowTagsHref}>
+                            {showTags ? tp('hideTags') : tp('showTags')}
+                          </TrainingTagsToggle>
                         </TableCell>
                         <TableCell className="text-center">
                           {t('difficulty')}
@@ -138,7 +131,7 @@ export default function TrainingContent({ data, showTags }: Props) {
 
                             <TableCell className="text-right">
                               {showTags && (
-                                <div className="flex flex-wrap justify-end gap-2">
+                                <div className="flex min-w-0 flex-wrap justify-end gap-2">
                                   {problem.tag.map((tag) => (
                                     <Badge
                                       variant="secondary"

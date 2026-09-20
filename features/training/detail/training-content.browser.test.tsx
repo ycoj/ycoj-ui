@@ -5,8 +5,9 @@ import type { ProblemDoc } from '@/shared/types/problem';
 import type { TrainingDoc } from '@/shared/types/training';
 import type { User } from '@/shared/types/user';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { NextIntlClientProvider } from 'next-intl';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // The shared Markdown renderer is async (MarkdownAsync) and suspends the
 // whole tree in tests; stub it so the training content stays synchronous.
@@ -14,9 +15,17 @@ vi.mock('@/shared/components/markdown', () => ({
   default: ({ children }: { children: string }) => <>{children}</>,
 }));
 
+const navigationMocks = vi.hoisted(() => ({
+  push: vi.fn(),
+}));
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => navigationMocks,
+}));
+
 const tid = 'a'.repeat(24);
 
-function makeData(): TrainingDetailResponse {
+function makeData(tags = ['dp', 'math']): TrainingDetailResponse {
   const tdoc = {
     docId: tid,
     docType: 20,
@@ -38,7 +47,7 @@ function makeData(): TrainingDetailResponse {
     pid: 'P1000',
     owner: 1,
     title: 'A + B',
-    tag: ['dp', 'math'],
+    tag: tags,
   } as ProblemDoc;
 
   return {
@@ -57,15 +66,19 @@ function makeData(): TrainingDetailResponse {
   };
 }
 
-function renderContent(showTags: boolean) {
+function renderContent(showTags: boolean, tags?: string[]) {
   return render(
     <NextIntlClientProvider locale="en" messages={messages}>
-      <TrainingContent data={makeData()} showTags={showTags} />
+      <TrainingContent data={makeData(tags)} showTags={showTags} />
     </NextIntlClientProvider>
   );
 }
 
 describe('TrainingContent problem tags', () => {
+  beforeEach(() => {
+    navigationMocks.push.mockReset();
+  });
+
   it('hides tags by default and links to enable them', () => {
     renderContent(false);
 
@@ -85,5 +98,32 @@ describe('TrainingContent problem tags', () => {
       'href',
       `/training/${tid}?showTags=false`
     );
+  });
+
+  it('uses a client-side transition after hydration', async () => {
+    const user = userEvent.setup();
+    renderContent(false);
+
+    await user.click(screen.getByRole('link', { name: 'Show tags' }));
+
+    expect(navigationMocks.push).toHaveBeenCalledWith(
+      `/training/${tid}?showTags=true`
+    );
+  });
+
+  it('lets a long tag list expand the table row', () => {
+    const tags = Array.from({ length: 40 }, (_, index) => `tag-${index}`);
+    renderContent(true, tags);
+
+    const firstTag = screen.getByText('tag-0');
+    const tagsContainer = firstTag.closest('div');
+
+    expect(tagsContainer).not.toBeNull();
+    expect(tagsContainer).toHaveClass('flex-wrap');
+    expect(tagsContainer).not.toHaveClass('max-h-20', 'overflow-y-auto');
+
+    for (const tag of tags) {
+      expect(screen.getByText(tag)).toBeInTheDocument();
+    }
   });
 });
