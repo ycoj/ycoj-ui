@@ -88,6 +88,29 @@ export default function PreliminaryQuestionCard({
     setExplanationOpen(false);
   };
 
+  const scoreField = (
+    <Field>
+      <FieldLabel htmlFor={`${base}.score`}>{t('score')}</FieldLabel>
+      <FieldContent>
+        <Input
+          id={`${base}.score`}
+          type="number"
+          min={0.5}
+          max={1000}
+          step={0.5}
+          disabled={disabled}
+          aria-invalid={!!questionErrors?.score}
+          // Coerces cleared/invalid input to the default score at the
+          // input boundary so NaN never reaches the payload builder.
+          {...register(`${base}.score`, {
+            setValueAs: (value) => normalizeScoreInput(value),
+          })}
+        />
+        <FieldError errors={[questionErrors?.score]} />
+      </FieldContent>
+    </Field>
+  );
+
   return (
     <div className="space-y-3 rounded-lg border p-3">
       <div className="flex items-center justify-between gap-2">
@@ -134,49 +157,8 @@ export default function PreliminaryQuestionCard({
         </div>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_8rem]">
-        {question?.type === 'programming' ? (
-          <div />
-        ) : (
-          <Field>
-            <FieldLabel htmlFor={`${base}.prompt`}>{t('prompt')}</FieldLabel>
-            <FieldContent>
-              <Textarea
-                id={`${base}.prompt`}
-                rows={2}
-                placeholder={t('promptPlaceholder')}
-                disabled={disabled}
-                aria-invalid={!!questionErrors?.prompt}
-                {...register(`${base}.prompt`)}
-              />
-              <FieldError errors={[questionErrors?.prompt]} />
-            </FieldContent>
-          </Field>
-        )}
-        <Field>
-          <FieldLabel htmlFor={`${base}.score`}>{t('score')}</FieldLabel>
-          <FieldContent>
-            <Input
-              id={`${base}.score`}
-              type="number"
-              min={0.5}
-              max={1000}
-              step={0.5}
-              disabled={disabled}
-              aria-invalid={!!questionErrors?.score}
-              // Coerces cleared/invalid input to the default score at the
-              // input boundary so NaN never reaches the payload builder.
-              {...register(`${base}.score`, {
-                setValueAs: (value) => normalizeScoreInput(value),
-              })}
-            />
-            <FieldError errors={[questionErrors?.score]} />
-          </FieldContent>
-        </Field>
-      </div>
-
       {question?.type === 'programming' ? (
-        <div className="grid gap-3 md:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-[minmax(0,2fr)_8rem_minmax(0,1fr)_minmax(0,1fr)]">
           <Field>
             <FieldLabel>{t('problem')}</FieldLabel>
             <FieldContent>
@@ -196,6 +178,7 @@ export default function PreliminaryQuestionCard({
               />
             </FieldContent>
           </Field>
+          {scoreField}
           <Field>
             <FieldLabel htmlFor={`${base}.multiplier`}>
               {t('multiplier')}
@@ -227,7 +210,28 @@ export default function PreliminaryQuestionCard({
             </FieldContent>
           </Field>
         </div>
-      ) : question?.type === 'true_false' ? (
+      ) : (
+        <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_8rem]">
+          <Field>
+            <FieldLabel htmlFor={`${base}.prompt`}>{t('prompt')}</FieldLabel>
+            <FieldContent>
+              <Textarea
+                id={`${base}.prompt`}
+                rows={2}
+                placeholder={t('promptPlaceholder')}
+                disabled={disabled}
+                aria-invalid={!!questionErrors?.prompt}
+                {...register(`${base}.prompt`)}
+              />
+              <FieldError errors={[questionErrors?.prompt]} />
+            </FieldContent>
+          </Field>
+          {scoreField}
+        </div>
+      )}
+
+      {question?.type === 'programming' ? null : question?.type ===
+        'true_false' ? (
         <Field>
           <FieldLabel>{t('answer')}</FieldLabel>
           <FieldContent>
