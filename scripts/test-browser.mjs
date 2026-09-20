@@ -14,10 +14,12 @@ if (!chromiumPath || !existsSync(chromiumPath)) {
   process.exit(1);
 }
 
-// A single vitest run over all files keeps leaking pages/memory in the
-// browser, so files run in sequential batches. BROWSER_TEST_BATCH_SIZE
-// overrides the default for local tuning.
-const batchSize = Number(process.env.BROWSER_TEST_BATCH_SIZE ?? 40);
+// A single vitest run over all files is preferred: each batch pays the full
+// vite startup and module-transform cost. Batching remains as a safety valve
+// for browser memory growth in very large suites, and a failed batch is
+// retried in halves below. BROWSER_TEST_BATCH_SIZE overrides the default for
+// local tuning.
+const batchSize = Number(process.env.BROWSER_TEST_BATCH_SIZE ?? 200);
 if (!Number.isInteger(batchSize) || batchSize < 1) {
   throw new Error('BROWSER_TEST_BATCH_SIZE must be a positive integer.');
 }

@@ -1,18 +1,23 @@
 import { sharedPlugins, sharedResolve } from './vitest.shared.mjs';
 import { playwright } from '@vitest/browser-playwright';
+import { availableParallelism } from 'node:os';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   plugins: sharedPlugins,
   resolve: sharedResolve,
   test: {
-    maxWorkers: 2,
+    // Each worker drives a separate browser page; Chromium contexts are heavy,
+    // so cap the count instead of using every available core.
+    maxWorkers: Math.min(8, availableParallelism()),
     browser: {
       enabled: true,
       headless: true,
       instances: [{ browser: 'chromium' }],
       provider: playwright(),
-      trace: 'retain-on-failure',
+      // 'retain-on-failure' records a Playwright trace for every test and
+      // roughly doubles the run; only enable it when debugging a failure.
+      trace: 'off',
       screenshotDirectory: 'test-results/screenshots',
     },
     include: ['**/*.browser.test.{ts,tsx}'],
