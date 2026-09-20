@@ -75,7 +75,7 @@ export default function ProblemSearch({
           aria-label={t('feedbackManage')}
           title={t('feedbackManage')}
         >
-          <Link href="/manage/problem-feedback" prefetch={false}>
+          <Link href="/problem/feedback" prefetch={false}>
             <MessageSquareWarning />
           </Link>
         </Button>
