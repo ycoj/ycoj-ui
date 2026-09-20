@@ -351,14 +351,44 @@ describe('Markdown code block line numbers', () => {
 });
 
 describe('Markdown containers', () => {
-  it('renders an info container with a title as an alert', async () => {
+  it('collapses a titled container until the title is clicked', async () => {
+    const user = userEvent.setup();
     await renderMarkdown(':::info[Heads up]\nPay **attention**.\n:::');
 
     const alert = screen.getByRole('alert');
     expect(alert).toHaveClass('border-blue-200');
     expect(alert).toHaveClass('not-prose');
-    expect(screen.getByText('Heads up')).toBeInTheDocument();
+    const toggle = screen.getByRole('button', { name: 'Heads up' });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByText('attention')).not.toBeInTheDocument();
+
+    await user.click(toggle);
+
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByText('attention').tagName).toBe('STRONG');
+  });
+
+  it('renders a titled container with an opened marker expanded', async () => {
+    await renderMarkdown(':::info[Heads up]{opened}\nPay attention.\n:::');
+
+    expect(screen.getByRole('button', { name: 'Heads up' })).toHaveAttribute(
+      'aria-expanded',
+      'true'
+    );
+    expect(screen.getByText('Pay attention.')).toBeInTheDocument();
+  });
+
+  it('renders a titled container with a closed marker collapsed', async () => {
+    const user = userEvent.setup();
+    await renderMarkdown(':::info[Heads up]{closed}\nPay attention.\n:::');
+
+    const toggle = screen.getByRole('button', { name: 'Heads up' });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByText('Pay attention.')).not.toBeInTheDocument();
+
+    await user.click(toggle);
+
+    expect(screen.getByText('Pay attention.')).toBeInTheDocument();
   });
 
   it.each([
@@ -392,7 +422,12 @@ describe('Markdown containers', () => {
   });
 
   it('renders nested containers', async () => {
+    const user = userEvent.setup();
     await renderMarkdown(':::info[Outer]\n:::warning\ninner\n:::\n:::');
+
+    // The titled outer container starts collapsed, hiding the inner one.
+    expect(screen.getAllByRole('alert')).toHaveLength(1);
+    await user.click(screen.getByRole('button', { name: 'Outer' }));
 
     const alerts = screen.getAllByRole('alert');
     expect(alerts).toHaveLength(2);

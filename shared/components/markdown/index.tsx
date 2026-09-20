@@ -76,6 +76,8 @@ export const markdownSanitizeSchema: Schema = {
       ['data-variant', /^(info|warning|success|error)$/],
       'dataTitle',
       'data-title',
+      ['dataState', /^(opened|closed)$/],
+      ['data-state', /^(opened|closed)$/],
     ],
     'md-align': [
       ['dataAlign', /^(center|left|right)$/],

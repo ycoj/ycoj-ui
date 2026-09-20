@@ -94,6 +94,86 @@ describe('remarkContainers', () => {
     });
   });
 
+  it('parses an opened marker after the title', () => {
+    const tree = applyPlugin({
+      type: 'root',
+      children: [
+        paragraph(':::info[Heads up]{opened}'),
+        paragraph('x'),
+        paragraph(':::'),
+      ],
+    });
+
+    expect(tree.children![0]!.data?.hProperties).toEqual({
+      'data-variant': 'info',
+      'data-title': 'Heads up',
+      'data-state': 'opened',
+    });
+  });
+
+  it('parses a closed marker after the title', () => {
+    const tree = applyPlugin({
+      type: 'root',
+      children: [
+        paragraph(':::info[Heads up]{closed}'),
+        paragraph('x'),
+        paragraph(':::'),
+      ],
+    });
+
+    expect(tree.children![0]!.data?.hProperties).toEqual({
+      'data-variant': 'info',
+      'data-title': 'Heads up',
+      'data-state': 'closed',
+    });
+  });
+
+  it('accepts a collapse marker without a title', () => {
+    const tree = applyPlugin({
+      type: 'root',
+      children: [
+        paragraph(':::info{opened}'),
+        paragraph('x'),
+        paragraph(':::'),
+      ],
+    });
+
+    expect(tree.children![0]!.data?.hProperties).toEqual({
+      'data-variant': 'info',
+      'data-state': 'opened',
+    });
+  });
+
+  it('normalizes the collapse marker case', () => {
+    const tree = applyPlugin({
+      type: 'root',
+      children: [
+        paragraph(':::info[Hi]{OPENED}'),
+        paragraph('x'),
+        paragraph(':::'),
+      ],
+    });
+
+    expect(tree.children![0]!.data?.hProperties).toEqual({
+      'data-variant': 'info',
+      'data-title': 'Hi',
+      'data-state': 'opened',
+    });
+  });
+
+  it('does not accept a collapse marker on align containers', () => {
+    const tree = applyPlugin({
+      type: 'root',
+      children: [
+        paragraph(':::align{right}{opened}'),
+        paragraph('x'),
+        paragraph(':::'),
+      ],
+    });
+
+    expect(tree.children).toHaveLength(3);
+  });
+
   it('keeps brackets inside a title', () => {
     const tree = applyPlugin({
       type: 'root',

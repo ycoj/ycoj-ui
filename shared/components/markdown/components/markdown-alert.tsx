@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Alert,
   AlertDescription,
@@ -5,8 +7,14 @@ import {
 } from '@/shared/components/ui/alert';
 import { cn } from '@/shared/lib/utils';
 import type { LucideIcon } from 'lucide-react';
-import { CircleCheck, CircleX, Info, TriangleAlert } from 'lucide-react';
-import type { ReactNode } from 'react';
+import {
+  ChevronRight,
+  CircleCheck,
+  CircleX,
+  Info,
+  TriangleAlert,
+} from 'lucide-react';
+import { useState, type ReactNode } from 'react';
 
 const ALERT_VARIANTS = ['error', 'info', 'success', 'warning'] as const;
 type AlertVariant = (typeof ALERT_VARIANTS)[number];
@@ -69,6 +77,10 @@ export default function MarkdownAlert({
   const titleRaw = getPropValue(propsMap, 'data-title', 'dataTitle');
   const title =
     typeof titleRaw === 'string' && titleRaw.trim() ? titleRaw.trim() : null;
+  // Titled containers collapse to their title by default; an explicit
+  // {opened}/{closed} marker in the directive overrides the default.
+  const stateRaw = getPropValue(propsMap, 'data-state', 'dataState');
+  const [open, setOpen] = useState(stateRaw === 'opened');
   const style = VARIANT_STYLES[variant];
   const Icon = style.icon;
 
@@ -78,8 +90,26 @@ export default function MarkdownAlert({
       className={cn('not-prose my-4', style.className, className)}
     >
       <Icon strokeWidth={2} className="text-current" />
-      {title && <AlertTitle data-llm-text={title}>{title}</AlertTitle>}
-      <AlertDescription>{children}</AlertDescription>
+      {title && (
+        <AlertTitle data-llm-text={title}>
+          <button
+            type="button"
+            aria-expanded={open}
+            className="flex w-full cursor-pointer items-center gap-1"
+            onClick={() => setOpen((value) => !value)}
+          >
+            <ChevronRight
+              strokeWidth={2}
+              className={cn(
+                'size-4 shrink-0 transition-transform',
+                open && 'rotate-90'
+              )}
+            />
+            {title}
+          </button>
+        </AlertTitle>
+      )}
+      {(!title || open) && <AlertDescription>{children}</AlertDescription>}
     </Alert>
   );
 }

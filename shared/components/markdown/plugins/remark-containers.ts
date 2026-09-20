@@ -17,16 +17,22 @@ type ParseSource = (source: string) => MdastNode;
 
 type AlignValue = 'center' | 'left' | 'right';
 type AlertVariant = 'error' | 'info' | 'success' | 'warning';
+type ContainerState = 'closed' | 'opened';
 
 const DIRECTIVE_RE =
-  /^:::\s*(?:align\s*\{\s*(center|right|left)\s*\}|(info|warning|success|error))\s*(?:\[(.*)\])?\s*$/i;
+  /^:::\s*(?:align\s*\{\s*(center|right|left)\s*\}|(info|warning|success|error))\s*(?:\[(.*)\])?\s*(?:\{(opened|closed)\})?\s*$/i;
 const CLOSING_RE = /^\s*:::\s*$/;
 const BLOCKQUOTE_MARKER_RE = /^[ \t]*(?:>[ \t]?)+/;
 const LEADING_WHITESPACE_RE = /^[ \t]*/;
 
 type ContainerDirective =
   | { align: AlignValue; kind: 'align' }
-  | { kind: 'alert'; title: string | null; variant: AlertVariant };
+  | {
+      kind: 'alert';
+      state: ContainerState | null;
+      title: string | null;
+      variant: AlertVariant;
+    };
 
 // Built containers are identified by their hName so the final recursion pass
 // can tell them apart from plain content that still needs to be scanned.
@@ -97,14 +103,15 @@ function parseDirective(line: string): ContainerDirective | null {
   if (!match) return null;
 
   if (match[1]) {
-    // A title only makes sense for alert containers.
-    if (match[3] !== undefined) return null;
+    // A title and a collapse marker only make sense for alert containers.
+    if (match[3] !== undefined || match[4] !== undefined) return null;
     return { align: match[1].toLowerCase() as AlignValue, kind: 'align' };
   }
 
   const title = match[3]?.trim();
   return {
     kind: 'alert',
+    state: match[4] ? (match[4].toLowerCase() as ContainerState) : null,
     title: title ? title : null,
     variant: match[2]!.toLowerCase() as AlertVariant,
   };
@@ -132,6 +139,7 @@ function makeContainerNode(
       hProperties: {
         'data-variant': directive.variant,
         ...(directive.title ? { 'data-title': directive.title } : {}),
+        ...(directive.state ? { 'data-state': directive.state } : {}),
       },
     },
   };
