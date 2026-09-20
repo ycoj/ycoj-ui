@@ -11,6 +11,10 @@ type Params = {
   tid: string;
 };
 
+type SearchParams = {
+  showTags?: string;
+};
+
 export async function generateMetadata({
   params,
 }: {
@@ -27,10 +31,15 @@ export async function generateMetadata({
 
 export default async function TrainingDetailPage({
   params,
+  searchParams: searchParamsPromise,
 }: {
   params: Promise<Params>;
+  searchParams: Promise<SearchParams>;
 }) {
-  const { tid } = await params;
+  const [{ tid }, { showTags }] = await Promise.all([
+    params,
+    searchParamsPromise,
+  ]);
   const [data, user] = await Promise.all([getTrainingDetail(tid), getUser()]);
   const isEnrolled = Boolean(data.tsdoc?.enroll);
 
@@ -39,7 +48,7 @@ export default async function TrainingDetailPage({
       <TrainingTitle tdoc={data.tdoc} isEnrolled={isEnrolled} />
       <div className="grid grid-cols-1 gap-8 md:grid-cols-10">
         <div className="md:col-span-8">
-          <TrainingContent data={data} />
+          <TrainingContent data={data} showTags={showTags === 'true'} />
         </div>
         <div className="md:col-span-2">
           <TrainingSidebar
