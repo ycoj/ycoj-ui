@@ -37,16 +37,6 @@ jobs:
       - name: Run TypeScript type check
         run: pnpm lint:type
 
-      - name: Get Playwright version
-        id: playwright-version
-        run: echo "version=$(pnpm exec playwright --version | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
-
-      - name: Cache Playwright browser
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ runner.arch }}-chromium-${{ steps.playwright-version.outputs.version }}
-
       - name: Install Playwright browsers
         run: pnpm exec playwright install --with-deps chromium
 
