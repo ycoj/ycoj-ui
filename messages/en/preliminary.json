@@ -41,6 +41,7 @@
   "incorrect": "Incorrect",
   "judging": "Judging",
   "programmingQuestion": "Programming",
+  "programmingUnavailable": "This programming problem is unavailable.",
   "languagePlaceholder": "Language",
   "codePlaceholder": "Code",
   "explanation": "Explanation",

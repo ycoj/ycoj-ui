@@ -3,7 +3,7 @@ import PreliminaryOption from '@/features/preliminary/detail/preliminary-option'
 import PreliminaryOptionContent, {
   getPreliminaryOptionInfos,
 } from '@/features/preliminary/detail/preliminary-option-content';
-import PreliminaryProgrammingAnswer from '@/features/preliminary/detail/preliminary-programming-answer';
+import PreliminaryProgrammingQuestion from '@/features/preliminary/detail/preliminary-programming-question';
 import PreliminarySectionShell from '@/features/preliminary/detail/preliminary-section-shell';
 import {
   getPreliminaryQuestionAnchorId,
@@ -11,6 +11,8 @@ import {
   getQuestionDisplayNumber,
 } from '@/features/preliminary/lib/preliminary-utils';
 import PreliminaryMarkdown from '@/features/preliminary/markdown/preliminary-markdown';
+import ProblemContent from '@/features/problem/detail/problem-content';
+import type { ScratchpadLanguages } from '@/features/problem/scratchpad/scratchpad-types';
 import { Badge } from '@/shared/components/ui/badge';
 import {
   Card,
@@ -18,14 +20,22 @@ import {
   CardHeader,
   CardTitle,
 } from '@/shared/components/ui/card';
+import type { User } from '@/shared/types/user';
 import { useTranslations } from 'next-intl';
 
 type Props = {
   data: PreliminaryDetailData;
   isReadOnly: boolean;
+  programmingLanguages: Record<number, ScratchpadLanguages>;
+  user: User | null;
 };
 
-export default function PreliminaryContent({ data, isReadOnly }: Props) {
+export default function PreliminaryContent({
+  data,
+  isReadOnly,
+  programmingLanguages,
+  user,
+}: Props) {
   const t = useTranslations('preliminary');
   const paper = data.paper;
   const description = paper.content?.trim();
@@ -88,13 +98,24 @@ export default function PreliminaryContent({ data, isReadOnly }: Props) {
                 </div>
                 <PreliminaryMarkdown>{question.prompt}</PreliminaryMarkdown>
                 {question.type === 'programming' ? (
-                  <PreliminaryProgrammingAnswer
-                    questionId={question.id}
-                    defaultLanguage={question.languages?.[0]}
-                    isReadOnly={isReadOnly}
-                    languagePlaceholder={t('languagePlaceholder')}
-                    codePlaceholder={t('codePlaceholder')}
-                  />
+                  data.pdict[question.pid ?? 0] ? (
+                    <PreliminaryProgrammingQuestion
+                      question={question}
+                      problem={data.pdict[question.pid ?? 0]}
+                      statement={
+                        <ProblemContent
+                          problem={data.pdict[question.pid ?? 0]}
+                        />
+                      }
+                      languages={programmingLanguages[question.pid ?? 0] ?? {}}
+                      user={user}
+                      isReadOnly={isReadOnly}
+                    />
+                  ) : (
+                    <div className="rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200">
+                      {t('programmingUnavailable')}
+                    </div>
+                  )
                 ) : (
                   <fieldset
                     disabled={isReadOnly}

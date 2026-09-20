@@ -1,3 +1,5 @@
+import ServerApis from '@/api/server/method';
+import type { LanguageFamily } from '@/api/server/method/ui/languages';
 import PreliminaryAnswerProvider from '@/features/preliminary/detail/preliminary-answer-provider';
 import PreliminaryContent from '@/features/preliminary/detail/preliminary-content';
 import PreliminaryMobileNavigation from '@/features/preliminary/detail/preliminary-mobile-navigation';
@@ -8,6 +10,7 @@ import {
   buildAllowedAnswers,
   getProgrammingQuestionIds,
 } from '@/features/preliminary/lib/preliminary-utils';
+import type { ScratchpadLanguages } from '@/features/problem/scratchpad/scratchpad-types';
 import { getUser } from '@/features/user/lib/get-user';
 import { Errored } from '@/shared/components/errored';
 import TwoColumnLayout from '@/shared/layout/two-column';
@@ -57,6 +60,19 @@ export default async function PreliminaryDetailPage({
   const allowedAnswers = buildAllowedAnswers(data.paper.sections);
   const programmingQuestionIds = getProgrammingQuestionIds(data.paper.sections);
   const draftId = `${user?._id ?? 0}/preliminary/${paperId}@${data.paper.revision}`;
+  const programmingPids = Object.keys(data.pdict).map(Number);
+  const programmingLanguages = Object.fromEntries(
+    await Promise.all(
+      programmingPids.map(async (pid) => {
+        try {
+          const response = await ServerApis.UI.getAvailableLanguages(pid);
+          return [pid, response.languages] as const;
+        } catch {
+          return [pid, {} as Record<string, LanguageFamily>] as const;
+        }
+      })
+    )
+  ) as Record<number, ScratchpadLanguages>;
 
   return (
     <PreliminaryAnswerProvider
@@ -71,7 +87,12 @@ export default async function PreliminaryDetailPage({
           ratio="8-2"
           left={
             <div className="min-w-0 space-y-4">
-              <PreliminaryContent data={data} isReadOnly={!data.canSubmit} />
+              <PreliminaryContent
+                data={data}
+                isReadOnly={!data.canSubmit}
+                programmingLanguages={programmingLanguages}
+                user={user}
+              />
               {/* The submit bar always renders here: mobile navigation is
               always provided, so the bar is never empty even for
               read-only viewers. */}

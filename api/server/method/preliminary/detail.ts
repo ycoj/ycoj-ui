@@ -6,6 +6,7 @@ import type {
   PreliminaryQuestion,
   PreliminarySection,
 } from '@/shared/types/preliminary';
+import type { ProblemDict } from '@/shared/types/problem';
 import type { BaseUser } from '@/shared/types/user';
 
 // The public detail never includes answer keys or explanations (see
@@ -26,6 +27,7 @@ export type PreliminaryPublicPaper = PreliminaryPaperSummary & {
 
 export type PreliminaryDetailData = {
   paper: PreliminaryPublicPaper;
+  pdict: ProblemDict;
   attempts: PreliminaryAttemptSummary[];
   owner: BaseUser;
   canEdit: boolean;

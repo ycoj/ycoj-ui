@@ -12,6 +12,7 @@ vi.mock('@/features/preliminary/detail/preliminary-answer-provider', () => ({
 }));
 
 const data: PreliminaryDetailData = {
+  pdict: {},
   paper: {
     docId: 'paper1',
     owner: 1,

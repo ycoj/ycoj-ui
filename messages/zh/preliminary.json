@@ -41,6 +41,7 @@
   "incorrect": "错误",
   "judging": "评测中",
   "programmingQuestion": "编程题",
+  "programmingUnavailable": "暂时无法加载这道编程题。",
   "languagePlaceholder": "语言",
   "codePlaceholder": "代码",
   "explanation": "解析",
