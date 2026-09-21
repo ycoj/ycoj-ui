@@ -145,11 +145,12 @@ function makeContainerNode(
   };
 }
 
-// Finds the closing line matching the opening directive on lines[0], skipping
-// over nested container directives, or -1 when the paragraph holds no match.
-function findClosingLine(lines: string[]): number {
+// Finds the closing line matching the opening directive on lines[from],
+// skipping over nested container directives, or -1 when the rest of the
+// paragraph holds no match.
+function findClosingLine(lines: string[], from: number): number {
   let depth = 1;
-  for (let index = 1; index < lines.length; index += 1) {
+  for (let index = from + 1; index < lines.length; index += 1) {
     const line = lines[index]!;
     if (parseDirective(line)) {
       depth += 1;
@@ -192,7 +193,16 @@ function parseInnerChildren(
 type Frame = {
   collected: MdastNode[];
   directive: ContainerDirective;
+  // Raw source from the directive line to the end of its paragraph. A frame
+  // that starts after other content in the same paragraph restores only this
+  // slice on fallback, since the content before it was already emitted.
+  literalText: string;
+  // The original paragraph node, restored verbatim when the frame starts at
+  // the paragraph's first line.
   opening: MdastNode;
+  // Index of the directive line inside its paragraph; 0 when the frame owns
+  // the whole paragraph.
+  startLine: number;
   // Lines that followed the opening marker inside its own paragraph,
   // re-parsed into nodes. They render inside the opening paragraph, so an
   // unterminated frame drops them on restore instead of double-emitting.
@@ -216,65 +226,107 @@ function transformNode(
     else result.push(item);
   };
 
+  // Collected siblings come from the outer tree and keep outer offsets, while
+  // tail nodes were parsed from the opening paragraph slice. Only the
+  // collected ones may be scanned again with the outer source.
+  const closeFrame = (frame: Frame) => {
+    const collectedRoot: MdastNode = {
+      type: 'root',
+      children: frame.collected,
+    };
+    transformNode(collectedRoot, source, parseSource);
+    pushContent(
+      makeContainerNode(frame.directive, [
+        ...(frame.tail ?? []),
+        ...(collectedRoot.children ?? []),
+      ])
+    );
+  };
+
   for (let index = 0; index < children.length; index += 1) {
     const child = children[index]!;
     const text =
       child.type === 'paragraph' ? getNodeSource(child, source) : null;
 
-    if (text !== null && CLOSING_RE.test(text) && frames.length > 0) {
-      const frame = frames.pop()!;
-      // Collected siblings come from the outer tree and keep outer offsets,
-      // while tail nodes were parsed from the opening paragraph slice. Only
-      // the collected ones may be scanned again with the outer source.
-      const collectedRoot: MdastNode = {
-        type: 'root',
-        children: frame.collected,
-      };
-      transformNode(collectedRoot, source, parseSource);
-      const container = makeContainerNode(frame.directive, [
-        ...(frame.tail ?? []),
-        ...(collectedRoot.children ?? []),
-      ]);
-      pushContent(container);
-      continue;
-    }
-
-    const directive =
-      text === null ? null : parseDirective(text.split('\n')[0] ?? '');
-
-    if (text === null || directive === null) {
+    if (text === null) {
       pushContent(child);
       continue;
     }
 
     const lines = text.split('\n');
-    if (lines.length > 1) {
-      const closingLine = findClosingLine(lines);
-      if (closingLine === lines.length - 1) {
-        const container = makeContainerNode(
-          directive,
-          parseInnerChildren(
-            lines.slice(1, closingLine).join('\n'),
-            parseSource
-          )
-        );
-        pushContent(container);
-      } else if (closingLine === -1) {
-        frames.push({
-          directive,
-          opening: child,
-          collected: [],
-          tail: parseInnerChildren(lines.slice(1).join('\n'), parseSource),
-        });
-      } else {
-        // Content after the closing marker: leave the paragraph untouched so
-        // no authored content is silently dropped.
-        pushContent(child);
-      }
+    const opensFrame = lines.some((line) => parseDirective(line) !== null);
+    const closesFrame =
+      frames.length > 0 && lines.some((line) => CLOSING_RE.test(line));
+    if (!opensFrame && !closesFrame) {
+      pushContent(child);
       continue;
     }
 
-    frames.push({ directive, opening: child, collected: [], tail: null });
+    // Container markers only need to sit on their own line, so a paragraph may
+    // mix them with other content. Walk the lines and emit every plain run,
+    // container, and frame in the order it appears.
+    let cursor = 0;
+    let plainStart = 0;
+    const flushPlain = (end: number) => {
+      if (plainStart >= end) return;
+      const body = lines.slice(plainStart, end).join('\n');
+      plainStart = end;
+      for (const item of parseInnerChildren(body, parseSource)) {
+        // The item was parsed against the body slice, so its offsets are not
+        // valid in the outer document and must not be re-sliced by later
+        // scans.
+        delete item.position;
+        pushContent(item);
+      }
+    };
+
+    while (cursor < lines.length) {
+      const line = lines[cursor]!;
+      const directive = parseDirective(line);
+
+      if (directive) {
+        flushPlain(cursor);
+        const closingLine = findClosingLine(lines, cursor);
+        if (closingLine !== -1) {
+          pushContent(
+            makeContainerNode(
+              directive,
+              parseInnerChildren(
+                lines.slice(cursor + 1, closingLine).join('\n'),
+                parseSource
+              )
+            )
+          );
+          cursor = closingLine + 1;
+        } else {
+          const rest = lines.slice(cursor + 1);
+          frames.push({
+            collected: [],
+            directive,
+            literalText: lines.slice(cursor).join('\n'),
+            opening: child,
+            startLine: cursor,
+            tail: rest.length
+              ? parseInnerChildren(rest.join('\n'), parseSource)
+              : null,
+          });
+          cursor = lines.length;
+        }
+        plainStart = cursor;
+        continue;
+      }
+
+      if (CLOSING_RE.test(line) && frames.length > 0) {
+        flushPlain(cursor);
+        closeFrame(frames.pop()!);
+        cursor += 1;
+        plainStart = cursor;
+        continue;
+      }
+
+      cursor += 1;
+    }
+    flushPlain(lines.length);
   }
 
   // Completed containers and plain content are final: scan them for nested
@@ -294,7 +346,16 @@ function transformNode(
       children: frame.collected,
     };
     transformNode(collectedRoot, source, parseSource);
-    result.push(frame.opening, ...(collectedRoot.children ?? []));
+    if (frame.startLine === 0) {
+      result.push(frame.opening, ...(collectedRoot.children ?? []));
+    } else {
+      // Content in front of the directive was already emitted, so restoring
+      // the whole paragraph would duplicate it.
+      result.push(
+        ...parseInnerChildren(frame.literalText, parseSource),
+        ...(collectedRoot.children ?? [])
+      );
+    }
   }
 
   node.children = result;

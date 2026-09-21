@@ -61,6 +61,17 @@ function applyWithSource(tree: MdastNode, source: string) {
   return parse;
 }
 
+function applyWithEchoParse(tree: MdastNode, source = '') {
+  const parse = vi.fn(
+    (body: string) =>
+      ({ type: 'root', children: [paragraph(body)] }) as unknown as ReturnType<
+        Processor['parse']
+      >
+  );
+  applyPlugin(tree, parse as unknown as Processor['parse'], source);
+  return parse;
+}
+
 describe('remarkContainers', () => {
   it('wraps an alert container written across paragraphs', () => {
     const tree = applyPlugin({
@@ -255,14 +266,99 @@ describe('remarkContainers', () => {
     ]);
   });
 
-  it('requires the closing marker to be the last line of a compact container', () => {
-    const source = ':::info\ncontent\n:::\ntrailing';
-    const tree = applyPlugin({
+  it('allows content after the closing marker when it sits on its own line', () => {
+    const tree = {
       type: 'root',
-      children: [paragraph(source)],
-    });
+      children: [paragraph(':::info\ncontent\n:::\ntrailing')],
+    };
+    const parse = applyWithEchoParse(tree);
 
-    expect(tree.children).toEqual([paragraph(source)]);
+    expect(parse).toHaveBeenCalledWith('content');
+    expect(parse).toHaveBeenCalledWith('trailing');
+    expect(tree.children).toHaveLength(2);
+    expect(tree.children![0]!.data?.hProperties).toEqual({
+      'data-variant': 'info',
+    });
+    expect(tree.children![0]!.children).toEqual([paragraph('content')]);
+    expect(tree.children![1]).toEqual(paragraph('trailing'));
+  });
+
+  it('wraps a container whose directive follows text in the same paragraph', () => {
+    const tree = {
+      type: 'root',
+      children: [paragraph('intro\n:::info\nbody\n:::')],
+    };
+    const parse = applyWithEchoParse(tree);
+
+    expect(parse).toHaveBeenCalledWith('intro');
+    expect(parse).toHaveBeenCalledWith('body');
+    expect(tree.children).toHaveLength(2);
+    expect(tree.children![0]).toEqual(paragraph('intro'));
+    const container = tree.children![1]!;
+    expect(container.data?.hProperties).toEqual({ 'data-variant': 'info' });
+    expect(container.children).toEqual([paragraph('body')]);
+  });
+
+  it('keeps text before an unterminated container directive literal', () => {
+    const tree = {
+      type: 'root',
+      children: [paragraph('intro\n:::info\nnever closed')],
+    };
+    applyWithEchoParse(tree);
+
+    expect(tree.children).toEqual([
+      paragraph('intro'),
+      paragraph(':::info\nnever closed'),
+    ]);
+  });
+
+  it('restores only the frame slice when an unterminated container follows text', () => {
+    const tree = {
+      type: 'root',
+      children: [paragraph('intro\n:::info\n:::warning\ninner\n:::')],
+    };
+    applyWithEchoParse(tree);
+
+    expect(tree.children).toEqual([
+      paragraph('intro'),
+      paragraph(':::info\n:::warning\ninner\n:::'),
+    ]);
+  });
+
+  it('wraps consecutive containers written in a single paragraph', () => {
+    const tree = {
+      type: 'root',
+      children: [paragraph(':::info\na\n:::\n:::warning\nb\n:::')],
+    };
+    const parse = applyWithEchoParse(tree);
+
+    expect(parse).toHaveBeenCalledWith('a');
+    expect(parse).toHaveBeenCalledWith('b');
+    expect(tree.children).toHaveLength(2);
+    expect(tree.children![0]!.data?.hProperties).toEqual({
+      'data-variant': 'info',
+    });
+    expect(tree.children![0]!.children).toEqual([paragraph('a')]);
+    expect(tree.children![1]!.data?.hProperties).toEqual({
+      'data-variant': 'warning',
+    });
+    expect(tree.children![1]!.children).toEqual([paragraph('b')]);
+  });
+
+  it('closes a container whose closing marker shares a paragraph with other lines', () => {
+    const tree = {
+      type: 'root',
+      children: [paragraph(':::info'), paragraph('first\n:::\nsecond')],
+    };
+    const parse = applyWithEchoParse(tree);
+
+    expect(parse).toHaveBeenCalledWith('first');
+    expect(parse).toHaveBeenCalledWith('second');
+    expect(tree.children).toHaveLength(2);
+    const container = tree.children![0]!;
+    expect(container.data?.hProperties).toEqual({ 'data-variant': 'info' });
+    expect(container.children).toEqual([paragraph('first')]);
+    expect(tree.children![1]).toEqual(paragraph('second'));
   });
 
   it('leaves an unterminated container untouched', () => {

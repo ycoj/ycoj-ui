@@ -415,6 +415,24 @@ describe('Markdown containers', () => {
     expect(screen.getByText('out').tagName).toBe('STRONG');
   });
 
+  it('renders a container that directly follows text without a blank line', async () => {
+    await renderMarkdown('Intro line\n:::info\nbody\n:::\nTail line');
+
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveTextContent('body');
+    expect(screen.getByText('Intro line')).toBeInTheDocument();
+    expect(screen.getByText('Tail line')).toBeInTheDocument();
+  });
+
+  it('renders a container that follows text inside a blockquote', async () => {
+    await renderMarkdown('> intro\n> :::info\n> body\n> :::\n> tail');
+
+    const alert = screen.getByRole('alert');
+    expect(alert).toHaveTextContent('body');
+    expect(screen.getByText('intro')).toBeInTheDocument();
+    expect(screen.getByText('tail')).toBeInTheDocument();
+  });
+
   it('renders an align container with the requested alignment', async () => {
     const { container } = await renderMarkdown(':::align{right}\nhello\n:::');
 
