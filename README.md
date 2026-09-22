@@ -1,3 +1,5 @@
+# Moved to monorepo https://github.com/ycoj/ycoj-v3
+
 [![Lint](https://github.com/ycoj/ycoj-ui/actions/workflows/lint.yml/badge.svg)](https://github.com/ycoj/ycoj-ui/actions/workflows/lint.yml)
 [![CodSpeed](https://img.shields.io/endpoint?url=https://codspeed.io/badge.json)](https://app.codspeed.io/ycoj/ycoj-ui?utm_source=badge)
 
